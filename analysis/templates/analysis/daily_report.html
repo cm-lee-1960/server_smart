@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>일일보고 테스트</title>
+<style>
+table {
+	width: 100%;
+	border: 1px solid #444444;
+	border-collapse: collapse;
+	font-size: 15pt;
+}
+th, td {
+	border: 1px solid #444444;
+	width: 40px;
+}
+p {
+ 	display: inline;
+}
+h2 {
+	display: inline;
+}
+#title {
+	position: relative;
+	left: 25%;
+}
+thead {
+	background-color: lightgrey; 
+	color: black;
+}
+</style>
+<script type="text/javascript"
+	src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script type="text/javascript">
+
+	$(document).ready(
+			function() {
+				
+			var target1, target2, target3, target4, target5, target6, target7, target8, target9, target10, target11, target12 = null;
+				$.getJSON("jsontest1.json", function(result) {
+					target1 = result[0].q;
+					document.getElementById("target1").innerHTML = target1;
+					document.getElementById("target01").innerHTML = target1;
+					target2 = result[0].w;
+					document.getElementById("target2").innerHTML = target2;
+					target3 = result[0].e;
+					document.getElementById("target3").innerHTML = target3;
+					target4 = result[0].r;
+					document.getElementById("target4").innerHTML = target4;
+					target5 = result[0].a;
+					document.getElementById("target5").innerHTML = target5;
+					document.getElementById("target05").innerHTML = target5;
+					target6 = result[0].s;
+					document.getElementById("target6").innerHTML = target6;
+					target7 = result[0].d;
+					document.getElementById("target7").innerHTML = target7;
+					target8 = result[0].f;
+					document.getElementById("target8").innerHTML = target8;
+					target9 = result[0].z;
+					document.getElementById("target9").innerHTML = target9;
+					target10 = result[0].x;
+					document.getElementById("target10").innerHTML = target10;
+					target11 = result[0].c;
+					document.getElementById("target11").innerHTML = target11;
+					target12 = result[0].v;
+					document.getElementById("target12").innerHTML = target12;
+					
+				});
+				
+				
+			});
+</script>
+<script>
+	function printName() {
+		const name = document.getElementById('name').value;
+		document.getElementById("result").innerText = name;
+	}
+	function printName1() {
+		const name = document.getElementById('name1').value;
+		document.getElementById("result1").innerText = name;
+	}
+	function printName2() {
+		const name = document.getElementById('name2').value;
+		document.getElementById("result2").innerText = name;
+	}
+</script>
+
+</head>
+
+<body>
+	<button role="button" id="modify"
+		class="add ui-button ui-button ui-state-default ui-button-text-only">
+		<span class="ui-button-text">수정</span>
+	</button>
+	<button role="button" id="complete"
+		class="add ui-button ui-button ui-state-default ui-button-text-only">
+		<span class="ui-button-text">완료</span>
+	</button>
+	<div style="display: inline" id="editor"></div>
+	<button id="cmd">PDF 다운</button>
+
+	<div id='content'>
+		<div id='title'>
+			<h1 style="display: inline">S-CXI 상황실 일일 보고</h1>
+			<h3 style="display: inline">(</h3>
+			<h3 style="display: inline" id="current_date"></h3>
+			<script>
+				date = new Date();
+				year = date.getFullYear();
+				month = date.getMonth() + 1;
+				day = date.getDate();
+				document.getElementById("current_date").innerHTML = month + "."
+						+ day + "." + year;
+			</script>
+			<h3 style="display: inline">)</h3>
+		</div>
+		<hr class="one" align="left" style="width: 83%;">
+		<br> <br>
+		<div>
+			<h2>□ 측정 현황</h2><h3 style="display: inline">(0일~0일):</h3><h2>전국</h2><h2> 0개</h2><h2> 지역 중</h2><h2> 0개</h2><h2> 완료</h2><h2>(진도율:0%)</h2>
+		</div>
+		<br> 
+		<div>
+			<h2>&nbsp;&nbsp;○ 5G : 전국 </h2><h2 id = "target01"></h2><h2>개 지역 중 </h2><h2 id = "target05"></h2><h2>개 완료</h2><h2>(</h2><h2></h2><h2>%)</h2>
+			<h2 style="color: blue;" id='result'></h2><input id='name' onchange='printName()' autocomplete="off" />
+		</div>
+		<br>
+		
+		<div id="output" style="text-align: center; width: 83%;">
+			<table id="5ghh">
+				<thead>
+					<tr>
+						<th >구분</th>
+						<th >계</th>
+						<th >행정동</th>
+						<th >다중이용시설/<br>교통인프라</th>
+						<th >커버리지</th>
+					</tr>
+				</thead>
+				<tbody>
+				 	<tr>
+				 		<td >대상</td>
+						<td id = "target1"></td>
+						<td id = "target2"></td>
+						<td id = "target3"></td>
+						<td id = "target4"></td>
+					<tr>
+				 		<td >누적</td>
+						<td id = "target5"></td>
+						<td id = "target6"></td>
+						<td id = "target7"></td>
+						<td id = "target8"></td>
+					<tr>
+				 		<td >금일</td>
+						<td id = "target9"></td>
+						<td id = "target10"></td>
+						<td id = "target11"></td>
+						<td id = "target12"></td>
+				</tbody>
+			</table>
+			
+		
+		</div>
+		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
+		<p>※ 행정동 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+		<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
+		<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p><br>
+		<p>※ 다중이용시설/교통인프라 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+		<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
+		<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p>
+		</div>
+			<br><br>
+		<div>
+			<h2>&nbsp;&nbsp;○ LTE : 전국</h2>
+			<h2 id="target1"></h2>
+			<h2>개 지역 중</h2>
+			<h2 id="target2"></h2>
+			<h2>개 완료</h2>
+			<h2>(</h2>
+			<h2 id='target3'></h2>
+			<h2>%)</h2>
+			<h2 style="color: blue;" id='result'></h2>
+			<input id='name' onchange='printName()' autocomplete="off" />
+		</div>
+		<br>
+		<div id="output" style="text-align: center; width: 83%;">
+			<table id="ltehh">
+				<thead>
+					<tr>
+						<th  rowspan = "2">구분</th>
+						<th  rowspan = "2">계</th>
+						<th  colspan = "3">행정동</th>
+						<th  colspan = "2">다중이용시설/<br>교통인프라</th>
+						<th  rowspan = "2">커버리지</th>
+					</tr>
+					<tr>
+						<th >대도시</th>
+						<th >중소도시</th>
+						<th >인빌딩</th>
+						<th >농어촌</th>
+						<th >테마</th>
+					</tr>
+				</thead>
+				<tbody>
+				 	<tr>
+				 		<td >대상</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+				 		<td >누적</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+				 		<td >금일</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<p style="font-size: 10pt;">※서비스 가용률:</p>
+		<p style="font-size: 10pt;" id='result2'></p>
+		<input id='name2' onchange='printName2()' autocomplete="off" />
+		<br>
+		<br>
+		<div>
+			<h2>&nbsp;&nbsp;○ WiFi : 전국</h2>
+			<h2 id="target1"></h2>
+			<h2>개 국소 중</h2>
+			<h2 id="target2"></h2>
+			<h2>국소 완료</h2>
+			<h2>(진도율:</h2>
+			<h2 id='target3'></h2>
+			<h2>%)</h2>
+			<h2 style="color: blue;" id='result'></h2>
+			<input id='name' onchange='printName()' autocomplete="off" />
+		</div>
+		<br>
+		<div id="output" style="text-align: center; width: 83%;">
+			<table id="wifihh">
+				<thead>
+					<tr>
+						<th >구분</th>
+						<th >계</th>
+						<th >상용</th>
+						<th >개방</th>
+					</tr>
+				</thead>
+				<tbody>
+				 	<tr>
+				 		<td >대상</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+				 		<td >누적</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+				 		<td >금일</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<p style="font-size: 10pt;">※행정동:</p>
+		<p style="font-size: 10pt;" id='result1'></p>
+		<input id='name1' onchange='printName1()' autocomplete="off" /> 
+		<br>
+		<br>
+		<div>
+			<h2>&nbsp;&nbsp;○ 품질취약지역 : 전국</h2>
+			<h2 id="target1"></h2>
+			<h2>개 지역 중</h2>
+			<h2 id="target2"></h2>
+			<h2>개 완료</h2>
+			<h2>(진도율:</h2>
+			<h2 id='target3'></h2>
+			<h2>%)</h2>
+			<h2 style="color: blue;" id='result'></h2>
+			<input id='name' onchange='printName()' autocomplete="off" />
+		</div>
+		<br>
+		<div id="output" style="text-align: center; width: 83%;">
+			<table id="pjhh">
+				<thead>
+					<tr>
+						<th >구분</th>
+						<th >계</th>
+						<th >등산로</th>
+						<th >여객항로</th>
+						<th >유인도서</th>
+						<th >해안도로</th>
+					</tr>
+				</thead>
+				<tbody>
+				 	<tr>
+				 		<td >대상</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+				 		<td >누적</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+				 		<td >금일</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<p style="font-size: 10pt;">※행정동:</p>
+		<p style="font-size: 10pt;" id='result1'></p>
+		<input id='name1' onchange='printName1()' autocomplete="off" /> 
+		<br>
+		<br>
+		<div>
+			<h2>□ 측정 결과</h2>
+		</div>
+		<br>
+		<div>
+			<h2>&nbsp;&nbsp;○ 5G : DL 속도</h2>
+			<h2 id="target5"></h2>
+			<h2>Mbps, UL 속도</h2>
+			<h2 id="target6"></h2>
+			<h2>Mbps, LTE 전환율</h2>
+			<h2>(진도율:</h2>
+			<h2 id='target3'></h2>
+			<h2>%)</h2>
+		</div>
+		<br><div id="output1" style="text-align: center; width: 83%;">
+			<table id="5ggg">
+				<thead>
+					<tr>
+						<th  colspan = "2" rowspan = "2">구분<br>(20년 결과)</th>
+						<th  colspan = "2">전송속도(Mbps)</th>
+						<th  rowspan = "2">LTE전환율(%)</th>
+						<th  rowspan = "2">전송성공률(%)</th>
+						<th  rowspan = "2">접속지연(ms)</th>
+					</tr>
+					<tr >
+						<th>DL</th>
+						<th>UL</th>
+					</tr>
+				</thead>
+				<tbody id="graph" >
+					<tr>
+						<td  rowspan = "3">행정동</td>
+						<td >대도시</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >중소도시</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >계</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td  colspan="2">다중이용시설</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td  colspan="2">아파트</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td  colspan="2">대학교</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td  colspan="2">교통인프라</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td  colspan="2">총합</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<p style="font-size: 10pt;">※서비스 가용률:</p>
+		<p style="font-size: 10pt;" id='result2'></p>
+		<input id='name2' onchange='printName2()' autocomplete="off" />
+	
+	
+	<br>
+		<br>
+	
+		<div>
+			<h2>&nbsp;&nbsp;※ 5G 사후 측정(DL 속도):</h2>
+			<h2 style="color: blue;" id='result'></h2>
+			<input id='name' onchange='printName()' autocomplete="off" />
+		</div>
+		<br><div id="output1" style="text-align: center; width: 83%;">
+			<table id="5gsh" style="border: solid 1px black;" >
+				<thead>
+					<tr>
+						<th rowspan = "2">지역<br>(측정수)</th>
+						<th rowspan = "2">20년<br>결과</th>
+						<th colspan = "5">종합</th>
+						<th colspan = "5">행정동</th>
+						<th colspan = "5">다중이용시설/교통/아파트/대학</th>
+					</tr>
+					<tr >
+						<th>KT<br>(본)</th>
+						<th>KT<br>(사후)</th>
+						<th>S사<br>(사후)</th>
+						<th>L사<br>(사후)</th>
+						<th>KT<br>순위</th>
+						<th>KT<br>(본)</th>
+						<th>KT<br>(사후)</th>
+						<th>S사<br>(사후)</th>
+						<th>L사<br>(사후)</th>
+						<th>KT<br>순위</th>
+						<th>KT<br>(본)</th>
+						<th>KT<br>(사후)</th>
+						<th>S사<br>(사후)</th>
+						<th>L사<br>(사후)</th>
+						<th>KT<br>순위</th>
+						
+				</thead>
+				<tbody id="graph" >
+					<tr>
+						<td >종합</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >서울</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >인천</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >울산</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >대구</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >광주</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >대전</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >경기</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >경북</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >전남</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >전북</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >충남</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >충북</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+					<tr>
+						<td >세종</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+						<td >0</td>
+					</tr>
+						
+				</tbody>
+			</table>
+		</div>
+		<p style="font-size: 10pt;">※서비스 가용률:</p>
+		<p style="font-size: 10pt;" id='result2'></p>
+		<input id='name2' onchange='printName2()' autocomplete="off" />
+</div>
+	<script>
+		$("#name").hide();
+		$("#name1").hide();
+		$("#name2").hide();
+
+		$('#modify').click(function() {
+
+			$("#name").show();
+			$("#name1").show();
+			$("#name2").show();
+
+		});
+		$('#complete').click(function() {
+
+			$("#name").hide();
+			$("#name1").hide();
+			$("#name2").hide();
+
+		});
+	</script>
+	<script>
+		$('#cmd').click(
+				function() {
+					var doc = new jsPDF();
+					var specialElementHandlers = {
+						'#editor' : function(element, renderer) {
+							return true;
+						}
+					};
+					html2canvas($('#content'), {
+
+						onrendered : function(canvas) {
+							var imgData = canvas.toDataURL('jpeg');
+							var imgWidth = 210; // 이미지 가로 길이(mm) A4 기준
+							var pageHeight = imgWidth * 1.414; // 출력 페이지 세로 길이 계산 A4 기준
+							var imgHeight = canvas.height * imgWidth / canvas.width;
+							var heightLeft = imgHeight;
+							var margin = 20; // 출력 페이지 여백설정
+							var position = 10;
+							var doc = new jsPDF("p", "mm");
+
+							doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+							heightLeft -= pageHeight;
+							// 한 페이지 이상일 경우 루프 돌면서 출력
+							while (heightLeft >= 0) {
+								position += heightLeft - imgHeight;
+								doc.addPage();
+								doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+								heightLeft -= pageHeight;
+							}
+							doc.save('test.pdf');
+
+						}
+					});
+				});
+	</script>
+
+</body>
+</html>
