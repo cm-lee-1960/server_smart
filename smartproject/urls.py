@@ -22,4 +22,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path("monitor/", include("monitor.urls")),
     path("analysis/", include("analysis.urls")),
+    path("telemsg/", include("telemsg.urls")),
 ]

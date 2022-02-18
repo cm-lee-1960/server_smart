@@ -11,10 +11,10 @@ def set_updater(bot_token):
 ## 버튼식 기능 (~115줄)
 def select_s(update, context):
     reply_markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton('5G', callback_data='5G')],
-        [InlineKeyboardButton('LTE', callback_data='LTE')],
-        [InlineKeyboardButton('3G', callback_data='3G')],
-        [InlineKeyboardButton('WiFi', callback_data='WiFi')]])
+        [InlineKeyboardButton('5G', callback_data='5G'),
+        InlineKeyboardButton('LTE', callback_data='LTE')],
+        [InlineKeyboardButton('3G', callback_data='3G'),
+        InlineKeyboardButton('WiFi', callback_data='WiFi')]])
     context.bot.send_message(chat_id=update.message.chat_id, text='조회할 서비스를 선택하세요.', reply_markup=reply_markup)
     return 'step2'
 
