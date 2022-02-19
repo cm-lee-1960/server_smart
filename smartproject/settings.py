@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    # 'django_crontab',
+    'django_crontab',
     'monitor',
     'analysis',
     'telemsg',
@@ -127,6 +127,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CRONJOBS = [
-#     ('*/5 * * * *', 'monitor.cron.measuring_end_check')
-# ]
+
+# CRONTAB_DJANGO_SETTINGS_MODULE = 'config.settings.deploy'
+CRONTAB_COMMAND_SUFFIX = '2>&1'
+CRONJOBS = [
+    ('* * * * *', 'monitor.cron.measuring_end_check', '>> /tmp/cron.log'),
+]
