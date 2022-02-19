@@ -1,13 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-#from .models import Restapp
-#from .serializers import RestappSerializer
 from rest_framework.parsers import JSONParser
-from .models import Phone, MeasureCallData, MeasureSecondData
-# from telemsg.tele_msg_old import send_message_bot
+from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
+from .events import event_occur_check
 
-# Create your views here.
+
 
 @csrf_exempt
 def receive_json(request):
@@ -25,20 +23,38 @@ def receive_json(request):
     #            - userInfo2, groupId
     #            - Goupp - Phone - MeasureData
     #-------------------------------------------------------------------------------------------------
+    # 첫번째 측정 데이터인 경우 측정 단말기 그룹을 확인한다. 
+    qs = PhoneGroup.objects.filter(groupId=data['groupId'], userInfo1=data['userInfo1'], active=True)
+    if qs.exists():
+        phoneGroup = qs[0]    
+    else:
+        # 측정 단말기 그룹을 생성한다. 
+        phoneGroup = PhoneGroup.objects.create(
+                        groupId=data['groupId'],
+                        userInfo1=data['userInfo1'],
+                        active=True  
+                        )
+    
+    # 측정 단말기를 조회한다.
     phone_no = data['phone_no']
-    # phone = Phone.objects.get() -- 없는 경우 오류발생
-    qs= Phone.objects.filter(phone_no=phone_no)
+    print("phoneGroup:", phoneGroup)
+    # qs= Phone.objects.filter(phone_no=phone_no, active=True)
+    qs = phoneGroup.phone_set.all().filter(phone_no=phone_no, active=True)
     if qs.exists():
         phone = qs[0]
     else:
         # 측정 단말기를 생성한다. 
+        phone_type = 'DL' if data['downloadBandwidth'] else 'UP'
         phone = Phone.objects.create(
-            phone_no=phone_no,
-            avg_downloadBandwidth=data['downloadBandwidth'],
-            avg_uploadBandwidth=data['uploadBandwidth'],
-            status='START',
-            total_count=data['currentCount']
-            )
+                    phoneGroup = phoneGroup,
+                    phone_type=phone_type,
+                    phone_no=phone_no,
+                    avg_downloadBandwidth=0.0,
+                    avg_uploadBandwidth=0.0,
+                    status='START',
+                    total_count=data['currentCount'],
+                    active=True
+                    )
 
     # -------------------------------------------------------------------------------------------------
     # 실시간 측정 데이터 유형에 따라서 데이터를 등록한다(콜단위, 초단위).
@@ -46,15 +62,16 @@ def receive_json(request):
     # [ 콜단위 ] - 메시지 전송, 품질정보
     # [ 초단위 ] - 속도 업데이트, 이벤트처리
     #------------------------------------------------------------------------------------------------- 
-    # 초단위 측정 데이터를 등록한다.   
-    msdata = MeasureSecondData.objects.create(
-        phone = phone,
-        **data
-        )
+    if data['dataType'] == 'call':
+        # 콜단위 측정 데이터를 등록한다. 
+        mdata = MeasureCallData.objects.create(phone=phone, **data)
+    else:
+        # 초단위 측정 데이터를 등록한다. 
+        mdata = MeasureSecondData.objects.create(phone=phone, **data)
     
     # 측정 단말기의 통계값들을 업데이트 한다. 
     # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
-    phone.update_info(msdata)
+    phone.update_info(mdata)
 
     # -------------------------------------------------------------------------------------------------
     # 관리대상 식별기준
@@ -72,7 +89,7 @@ def receive_json(request):
         phone.make_message()
 
         # 이벤트 발생여부를 체크한다. 
-        phone.event_occur_check()
+        event_occur_check(mdata)
     
     return HttpResponse("Success")
 
