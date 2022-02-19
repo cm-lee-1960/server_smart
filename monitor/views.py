@@ -13,7 +13,7 @@ def receive_json(request):
         return HttpRespose("Error")
     data = JSONParser().parse(request)
     print(data)
-  
+
     # -------------------------------------------------------------------------------------------------
     # 전화번호에 대한 특정 단말이 있는지 확인한다.
     # * 측정중인 단말이 있으면 가져오고,
@@ -44,16 +44,17 @@ def receive_json(request):
         phone = qs[0]
     else:
         # 측정 단말기를 생성한다. 
-        phone_type = 'DL' if data['downloadBandwidth'] else 'UP'
+        phone_type = 'DL' if data['downloadBandwidth'] else 'UL'
         phone = Phone.objects.create(
                     phoneGroup = phoneGroup,
                     phone_type=phone_type,
                     phone_no=phone_no,
+                    networkId=data['networkId'],
                     avg_downloadBandwidth=0.0,
                     avg_uploadBandwidth=0.0,
                     status='START',
                     total_count=data['currentCount'],
-                    active=True
+                    active=True,
                     )
 
     # -------------------------------------------------------------------------------------------------

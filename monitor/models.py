@@ -72,6 +72,7 @@ class Phone(models.Model):
         print("make_message()함수 시작")
         # settings.PHONE_STATUS 변수로 선언해도 될지 고민 예정임
         # 2022.01.17 Power On/Off는 데이터 추가해 달라고 하겠음
+        channelId = '-736183270' 
         status = ['POWERON', 'START', 'MEASURING', 'END']
         # 측정 진행 메시지는 DL/UP 측정 단말기의 현재 콜 카운트가 같고, 3, 10, 27, 37, 57 콜 단위로 보고함
         if self.status in status and self.phoneGroup.current_count_check():
@@ -87,7 +88,7 @@ class Phone(models.Model):
                 'POWERON': "OO지역 단말이 켜졌습니다.",
                 'START': f"측정을 시작합니다.\n{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
                 'MEASURING': f"{self.total_count}번째 측정 데이터입니다.\n{avg_downloadBandwidth:.1f} / {avg_downloadBandwidth:.1f}",
-                "END": f"측정이 종료되었습니다(총{self.total_count}건).\n{avg_downloadBandwidth:.1f} / {avg_downloadBandwidth:.1f}",
+                'END': f"측정이 종료되었습니다(총{self.total_count}건).\n{avg_downloadBandwidth:.1f} / {avg_downloadBandwidth:.1f}",
                 }
 
             # 전송 메시지를 생성한다. 
@@ -95,7 +96,8 @@ class Phone(models.Model):
                 phone = self,
                 send_type = 'TELE',
                 currentCount = self.total_count,
-                message = messages[self.status]
+                message = messages[self.status],
+                channelId = channelId
             )
 
 

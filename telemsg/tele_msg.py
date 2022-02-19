@@ -7,13 +7,11 @@ bot_token = '5295955513:AAE7eyfD0xUANk-ZjKAsIhti_pXoV_eh_KM'
 
 # bot 설정
 bot = telegram.Bot(bot_token)
-mc = '-736183270' 
+
 
 # 단순 메시지 전송
 def send_message_bot(sender, **kwargs):
-# def send_message(chat_id, msg):
-    # bot.send_message(chat_id=mc, text=msg)
-    bot.sendMessage(mc, text=kwargs['instance'].message)
+    bot.sendMessage(kwargs['instance'].channelId, text=kwargs['instance'].message)
 
 
 # 챗봇 활성화
