@@ -7,13 +7,9 @@ import json
 import requests
 
 class KakaoLocalAPI:
-    """
-    Kakao Local API 컨트롤러
-    """
+    '''Kakao Local API 컨트롤러'''
     def __init__(self, rest_api_key):
-        """
-        Rest API키 초기화 및 기능 별 URL 설정
-        """
+        '''Rest API키 초기화 및 기능 별 URL 설정'''
         # REST API 키 설정
         self.rest_api_key = rest_api_key
         self.headers = {"Authorization": "KakaoAK {}".format(rest_api_key)}
@@ -30,9 +26,7 @@ class KakaoLocalAPI:
     # 01 주소 검색
     #--------------------------------------------------------------------------------------------------
     def search_address(self, query, analyze_type=None, page=None, size=None):
-        """
-        01 주소 검색
-        """
+        '''01 주소 검색'''
         params = {"query": f"{query}"}
 
         if analyze_type != None:
@@ -51,9 +45,7 @@ class KakaoLocalAPI:
     # 02 좌표-행정구역정보 변환
     #--------------------------------------------------------------------------------------------------
     def geo_coord2regioncode(self, x, y, input_coord=None, output_coord=None):
-        """
-        02 좌표-행정구역정보 변환
-        """
+        '''02 좌표-행정구역정보 변환'''
         params = {"x": f"{x}",
                   "y": f"{y}"}
         
@@ -72,9 +64,7 @@ class KakaoLocalAPI:
     # 03 좌표-주소 변환
     #--------------------------------------------------------------------------------------------------    
     def geo_coord2address(self, x, y, input_coord=None):
-        """
-        03 좌표-주소 변환
-        """
+        '''03 좌표-주소 변환'''
         params = {"x": f"{x}",
                   "y": f"{y}"}
         
@@ -90,9 +80,7 @@ class KakaoLocalAPI:
     # 04 좌표계 변환
     #--------------------------------------------------------------------------------------------------  
     def geo_transcoord(self, x, y, output_coord, input_coord=None):
-        """
-        04 좌표계 변환
-        """
+        '''04 좌표계 변환'''
         params = {"x": f"{x}",
                   "y": f"{y}",
                   "output_coord": f"{output_coord}"}
@@ -109,9 +97,7 @@ class KakaoLocalAPI:
     # 05 키워드 검색
     #--------------------------------------------------------------------------------------------------     
     def search_keyword(self,query,category_group_code=None,x=None,y=None,radius=None,rect=None,page=None,size=None,sort=None):
-        """
-        05 키워드 검색
-        """
+        '''05 키워드 검색'''
         params = {"query": f"{query}"}
         
         if category_group_code != None:
@@ -140,9 +126,7 @@ class KakaoLocalAPI:
     # 06 카테고리 검색
     #--------------------------------------------------------------------------------------------------       
     def search_category(self, category_group_code, x, y, radius=None, rect=None, page=None, size=None, sort=None):
-        """
-        06 카테고리 검색
-        """
+        '''06 카테고리 검색'''
         params = {'category_group_code': f"{category_group_code}",
                   'x': f"{x}",
                   'y': f"{y}"}

@@ -11,7 +11,7 @@ from .models import Phone
 #         model = Phone
 #         fields = '__all__'
 class PhoneAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 측정단말 리스를 보여주기 위한 클래스'''
+    '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
     # form = PhoneForm
     list_display = ['phone_type', 'phone_no', 'networkId', 'avg_downloadBandwidth', \
         'avg_uploadBandwidth', 'status', 'total_count', 'last_updated_at', 'active']

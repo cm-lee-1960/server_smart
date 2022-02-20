@@ -21,7 +21,7 @@ def receive_json(request):
     # * 측정중인 단말이 없으면 새로운 측정단말을 등록한다(테이블에 등록)
     # ★ ★ ★ ★ 새롭게 발견된 사항  ★ ★ ★ ★ ★ ★ ★ ★
     # 2022.01.18 - 측정시 UL/DL 두개의 단말기로 측정하기 때문에 두개를 묶어서 처리하는 모듈 반영 필요
-    #            - userInfo2, groupId
+    #            - userInfo1, groupId
     #            - Goupp - Phone - MeasureData
     #-------------------------------------------------------------------------------------------------
     # 첫번째 측정 데이터인 경우 측정 단말기 그룹을 확인한다. 
@@ -83,13 +83,17 @@ def receive_json(request):
     # 1) 통신사
     # - KT 측정 데이터(ispId = 45008)인 경우만 메시지 및 이벤트 처리를 한다.  
     # - MCC : 450(대한민국), MNC: 08(KT), 05(SKT), 60(LGU+) 
-    # 2) 커버리지 유형(테마, 인빌딩, 행정동) -- 그때 그때 바뀌기 때분에 확인해야 함(관리정보 대상)
+    # 2) 측졍유형(테마, 인빌딩, 행정동, 커버리지) -- 그때 그때 바뀌기 때분에 확인해야 함(관리정보 대상)
     # - ★★★어떤 유형으로 사용하는지 확인 필요
     # - 예) 테-재효-2-d3, 행-용택-1, 인빌딩은 어떻게 표시되지?
     # - 예) 커-재효-2-d3, 커버리지 1조
+    # 3) 측정종류
+    # - 측정종류가 속도(speed)인 경우만 메시지 및 이벤트 처리를 한다.
+    # - 예) speed / latency / web
     #-------------------------------------------------------------------------------------------------
     if data['ispId'] == '45008' and \
-        (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")):
+        (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
+        data['testNetworkType'] == 'speed':
         # 전송 메시지를 생성한다.
         phone.make_message()
 
