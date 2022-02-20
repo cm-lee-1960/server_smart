@@ -97,7 +97,7 @@ def out_measuring_range(mdata):
     input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
     result = kakao.geo_coord2address(mdata.longitude, mdata.latitude, input_coord)
-    print("out_measuring_range():", result)
+    # print("out_measuring_range():", result)
     # {'meta': {'total_count': 1}, 
     #   'documents': [
     #       {'road_address': None, 
@@ -105,7 +105,11 @@ def out_measuring_range(mdata):
     #       {'address_name': '강원 춘천시 동내면 사암리 산 121-1', 'region_1depth_name': '강원', 
     #       'region_2depth_name': '춘천시', 'region_3depth_name': '동내면 사암리', 'mountain_yn': 'Y', 
     #       'main_address_no': '121', 'sub_address_no': '1', 'zip_code': ''}}]}
+    # meta,
+    # document -> road_address
+    #          -> address -> region_3depth_name
     # 좌표(위도,경도)로 찾은 주소와 어떤 것을 비교할지? 고민필요
+    # userInfo1가 위도,경도 좌표로 변환한 행정동을 포함하고 있는지 확인
     try: 
         region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
         if mdata.userInfo1.find(region_3depth_name) == -1:

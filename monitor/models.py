@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models.signals import post_save
 from telemsg.tele_msg_old import send_message_bot
+import logging
+logger = logging.getLogger(__name__)
 
 ###################################################################################################
 # 측정 단말기 그룹정보
@@ -48,7 +50,8 @@ class Phone(models.Model):
         # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
         dl_sum, up_sum, total_count = 0, 0, 0
         for mdata in self.measurecalldata_set.all():
-            print("콜단위 데이터" + str(mdata))
+            logger.info("콜단위 데이터" + str(mdata))
+            # print("콜단위 데이터" + str(mdata))
             dl_sum += mdata.downloadBandwidth if mdata.downloadBandwidth else 0
             up_sum += mdata.uploadBandwidth if mdata.uploadBandwidth else 0
             total_count += 1

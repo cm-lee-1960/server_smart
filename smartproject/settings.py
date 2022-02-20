@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from os.path import join
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -133,3 +134,43 @@ CRONTAB_COMMAND_SUFFIX = '2>&1'
 CRONJOBS = [
     ('* * * * *', 'monitor.cron.measuring_end_check', '>>' + str(BASE_DIR) + '/monitor/cron.log'),
 ]
+
+# 로깅
+# logger.debug()
+# logger.info()
+# logger.warning()
+# logger.error()
+# logger.critical()
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'fileFormat': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
+            'datefmt': '%d/%b/%Y %H:%M:%S'
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': join(BASE_DIR, 'logs/smart.log'),
+            'formatter': 'fileFormat'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+
+    },
+    'loggers': {
+        'post': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+        },
+        'django.db.backends': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+        },
+    }
+}
