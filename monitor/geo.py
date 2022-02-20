@@ -1,10 +1,8 @@
-
 ###################################################################################################
 # 좌표(위도,경도) 및 주소 변환 모듈
 # - 카카오 개발문서 : https://developers.kakao.com/docs/latest/ko/local/dev-guide
-# - 인터넷 샘플소스 : https://wooiljeong.github.io/python/kakao_local_api/
-#                 (카카오 로컬 API 파이썬 컨트롤러 만들기)
-################################################################################################### 
+#################################################################################################### 
+
 import json
 import requests
 
@@ -27,7 +25,6 @@ class KakaoLocalAPI:
         self.URL_04 = "https://dapi.kakao.com/v2/local/geo/transcoord.json" # 04 좌표계 변환
         self.URL_05 = "https://dapi.kakao.com/v2/local/search/keyword.json" # 05 키워드 검색
         self.URL_06 = "https://dapi.kakao.com/v2/local/search/category.json" # 06 카테고리 검색
-
 
     # -------------------------------------------------------------------------------------------------
     # 01 주소 검색
