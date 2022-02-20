@@ -134,7 +134,7 @@ def call_staying_check(mdata):
     count = len(mdata_list)
     callstay = True
     # 이동거리를 확인하기 위해서는 측정값이 4건 이상 있어야 한다.
-    if count >= 3:
+    if count >= 4:
         for idx, md in enumerate(mdata_list[count-1::-1]):
             if idx == 0:
                 before_loc = (md.latitude, md.longitude)
@@ -149,6 +149,8 @@ def call_staying_check(mdata):
                     break
                 before_loc = current_loc
             if idx >= 3 : break
+    else:
+        callstay = False
     if callstay: 
         return 'CALLSTAY' 
     else:

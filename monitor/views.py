@@ -4,15 +4,15 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
 from .events import event_occur_check
-
-
+import logging
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def receive_json(request):
     if request.method != 'POST':
         return HttpRespose("Error")
     data = JSONParser().parse(request)
-    print(data)
+    # print(data)
 
     # -------------------------------------------------------------------------------------------------
     # 전화번호에 대한 특정 단말이 있는지 확인한다.
@@ -42,6 +42,8 @@ def receive_json(request):
     qs = phoneGroup.phone_set.all().filter(phone_no=phone_no, active=True)
     if qs.exists():
         phone = qs[0]
+        phone.active = True
+        phone.save()
     else:
         # 측정 단말기를 생성한다. 
         phone_type = 'DL' if data['downloadBandwidth'] else 'UL'

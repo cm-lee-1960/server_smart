@@ -38,7 +38,7 @@ class Phone(models.Model):
     avg_downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name='DL')
     avg_uploadBandwidth =models.FloatField(null=True, default=0.0, verbose_name='UL')
     status = models.CharField(max_length=10, null=True, verbose_name='진행단계')
-    total_count = models.IntegerField(null=True, default=0, verbose_name='현재 콜 카운트')
+    total_count = models.IntegerField(null=True, default=0, verbose_name='콜 카운트')
     active = models.BooleanField(default=True, verbose_name='상태')
 
     def __str__(self):
@@ -141,8 +141,8 @@ class MeasureCallData(models.Model):
     NR_PCI = models.IntegerField(null=True, blank=True) # 5G CI
     NR_RSRP = models.FloatField(null=True, blank=True) # 5G PCI
     NR_SINR = models.FloatField(null=True, blank=True) # 5G SINR
-    before_lat = models.FloatField(null=True, blank=True) # 이전 위도
-    before_lon = models.FloatField(null=True, blank=True) # 이전 경도
+    # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
+    # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
 
     def __str__(self):
          return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}/"
@@ -185,8 +185,8 @@ class MeasureSecondData(models.Model):
     NR_PCI = models.IntegerField(null=True, blank=True) # 5G CI
     NR_RSRP = models.FloatField(null=True, blank=True) # 5G PCI
     NR_SINR = models.FloatField(null=True, blank=True) # 5G SINR
-    before_lat = models.FloatField(null=True, blank=True) # 이전 위도
-    before_lon = models.FloatField(null=True, blank=True) # 이전 경도
+    # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
+    # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
 
 
     def __str__(self):
