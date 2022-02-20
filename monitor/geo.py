@@ -161,3 +161,4 @@ class KakaoLocalAPI:
         res = requests.get(self.URL_06, headers=self.headers, params=params)
         document = json.loads(res.text)
 
+        return document
