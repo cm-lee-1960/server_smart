@@ -16,9 +16,11 @@ Including another URLconf
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
+from monitor.admin import monitor_site
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('monitoradmin/', monitor_site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path("monitor/", include("monitor.urls")),
     path("analysis/", include("analysis.urls")),

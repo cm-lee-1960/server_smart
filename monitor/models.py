@@ -33,13 +33,17 @@ class Phone(models.Model):
     '''측정 단말기 정보'''
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     phone_type = models.CharField(max_length=5, verbose_name='구분')
-    phone_no = models.BigIntegerField(verbose_name='전화번호')
+    phone_no = models.BigIntegerField(verbose_name='측정단말')
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name='유형') # 네트워크ID(5G, LTE, 3G, WiFi)    
     avg_downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name='DL')
     avg_uploadBandwidth =models.FloatField(null=True, default=0.0, verbose_name='UL')
     status = models.CharField(max_length=10, null=True, verbose_name='진행단계')
     total_count = models.IntegerField(null=True, default=0, verbose_name='콜 카운트')
     active = models.BooleanField(default=True, verbose_name='상태')
+
+    class Meta:
+        verbose_name = ('측정단말')
+        verbose_name_plural = ('측정단말')
 
     def __str__(self):
         return f"{self.phone_type}/{self.phone_no}/{self.avg_downloadBandwidth}/{self.avg_uploadBandwidth}/{self.total_count}"
