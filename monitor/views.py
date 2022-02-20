@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def receive_json(request):
+    '''JSON 데이터를 받아서 처리한다.'''
     if request.method != 'POST':
         return HttpRespose("Error")
     data = JSONParser().parse(request)
@@ -56,6 +57,7 @@ def receive_json(request):
                     avg_uploadBandwidth=0.0,
                     status='START',
                     total_count=data['currentCount'],
+                    last_updated=data['meastime'],
                     active=True,
                     )
 

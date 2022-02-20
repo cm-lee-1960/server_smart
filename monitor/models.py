@@ -15,6 +15,7 @@ class PhoneGroup(models.Model):
 
     # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.
     def current_count_check(self):
+        '''DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다.'''
         currentCountList = []
         for p in self.phone_set.all():
             currentCountList.append(p.total_count)
@@ -39,6 +40,7 @@ class Phone(models.Model):
     avg_uploadBandwidth =models.FloatField(null=True, default=0.0, verbose_name='UL')
     status = models.CharField(max_length=10, null=True, verbose_name='진행단계')
     total_count = models.IntegerField(null=True, default=0, verbose_name='콜 카운트')
+    last_updated = models.BigIntegerField(null=True, blank=True, verbose_name='최종보고시간') # 최종 위치보고시간
     active = models.BooleanField(default=True, verbose_name='상태')
 
     class Meta:
@@ -50,6 +52,7 @@ class Phone(models.Model):
     
     # 측정 단말기의 통계정보를 업데이트 한다.
     def update_info(self, mdata):
+        '''측정단말의 통계정보를 업데이트 한다.'''
         # DL/UL 평균속도를 업데이트 한다.
         # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
         dl_sum, up_sum, total_count = 0, 0, 0
@@ -71,11 +74,15 @@ class Phone(models.Model):
         # 상태 - 'POWERON', 'START', 'MEASURING', 'END'
         self.status = 'START' if self.total_count == 1 else 'MEASURING'
 
+        # 최종 위치보고시간을 업데이트 한다. 
+        self.last_updated = mdata.meastime
+
         # 단말기의 정보를 데이터베이스에 저장한다. 
         self.save()
 
     # 측정 단말기의 상태에 따라서 전송 메시지를 생성한다.
     def make_message(self):
+        '''측정단말의 상태에 따라서 메시지를 작성한다.'''
         print("make_message()함수 시작")
         # settings.PHONE_STATUS 변수로 선언해도 될지 고민 예정임
         # 2022.01.17 Power On/Off는 데이터 추가해 달라고 하겠음

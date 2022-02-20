@@ -11,13 +11,24 @@ from .models import Phone
 #         model = Phone
 #         fields = '__all__'
 class PhoneAdmin(admin.ModelAdmin):
+    '''어드민 페이지에 측정단말 리스를 보여주기 위한 클래스'''
     # form = PhoneForm
     list_display = ['phone_type', 'phone_no', 'networkId', 'avg_downloadBandwidth', \
-        'avg_uploadBandwidth', 'status', 'total_count', 'active']
+        'avg_uploadBandwidth', 'status', 'total_count', 'last_updated_at', 'active']
     list_display_links = ['phone_no']
     search_fields = ('phone_no', )
     list_filter = ['active',]
+
+    # 최종 위치보고시간을 출력한다(Integer -> String)
+    def last_updated_at(self, phone):
+        s = str(phone.last_updated)
+        # 202201172315000
+        return s[0:4]+'-'+s[4:6]+'-'+s[6:8]+' '+s[8:10]+':'+s[10:12]+':'+s[12:14]
+
+    last_updated_at.short_description = '최종 위치보고시간'
+
 class MonitorAdminArea(admin.AdminSite):
+    '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
     index_title = "단말상태 관리"
     site_header = "스마트 상황실 관리"
     site_title = "스마트 상활실"
