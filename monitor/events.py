@@ -1,4 +1,5 @@
-from haversine import haversine
+from haversine import haversine # 이동거리
+# from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
 from .models import Message
 
 ###################################################################################################
@@ -26,12 +27,15 @@ def event_occur_check(mdata):
     event_code = call_staying_check(mdata)
     if event_code: make_event_message(mdata, event_code)
 
-
+# -------------------------------------------------------------------------------------------------
+# 속도저하(Low Throughput) 발생여부 확인
+#--------------------------------------------------------------------------------------------------
 def low_throughput_check(mdata):
     '''속도저하(Low Throughput) 발생여부 확인
         - 품질기준(5G DL: 12M, UL: 2M, LTE DL: 6M, UL: 1M, 3G DL: 256K, UL: 128K
         - 품질취약 LTE 1M, UL: 0.5, 3G DL: 256K, UL 128K
         - 취약지구는 '~산로' 등 특정문구가 들어간 것으로 식별을 해야 하는데, 어려움이 있음(관리자 지정해야? -> 정보관리 대상)
+        - return 'LOWTHR'
     '''
     low_throughput_table = {
         '5G' : {'DL': 12, 'UL': 2},
@@ -39,11 +43,19 @@ def low_throughput_check(mdata):
         '3G' : {'DL': 256/1024, 'UL': 128/1024} }
     phone = mdata.phone
     values = {'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth}
-    if phone.networkId in list(low_throughput_table.keys()):
-        if values[phone.phone_type] < low_throughput_table[phone.networkId][phone.phone_type]:
-            return 'LOWTHR'
+    try:
+        if phone.networkId in list(low_throughput_table.keys()):
+            if values[phone.phone_type] < low_throughput_table[phone.networkId][phone.phone_type]:
+                return 'LOWTHR'
+    except Exception as e:  
+        print("low_throughput_check():"+str(e))
+        return None
+
     return None
 
+# -------------------------------------------------------------------------------------------------
+# 음성 콜 드랍 발생여부 확인
+#--------------------------------------------------------------------------------------------------
 def voice_call_drop_check(mdata):
     ''' 음성 콜 드랍 발생여부 확인
         - 품질 취약 VoLTE call drop/setup fail, 3G call drop/setup fail
@@ -51,30 +63,73 @@ def voice_call_drop_check(mdata):
     # 2022.01.17 DB가 다르기 때문에 나중에 알려 주겠음
     return None
 
+# -------------------------------------------------------------------------------------------------
+# 5G에서 LTE료 전환여부 확인
+#--------------------------------------------------------------------------------------------------
 def fivgtolte_trans_check(mdata):
     ''' 5G에서 LTE료 전환여부 확인
         - 5G 측정시 LTE로 데이터가 전환되는 경우
+        - return 'FIVETOLTE'
     '''
     if mdata.phone.networkId != mdata.networkId:
         return 'FIVETOLTE'
     return None
 
+# -------------------------------------------------------------------------------------------------
+# 단말이 측정범위를 벗어났는지 확인
+#--------------------------------------------------------------------------------------------------
 def out_measuring_range(mdata):
     ''' 단말이 측정범위를 벗어났는지 확인
         - 측정하는 행정동을 벗어나서 측정이 되는 경우
         - (아이디어) 행정동을 벗어남이 의심된다는 메시지 + 위치 지도 이미지도 함께 전송
     '''
+    # 2.20 역지오코딩 - 도로명 주소로 반환됨
+    # geolocator = Nominatim(user_agent="myGeolocator")
+    # location = geolocator.reverse(str(mdata.latitude) + ',' + str(mdata.longitude))
+    # # Location(춘천 휴게소 (부산 방향), 중앙고속도로, 학곡리, 춘천시, 강원도, 24408, 대한민국, (37.81239415, 127.76644245655564, 0.0))
+    # print("out_measuring_range():", location)
+
+
+
     return None
 
+# -------------------------------------------------------------------------------------------------
+# 측정단말이 한곳에 머무는지 확인
+#--------------------------------------------------------------------------------------------------
 def call_staying_check(mdata):
     ''' 측정단말이 한곳에 머무는지 확인
         - 타사 측정단말에 문제가 발생하여 조치를 하거나 차량에 문제가 있거나 등 한곳에 오랫동안 멈는 경우가 있는데,
           이렇게 한곳에 멈춰 있는 경우 보고 대상임
+        - 이동거리가 5미터 이내 연속해서 3회 이상 발생하면 한 곳에 머무는 것으로 판단 <- 기준확인 필요
+        - return 'CALLSTAY'
     '''
-    for md in mdata.phone.measurecalldata_set.all():
-        pass
-    return None
+    mdata_list = mdata.phone.measurecalldata_set.all()
+    count = len(mdata_list)
+    callstay = True
+    # 이동거리를 확인하기 위해서는 측정값이 4건 이상 있어야 한다.
+    if count >= 3:
+        for idx, md in enumerate(mdata_list[count-1::-1]):
+            if idx == 0:
+                before_loc = (md.latitude, md.longitude)
+            else:
+                # 두 측정저점간의 이동거리를 계산한다. 
+                current_loc = (md.latitude, md.longitude)
+                distance = haversine(before_loc, current_loc) * 1000 # 미터(meters)
+                # print("call_staying_check():", idx, str(md), distance, before_loc, current_loc)
+                # 측정 단말기 이동거리가 5M 이상이 되면 한곳에 머무르지 않고, 이동하는 것으로 판단한다.
+                if distance > 5 :
+                    callstay = False
+                    break
+                before_loc = current_loc
+            if idx >= 3 : break
+    if callstay: 
+        return 'CALLSTAY' 
+    else:
+        return None
 
+# -------------------------------------------------------------------------------------------------
+# 이벤트 메시지 작성 함수
+#--------------------------------------------------------------------------------------------------
 def make_event_message(mdata, evnet_code):
     '''이벤트 메시지 작성 함수'''
     channelId = '-736183270' 
@@ -86,8 +141,8 @@ def make_event_message(mdata, evnet_code):
         'LOWTHR': f"속도저하(Low Throughput)가 발생했습니다.\n{phone_type}/{bandwidth:.1f}",
         'CALLDROP': "음성 콜 드랍이 발생했습니다.",
         'FIVETOLTE':"5G에서 LTE 전환되었습니다.",
-        'OUTRANGE': "단말이 측정범위를 벗어났습니다.",
-        'CALLSTAY': "단말이 한곳에 머물러 있습니다.",
+        'OUTRANGE': "측정단말이 측정범위를 벗어났습니다.",
+        'CALLSTAY': "측정단말이 한곳에 머물러 있습니다.",
         }
 
     # 전송 메시지를 생성한다.

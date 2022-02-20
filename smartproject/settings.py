@@ -131,5 +131,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CRONTAB_DJANGO_SETTINGS_MODULE = 'config.settings.deploy'
 CRONTAB_COMMAND_SUFFIX = '2>&1'
 CRONJOBS = [
-    ('* * * * *', 'monitor.cron.measuring_end_check', '>> /tmp/cron.log'),
+    ('* * * * *', 'monitor.cron.measuring_end_check', '>>' + str(BASE_DIR) + '/monitor/cron.log'),
 ]
