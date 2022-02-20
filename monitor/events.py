@@ -1,6 +1,8 @@
 from haversine import haversine # 이동거리
 # from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
+import requests
 from .models import Message
+from .geo import KakaoLocalAPI
 
 ###################################################################################################
 # 이벤트 발생여부를 체크하는 모듈
@@ -82,16 +84,37 @@ def out_measuring_range(mdata):
     ''' 단말이 측정범위를 벗어났는지 확인
         - 측정하는 행정동을 벗어나서 측정이 되는 경우
         - (아이디어) 행정동을 벗어남이 의심된다는 메시지 + 위치 지도 이미지도 함께 전송
+        - return 
     '''
     # 2.20 역지오코딩 - 도로명 주소로 반환됨
     # geolocator = Nominatim(user_agent="myGeolocator")
     # location = geolocator.reverse(str(mdata.latitude) + ',' + str(mdata.longitude))
-    # # Location(춘천 휴게소 (부산 방향), 중앙고속도로, 학곡리, 춘천시, 강원도, 24408, 대한민국, (37.81239415, 127.76644245655564, 0.0))
+    # Location(영서로, 학곡리, 춘천시, 강원도, 24408, 대한민국, (37.81069349300918, 127.7657987426381, 0.0))
     # print("out_measuring_range():", location)
 
+    rest_api_key = "9daef46439c87ea1a53391feb26ebb8b"
+    kakao = KakaoLocalAPI(rest_api_key)
+    input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
-
-    return None
+    result = kakao.geo_coord2address(mdata.longitude, mdata.latitude, input_coord)
+    print("out_measuring_range():", result)
+    # {'meta': {'total_count': 1}, 
+    #   'documents': [
+    #       {'road_address': None, 
+    #       'address': 
+    #       {'address_name': '강원 춘천시 동내면 사암리 산 121-1', 'region_1depth_name': '강원', 
+    #       'region_2depth_name': '춘천시', 'region_3depth_name': '동내면 사암리', 'mountain_yn': 'Y', 
+    #       'main_address_no': '121', 'sub_address_no': '1', 'zip_code': ''}}]}
+    # 좌표(위도,경도)로 찾은 주소와 어떤 것을 비교할지? 고민필요
+    try: 
+        region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
+        if mdata.userInfo1.find(region_3depth_name) == -1:
+            return 'OUTRANGE'
+        else:
+            return None
+    except Exception as e:
+        print("out_measuring_range():", str(e))
+        return None
 
 # -------------------------------------------------------------------------------------------------
 # 측정단말이 한곳에 머무는지 확인
