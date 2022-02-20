@@ -3098,3 +3098,478 @@ UL/1038130001/0.0/20.3/1
 (0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
 DL/1044700193/20.3/0.0/1
 UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.000) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
+/opt/homebrew/Caskroom/miniforge/base/envs/smart/lib/python3.8/site-packages/telegram/ext/conversationhandler.py:287: UserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.
+  warnings.warn(
+(0.001) SELECT "monitor_phone"."id", "monitor_phone"."phoneGroup_id", "monitor_phone"."phone_type", "monitor_phone"."phone_no", "monitor_phone"."networkId", "monitor_phone"."avg_downloadBandwidth", "monitor_phone"."avg_uploadBandwidth", "monitor_phone"."status", "monitor_phone"."total_count", "monitor_phone"."active" FROM "monitor_phone"; args=(); alias=default
+DL/1044700193/20.3/0.0/1
+UL/1038130001/0.0/20.3/1
