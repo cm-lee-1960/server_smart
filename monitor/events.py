@@ -88,7 +88,7 @@ def out_measuring_range(mdata):
         - return 'OUTRANGE'
     '''
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
-    if not mdata['userInfo2'].startswith("인-") : return None
+    if not mdata.userInfo2.startswith("인-") : return None
 
     # 2.20 역지오코딩 - 도로명 주소로 반환되어 카카오지도 API로 대체
     # geolocator = Nominatim(user_agent="myGeolocator")

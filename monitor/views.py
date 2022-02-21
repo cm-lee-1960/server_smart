@@ -21,11 +21,12 @@ def receive_json(request):
     # * 측정중인 단말이 없으면 새로운 측정단말을 등록한다(테이블에 등록)
     # ★ ★ ★ ★ 새롭게 발견된 사항  ★ ★ ★ ★ ★ ★ ★ ★
     # 2022.01.18 - 측정시 UL/DL 두개의 단말기로 측정하기 때문에 두개를 묶어서 처리하는 모듈 반영 필요
-    #            - userInfo1, groupId
+    #            - userInfo1, groupId(앞8자리), ispId(45008)
     #            - Goupp - Phone - MeasureData
     #-------------------------------------------------------------------------------------------------
     # 첫번째 측정 데이터인 경우 측정 단말기 그룹을 확인한다. 
-    qs = PhoneGroup.objects.filter(groupId=data['groupId'], userInfo1=data['userInfo1'], active=True)
+    qs = PhoneGroup.objects.filter(groupId__startswith=data['groupId'][:8], userInfo1=data['userInfo1'], \
+        ispId=data['ispId'], active=True)
     if qs.exists():
         phoneGroup = qs[0]    
     else:

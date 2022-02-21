@@ -11,6 +11,7 @@ class PhoneGroup(models.Model):
     '''측정 단말기 그룹정보'''
     groupId = models.CharField(max_length=100)
     userInfo1 = models.CharField(max_length=100)
+    ispId = models.CharField(max_length=10) # 한국:450 / KT:08, SKT:05, LGU+:60
     active = models.BooleanField(default=True)
 
     # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.
