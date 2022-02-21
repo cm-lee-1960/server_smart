@@ -43,10 +43,9 @@ def receive_json(request):
         # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
         # (측정 단말기 -> 측정 단말기 그룹 조회)
         # 동일한 측정 단말로 측정중인 단말(active=True)이 여러개인 경우 가장 최근 것을 가져오도록 정열한다.
-        qs = Phone.objects.filter(phone_no=data['phone_no'], active=True).order_by("-last_updated")
-        print("###1", qs)
+        # *** 동일한 전화번호로 active=True가 있을 경우 문제가 발생할 수 있음
+        qs = Phone.objects.filter(phone_no=data['phone_no']).order_by("-id")
         if qs.exists():
-            print("###1")
             phoneGroup = qs[0].phoneGroup
         else:
             pass

@@ -11,6 +11,10 @@ bot = telegram.Bot(bot_token)
 
 # 단순 메시지 전송
 def send_message_bot(sender, **kwargs):
+    bot_token = '5041688809:AAFuRPnLZxbVY3014X4ElolaH564Mm9CiYI'
+    #webhook_url = 'https://1452-121-165-124-29.ngrok.io'
+    # bot 설정
+    bot = telegram.Bot(bot_token)
     bot.sendMessage(kwargs['instance'].channelId, text=kwargs['instance'].message)
 
 

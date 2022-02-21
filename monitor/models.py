@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.signals import post_save
-from telemsg.tele_msg_old import send_message_bot
+from telemsg.tele_msg import send_message_bot
 import logging
 logger = logging.getLogger(__name__)
 
@@ -76,9 +76,9 @@ class Phone(models.Model):
             up_sum += mdata.uploadBandwidth if mdata.uploadBandwidth else 0
             total_count += 1
         if self.phone_type == 'DL':
-            self.avg_downloadBandwidth = dl_sum / total_count
+            self.avg_downloadBandwidth = round(dl_sum / total_count,3)
         if self.phone_type == 'UL':
-            self.avg_uploadBandwidth = up_sum / total_count
+            self.avg_uploadBandwidth = round(up_sum / total_count,3)
 
         # 단말기의 콜 수를 업데이트 한다. 
         self.total_count = total_count
