@@ -15,15 +15,27 @@ class PhoneGroup(models.Model):
     active = models.BooleanField(default=True)
 
     # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.
-    def current_count_check(self):
+    def current_count_check(self, phone):
         '''DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다.'''
-        currentCountList = []
-        for p in self.phone_set.all():
-            currentCountList.append(p.total_count)
-        result = len(currentCountList) > 1 and \
-            all(element == currentCountList[0] for element in currentCountList) and \
-            currentCountList[0] in [1, 3, 10, 27, 37, 57]
-        print("current_count_check()함수 실행:", currentCountList)
+        result = False
+        if phone.total_count in [1, 3, 10, 27, 37, 57]:
+            # 단밀기 그룹으로 묶여 았는 상대편 측정 단말기를 조회한다.
+            qs = phone.phoneGroup.phone_set.exclude(phone_no=phone.phone_no)
+            if qs.exists():
+                p = qs[0]
+                # 상대편 측정 단말기의 현재 콜 카운트가 측정 단말 보다 같거나 커야 한다. 
+                if p.total_count >= phone.total_count:
+                    result = True
+        # 2.21 로직이 복잡하고, 오류가 있어서 위의 코드로 단순하게 개선함
+        # currentCountList = []
+        # for p in self.phone_set.all():
+        #     currentCountList.append(p.total_count)
+        # # 현재 콜카운트가 작은 값부터 나열되도록 정렬한다. 
+        # currentCountList.sort()
+        # result = len(currentCountList) > 1 and \
+        #     all(element >= currentCountList[0] for element in currentCountList) and \
+        #     currentCountList[0] in [1, 3, 10, 27, 37, 57]
+        # print("current_count_check()함수 실행:", currentCountList, result)
         return result
 
 ###################################################################################################
@@ -90,7 +102,8 @@ class Phone(models.Model):
         channelId = '-736183270' 
         status = ['POWERON', 'START', 'MEASURING', 'END']
         # 측정 진행 메시지는 DL/UP 측정 단말기의 현재 콜 카운트가 같고, 3, 10, 27, 37, 57 콜 단위로 보고함
-        if self.status in status and self.phoneGroup.current_count_check():
+        # print("### make_message(): ", self.status, self.phoneGroup.current_count_check())
+        if self.status in status and self.phoneGroup.current_count_check(self):
             # 측정 단말기의 DL/UP 평균값들을 가져온다.
             for phone in self.phoneGroup.phone_set.all():
                 if phone.phone_type == 'DL':

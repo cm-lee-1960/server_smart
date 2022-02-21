@@ -25,23 +25,34 @@ def receive_json(request):
     #            - Goupp - Phone - MeasureData
     #-------------------------------------------------------------------------------------------------
     # 첫번째 측정 데이터인 경우 측정 단말기 그룹을 확인한다. 
-    qs = PhoneGroup.objects.filter(groupId__startswith=data['groupId'][:8], userInfo1=data['userInfo1'], \
-        ispId=data['ispId'], active=True)
-    if qs.exists():
-        phoneGroup = qs[0]    
+    if data['currentCount'] == 1:
+        # 첫번째 측정 데이터인 경우 측정 단말기 그룹이 등록되어 있는지 확인한다.
+        # (DL or UL 단말이 기등록되어 있을 수 있음)
+        qs = PhoneGroup.objects.filter(groupId__startswith=data['groupId'][:8], userInfo1=data['userInfo1'], \
+            ispId=data['ispId'], active=True)
+        if qs.exists():
+            phoneGroup = qs[0]    
+        else:
+            # 측정 단말기 그룹을 생성한다. 
+            phoneGroup = PhoneGroup.objects.create(
+                            groupId=data['groupId'],
+                            userInfo1=data['userInfo1'],
+                            ispId=data['ispId'],
+                            active=True)
     else:
-        # 측정 단말기 그룹을 생성한다. 
-        phoneGroup = PhoneGroup.objects.create(
-                        groupId=data['groupId'],
-                        userInfo1=data['userInfo1'],
-                        active=True  
-                        )
-    
+        # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
+        # (측정 단말기 -> 측정 단말기 그룹 조회)
+        # 동일한 측정 단말로 측정중인 단말(active=True)이 여러개인 경우 가장 최근 것을 가져오도록 정열한다.
+        qs = Phone.objects.filter(phone_no=data['phone_no'], active=True).order_by("-last_updated")
+        print("###1", qs)
+        if qs.exists():
+            print("###1")
+            phoneGroup = qs[0].phoneGroup
+        else:
+            pass
+
     # 측정 단말기를 조회한다.
-    phone_no = data['phone_no']
-    print("phoneGroup:", phoneGroup)
-    # qs= Phone.objects.filter(phone_no=phone_no, active=True)
-    qs = phoneGroup.phone_set.all().filter(phone_no=phone_no, active=True)
+    qs = phoneGroup.phone_set.all().filter(phone_no=data['phone_no'], active=True)
     if qs.exists():
         phone = qs[0]
         phone.active = True
@@ -52,7 +63,7 @@ def receive_json(request):
         phone = Phone.objects.create(
                     phoneGroup = phoneGroup,
                     phone_type=phone_type,
-                    phone_no=phone_no,
+                    phone_no=data['phone_no'],
                     networkId=data['networkId'],
                     avg_downloadBandwidth=0.0,
                     avg_uploadBandwidth=0.0,
