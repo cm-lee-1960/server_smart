@@ -27,6 +27,12 @@ class PhoneAdmin(admin.ModelAdmin):
 
     last_updated_at.short_description = '최종 위치보고시간'
 
+    # # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
+    # def get_queryset(self, request):
+    #     query = super(PhoneAdmin, self).get_queryset(request)
+    #     filtered_query = query.filter(ispId='45008')
+    #     return filtered_query
+
 class MonitorAdminArea(admin.AdminSite):
     '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
     index_title = "단말상태 관리"
