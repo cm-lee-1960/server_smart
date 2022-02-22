@@ -73,7 +73,8 @@ def fivgtolte_trans_check(mdata):
         - 5G 측정시 LTE로 데이터가 전환되는 경우
         - return 'FIVETOLTE'
     '''
-    if mdata.phone.networkId != mdata.networkId:
+    # 2.21 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
+    if mdata.phone.networkId == '5G' and mdata.networkId == 'NR':
         return 'FIVETOLTE'
     return None
 
@@ -134,12 +135,15 @@ def call_staying_check(mdata):
         - 이동거리가 5미터 이내 연속해서 3회 이상 발생하면 한 곳에 머무는 것으로 판단 <- 기준확인 필요
         - return 'CALLSTAY'
     '''
-    mdata_list = mdata.phone.measurecalldata_set.all()
+    # 2022.02.22 - 처리대상 데이터를 속도측정 데이터('speed')에 한정하여 처리한다. 
+    # mdata_list = mdata.phone.measurecalldata_set.all()
+    mdata_list = mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("-currentCount")
     count = len(mdata_list)
     callstay = True
     # 이동거리를 확인하기 위해서는 측정값이 4건 이상 있어야 한다.
     if count >= 4:
-        for idx, md in enumerate(mdata_list[count-1::-1]):
+        # for idx, md in enumerate(mdata_list[count-1::-1]):
+        for idx, md in enumerate(mdata_list)
             if idx == 0:
                 before_loc = (md.latitude, md.longitude)
             else:
