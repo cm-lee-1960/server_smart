@@ -89,7 +89,7 @@ def out_measuring_range(mdata):
         - return 'OUTRANGE'
     '''
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
-    if not mdata.userInfo2.startswith("인-") : return None
+    if not mdata.userInfo2.startswith("행-") : return None
 
     # 2.20 역지오코딩 - 도로명 주소로 반환되어 카카오지도 API로 대체
     # geolocator = Nominatim(user_agent="myGeolocator")
@@ -127,6 +127,8 @@ def out_measuring_range(mdata):
 
 # -------------------------------------------------------------------------------------------------
 # 측정단말이 한곳에 머무는지 확인
+# 2022.02.22 - 처리대상 데이터를 속도측정 데이터('speed')에 한정하여 처리한다.  
+#            - 행정동 측정일때만 체크한다. (예: 테마의 경우 위도,경도가 동일한 경우가 다수 발생함) -- 확인필요
 #--------------------------------------------------------------------------------------------------
 def call_staying_check(mdata):
     ''' 측정단말이 한곳에 머무는지 확인
@@ -135,7 +137,9 @@ def call_staying_check(mdata):
         - 이동거리가 5미터 이내 연속해서 3회 이상 발생하면 한 곳에 머무는 것으로 판단 <- 기준확인 필요
         - return 'CALLSTAY'
     '''
-    # 2022.02.22 - 처리대상 데이터를 속도측정 데이터('speed')에 한정하여 처리한다.  
+    # 측정유형이 행정동인 경우에만 측정단말이 한곳에 머무는지 확인한다.
+    if not mdata.userInfo2.startswith("행-") : return None
+
     # mdata_list = mdata.phone.measurecalldata_set.all()
     mdata_list = mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("-currentCount")
     count = len(mdata_list)
@@ -143,6 +147,7 @@ def call_staying_check(mdata):
     # 이동거리를 확인하기 위해서는 측정값이 4건 이상 있어야 한다.
     if count >= 4:
         # for idx, md in enumerate(mdata_list[count-1::-1]):
+        result = ''
         for idx, md in enumerate(mdata_list):
             if idx == 0:
                 before_loc = (md.latitude, md.longitude)
@@ -152,6 +157,7 @@ def call_staying_check(mdata):
                 distance = haversine(before_loc, current_loc) * 1000 # 미터(meters)
                 # print("call_staying_check():", idx, str(md), distance, before_loc, current_loc)
                 # 측정 단말기 이동거리가 5M 이상이 되면 한곳에 머무르지 않고, 이동하는 것으로 판단한다.
+                result += str(before_loc)+ '/' + str(current_loc) + '/' + str(distance) + ','
                 if distance > 5 :
                     callstay = False
                     break
@@ -160,6 +166,7 @@ def call_staying_check(mdata):
     else:
         callstay = False
     if callstay: 
+        print("###CALLSTAY", result)
         return 'CALLSTAY' 
     else:
         return None
