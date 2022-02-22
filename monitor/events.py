@@ -135,7 +135,7 @@ def call_staying_check(mdata):
         - 이동거리가 5미터 이내 연속해서 3회 이상 발생하면 한 곳에 머무는 것으로 판단 <- 기준확인 필요
         - return 'CALLSTAY'
     '''
-    # 2022.02.22 - 처리대상 데이터를 속도측정 데이터('speed')에 한정하여 처리한다. 
+    # 2022.02.22 - 처리대상 데이터를 속도측정 데이터('speed')에 한정하여 처리한다.  
     # mdata_list = mdata.phone.measurecalldata_set.all()
     mdata_list = mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("-currentCount")
     count = len(mdata_list)
