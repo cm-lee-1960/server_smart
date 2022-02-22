@@ -52,9 +52,12 @@ class Phone(models.Model):
     ispId = models.CharField(max_length=10, null=True, blank=True) # 한국:450 / KT:08, SKT:05, LGU+:60
     avg_downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name='DL')
     avg_uploadBandwidth =models.FloatField(null=True, default=0.0, verbose_name='UL')
+    dl_count = models.IntegerField(null=True, default=0) # 다운로드 콜수
+    ul_count = models.IntegerField(null=True, default=0) # 업로드 콜수
     status = models.CharField(max_length=10, null=True, verbose_name='진행단계')
     total_count = models.IntegerField(null=True, default=0, verbose_name='콜 카운트')
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name='최종보고시간') # 최종 위치보고시간
+    manage = models.BooleanField(default=False) # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name='상태')
 
     class Meta:
@@ -62,7 +65,7 @@ class Phone(models.Model):
         verbose_name_plural = ('측정단말')
 
     def __str__(self):
-        return f"{self.phone_no}/{self.avg_downloadBandwidth}/{self.avg_uploadBandwidth}/{self.total_count}"
+        return f"{self.phone_no}/{self.avg_downloadBandwidth}/{self.avg_uploadBandwidth}/{self.dl_count}/{self.ul_count}"
     
     # 측정 단말기의 통계정보를 업데이트 한다.
     def update_info(self, mdata):
@@ -85,7 +88,9 @@ class Phone(models.Model):
             self.avg_uploadBandwidth = round(ul_sum / ul_count, 3)
 
         # 단말기의 콜 수를 업데이트 한다. 
-        self.total_count = dl_count + ul_count
+        self.dl_count = dl_count # 다운로드 콜건수
+        self.ul_count = ul_count # 업로드 콜건수
+        self.total_count = dl_count + ul_count # 전체 콜건수
 
         # 단말기의 상태를 업데이트 한다. 
         # 상태 - 'POWERON', 'START', 'MEASURING', 'END'
@@ -109,18 +114,25 @@ class Phone(models.Model):
         # print("### make_message(): ", self.status, self.phoneGroup.current_count_check())
         if self.status in status and self.phoneGroup.current_count_check(self):
             # 측정 단말기의 DL/UP 평균값들을 가져온다.
+            dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
+            avg_downloadBandwidth = 0 # 다운로드 평균속도
+            avg_uploadBandwidth = 0   # 업로드 평균속도
             for phone in self.phoneGroup.phone_set.all():
-                if phone.phone_type == 'DL':
-                    avg_downloadBandwidth = phone.avg_downloadBandwidth
-                elif phone.phone_type == 'UL':
-                    avg_uploadBandwidth = phone.avg_uploadBandwidth
+                dl_sum += phone.avg_downloadBandwidth * dl_count
+                dl_count += phone.dl_count
+                ul_sum += phone.avg_uploadBandwidth * ul_count
+                ul_count += phone.ul_count
+                print(phone)
+                print("####", phone.phone_no, dl_sum, dl_count, ul_sum, ul_sum) 
+            if dl_count > 0 : avg_downloadBandwidth = dl_sum / dl_count
+            if ul_count > 0 : avg_uploadBandwidth = ul_sum / ul_count
 
             # 메시지를 작성한다. 
             messages = { 
                 'POWERON': "OO지역 단말이 켜졌습니다.",
                 'START': f"측정을 시작합니다.\n{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
-                'MEASURING': f"{self.total_count}번째 측정 데이터입니다.\n{avg_downloadBandwidth:.1f} / {avg_downloadBandwidth:.1f}",
-                'END': f"측정이 종료되었습니다(총{self.total_count}건).\n{avg_downloadBandwidth:.1f} / {avg_downloadBandwidth:.1f}",
+                'MEASURING': f"{self.total_count}번째 측정 데이터입니다.\n{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
+                'END': f"측정이 종료되었습니다(총{self.total_count}건).\n{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
                 }
 
             # 전송 메시지를 생성한다. 

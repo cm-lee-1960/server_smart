@@ -66,6 +66,13 @@ def receive_json(request):
             phone.active = True
             phone.save()
         else:
+            # 측정 단말기의 관래대상 여부를 판단한다.
+            if data['ispId'] == '45008' and \
+                (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
+                data['testNetworkType'] == 'speed':
+                manage = True
+            else:
+                manage = False
             # 측정 단말기를 생성한다.
             phone = Phone.objects.create(
                         phoneGroup = phoneGroup,
@@ -75,9 +82,12 @@ def receive_json(request):
                         ispId=data['ispId'],
                         avg_downloadBandwidth=0.0,
                         avg_uploadBandwidth=0.0,
+                        dl_count=0,
+                        ul_count=0,
                         status='START',
                         total_count=data['currentCount'],
                         last_updated=data['meastime'],
+                        manage=manage,
                         active=True,
                         )
     except Exception as e:
