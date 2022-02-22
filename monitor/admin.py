@@ -13,7 +13,7 @@ from .models import Phone
 class PhoneAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
     # form = PhoneForm
-    list_display = ['phone_type', 'phone_no', 'networkId', 'avg_downloadBandwidth', \
+    list_display = ['phone_no', 'userInfo1', 'networkId', 'avg_downloadBandwidth', \
         'avg_uploadBandwidth', 'status', 'total_count', 'last_updated_at', 'active']
     list_display_links = ['phone_no']
     search_fields = ('phone_no', )
@@ -27,11 +27,11 @@ class PhoneAdmin(admin.ModelAdmin):
 
     last_updated_at.short_description = '최종 위치보고시간'
 
-    # # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
-    # def get_queryset(self, request):
-    #     query = super(PhoneAdmin, self).get_queryset(request)
-    #     filtered_query = query.filter(ispId='45008')
-    #     return filtered_query
+    # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
+    def get_queryset(self, request):
+        query = super(PhoneAdmin, self).get_queryset(request)
+        filtered_query = query.filter(ispId='45008')
+        return filtered_query
 
 class MonitorAdminArea(admin.AdminSite):
     '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
