@@ -8,6 +8,14 @@ from .events import event_occur_check
 import logging
 logger = logging.getLogger(__name__)
 
+###################################################################################################
+# 츨정 데이터 처리모듈
+# 1) 수신 받은 측정 데이터(JSON) 파싱
+# 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
+# 3) 측정중인 단말기가 있는지 확인
+# 4) 측정 데이터를 저장하고, 통계정보 업데이트
+# 5) 메시지 및 이벤트 처리
+###################################################################################################
 @csrf_exempt
 def receive_json(request):
     '''JSON 데이터를 받아서 처리한다.'''
@@ -43,6 +51,7 @@ def receive_json(request):
                             ispId=data['ispId'],
                             active=True)
     except Exception as e:
+        # 오류코드 리턴 필요
         print("그룹조회:",str(e))
 
     # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
@@ -72,6 +81,7 @@ def receive_json(request):
                         active=True,
                         )
     except Exception as e:
+        # 오류코드 리턴 필요
         print("단말기조회:",str(e))
 
     # -------------------------------------------------------------------------------------------------
@@ -92,6 +102,7 @@ def receive_json(request):
         # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
         phone.update_info(mdata)
     except Exception as e:
+        # 오류코드 리턴 필요
         print("데이터저장:",str(e))
 
     # -------------------------------------------------------------------------------------------------
@@ -116,7 +127,9 @@ def receive_json(request):
 
             # 이벤트 발생여부를 체크한다. 
             event_occur_check(mdata)
+
     except Exception as e:
+        # 오류코드 리턴 필요
         print("메시지/이벤트처리:",str(e))
     
     return HttpResponse("Success")
