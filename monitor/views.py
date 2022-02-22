@@ -23,12 +23,13 @@ def receive_json(request):
     # 2022.01.18 - 측정시 UL/DL 두개의 단말기로 측정하기 때문에 두개를 묶어서 처리하는 모듈 반영 필요
     #            - userInfo1, groupId(앞8자리), ispId(45008)
     #            - Goupp - Phone - MeasureData
+    # 2022.02.22 - groupId(앞8자리) -> groupId(앞6자리)로 변경
     #-------------------------------------------------------------------------------------------------
     # 첫번째 측정 데이터인 경우 측정 단말기 그룹을 확인한다. 
     if data['currentCount'] == 1:
         # 첫번째 측정 데이터인 경우 측정 단말기 그룹이 등록되어 있는지 확인한다.
         # (DL or UL 단말이 기등록되어 있을 수 있음)
-        qs = PhoneGroup.objects.filter(groupId__startswith=data['groupId'][:8], userInfo1=data['userInfo1'], \
+        qs = PhoneGroup.objects.filter(groupId__startswith=data['groupId'][:6], userInfo1=data['userInfo1'], \
             ispId=data['ispId'], active=True)
         if qs.exists():
             phoneGroup = qs[0]    
@@ -96,8 +97,8 @@ def receive_json(request):
     # - MCC : 450(대한민국), MNC: 08(KT), 05(SKT), 60(LGU+) 
     # 2) 측졍유형(테마, 인빌딩, 행정동, 커버리지) -- 그때 그때 바뀌기 때분에 확인해야 함(관리정보 대상)
     # - ★★★어떤 유형으로 사용하는지 확인 필요
-    # - 예) 테-재효-2-d3, 행-용택-1, 인빌딩은 어떻게 표시되지?
-    # - 예) 커-재효-2-d3, 커버리지 1조
+    # - 관리대상(O): 테-재효-2-d3, 행-용택-1, 인빌딩은 어떻게 표시되지?
+    # - 관리대상(X): 커-재효-2-d3, 커버리지 1조
     # 3) 측정종류
     # - 측정종류가 속도(speed)인 경우만 메시지 및 이벤트 처리를 한다.
     # - 예) speed / latency / web
