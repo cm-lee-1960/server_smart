@@ -30,7 +30,7 @@ class PhoneAdmin(admin.ModelAdmin):
     # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
     def get_queryset(self, request):
         query = super(PhoneAdmin, self).get_queryset(request)
-        filtered_query = query.filter(ispId='45008')
+        filtered_query = query.filter(ispId='45008', manage=True)
         return filtered_query
 
 class MonitorAdminArea(admin.AdminSite):
