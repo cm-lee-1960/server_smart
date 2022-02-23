@@ -1,12 +1,22 @@
+from tracemalloc import start
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
+from message.msg import make_message
 from .events import event_occur_check
 import logging
 logger = logging.getLogger(__name__)
 
+###################################################################################################
+# 츨정 데이터 처리모듈
+# 1) 수신 받은 측정 데이터(JSON) 파싱
+# 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
+# 3) 측정중인 단말기가 있는지 확인
+# 4) 측정 데이터를 저장하고, 통계정보 업데이트
+# 5) 메시지 및 이벤트 처리
+###################################################################################################
 @csrf_exempt
 def receive_json(request):
     '''JSON 데이터를 받아서 처리한다.'''
@@ -19,59 +29,72 @@ def receive_json(request):
     # 전화번호에 대한 특정 단말이 있는지 확인한다.
     # * 측정중인 단말이 있으면 가져오고,
     # * 측정중인 단말이 없으면 새로운 측정단말을 등록한다(테이블에 등록)
-    # ★ ★ ★ ★ 새롭게 발견된 사항  ★ ★ ★ ★ ★ ★ ★ ★
+    # [ 처 리 내 역 ]
     # 2022.01.18 - 측정시 UL/DL 두개의 단말기로 측정하기 때문에 두개를 묶어서 처리하는 모듈 반영 필요
     #            - userInfo1, groupId(앞8자리), ispId(45008)
     #            - Goupp - Phone - MeasureData
     # 2022.02.22 - groupId(앞8자리) -> groupId(앞6자리)로 변경
-    #-------------------------------------------------------------------------------------------------
-    # 첫번째 측정 데이터인 경우 측정 단말기 그룹을 확인한다. 
-    if data['currentCount'] == 1:
-        # 첫번째 측정 데이터인 경우 측정 단말기 그룹이 등록되어 있는지 확인한다.
-        # (DL or UL 단말이 기등록되어 있을 수 있음)
-        qs = PhoneGroup.objects.filter(groupId__startswith=data['groupId'][:6], userInfo1=data['userInfo1'], \
-            ispId=data['ispId'], active=True)
+    # 2022.02.23 - userInfo1 + meastime(8자리)
+    #------------------------------------------------------------------------------------------------- 
+    # 해당일자/해당지역 측정 단말기 그룹이 등록되어 있는지 확인한다.
+    #  meastime '20211101063756701'
+    try: 
+        measdate = str(data['meastime'])[:8]
+        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], ispId=data['ispId'], \
+            active=True)
         if qs.exists():
             phoneGroup = qs[0]    
         else:
             # 측정 단말기 그룹을 생성한다. 
             phoneGroup = PhoneGroup.objects.create(
-                            groupId=data['groupId'],
+                            measdate=measdate,
                             userInfo1=data['userInfo1'],
                             ispId=data['ispId'],
                             active=True)
-    else:
-        # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
-        # (측정 단말기 -> 측정 단말기 그룹 조회)
-        # 동일한 측정 단말로 측정중인 단말(active=True)이 여러개인 경우 가장 최근 것을 가져오도록 정열한다.
-        # *** 동일한 전화번호로 active=True가 있을 경우 문제가 발생할 수 있음
-        qs = Phone.objects.filter(phone_no=data['phone_no']).order_by("-id")
-        if qs.exists():
-            phoneGroup = qs[0].phoneGroup
-        else:
-            pass
+    except Exception as e:
+        # 오류코드 리턴 필요
+        print("그룹조회:",str(e))
+        return HttpResponse("그룹조회:" + str(e), status=500)
 
+    # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
+    # (측정 단말기 -> 측정 단말기 그룹 조회)
+    # 동일한 측정 단말로 측정중인 단말(active=True)이 여러개인 경우 가장 최근 것을 가져오도록 정열한다.
+    # *** 동일한 전화번호로 active=True가 있을 경우 문제가 발생할 수 있음
     # 측정 단말기를 조회한다.
-    qs = phoneGroup.phone_set.all().filter(phone_no=data['phone_no'], active=True)
-    if qs.exists():
-        phone = qs[0]
-        phone.active = True
-        phone.save()
-    else:
-        # 측정 단말기를 생성한다. 
-        phone_type = 'DL' if data['downloadBandwidth'] else 'UL'
-        phone = Phone.objects.create(
-                    phoneGroup = phoneGroup,
-                    phone_type=phone_type,
-                    phone_no=data['phone_no'],
-                    networkId=data['networkId'],
-                    avg_downloadBandwidth=0.0,
-                    avg_uploadBandwidth=0.0,
-                    status='START',
-                    total_count=data['currentCount'],
-                    last_updated=data['meastime'],
-                    active=True,
-                    )
+    try:
+        qs = phoneGroup.phone_set.all().filter(phone_no=data['phone_no'], active=True)
+        if qs.exists():
+            phone = qs[0]
+            phone.active = True
+            phone.save()
+        else:
+            # 측정 단말기의 관래대상 여부를 판단한다.
+            if data['ispId'] == '45008' and \
+                (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")):
+                manage = True
+            else:
+                manage = False
+            # 측정 단말기를 생성한다.
+            phone = Phone.objects.create(
+                        phoneGroup = phoneGroup,
+                        phone_no=data['phone_no'],
+                        userInfo1=data['userInfo1'],
+                        networkId=data['networkId'],
+                        ispId=data['ispId'],
+                        avg_downloadBandwidth=0.0,
+                        avg_uploadBandwidth=0.0,
+                        dl_count=0,
+                        ul_count=0,
+                        status='START',
+                        total_count=data['currentCount'],
+                        last_updated=data['meastime'],
+                        manage=manage,
+                        active=True,
+                        )
+    except Exception as e:
+        # 오류코드 리턴 필요
+        print("단말기조회:",str(e))
+        return HttpResponse("단말기조회:" + str(e), status=500)
 
     # -------------------------------------------------------------------------------------------------
     # 실시간 측정 데이터 유형에 따라서 데이터를 등록한다(콜단위, 초단위).
@@ -79,16 +102,21 @@ def receive_json(request):
     # [ 콜단위 ] - 메시지 전송, 품질정보
     # [ 초단위 ] - 속도 업데이트, 이벤트처리
     #------------------------------------------------------------------------------------------------- 
-    if data['dataType'] == 'call':
-        # 콜단위 측정 데이터를 등록한다. 
-        mdata = MeasureCallData.objects.create(phone=phone, **data)
-    else:
-        # 초단위 측정 데이터를 등록한다. 
-        mdata = MeasureSecondData.objects.create(phone=phone, **data)
-    
-    # 측정 단말기의 통계값들을 업데이트 한다. 
-    # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
-    phone.update_info(mdata)
+    try: 
+        if data['dataType'] == 'call':
+            # 콜단위 측정 데이터를 등록한다. 
+            mdata = MeasureCallData.objects.create(phone=phone, **data)
+        else:
+            # 초단위 측정 데이터를 등록한다. 
+            mdata = MeasureSecondData.objects.create(phone=phone, **data)
+        
+        # 측정 단말기의 통계값들을 업데이트 한다. 
+        # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
+        phone.update_info(mdata)
+    except Exception as e:
+        # 오류코드 리턴 필요
+        print("데이터저장:",str(e))
+        return HttpResponse("데이터저장:" + str(e), status=500)
 
     # -------------------------------------------------------------------------------------------------
     # 관리대상 식별기준
@@ -103,16 +131,22 @@ def receive_json(request):
     # - 측정종류가 속도(speed)인 경우만 메시지 및 이벤트 처리를 한다.
     # - 예) speed / latency / web
     #-------------------------------------------------------------------------------------------------
-    if data['ispId'] == '45008' and \
-        (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
-        data['testNetworkType'] == 'speed':
-        # 전송 메시지를 생성한다.
-        phone.make_message()
+    try:
+        if data['ispId'] == '45008' and \
+            (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
+            data['testNetworkType'] == 'speed':
+            # 전송 메시지를 생성한다.
+            make_message(mdata)
 
-        # 이벤트 발생여부를 체크한다. 
-        event_occur_check(mdata)
+            # 이벤트 발생여부를 체크한다. 
+            event_occur_check(mdata)
+
+    except Exception as e:
+        # 오류코드 리턴 필요
+        print("메시지/이벤트처리:",str(e))
+        return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
     
-    return HttpResponse("Success")
+    return HttpResponse("성공")
 
 
 
