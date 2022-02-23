@@ -2,6 +2,7 @@ from haversine import haversine # 이동거리
 # from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
 import requests
 from .geo import KakaoLocalAPI
+from message.models import Message
 
 ###################################################################################################
 # 이벤트 발생여부를 체크하는 모듈
@@ -38,19 +39,19 @@ def low_throughput_check(mdata):
         - 취약지구는 '~산로' 등 특정문구가 들어간 것으로 식별을 해야 하는데, 어려움이 있음(관리자 지정해야? -> 정보관리 대상)
         - return 'LOWTHR'
     '''
-    low_throughput_table = {
-        '5G' : {'DL': 12, 'UL': 2},
-        'LTE': {'DL': 6, 'UL': 1},
-        '3G' : {'DL': 256/1024, 'UL': 128/1024} }
-    phone = mdata.phone
-    values = {'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth}
-    try:
-        if phone.networkId in list(low_throughput_table.keys()):
-            if values[phone.phone_type] < low_throughput_table[phone.networkId][phone.phone_type]:
-                return 'LOWTHR'
-    except Exception as e:  
-        print("low_throughput_check():"+str(e))
-        return None
+    # low_throughput_table = {
+    #     '5G' : {'DL': 12, 'UL': 2},
+    #     'LTE': {'DL': 6, 'UL': 1},
+    #     '3G' : {'DL': 256/1024, 'UL': 128/1024} }
+    # phone = mdata.phone
+    # values = {'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth}
+    # try:
+    #     if phone.networkId in list(low_throughput_table.keys()):
+    #         if values[phone.phone_type] < low_throughput_table[phone.networkId][phone.phone_type]:
+    #             return 'LOWTHR'
+    # except Exception as e:  
+    #     print("low_throughput_check():"+str(e))
+    #     return None
 
     return None
 
@@ -178,25 +179,25 @@ def call_staying_check(mdata):
 def make_event_message(mdata, evnet_code):
     '''이벤트 메시지 작성 함수'''
     channelId = '-736183270' 
-    if mdata.downloadBandwidth:
-        phone_type, bandwidth = 'DL', mdata.downloadBandwidth
-    elif mdata.uploadBandwidth: 
-        phone_type, bandwidth = 'UL', mdata.uploadBandwidth
-    messages = { 
-        'LOWTHR': f"속도저하(Low Throughput)가 발생했습니다.\n{phone_type}/{bandwidth:.1f}",
-        'CALLDROP': "음성 콜 드랍이 발생했습니다.",
-        'FIVETOLTE':"5G에서 LTE 전환되었습니다.",
-        'OUTRANGE': "측정단말이 측정범위를 벗어났습니다.",
-        'CALLSTAY': "측정단말이 한곳에 머물러 있습니다.",
-        }
+    # if mdata.downloadBandwidth:
+    #     phone_type, bandwidth = 'DL', mdata.downloadBandwidth
+    # elif mdata.uploadBandwidth: 
+    #     phone_type, bandwidth = 'UL', mdata.uploadBandwidth
+    # messages = { 
+    #     'LOWTHR': f"속도저하(Low Throughput)가 발생했습니다.\n{phone_type}/{bandwidth:.1f}",
+    #     'CALLDROP': "음성 콜 드랍이 발생했습니다.",
+    #     'FIVETOLTE':"5G에서 LTE 전환되었습니다.",
+    #     'OUTRANGE': "측정단말이 측정범위를 벗어났습니다.",
+    #     'CALLSTAY': "측정단말이 한곳에 머물러 있습니다.",
+    #     }
 
-    # 전송 메시지를 생성한다.
-    if evnet_code in list(messages.keys()):
-        # 전송 메시지를 생성한다. 
-        Message.objects.create(
-            phone = mdata.phone,
-            send_type = 'TELE',
-            currentCount = mdata.currentCount,
-            message = messages[evnet_code],
-            channelId = channelId
-        )
+    # # 전송 메시지를 생성한다.
+    # if evnet_code in list(messages.keys()):
+    #     # 전송 메시지를 생성한다. 
+    #     Message.objects.create(
+    #         phone = mdata.phone,
+    #         send_type = 'TELE',
+    #         currentCount = mdata.currentCount,
+    #         message = messages[evnet_code],
+    #         channelId = channelId
+    #     )
