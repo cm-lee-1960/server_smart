@@ -136,7 +136,7 @@ def receive_json(request):
             (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
             data['testNetworkType'] == 'speed':
             # 전송 메시지를 생성한다.
-            make_message(mdata)
+            make_message(phone)
 
             # 이벤트 발생여부를 체크한다. 
             event_occur_check(mdata)
