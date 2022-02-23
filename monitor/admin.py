@@ -35,11 +35,16 @@ class PhoneAdmin(admin.ModelAdmin):
 
 class MonitorAdminArea(admin.AdminSite):
     '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
-    index_title = "단말상태 관리"
-    site_header = "스마트 상황실 관리"
-    site_title = "스마트 상활실"
+    # index_title = "단말상태 관리"
+    # site_header = "스마트 상황실 관리"
+    # site_title = "스마트 상활실"
+    index_title = "smart2"
+    site_header = "smart3"
+    site_title = "smart4"
 
-monitor_site = MonitorAdminArea(name="스마트 상황실")
+
+#monitor_site = MonitorAdminArea(name="스마트 상황실")
+monitor_site = MonitorAdminArea(name="smart 1")
 
 admin.site.register(Phone, PhoneAdmin)
 monitor_site.register(Phone, PhoneAdmin)
