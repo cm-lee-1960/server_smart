@@ -43,8 +43,4 @@ def make_message(phone):
             sended = True
         )
 
-def send_message(sender, **kwargs):
-    #     bot.sendMessage(kwargs['instance'].channelId, text=kwargs['instance'].message)
-    # 텔레그램 있때는 텔레그램 함수 호출하고, 정상이면 sended = True
-    # 크로샷때는 어떻게 할 것인지 고민 필요
-    pass
+
