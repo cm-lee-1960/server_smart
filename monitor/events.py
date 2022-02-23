@@ -1,7 +1,6 @@
 from haversine import haversine # 이동거리
 # from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
 import requests
-from .models import Message
 from .geo import KakaoLocalAPI
 
 ###################################################################################################

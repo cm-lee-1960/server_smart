@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'monitor',
     'analysis',
-    'telemsg',
+    'message',
 ]
 
 MIDDLEWARE = [

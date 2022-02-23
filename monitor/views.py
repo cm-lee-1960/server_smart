@@ -68,8 +68,7 @@ def receive_json(request):
         else:
             # 측정 단말기의 관래대상 여부를 판단한다.
             if data['ispId'] == '45008' and \
-                (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
-                data['testNetworkType'] == 'speed':
+                (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")):
                 manage = True
             else:
                 manage = False
