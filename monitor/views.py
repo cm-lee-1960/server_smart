@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
+from message.msg import make_message
 from .events import event_occur_check
 import logging
 logger = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ def receive_json(request):
     # 전화번호에 대한 특정 단말이 있는지 확인한다.
     # * 측정중인 단말이 있으면 가져오고,
     # * 측정중인 단말이 없으면 새로운 측정단말을 등록한다(테이블에 등록)
-    # ★ ★ ★ ★ 새롭게 발견된 사항  ★ ★ ★ ★ ★ ★ ★ ★
+    # [ 처 리 내 역 ]
     # 2022.01.18 - 측정시 UL/DL 두개의 단말기로 측정하기 때문에 두개를 묶어서 처리하는 모듈 반영 필요
     #            - userInfo1, groupId(앞8자리), ispId(45008)
     #            - Goupp - Phone - MeasureData
@@ -53,6 +54,7 @@ def receive_json(request):
     except Exception as e:
         # 오류코드 리턴 필요
         print("그룹조회:",str(e))
+        return HttpResponse("그룹조회:" + str(e), status=500)
 
     # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
     # (측정 단말기 -> 측정 단말기 그룹 조회)
@@ -92,6 +94,7 @@ def receive_json(request):
     except Exception as e:
         # 오류코드 리턴 필요
         print("단말기조회:",str(e))
+        return HttpResponse("단말기조회:" + str(e), status=500)
 
     # -------------------------------------------------------------------------------------------------
     # 실시간 측정 데이터 유형에 따라서 데이터를 등록한다(콜단위, 초단위).
@@ -113,6 +116,7 @@ def receive_json(request):
     except Exception as e:
         # 오류코드 리턴 필요
         print("데이터저장:",str(e))
+        return HttpResponse("데이터저장:" + str(e), status=500)
 
     # -------------------------------------------------------------------------------------------------
     # 관리대상 식별기준
@@ -132,7 +136,7 @@ def receive_json(request):
             (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
             data['testNetworkType'] == 'speed':
             # 전송 메시지를 생성한다.
-            phone.make_message()
+            make_message(mdata)
 
             # 이벤트 발생여부를 체크한다. 
             event_occur_check(mdata)
@@ -140,8 +144,9 @@ def receive_json(request):
     except Exception as e:
         # 오류코드 리턴 필요
         print("메시지/이벤트처리:",str(e))
+        return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
     
-    return HttpResponse("Success")
+    return HttpResponse("성공")
 
 
 
