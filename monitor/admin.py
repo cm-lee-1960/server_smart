@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Phone
+from .models import Phone, MeasureCallData
 
 # class PhoneForm(forms.ModelForm):
 #     def __init__(self, *args, **kwargs):
@@ -33,6 +33,15 @@ class PhoneAdmin(admin.ModelAdmin):
         filtered_query = query.filter(ispId='45008', manage=True)
         return filtered_query
 
+class DataAdmin(admin.ModelAdmin):
+    '''어드민 페이지에 측정단말 데이터 건 by 건 보여주기 위한 클래스'''
+    list_display = ['dataType', 'userInfo1', 'phone_no', 'currentCount', 'networkId', 'ispId', 'testNetworkType', \
+        'downloadBandwidth', 'uploadBandwidth', 'meastime', 'userInfo2', 'addressDetail', 'cellId', 'isWifi',]
+    list_display_links = ['phone_no']
+    search_fields = ('phone_no', 'userInfo1')
+    list_filter = ['userInfo1',]
+
+
 class MonitorAdminArea(admin.AdminSite):
     '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
     # index_title = "단말상태 관리"
@@ -48,4 +57,6 @@ monitor_site = MonitorAdminArea(name="smart 1")
 
 admin.site.register(Phone, PhoneAdmin)
 monitor_site.register(Phone, PhoneAdmin)
+admin.site.register(MeasureCallData, DataAdmin)
+monitor_site.register(MeasureCallData, DataAdmin)
 

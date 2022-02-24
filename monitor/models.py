@@ -141,6 +141,10 @@ class MeasureCallData(models.Model):
     NR_SINR = models.FloatField(null=True, blank=True) # 5G SINR
     # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
+    
+    class Meta:
+        verbose_name = ('개별 데이터(콜단위)')
+        verbose_name_plural = ('개별 데이터(콜단위)')
 
     def __str__(self):
          return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}/"
