@@ -23,9 +23,9 @@ class LowThroughputAdmin(admin.ModelAdmin):
     list_display_links = ['networkId',]
     search_fields = ('networkId', )
 
-admin.site.register(Morphology, MorphologyAdmin)
-admin.site.register(LowThroughput, LowThroughputAdmin)
-admin.site.register(CenterInfo)
+admin.site.register(Morphology, MorphologyAdmin) # 모폴러지 등록
+admin.site.register(LowThroughput, LowThroughputAdmin) # 속도저하 기준 등록
+admin.site.register(CenterInfo) # 센터정보 등록(전국 14개 센터)
 
 # 사용자 인증관련 그룹을 어드민 페이지에서 제외한다.
 admin.site.unregister(auth.models.Group)
