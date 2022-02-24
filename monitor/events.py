@@ -48,7 +48,7 @@ def event_occur_check(mdata):
 # 2022.02.24 - WiFi 전송실패 기준 추가 (DL: 1M, UL: 0.5M)
 #--------------------------------------------------------------------------------------------------
 def send_failure_check(mdata):
-    '''속도저하(Low Throughput) 발생여부 확인
+    '''전송실패(Send Failure) 발생여부 확인
         - 품질기준(5G DL: 12M, UL: 2M, LTE DL: 6M, UL: 1M, 3G DL: 256K, UL: 128K
         - 품질취약 LTE 1M, UL: 0.5, 3G DL: 256K, UL 128K
         - 취약지구는 '~산로' 등 특정문구가 들어간 것으로 식별을 해야 하는데, 어려움이 있음(관리자 지정해야? -> 정보관리 대상)
@@ -56,7 +56,7 @@ def send_failure_check(mdata):
     '''
     # 측정종류가 속도(speed)일 때만 이벤트 발생여부를 학인한다. 
     if mdata.testNetworkType == 'speed' :
-        # 속도저하 판단기준
+        # 전송실패 판단기준
         LOW_THROUGHPUT_TABLE = {
             '5G' : {'DL': 12, 'UL': 2},
             'LTE': {'DL': 6, 'UL': 1},
