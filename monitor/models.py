@@ -194,4 +194,9 @@ class MeasureSecondData(models.Model):
     def __str__(self):
         return f"{self.phone_no}/{self.neworkid}/{self.meastime}/{self.currentCount}"
 
-
+###################################################################################################
+# 금일측정조 데이터
+###################################################################################################
+class MeasureingTeam(models.Model):
+    meastime = models.DateField(verbose_name='측정일자')
+    message = models.TextField(verbose_name='메시지 내용')

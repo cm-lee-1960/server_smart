@@ -6,6 +6,14 @@ from message.models import Message
 
 ###################################################################################################
 # 이벤트 발생여부를 체크하는 모듈
+# [ 이벤트 처리내역 ]
+#  1) 전송실패(Send Failure)
+#  2) 속도저하(low throughput)
+#  3) 음성 콜 드랍
+#  4) 5G -> LTE 전환
+#  5) 측정범위를 벗어나는 경우
+#  6) 측정콜이 한곳에 머무는 경우
+# -------------------------------------------------------------------------------------------------
 # 2022.02.24 - 기존 속도저하(Low Throughput)을 통화불량(Call Failure)로 변경하고, 
 #              새롭게 속도저하(Low Throughput) 모듈을 추가함
 ###################################################################################################  
@@ -37,7 +45,7 @@ def event_occur_check(mdata):
 
 # -------------------------------------------------------------------------------------------------
 # 속도저하(Low Throughput) 발생여부 확인
-# 2022.02.24 
+# 2022.02.24 - WiFi 전송실패 기준 추가 (DL: 1M, UL: 0.5M)
 #--------------------------------------------------------------------------------------------------
 def send_failure_check(mdata):
     '''속도저하(Low Throughput) 발생여부 확인
@@ -46,25 +54,33 @@ def send_failure_check(mdata):
         - 취약지구는 '~산로' 등 특정문구가 들어간 것으로 식별을 해야 하는데, 어려움이 있음(관리자 지정해야? -> 정보관리 대상)
         - return 'SENDFAIL'
     '''
-    # low_throughput_table = {
-    #     '5G' : {'DL': 12, 'UL': 2},
-    #     'LTE': {'DL': 6, 'UL': 1},
-    #     '3G' : {'DL': 256/1024, 'UL': 128/1024} }
-    # phone = mdata.phone
-    # values = {'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth}
-    # try:
-    #     if phone.networkId in list(low_throughput_table.keys()):
-    #         if values[phone.phone_type] < low_throughput_table[phone.networkId][phone.phone_type]:
-    #             return 'LOWTHR'
-    # except Exception as e:  
-    #     print("low_throughput_check():"+str(e))
-    #     return None
+    # 측정종류가 속도(speed)일 때만 이벤트 발생여부를 학인한다. 
+    if mdata.testNetworkType == 'speed' :
+        # 속도저하 판단기준
+        LOW_THROUGHPUT_TABLE = {
+            '5G' : {'DL': 12, 'UL': 2},
+            'LTE': {'DL': 6, 'UL': 1},
+            '3G' : {'DL': 256/1024, 'UL': 128/1024},
+            'WiFi': {'DL': 1, 'UL': 0.5} }
+
+        # 측정 단말기 및 데이터 유형(DL/UL)을 확인한다. 
+        phone = mdata.phone
+        if mdata.downloadBandwidth and mdata.downloadBandwidth > 0 : dataType = 'DL'
+        if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType = 'UL'
+        values = {'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth}
+        try:
+            if phone.networkId in list(LOW_THROUGHPUT_TABLE.keys()):
+                if values[dataType] < LOW_THROUGHPUT_TABLE[phone.networkId][dataType]:
+                    return 'LOWTHR'
+        except Exception as e:  
+            print("low_throughput_check():"+str(e))
+            return None
 
     return None
 
 # -------------------------------------------------------------------------------------------------
 # 속도저하(Low Throughput) 발생여부 확인
-# 2022.02.24 속도저하 기준 별도 테이블 관리 필요
+# 2022.02.24 속도저하 기준 별도 테이블 관리 필요 -- LowThroughput
 #--------------------------------------------------------------------------------------------------
 def low_throughput_check(mdata):
     '''속도저하(Low Throughput) 발생여부 확인
@@ -165,7 +181,7 @@ def call_staying_check(mdata):
     count = len(mdata_list)
     callstay = True
     # 이동거리를 확인하기 위해서는 측정값이 4건 이상 있어야 한다.
-    if count >= 4:
+    if count >= 6:
         # for idx, md in enumerate(mdata_list[count-1::-1]):
         result = ''
         for idx, md in enumerate(mdata_list):
@@ -178,7 +194,7 @@ def call_staying_check(mdata):
                 # print("call_staying_check():", idx, str(md), distance, before_loc, current_loc)
                 # 측정 단말기 이동거리가 5M 이상이 되면 한곳에 머무르지 않고, 이동하는 것으로 판단한다.
                 result += str(before_loc)+ '/' + str(current_loc) + '/' + str(distance) + ','
-                if distance > 5 :
+                if distance > 10 :
                     callstay = False
                     break
                 before_loc = current_loc
@@ -197,26 +213,26 @@ def call_staying_check(mdata):
 def make_event_message(mdata, evnet_code):
     '''이벤트 메시지 작성 함수'''
     channelId = '-736183270' 
-    # if mdata.downloadBandwidth:
-    #     phone_type, bandwidth = 'DL', mdata.downloadBandwidth
-    # elif mdata.uploadBandwidth: 
-    #     phone_type, bandwidth = 'UL', mdata.uploadBandwidth
-    # messages = { 
-    #     'SENDFAIL': "전송실패가 발생하였습니다.",
-    #     'LOWTHR': f"속도저하(Low Throughput)가 발생했습니다.\n{phone_type}/{bandwidth:.1f}",
-    #     'CALLDROP': "음성 콜 드랍이 발생했습니다.",
-    #     'FIVETOLTE':"5G에서 LTE 전환되었습니다.",
-    #     'OUTRANGE': "측정단말이 측정범위를 벗어났습니다.",
-    #     'CALLSTAY': "측정단말이 한곳에 머물러 있습니다.",
-    #     }
+    if mdata.downloadBandwidth:
+        phone_type, bandwidth = 'DL', mdata.downloadBandwidth
+    elif mdata.uploadBandwidth: 
+        phone_type, bandwidth = 'UL', mdata.uploadBandwidth
+    messages = { 
+        'SENDFAIL': "전송실패가 발생하였습니다.",
+        'LOWTHR': f"속도저하(Low Throughput)가 발생했습니다.\n{phone_type}/{bandwidth:.1f}",
+        'CALLDROP': "음성 콜 드랍이 발생했습니다.",
+        'FIVETOLTE':"5G에서 LTE 전환되었습니다.",
+        'OUTRANGE': "측정단말이 측정범위를 벗어났습니다.",
+        'CALLSTAY': "측정단말이 한곳에 머물러 있습니다.",
+        }
 
-    # # 전송 메시지를 생성한다.
-    # if evnet_code in list(messages.keys()):
-    #     # 전송 메시지를 생성한다. 
-    #     Message.objects.create(
-    #         phone = mdata.phone,
-    #         send_type = 'TELE',
-    #         currentCount = mdata.currentCount,
-    #         message = messages[evnet_code],
-    #         channelId = channelId
-    #     )
+    # 전송 메시지를 생성한다.
+    if evnet_code in list(messages.keys()):
+        # 전송 메시지를 생성한다. 
+        Message.objects.create(
+            phone = mdata.phone,
+            send_type = 'TELE',
+            currentCount = mdata.currentCount,
+            message = messages[evnet_code],
+            channelId = channelId
+        )
