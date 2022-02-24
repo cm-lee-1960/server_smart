@@ -6,8 +6,10 @@ from rest_framework.parsers import JSONParser
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
 from message.msg import make_message
 from .events import event_occur_check
-import logging
-logger = logging.getLogger(__name__)
+# from django.conf import settings
+
+# import logging
+# logger = logging.getLogger(__name__)
 
 ###################################################################################################
 # 츨정 데이터 처리모듈
@@ -112,7 +114,9 @@ def receive_json(request):
         
         # 측정 단말기의 통계값들을 업데이트 한다. 
         # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
-        phone.update_info(mdata)
+        # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).
+        if data['ispId'] == '45008' : phone.update_info(mdata)
+
     except Exception as e:
         # 오류코드 리턴 필요
         print("데이터저장:",str(e))
