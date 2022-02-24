@@ -6,18 +6,24 @@ from message.models import Message
 
 ###################################################################################################
 # 이벤트 발생여부를 체크하는 모듈
+# 2022.02.24 - 기존 속도저하(Low Throughput)을 통화불량(Call Failure)로 변경하고, 
+#              새롭게 속도저하(Low Throughput) 모듈을 추가함
 ###################################################################################################  
 def event_occur_check(mdata):
     '''이벤트 발생여부를 체크한다.'''
-    # 1)속도저하(low throughput)
+    # 1)통화불량(Call Failure)
+    event_code = call_failure_check(mdata)
+    if event_code: make_event_message(mdata, event_code)
+
+    # 2)속도저하(low throughput)
     event_code = low_throughput_check(mdata)
     if event_code: make_event_message(mdata, event_code)
     
-    # 2)음성 콜 드랍
+    # 3)음성 콜 드랍
     event_code = voice_call_drop_check(mdata)
     if event_code: make_event_message(mdata, event_code)
 
-    # 3)5G -> LTE 전환
+    # 4)5G -> LTE 전환
     event_code = fivgtolte_trans_check(mdata)
     if event_code: make_event_message(mdata, event_code)
 
@@ -25,19 +31,20 @@ def event_occur_check(mdata):
     event_code = out_measuring_range(mdata)
     if event_code: make_event_message(mdata, event_code)
 
-    # 5)측정콜이 한곳에 머무는 경우
+    # 6)측정콜이 한곳에 머무는 경우
     event_code = call_staying_check(mdata)
     if event_code: make_event_message(mdata, event_code)
 
 # -------------------------------------------------------------------------------------------------
 # 속도저하(Low Throughput) 발생여부 확인
+# 2022.02.24 
 #--------------------------------------------------------------------------------------------------
-def low_throughput_check(mdata):
+def call_failure_check(mdata):
     '''속도저하(Low Throughput) 발생여부 확인
         - 품질기준(5G DL: 12M, UL: 2M, LTE DL: 6M, UL: 1M, 3G DL: 256K, UL: 128K
         - 품질취약 LTE 1M, UL: 0.5, 3G DL: 256K, UL 128K
         - 취약지구는 '~산로' 등 특정문구가 들어간 것으로 식별을 해야 하는데, 어려움이 있음(관리자 지정해야? -> 정보관리 대상)
-        - return 'LOWTHR'
+        - return 'CALLFAIL'
     '''
     # low_throughput_table = {
     #     '5G' : {'DL': 12, 'UL': 2},
@@ -53,6 +60,17 @@ def low_throughput_check(mdata):
     #     print("low_throughput_check():"+str(e))
     #     return None
 
+    return None
+
+# -------------------------------------------------------------------------------------------------
+# 속도저하(Low Throughput) 발생여부 확인
+# 2022.02.24 속도저하 기준 별도 테이블 관리 필요
+#--------------------------------------------------------------------------------------------------
+def low_throughput_check(mdata):
+    '''속도저하(Low Throughput) 발생여부 확인
+        - 속도저하 기준 별도 테이블 관리 예정
+        - return 'CALLFAIL'
+    '''
     return None
 
 # -------------------------------------------------------------------------------------------------
