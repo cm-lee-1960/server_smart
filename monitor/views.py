@@ -99,14 +99,12 @@ def receive_json(request):
                         dl_count=0,
                         ul_count=0,
                         status='START',
+                        currentCount=data['currentCount'],
                         total_count=data['currentCount'],
                         last_updated=data['meastime'],
                         manage=manage,
                         active=True,
                     )
-
-            # 2022.02.25 측정 단말기가 생성되면 첫번째 측정 시작인지 확인한다.
-            make_message(phone)
 
     except Exception as e:
         # 오류코드 리턴 필요
@@ -155,13 +153,15 @@ def receive_json(request):
     try:
         # *** 모폴로지 조건체크는 향후 DB 테이블에서 가져오서 확인하는 코드로 변경해야 함
         if data['ispId'] == '45008' and \
-            (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
-            data['testNetworkType'] == 'speed':
+            (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")):
+            
             # 전송 메시지를 생성한다.
-            make_message(phone)
+            if data['currentCount'] == 1 or data['testNetworkType'] == 'speed':
+                make_message(mdata)
 
             # 이벤트 발생여부를 체크한다. 
-            event_occur_check(mdata)
+            if data['testNetworkType'] == 'speed':
+                event_occur_check(mdata)
 
     except Exception as e:
         # 오류코드 리턴 필요
@@ -170,4 +170,3 @@ def receive_json(request):
     
     return HttpResponse("성공")
 
-    

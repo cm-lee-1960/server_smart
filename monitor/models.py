@@ -17,32 +17,6 @@ class PhoneGroup(models.Model):
     ispId = models.CharField(max_length=10)  # 한국:450 / KT:08, SKT:05, LGU+:60
     active = models.BooleanField(default=True)
 
-    # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.
-    def current_count_check(self, phone):
-        """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
-        result = False
-        # 해당지역에 단말이 첫번째로 측정을 시작했는지 확인한다.
-        print("current_count_check()-total_count", phone.total_count)
-        if phone.total_count == 1:
-            # 해당일자에 측정중인 단말이 없다면 메시지를 전송한다.
-            # *** 2022.02.25 나중에 고민해야 할 사항 -> 관리대상이 아닌 측정단말이 먼저 시작했을 경우는 어떻게 하지?
-            #                현재는 관리대상 단말 중에서 첫번째 첫번째 측정을 시작했을 때 메시지를 전송한다.
-            qs = Phone.objects.filter(measdate=phone.measdate, manage=True).exclude(phone_no=phone.phone_no)
-            print("current_count_check():", phone.phone_no, phone.phone_no, qs)
-            if not qs.exists():
-                result = True
-        elif phone.total_count in [3, 10, 27, 37, 57,]:
-            ## 단말기 체인지 되고 재측정시 그데이터도 더해져서 메시지가 보내질수도 있다 그때는 예외조건
-            # 단밀기 그룹으로 묶여 았는 상대편 측정 단말기를 조회한다.
-            qs = phone.phoneGroup.phone_set.exclude(phone_no=phone.phone_no)
-            if qs.exists():
-                p = qs[0]
-                # 상대편 측정 단말기의 현재 콜 카운트가 측정 단말 보다 같거나 커야 한다.
-                if p.total_count >= phone.total_count:
-                    result = True
-
-        return result
-
     def __str__(self):
         return f"{self.measdate}"
 
@@ -86,6 +60,7 @@ class Phone(models.Model):
     status = models.CharField(
         max_length=10, null=True, choices=STATUS_CHOICES, verbose_name="진행단계"
     )
+    currentCount = models.IntegerField(null=True, blank=True)
     total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
     last_updated = models.BigIntegerField(
         null=True, blank=True, verbose_name="최종보고시간"
@@ -127,6 +102,7 @@ class Phone(models.Model):
         # 단말기의 콜 수를 업데이트 한다.
         self.dl_count = dl_count  # 다운로드 콜건수
         self.ul_count = ul_count  # 업로드 콜건수
+        self.currentCount = mdata.currentCount # 현재 콜카운트
         self.total_count = dl_count + ul_count  # 전체 콜건수
 
         # 단말기의 상태를 업데이트 한다.
