@@ -30,6 +30,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 secret_file = os.path.join(BASE_DIR, 'secrets.json')
 
+
+##########################################################
 with open(secret_file) as f:
 	secrets = json.loads(f.read())
 
@@ -45,7 +47,7 @@ SECRET_KEY = get_secret("SECRET_KEY")
 # 텔레그램 봇 토큰 및 채널ID를 찾아 온다.
 BOT_TOKEN = get_secret("BOT_TOKEN")
 CHANNEL_ID = get_secret("CHANNEL_ID")
-
+################################################################
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

@@ -45,9 +45,11 @@ def receive_json(request):
         qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], ispId=data['ispId'], \
             active=True)
         if qs.exists():
+            print("그룹 있음")
             phoneGroup = qs[0]    
         else:
             # 측정 단말기 그룹을 생성한다. 
+            print("그룹 없음")
             phoneGroup = PhoneGroup.objects.create(
                             measdate=measdate,
                             userInfo1=data['userInfo1'],
