@@ -169,3 +169,5 @@ def receive_json(request):
         return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
     
     return HttpResponse("성공")
+
+    
