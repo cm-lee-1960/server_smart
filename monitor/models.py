@@ -41,9 +41,10 @@ class PhoneGroup(models.Model):
 # * 측정중인 단말을 관리한다. 
 # * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
 ###################################################################################################
-ISPID_CHOICES = {('45008','KT'), ('45005','SKT'), ('45006','LGU+')}
 class Phone(models.Model):
     '''측정 단말기 정보'''
+    ISPID_CHOICES = {('45008','KT'), ('45005','SKT'), ('45006','LGU+')}
+
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     phone_no = models.BigIntegerField(verbose_name='측정단말')
     userInfo1 = models.CharField(max_length=100, verbose_name='측정지역')

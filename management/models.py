@@ -5,9 +5,10 @@ from django.db import models
 # 측정 데이터에서 넘어오는 모폴로지 정보를 기준으로 재정의
 # MessureCallData.userinfo2 --> Morphology.morphology : 맵핑정보 관리
 ###################################################################################################
-MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
-                        ('커버리지','커버리지')}
 class Morphology(models.Model):
+    MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
+                            ('커버리지','커버리지')}
+
     userInfo2 = models.CharField(max_length=100, null=True, blank=True, verbose_name='모폴러지(측정데이터)') # 측정위치(행정동, 테마, 인빌딩, 커버리지)
     morphology = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES,\
         verbose_name='모폴러지')
@@ -19,9 +20,10 @@ class Morphology(models.Model):
 ###################################################################################################
 # 속도저하(Low Throughput) 기준관리 클래스
 ###################################################################################################
-NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
-DATATYPE_CHOICES = {('DL','DL'), ('UP','UL')}
 class LowThroughput(models.Model):
+    NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
+    DATATYPE_CHOICES = {('DL','DL'), ('UP','UL')}
+
     networkId = models.CharField(max_length=10, null=True, blank=True, choices=NETWORKID_CHOICES, verbose_name='단말유형') # 네트워크ID(5G, LTE, 3G, WiFi)
     dataType = models.CharField(max_length=10, choices=DATATYPE_CHOICES, verbose_name='데이터유형') # 데이터유형(DL, UL)
     bandwidth = models.FloatField(null=True, default=0.0, verbose_name='속도')
