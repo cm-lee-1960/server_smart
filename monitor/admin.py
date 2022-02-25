@@ -25,16 +25,41 @@ class PhoneAdmin(admin.ModelAdmin):
     search_fields = ('phone_no', )
     list_filter = ['active',]
 
-    fields = [ 'phone_no',
-                ('networkId', 'ispId'),
-                'userInfo1',
-                ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
-                ('dl_count', 'ul_count'),
-                ('status', 'total_count'),
-                'last_updated', 
-                'manage',
-                'active',
-            ]
+    # 2020.02.25 화면상에 항목들을 그룹핑해서 보여준다. 
+    # fields = [ 'phone_no',
+    #             ('networkId', 'ispId'),
+    #             'userInfo1',
+    #             ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
+    #             ('dl_count', 'ul_count'),
+    #             ('status', 'total_count'),
+    #             'last_updated', 
+    #             'manage',
+    #             'active',
+    #         ]
+
+    # 2022.02.25 화면상의 항목들을 세션/그룹핑해서 보여준다. 
+    fieldsets = (
+        ('단말정보', {
+            'fields': ('phone_no',
+                        ('networkId', 'ispId'),
+            ),
+            # 'description' : '단말에 대한 정보를 보여줍니다.'
+        }),
+        ('측정정보', {
+             'fields': ('userInfo1',
+                        ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
+                        ('dl_count', 'ul_count'),
+                        ('status', 'total_count'),
+                        'last_updated', 
+            ),
+        }),
+        ('상태정보', {
+            'fields': ('manage',
+                        'active', 
+            ),
+            # 'classes': ('collapse',),
+        }),
+    )
 
     # 최종 위치보고시간을 출력한다(Integer -> String)
     def last_updated_at(self, phone):
