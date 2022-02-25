@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>일일보고 데이터 등록</title>
+<style>
+
+
+table {
+	width: 100%;
+	border: 1px solid #444444;
+	border-collapse: collapse;
+	font-size: 15pt;
+}
+th, td {
+	border: 1px solid #444444;
+	width: 40px;
+}
+p {
+ 	display: inline;
+}
+h2 {
+	display: inline;
+}
+#title {
+	position: relative;
+	left: 25%;
+}
+thead {
+	background-color: lightgrey; 
+	color: black;
+}
+#register{
+    width: 30%;
+    float:left;
+}
+#show{
+    width: 50%;
+    float:left;
+}
+</style>
+<script type="text/javascript"
+	src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+
+</head>
+
+<body>
+
+
+<form action="{% url 'make_register' %}" method="POST">
+{% csrf_token %}
+<div id="register">
+    <div> 
+       <select name="category">
+            <option value="5G" selected> 5G 
+            <option value="LTE"> LTE
+            <option value="WiFi"> WiFi
+            <option value="품질취약지역"> 품질취약지역
+        </select>
+    </div>
+    <div>
+        <label for = 'title'>행정동</label><br/>
+        <input type="text" name="dong" id="dong" value=0>
+    </div>
+    <div>
+        <label for = 'dagyo'>다중이용시설/교통인프라</label><br/>
+        <input type="text" name="dagyo" id="dagyo" value=0>
+    </div>
+    <div>
+        <label for = 'coverage'>커버리지</label><br/>
+        <input type="text" name="coverage" id="coverage" value=0>
+    </div>
+    <div>
+        <label for = 'bigct'>대도시</label><br/>
+        <input type="text" name="bigct" id="bigct" value=0>
+    </div>
+    <div>
+        <label for = 'smallct'>중소도시</label><br/>
+        <input type="text" name="smallct" id="smallct" value=0>
+    </div>
+    <div>
+        <label for = 'inbuiling'>인빌딩</label><br/>
+        <input type="text" name="inbuiling" id="inbuiling" value=0>
+    </div>
+    <div>
+        <label for = 'nong'>농어촌</label><br/>
+        <input type="text" name="nong" id="nong" value=0>
+    </div>
+    <div>
+        <label for = 'theme'>테마</label><br/>
+        <input type="text" name="theme" id="theme" value=0>
+    </div>
+    <div>
+        <label for = 'sangyong'>상용</label><br/>
+        <input type="text" name="sangyong" id="sangyong" value=0>
+    </div>
+    <div>
+        <label for = 'gaebang'>개방</label><br/>
+        <input type="text" name="gaebang" id="gaebang" value=0>
+    </div>
+    <div>
+        <label for = 'mountain'>등산로</label><br/>
+        <input type="text" name="mountain" id="mountain" value=0>
+    </div>
+    <div>
+        <label for = 'ship'>여객항로</label><br/>
+        <input type="text" name="ship" id="ship" value=0>
+    </div>
+    <div>
+        <label for = 'yooin'>유인도서</label><br/>
+        <input type="text" name="yooin" id="yooin" value=0>
+    </div>
+    <div>
+        <label for = 'searoad'>해안도로</label><br/>
+        <input type="text" name="searoad" id="searoad" value=0>
+    </div><br/>
+    
+    <input type="submit" value="글생성" value=0>
+
+</form>
+</div>
+<div id="show">
+
+
+<h1>
+5G 등록대상
+</h1>
+<div id="output" style="text-align: center;">
+    <table id="5ghh">
+        <thead>
+            <tr>
+                <th >구분</th>
+                <th >계</th>
+                <th >행정동</th>
+                <th >다중이용시설/<br>교통인프라</th>
+                <th >커버리지</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for regi5G in regi5G %}
+             <tr>
+                 <td >대상</td>
+                <td id>{{regi5G.total}}</td>
+                <td id>{{regi5G.dong}}</td>
+                <td id>{{regi5G.dagyo}}</td>
+                <td id>{{regi5G.coverage}}</td>
+            {% endfor %}	
+           
+        </tbody>
+    </table>
+    
+</div>
+<h1>
+    LTE 등록대상
+</h1>
+    <div id="output" style="text-align: center;">
+        <table id="ltehh">
+            <thead>
+                <tr>
+                    <th  rowspan = "2">구분</th>
+                    <th  rowspan = "2">계</th>
+                    <th  colspan = "3">행정동</th>
+                    <th  colspan = "2">다중이용시설/<br>교통인프라</th>
+                    <th  rowspan = "2">커버리지</th>
+                </tr>
+                <tr>
+                    <th >대도시</th>
+                    <th >중소도시</th>
+                    <th >농어촌</th>
+                    <th >인빌딩</th>
+                    <th >테마</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for regiLTE in regiLTE %}
+                 <tr>
+                     <td >대상</td>
+                    <td >{{regiLTE.total}}</td>
+                    <td >{{regiLTE.bigct}}</td>
+                    <td >{{regiLTE.smallct}}</td>
+                    <td >{{regiLTE.nong}}</td>
+                    <td >{{regiLTE.inbuiling}}</td>
+                    <td >{{regiLTE.theme}}</td>
+                    <td >{{regiLTE.coverage}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+    </div>
+<h1>
+    WiFi 등록대상
+</h1>
+<div id="output" style="text-align: center;">
+    <table id="wifihh">
+        <thead>
+            
+            <tr>
+                <th >구분</th>
+                <th >계</th>
+                <th >상용</th>
+                <th >개방</th>
+            </tr>
+            
+        </thead>
+        <tbody>
+            {% for regiWiFi in regiWiFi %}
+             <tr>
+                 <td >대상</td>
+                <td >{{regiWiFi.total}}</td>
+                <td >{{regiWiFi.sangyong}}</td>
+                <td >{{regiWiFi.gaebang}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<h1>
+    품질취약지역 등록대상
+</h1>
+<div id="output" style="text-align: center;">
+    <table id="pjhh">
+        <thead>
+            <tr>
+                <th >구분</th>
+                <th >계</th>
+                <th >등산로</th>
+                <th >여객항로</th>
+                <th >유인도서</th>
+                <th >해안도로</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for regiweak in regiweak %}
+             <tr>
+                 <td >대상</td>
+                <td >{{regiweak.total}}</td>
+                <td >{{regiweak.mountain}}</td>
+                <td >{{regiweak.ship}}</td>
+                <td >{{regiweak.yooin}}</td>
+                <td >{{regiweak.searoad}}</td>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+</body>
+</html>

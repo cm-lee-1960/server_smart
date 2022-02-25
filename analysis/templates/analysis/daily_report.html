@@ -142,24 +142,28 @@ thead {
 					</tr>
 				</thead>
 				<tbody>
-				 	<tr>
-				 		<td >대상</td>
-						<td id = "target1"></td>
-						<td id = "target2"></td>
-						<td id = "target3"></td>
-						<td id = "target4"></td>
+					{% for regi5G in regi5G %}
+					<tr>
+						<td >대상</td>
+					   <td id>{{regi5G.total}}</td>
+					   <td id>{{regi5G.dong}}</td>
+					   <td id>{{regi5G.dagyo}}</td>
+					   <td id>{{regi5G.coverage}}</td>
+				   {% endfor %}	
 					<tr>
 				 		<td >누적</td>
-						<td id = "target5"></td>
-						<td id = "target6"></td>
-						<td id = "target7"></td>
-						<td id = "target8"></td>
+						 <td id>{{phones1.phoneGroup}}</td>
+						 <td id>{{phones1.phone_no}}</td>
+						 <td id>{{phones1.userInfo1}}</td>
+						 <td id>{{phones1.networkId}}</td>
 					<tr>
+					{% for phone in phones2 %}
 				 		<td >금일</td>
-						<td id = "target9"></td>
-						<td id = "target10"></td>
-						<td id = "target11"></td>
-						<td id = "target12"></td>
+						 <td id>{{phone.phoneGroup}}</td>
+						 <td id>{{phone.phone_no}}</td>
+						 <td id>{{phone.userInfo1}}</td>
+						 <td id>{{pho.networkId}}</td>
+					{% endfor %}
 				</tbody>
 			</table>
 			
@@ -206,16 +210,18 @@ thead {
 					</tr>
 				</thead>
 				<tbody>
-				 	<tr>
-				 		<td >대상</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					</tr>
+					{% for regiLTE in regiLTE %}
+					<tr>
+						<td >대상</td>
+					   <td >{{regiLTE.total}}</td>
+					   <td >{{regiLTE.bigct}}</td>
+					   <td >{{regiLTE.smallct}}</td>
+					   <td >{{regiLTE.nong}}</td>
+					   <td >{{regiLTE.inbuiling}}</td>
+					   <td >{{regiLTE.theme}}</td>
+					   <td >{{regiLTE.coverage}}</td>
+				   </tr>
+				   {% endfor %}
 					<tr>
 				 		<td >누적</td>
 						<td >0</td>
@@ -268,12 +274,14 @@ thead {
 					</tr>
 				</thead>
 				<tbody>
-				 	<tr>
-				 		<td >대상</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					</tr>
+					{% for regiWiFi in regiWiFi %}
+					<tr>
+						<td >대상</td>
+					   <td >{{regiWiFi.total}}</td>
+					   <td >{{regiWiFi.sangyong}}</td>
+					   <td >{{regiWiFi.gaebang}}</td>
+				   </tr>
+				   {% endfor %}
 					<tr>
 				 		<td >누적</td>
 						<td >0</td>
@@ -320,14 +328,15 @@ thead {
 					</tr>
 				</thead>
 				<tbody>
-				 	<tr>
-				 		<td >대상</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					</tr>
+					{% for regiweak in regiweak %}
+					<tr>
+						<td >대상</td>
+					   <td >{{regiweak.total}}</td>
+					   <td >{{regiweak.mountain}}</td>
+					   <td >{{regiweak.ship}}</td>
+					   <td >{{regiweak.yooin}}</td>
+					   <td >{{regiweak.searoad}}</td>
+				   {% endfor %}
 					<tr>
 				 		<td >누적</td>
 						<td >0</td>

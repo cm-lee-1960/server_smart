@@ -25,6 +25,7 @@ urlpatterns = [
     path("monitor/", include("monitor.urls")),
     path("analysis/", include("analysis.urls")),
     path("message/", include("message.urls")),
+    
 ]
 # 어드민 페이지 변경
 # admin.site.index_title = "스마트 상황실"
