@@ -21,7 +21,31 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-g%+xa#(om)nj^!u!&8w7kzicx9*!#g*1-atw87f7s8@hy2h&yp'
+# SECRET_KEY = 'django-insecure-g%+xa#(om)nj^!u!&8w7kzicx9*!#g*1-atw87f7s8@hy2h&yp'
+
+import os, json 
+from django.core.exceptions import ImproperlyConfigured
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+secret_file = os.path.join(BASE_DIR, 'secrets.json')
+
+with open(secret_file) as f:
+	secrets = json.loads(f.read())
+
+def get_secret(setting, secrets=secrets):
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = "Set the {0} enviroment variable".format(setting)
+        raise ImproperlyConfigured(error_msg)
+
+SECRET_KEY = get_secret("SECRET_KEY")
+
+# 텔레그램 봇 토큰 및 채널ID를 찾아 온다.
+BOT_TOKEN = get_secret("BOT_TOKEN")
+CHANNEL_ID = get_secret("CHANNEL_ID")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,6 +67,7 @@ INSTALLED_APPS = [
     'monitor',
     'analysis',
     'message',
+    'management'
 ]
 
 MIDDLEWARE = [

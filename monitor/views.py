@@ -6,8 +6,10 @@ from rest_framework.parsers import JSONParser
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
 from message.msg import make_message
 from .events import event_occur_check
-import logging
-logger = logging.getLogger(__name__)
+# from django.conf import settings
+
+# import logging
+# logger = logging.getLogger(__name__)
 
 ###################################################################################################
 # 츨정 데이터 처리모듈
@@ -56,11 +58,11 @@ def receive_json(request):
         print("그룹조회:",str(e))
         return HttpResponse("그룹조회:" + str(e), status=500)
 
+    # 측정 단말기를 조회한다.
     # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
     # (측정 단말기 -> 측정 단말기 그룹 조회)
-    # 동일한 측정 단말로 측정중인 단말(active=True)이 여러개인 경우 가장 최근 것을 가져오도록 정열한다.
-    # *** 동일한 전화번호로 active=True가 있을 경우 문제가 발생할 수 있음
-    # 측정 단말기를 조회한다.
+    # [ 해당일자 + 해당지역 + 해당전화번호 ] => 키값
+    # 측, 해당일자, 해당지역에 측정하고 있는 단말(해당 전화번호)은 하나뿐이다.
     try:
         qs = phoneGroup.phone_set.all().filter(phone_no=data['phone_no'], active=True)
         if qs.exists():
@@ -69,17 +71,27 @@ def receive_json(request):
             phone.save()
         else:
             # 측정 단말기의 관래대상 여부를 판단한다.
+            # *** 모폴로지 조건체크는 향후 DB 테이블에서 가져오서 확인하는 코드로 변경해야 함
             if data['ispId'] == '45008' and \
                 (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")):
                 manage = True
             else:
                 manage = False
+
+            # 5G 측정단말인데, 네트워크 유형이 'NR' 들어오는 경우 '5G'로 처리한다.
+            # 2022.02.24 - 네트워크유형(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.
+            #            - 발견사례) 서울특별시-신분당선(강남-광교) 010-2921-3951 2021-11-08
+            if data['networkId'] == 'NR':
+                networkId = '5G'
+            else:
+                networkId = data['networkId']
+
             # 측정 단말기를 생성한다.
             phone = Phone.objects.create(
                         phoneGroup = phoneGroup,
                         phone_no=data['phone_no'],
                         userInfo1=data['userInfo1'],
-                        networkId=data['networkId'],
+                        networkId=networkId,
                         ispId=data['ispId'],
                         avg_downloadBandwidth=0.0,
                         avg_uploadBandwidth=0.0,
@@ -90,7 +102,7 @@ def receive_json(request):
                         last_updated=data['meastime'],
                         manage=manage,
                         active=True,
-                        )
+                    )
     except Exception as e:
         # 오류코드 리턴 필요
         print("단말기조회:",str(e))
@@ -112,7 +124,11 @@ def receive_json(request):
         
         # 측정 단말기의 통계값들을 업데이트 한다. 
         # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
-        phone.update_info(mdata)
+        # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).
+        # 2022.02.24 통계값 산출은 KT 데이터/속도 조건을 만족하는 경우에만 처리한다. 
+        if data['ispId'] == '45008' and data['testNetworkType'] == 'speed': 
+            phone.update_info(mdata)
+
     except Exception as e:
         # 오류코드 리턴 필요
         print("데이터저장:",str(e))
@@ -132,6 +148,7 @@ def receive_json(request):
     # - 예) speed / latency / web
     #-------------------------------------------------------------------------------------------------
     try:
+        # *** 모폴로지 조건체크는 향후 DB 테이블에서 가져오서 확인하는 코드로 변경해야 함
         if data['ispId'] == '45008' and \
             (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
             data['testNetworkType'] == 'speed':

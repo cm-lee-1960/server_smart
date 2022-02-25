@@ -28,9 +28,6 @@ urlpatterns = [
     
 ]
 # 어드민 페이지 변경
-# admin.site.index_title = "스마트 상황실"
-# admin.site.site_header = "스마트 상황실 관리"
-# admin.site.site_title = "스마트 상황실"
-admin.site.index_title = "smart1"
-admin.site.site_header = "smart2"
-admin.site.site_title = "smart3"
+admin.site.index_title = "스마트 상황실"
+admin.site.site_header = "스마트 상황실 관리"
+admin.site.site_title = "스마트 상황실"
