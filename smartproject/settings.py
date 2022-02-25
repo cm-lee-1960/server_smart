@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'monitor',
     'analysis',
     'message',
+    'management'
 ]
 
 MIDDLEWARE = [

@@ -58,20 +58,34 @@ class PhoneGroup(models.Model):
 class Phone(models.Model):
     """측정 단말기 정보"""
 
+    ISPID_CHOICES = {
+        ("45008", "KT"),
+        ("45005", "SKT"),
+        ("45006", "LGU+"),
+    }
+    STATUS_CHOICES = {
+        ("POWERON", "PowerOn"),
+        ("START", "측정시작"),
+        ("MEASURING", "측정중"),
+        ("END", "측정종료"),
+    }
+
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     phone_no = models.BigIntegerField(verbose_name="측정단말")
-    userInfo1 = models.CharField(max_length=100)
+    userInfo1 = models.CharField(max_length=100, verbose_name="측정지역")
     networkId = models.CharField(
         max_length=100, null=True, blank=True, verbose_name="유형"
     )  # 네트워크ID(5G, LTE, 3G, WiFi)
     ispId = models.CharField(
-        max_length=10, null=True, blank=True
+        max_length=10, null=True, blank=True, choices=ISPID_CHOICES, verbose_name="통신사"
     )  # 한국:450 / KT:08, SKT:05, LGU+:60
     avg_downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="DL")
     avg_uploadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="UL")
     dl_count = models.IntegerField(null=True, default=0)  # 다운로드 콜수
     ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
-    status = models.CharField(max_length=10, null=True, verbose_name="진행단계")
+    status = models.CharField(
+        max_length=10, null=True, choices=STATUS_CHOICES, verbose_name="진행단계"
+    )
     total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
     last_updated = models.BigIntegerField(
         null=True, blank=True, verbose_name="최종보고시간"
@@ -80,8 +94,8 @@ class Phone(models.Model):
     active = models.BooleanField(default=True, verbose_name="상태")
 
     class Meta:
-        verbose_name = "측정단말"
-        verbose_name_plural = "측정단말"
+        verbose_name = "측정 단말"
+        verbose_name_plural = "측정 단말"
 
     def __str__(self):
         # return f"{self.phone_no}/{self.avg_downloadBandwidth}/{self.avg_uploadBandwidth}/{self.dl_count}/{self.ul_count}"
@@ -92,8 +106,11 @@ class Phone(models.Model):
         """측정단말의 통계정보를 업데이트 한다."""
         # DL/UL 평균속도를 업데이트 한다.
         # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
+        # 2022.02.25 속도 데이터 + NR(5G->LTE)제외 조건
         dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
-        for mdata in self.measurecalldata_set.all():
+        for mdata in self.measurecalldata_set.filter(testNetworkType="speed").exclude(
+            networkId="NR"
+        ):
             # logger.info("콜단위 데이터" + str(mdata))
             # print("콜단위 데이터" + str(mdata))
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
@@ -131,16 +148,24 @@ class MeasureCallData(models.Model):
 
     phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
     dataType = models.CharField(max_length=10)
-    phone_no = models.BigIntegerField(null=True, blank=True)  # 전화번호
-    meastime = models.BigIntegerField(null=True, blank=True)  # 측정시간
+    phone_no = models.BigIntegerField(
+        null=True, blank=True, verbose_name="전화번호"
+    )  # 전화번호
+    meastime = models.BigIntegerField(
+        null=True, blank=True, verbose_name="측정시간"
+    )  # 측정시간
     networkId = models.CharField(
-        max_length=100, null=True, blank=True
+        max_length=100, null=True, blank=True, verbose_name="유형"
     )  # 네트워크ID(5G, LTE, 3G, WiFi)
     groupId = models.CharField(max_length=100, null=True, blank=True)  # 그룹ID
     currentTime = models.CharField(max_length=100, null=True, blank=True)  # 현재시간
     timeline = models.CharField(max_length=100, null=True, blank=True)  # 타입라인
-    cellId = models.CharField(max_length=100, null=True, blank=True)  # 셀ID
-    currentCount = models.IntegerField(null=True, blank=True)  # 현재 콜카운트
+    cellId = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name="셀ID"
+    )  # 셀ID
+    currentCount = models.IntegerField(
+        null=True, blank=True, verbose_name="현재 콜카운트"
+    )  # 현재 콜카운트
     ispId = models.CharField(
         max_length=10, null=True, blank=True
     )  # 한국:450 / KT:08, SKT:05, LGU+:60
@@ -149,14 +174,20 @@ class MeasureCallData(models.Model):
     )  # 측정종류(speed, latency, web)
     userInfo1 = models.CharField(max_length=100, null=True, blank=True)  # 입력된 주소정보
     userInfo2 = models.CharField(
-        max_length=100, null=True, blank=True
+        max_length=100, null=True, blank=True, verbose_name="모폴러지"
     )  # 측정위치(행정동, 테마, 인빌딩, 커버리지)
     siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
     guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군
-    addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
+    addressDetail = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name="주소상세"
+    )  # 주소상세
     udpJitter = models.FloatField(null=True, blank=True)  # 지연시간
-    downloadBandwidth = models.FloatField(null=True, blank=True, default=0)  # DL속도
-    uploadBandwidth = models.FloatField(null=True, blank=True, default=0)  # UP속도
+    downloadBandwidth = models.FloatField(
+        null=True, blank=True, verbose_name="DL"
+    )  # DL속도
+    uploadBandwidth = models.FloatField(
+        null=True, blank=True, verbose_name="UL"
+    )  # UP속도
     sinr = models.FloatField(null=True, blank=True)  # SINR
     isWifi = models.CharField(max_length=100, null=True, blank=True)  # 와이파이 사용여부
     latitude = models.FloatField(null=True, blank=True)  # 위도
@@ -173,6 +204,10 @@ class MeasureCallData(models.Model):
     NR_SINR = models.FloatField(null=True, blank=True)  # 5G SINR
     # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
+
+    class Meta:
+        verbose_name = "측정 데이터(콜단위)"
+        verbose_name_plural = "측정 데이터(콜단위)"
 
     def __str__(self):
         return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}/"
@@ -236,3 +271,9 @@ class MeasureSecondData(models.Model):
 ###################콜카운트 avg저장 ######################
 # class MeasureSecondData(models.Model):
 #     '''폰그룹 콜카운트당 avg 저장'''
+###################################################################################################
+# 금일측정조 데이터
+###################################################################################################
+class MeasureingTeam(models.Model):
+    meastime = models.DateField(verbose_name="측정일자")
+    message = models.TextField(verbose_name="메시지 내용")

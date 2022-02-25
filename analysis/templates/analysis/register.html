@@ -1,0 +1,48 @@
+<!--app/templates/home.html-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    hello
+    <div class = "container">
+        <form method="POST" action="{% url 'register" %}>
+            분류:<input type="text" name="category">
+            <br>
+            행정동:<input type="text" name="dong">
+            <br>
+            다중이용시설/교통인프라:<input type="email" name="dagyo">
+            <br>
+            커버리지:<input type="text" name="coverage">
+            <br>
+            대도시:<input type="text" name="bigct">
+            <br>
+            중소도시 :<input type="text" name="smallct">
+            <br>
+            인빌딩:<input type="text" name="inbuiling">
+            <br>
+            농어촌:<input type="text" name="nong">
+            <br>
+            테마:<input type="text" name="theme">
+            <br>
+            상용:<input type="text" name="sangyong">
+            <br>
+            개방:<input type="text" name="gaebang">
+            <br>
+            등산로:<input type="text" name="mountain">
+            <br>
+            여객항로:<input type="text" name="ship">
+            <br>
+            유인도서:<input type="text" name="yooin">
+            <br>
+            해안도로:<input type="text" name="searoad">
+            <br>
+            <input type="submit" value="제출">
+        </form> 
+    </div>
+</body>
+</html>

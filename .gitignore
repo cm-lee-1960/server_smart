@@ -1,0 +1,7 @@
+secrets.json
+
+/logs
+/management/__pycache__
+/message/__pycache__
+/monitor/__pycache__
+/smartproject/__pycache__
