@@ -43,7 +43,8 @@ class PhoneGroup(models.Model):
 ###################################################################################################
 class Phone(models.Model):
     '''측정 단말기 정보'''
-    ISPID_CHOICES = {('45008','KT'), ('45005','SKT'), ('45006','LGU+')}
+    ISPID_CHOICES = {('45008','KT'), ('45005','SKT'), ('45006','LGU+'),}
+    STATUS_CHOICES = {('POWERON','PowerOn'), ('START', '측정시작'), ('MEASURING', '측정중'), ('END', '측정종료'),}
 
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     phone_no = models.BigIntegerField(verbose_name='측정단말')
@@ -54,7 +55,7 @@ class Phone(models.Model):
     avg_uploadBandwidth =models.FloatField(null=True, default=0.0, verbose_name='UL')
     dl_count = models.IntegerField(null=True, default=0) # 다운로드 콜수
     ul_count = models.IntegerField(null=True, default=0) # 업로드 콜수
-    status = models.CharField(max_length=10, null=True, verbose_name='진행단계')
+    status = models.CharField(max_length=10, null=True, choices=STATUS_CHOICES,verbose_name='진행단계')
     total_count = models.IntegerField(null=True, default=0, verbose_name='콜 카운트')
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name='최종보고시간') # 최종 위치보고시간
     manage = models.BooleanField(default=False) # 관리대상 여부
