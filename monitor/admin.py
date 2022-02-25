@@ -25,6 +25,17 @@ class PhoneAdmin(admin.ModelAdmin):
     search_fields = ('phone_no', )
     list_filter = ['active',]
 
+    fields = [ 'phone_no',
+                ('networkId', 'ispId'),
+                'userInfo1',
+                ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
+                ('dl_count', 'ul_count'),
+                ('status', 'total_count'),
+                'last_updated', 
+                'manage',
+                'active',
+            ]
+
     # 최종 위치보고시간을 출력한다(Integer -> String)
     def last_updated_at(self, phone):
         s = str(phone.last_updated)
