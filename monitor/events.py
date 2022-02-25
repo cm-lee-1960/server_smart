@@ -2,7 +2,7 @@ from haversine import haversine # 이동거리
 # from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
 import requests
 from .geo import KakaoLocalAPI
-from message.models import Message
+from .models import Message
 
 ###################################################################################################
 # 이벤트 발생여부를 체크하는 모듈

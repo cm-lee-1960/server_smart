@@ -1,21 +1,21 @@
 import telegram
 from telegram.ext import CommandHandler, MessageHandler
+from django.conf import settings
 from . import tele_chatbot
 
-bot_token = '5295955513:AAE7eyfD0xUANk-ZjKAsIhti_pXoV_eh_KM'
+# bot_token = '5295955513:AAE7eyfD0xUANk-ZjKAsIhti_pXoV_eh_KM'
 #webhook_url = 'https://1452-121-165-124-29.ngrok.io'
 
-# bot 설정
+bot_token = settings.BOT_TOKEN
 bot = telegram.Bot(bot_token)
 
-
-# 단순 메시지 전송
-def send_message_bot(sender, **kwargs):
-    bot_token = '5041688809:AAFuRPnLZxbVY3014X4ElolaH564Mm9CiYI'
-    #webhook_url = 'https://1452-121-165-124-29.ngrok.io'
-    # bot 설정
+#--------------------------------------------------------------------------------------------------
+# 텔레그램 메시지를 전송한다.
+#--------------------------------------------------------------------------------------------------
+def send_message_bot(channelId, message):
+    bot_token = settings.BOT_TOKEN
     bot = telegram.Bot(bot_token)
-    bot.sendMessage(kwargs['instance'].channelId, text=kwargs['instance'].message)
+    bot.sendMessage(channelId, text=message)
 
 
 # 챗봇 활성화

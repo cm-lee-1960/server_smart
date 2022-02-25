@@ -1,5 +1,7 @@
 from django.db import models
-import logging
+from django.db.models.signals import post_save
+from message.tele_msg import send_message_bot
+# import logging
 
 # logger = logging.getLogger(__name__)
 
@@ -18,14 +20,7 @@ class PhoneGroup(models.Model):
     def current_count_check(self, phone):
         """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
         result = False
-        if phone.total_count in [
-            1,
-            3,
-            10,
-            13,
-            37,
-            57,
-        ]:
+        if phone.total_count in [1, 3, 10, 27, 37, 57,]:
             ## 단말기 체인지 되고 재측정시 그데이터도 더해져서 메시지가 보내질수도 있다 그때는 예외조건
             # 단밀기 그룹으로 묶여 았는 상대편 측정 단말기를 조회한다.
             qs = phone.phoneGroup.phone_set.exclude(phone_no=phone.phone_no)
@@ -268,12 +263,41 @@ class MeasureSecondData(models.Model):
         return f"{self.phone_no}/{self.neworkid}/{self.meastime}/{self.currentCount}"
 
 
-###################콜카운트 avg저장 ######################
-# class MeasureSecondData(models.Model):
-#     '''폰그룹 콜카운트당 avg 저장'''
+
 ###################################################################################################
 # 금일측정조 데이터
 ###################################################################################################
 class MeasureingTeam(models.Model):
     meastime = models.DateField(verbose_name="측정일자")
     message = models.TextField(verbose_name="메시지 내용")
+
+
+###################################################################################################
+# 전송 메시지 클래스
+###################################################################################################
+class Message(models.Model):
+    '''전송 메시지'''
+    phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
+    send_type = models.CharField(max_length=10) # 메시지유형(TELE: 텔레그램, XROS: 크로샷)
+    currentCount = models.IntegerField()
+    message = models.TextField(default=False)
+    channelId = models.CharField(max_length=25)
+    sended = models.BooleanField(default=True)
+    # 전송일시 항목추가
+
+# -------------------------------------------------------------------------------------------------
+# 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 메시지를 전송한다.
+#--------------------------------------------------------------------------------------------------
+def send_message(sender, **kwargs):
+    # 텔레그램으로 메시지를 전송한다.
+    if kwargs['instance'].send_type == 'TELE':
+        send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
+    # 크로샷으로 메시지를 전송한다.
+    elif kwargs['instance'].send_type == 'XROS':
+        pass
+
+# -------------------------------------------------------------------------------------------------
+# 전송 메시지가 저장된 후 메시지 전송 모듈을 호출한다(SIGNAL). 
+#--------------------------------------------------------------------------------------------------
+post_save.connect(send_message, sender=Message)
+

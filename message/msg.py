@@ -1,9 +1,9 @@
-from .models import Message
 from django.conf import settings
-from monitor.models import Phone
+from monitor.models import Phone, Message
 
-
+#--------------------------------------------------------------------------------------------------
 # 측정 단말기의 상태에 따라서 전송 메시지를 생성한다.
+#--------------------------------------------------------------------------------------------------
 def make_message(phone):
     """측정단말의 상태에 따라서 메시지를 작성한다."""
     print("make_message()함수 시작")
@@ -11,14 +11,12 @@ def make_message(phone):
     # 2022.01.17 Power On/Off는 데이터 추가해 달라고 하겠음
     # channelId = '-736183270'
     channelId = settings.CHANNEL_ID
-    print("채널아이디는 :", channelId)
 
     # status = ["POWERON", "START", "MEASURING", "END"]  ## MEASUREING은 따로
     status = ["POWERON", "MEASURING", "END"]  ## MEASUREING은 따로
-    # 측정 진행 메시지는 DL/UP 측정 단말기의 현재 콜 카운트가 같고, 3, 10, 27, 37, 57 콜 단위로 보고함
-    # print("### make_message(): ", self.status, self.phoneGroup.current_count_check())
-    if phone.status in status and phone.phoneGroup.current_count_check(phone):
 
+    # 측정 진행 메시지는 DL/UP 측정 단말기의 현재 콜 카운트가 같고, 3, 10, 27, 37, 57 콜 단위로 보고함
+    if phone.status in status and phone.phoneGroup.current_count_check(phone):
         # 측정 단말기의 DL/UP 평균값들을 가져온다.
         dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
         avg_downloadBandwidth = 0  # 다운로드 평균속도
@@ -71,15 +69,18 @@ def make_message(phone):
 
         # 메시지를 작성한다.
         messages = {
-            "POWERON": "OO지역 단말이 켜졌습니다.",
-            "START": f"측정을 시작합니다.\n{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
-            "MEASURING": f"{phone.total_count}번째 측정 데이터입니다.\n{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
-            ## 이게 우선
-            "END": f"측정이 종료되었습니다(총{phone.total_count}건).\n{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
+            "POWERON": f"{phone.userInfo1}에서 단말이 켜졌습니다.",
+            "START": f"{phone.userInfo1}에서 측정을 시작합니다.\n" + \
+                     f"전화번호/DL/UL\n" + \
+                     f"{phone.phone_no}/{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
+            "MEASURING": f"{phone.userInfo1}에서 {phone.total_count}번째 측정중입니다.\n" + \
+                         f"전화번호/DL/UL\n" + \
+                         f"{phone.phone_no}/{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
+            "END": f"측정이 종료되었습니다(총{phone.total_count}건).\n" + \
+                   f"전화번호/DL/UL\n" + \
+                   f"{phone.phone_no}/{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
         }
 
-        msg_test = messages[phone.status]
-        print("요게궁금하다. :", msg_test)
 
         # 전송 메시지를 생성한다.
         Message.objects.create(
