@@ -75,6 +75,21 @@ class PhoneAdmin(admin.ModelAdmin):
         filtered_query = query.filter(ispId='45008', manage=True)
         return filtered_query
 
+    # def has_delete_permission(self, request, obj=None):
+    #     # return request.phone.is_superuser()
+    #     return False
+
+    # 저장 버튼을 제외한 나머지 버튼들을 화면에서 보이지 않게 한다.
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        context.update({
+                'show_save': True,
+                'show_save_and_add_another': False,
+                'show_save_and_continue': False,
+                'show_delete': False
+            })
+        return super().render_change_form(request, context, add, change, form_url, obj)
+
+
 class MeasureCallDataAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 데이터 건 by 건 보여주기 위한 클래스'''
     list_display = ['userInfo1', 'phone_no', 'currentCount', 'networkId', 'ispId',\
