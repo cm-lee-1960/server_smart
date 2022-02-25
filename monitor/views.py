@@ -125,8 +125,8 @@ def receive_json(request):
         # 측정 단말기의 통계값들을 업데이트 한다. 
         # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
         # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).
-        # 2022.02.24 통계값 산출은 KT 데이터/속도/NR제외 조건을 만족하는 경우에만 처리한다. 
-        if data['ispId'] == '45008' and data['testNetworkType'] == 'speed' and data['networkId'] == 'NR': 
+        # 2022.02.24 통계값 산출은 KT 데이터/속도 조건을 만족하는 경우에만 처리한다. 
+        if data['ispId'] == '45008' and data['testNetworkType'] == 'speed': 
             phone.update_info(mdata)
 
     except Exception as e:

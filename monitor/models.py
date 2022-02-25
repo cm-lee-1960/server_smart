@@ -41,13 +41,14 @@ class PhoneGroup(models.Model):
 # * 측정중인 단말을 관리한다. 
 # * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
 ###################################################################################################
+ISPID_CHOICES = {('45008','KT'), ('45005','SKT'), ('45006','LGU+')}
 class Phone(models.Model):
     '''측정 단말기 정보'''
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     phone_no = models.BigIntegerField(verbose_name='측정단말')
-    userInfo1 = models.CharField(max_length=100)
+    userInfo1 = models.CharField(max_length=100, verbose_name='측정지역')
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name='유형') # 네트워크ID(5G, LTE, 3G, WiFi)    
-    ispId = models.CharField(max_length=10, null=True, blank=True) # 한국:450 / KT:08, SKT:05, LGU+:60
+    ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES,verbose_name='통신사') # 한국:450 / KT:08, SKT:05, LGU+:60
     avg_downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name='DL')
     avg_uploadBandwidth =models.FloatField(null=True, default=0.0, verbose_name='UL')
     dl_count = models.IntegerField(null=True, default=0) # 다운로드 콜수
@@ -70,8 +71,9 @@ class Phone(models.Model):
         '''측정단말의 통계정보를 업데이트 한다.'''
         # DL/UL 평균속도를 업데이트 한다.
         # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
+        # 2022.02.25 속도 데이터 + NR(5G->LTE)제외 조건
         dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
-        for mdata in self.measurecalldata_set.all():
+        for mdata in self.measurecalldata_set.filter(testNetworkType='speed').exclude(networkId='NR'):
             # logger.info("콜단위 데이터" + str(mdata))
             # print("콜단위 데이터" + str(mdata))
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
