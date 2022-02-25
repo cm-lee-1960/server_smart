@@ -12,7 +12,7 @@ from .events import event_occur_check
 # logger = logging.getLogger(__name__)
 
 ###################################################################################################
-# 츨정 데이터 처리모듈
+# 측정 데이터 처리모듈
 # 1) 수신 받은 측정 데이터(JSON) 파싱
 # 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
 # 3) 측정중인 단말기가 있는지 확인
@@ -45,11 +45,9 @@ def receive_json(request):
         qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], ispId=data['ispId'], \
             active=True)
         if qs.exists():
-            print("그룹 있음")
             phoneGroup = qs[0]    
         else:
             # 측정 단말기 그룹을 생성한다. 
-            print("그룹 없음")
             phoneGroup = PhoneGroup.objects.create(
                             measdate=measdate,
                             userInfo1=data['userInfo1'],
@@ -91,6 +89,7 @@ def receive_json(request):
             # 측정 단말기를 생성한다.
             phone = Phone.objects.create(
                         phoneGroup = phoneGroup,
+                        measdate=str(data['meastime'])[0:8],
                         phone_no=data['phone_no'],
                         userInfo1=data['userInfo1'],
                         networkId=networkId,
@@ -105,6 +104,10 @@ def receive_json(request):
                         manage=manage,
                         active=True,
                     )
+
+            # 2022.02.25 측정 단말기가 생성되면 첫번째 측정 시작인지 확인한다.
+            make_message(phone)
+
     except Exception as e:
         # 오류코드 리턴 필요
         print("단말기조회:",str(e))
@@ -166,10 +169,3 @@ def receive_json(request):
         return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
     
     return HttpResponse("성공")
-
-
-
-    
-    
-        
- 

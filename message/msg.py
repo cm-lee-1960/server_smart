@@ -12,8 +12,7 @@ def make_message(phone):
     # channelId = '-736183270'
     channelId = settings.CHANNEL_ID
 
-    # status = ["POWERON", "START", "MEASURING", "END"]  ## MEASUREING은 따로
-    status = ["POWERON", "MEASURING", "END"]  ## MEASUREING은 따로
+    status = ["POWERON", "START", "MEASURING", "END"]
 
     # 측정 진행 메시지는 DL/UP 측정 단말기의 현재 콜 카운트가 같고, 3, 10, 27, 37, 57 콜 단위로 보고함
     if phone.status in status and phone.phoneGroup.current_count_check(phone):
@@ -27,7 +26,7 @@ def make_message(phone):
         for phone_id in phone.phoneGroup.phone_set.all():  ##그룹폰의 목록 카운트
             # if 콜카운트가 낮은 phone이면 정보 저장하고 패스
             if phone_id.id == phone.id:
-                print("이게궁금하다.", phone.id)
+                # print("이게궁금하다.", phone.id)
                 dl_count = phone.dl_count  ##현재 dl카운트
                 avg_downloadBandwidth += phone.avg_downloadBandwidth  ## 현재 dl 에버리지
                 ul_count = phone.ul_count  ## 현재 ul카운트

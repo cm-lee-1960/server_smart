@@ -7,6 +7,7 @@ from message.tele_msg import send_message_bot
 
 ###################################################################################################
 # 측정 단말기 그룹정보
+# 2022.02.25 - 해당지역에 단말이 첫번째 측정을 시작했을 때 측정시작(START) 메시지를 한번 전송한다.
 ###################################################################################################
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
@@ -20,7 +21,17 @@ class PhoneGroup(models.Model):
     def current_count_check(self, phone):
         """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
         result = False
-        if phone.total_count in [1, 3, 10, 27, 37, 57,]:
+        # 해당지역에 단말이 첫번째로 측정을 시작했는지 확인한다.
+        print("current_count_check()-total_count", phone.total_count)
+        if phone.total_count == 1:
+            # 해당일자에 측정중인 단말이 없다면 메시지를 전송한다.
+            # *** 2022.02.25 나중에 고민해야 할 사항 -> 관리대상이 아닌 측정단말이 먼저 시작했을 경우는 어떻게 하지?
+            #                현재는 관리대상 단말 중에서 첫번째 첫번째 측정을 시작했을 때 메시지를 전송한다.
+            qs = Phone.objects.filter(measdate=phone.measdate, manage=True).exclude(phone_no=phone.phone_no)
+            print("current_count_check():", phone.phone_no, phone.phone_no, qs)
+            if not qs.exists():
+                result = True
+        elif phone.total_count in [3, 10, 27, 37, 57,]:
             ## 단말기 체인지 되고 재측정시 그데이터도 더해져서 메시지가 보내질수도 있다 그때는 예외조건
             # 단밀기 그룹으로 묶여 았는 상대편 측정 단말기를 조회한다.
             qs = phone.phoneGroup.phone_set.exclude(phone_no=phone.phone_no)
@@ -29,16 +40,7 @@ class PhoneGroup(models.Model):
                 # 상대편 측정 단말기의 현재 콜 카운트가 측정 단말 보다 같거나 커야 한다.
                 if p.total_count >= phone.total_count:
                     result = True
-        # 2.21 로직이 복잡하고, 오류가 있어서 위의 코드로 단순하게 개선함
-        # currentCountList = []
-        # for p in self.phone_set.all():
-        #     currentCountList.append(p.total_count)
-        # # 현재 콜카운트가 작은 값부터 나열되도록 정렬한다.
-        # currentCountList.sort()
-        # result = len(currentCountList) > 1 and \
-        #     all(element >= currentCountList[0] for element in currentCountList) and \
-        #     currentCountList[0] in [1, 3, 10, 27, 37, 57]
-        # print("current_count_check()함수 실행:", currentCountList, result)
+
         return result
 
     def __str__(self):
@@ -49,6 +51,8 @@ class PhoneGroup(models.Model):
 # 측정 단말기 정보
 # * 측정중인 단말을 관리한다.
 # * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
+# ------------------------------------------------------------------------------------------------
+# 2022.02.25 측정일자(measdate) 문자열(8자래) 항목 추가
 ###################################################################################################
 class Phone(models.Model):
     """측정 단말기 정보"""
@@ -66,6 +70,7 @@ class Phone(models.Model):
     }
 
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
+    measdate = models.CharField(max_length=10)
     phone_no = models.BigIntegerField(verbose_name="측정단말")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정지역")
     networkId = models.CharField(
@@ -274,6 +279,7 @@ class MeasureingTeam(models.Model):
 
 ###################################################################################################
 # 전송 메시지 클래스
+# 2022.02.25 의존성으로 마이그레이트 및 롤백 시 오류가 자주 발생하여 모니터 앱으로 옮겨 왔음
 ###################################################################################################
 class Message(models.Model):
     '''전송 메시지'''
