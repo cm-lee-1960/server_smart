@@ -19,11 +19,22 @@ from .models import Phone, MeasureCallData
 class PhoneAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
     # form = PhoneForm
-    list_display = ['userInfo1', 'phone_no', 'networkId', 'avg_downloadBandwidth', \
-        'avg_uploadBandwidth', 'status', 'total_count', 'last_updated_at', 'active']
+    list_display = ['userInfo1', 'phone_no', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
+        'status', 'total_count', 'last_updated_at', 'active']
     list_display_links = ['phone_no']
-    search_fields = ('phone_no', )
+    search_fields = ('userInfo1', 'phone_no', )
     list_filter = ['active',]
+
+    # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
+    def avg_downloadBandwidth_fmt(self, obj):
+        return '%.2f' % obj.avg_downloadBandwidth
+    avg_downloadBandwidth_fmt.short_description = 'DL'
+
+    # UL 평균속도를 소수점 2자리까지 화면에 표시한다. 
+    def avg_uploadBandwidth_fmt(self, obj):
+        return '%.2f' % obj.avg_uploadBandwidth
+    avg_uploadBandwidth_fmt.short_description = 'UL'
+    
 
     # 2020.02.25 화면상에 항목들을 그룹핑해서 보여준다. 
     # fields = [ 'phone_no',

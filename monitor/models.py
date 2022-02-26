@@ -79,32 +79,49 @@ class Phone(models.Model):
     # 측정 단말기의 통계정보를 업데이트 한다.
     def update_info(self, mdata):
         """측정단말의 통계정보를 업데이트 한다."""
-        # DL/UL 평균속도를 업데이트 한다.
-        # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
-        # 2022.02.25 속도 데이터 + NR(5G->LTE)제외 조건
-        dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
-        for mdata in self.measurecalldata_set.filter(testNetworkType="speed").exclude(
-            networkId="NR"
-        ):
-            # logger.info("콜단위 데이터" + str(mdata))
-            # print("콜단위 데이터" + str(mdata))
+        #### 방식 2
+        # # DL/UL 평균속도를 업데이트 한다.
+        # # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
+        # # 2022.02.25 속도 데이터 + NR(5G->LTE)제외 조건
+        # dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
+        # for mdata in self.measurecalldata_set.filter(testNetworkType="speed").exclude(
+        #     networkId="NR"
+        # ):
+        #     # logger.info("콜단위 데이터" + str(mdata))
+        #     # print("콜단위 데이터" + str(mdata))
+        #     if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
+        #         dl_sum += mdata.downloadBandwidth
+        #         dl_count += 1
+        #     if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
+        #         ul_sum += mdata.uploadBandwidth
+        #         ul_count += 1
+        # if dl_count:
+        #     self.avg_downloadBandwidth = round(dl_sum / dl_count, 3)
+        # if ul_count:
+        #     self.avg_uploadBandwidth = round(ul_sum / ul_count, 3)
+
+        # # 단말기의 콜 수를 업데이트 한다.
+        # self.dl_count = dl_count  # 다운로드 콜건수
+        # self.ul_count = ul_count  # 업로드 콜건수
+        # self.currentCount = mdata.currentCount # 현재 콜카운트
+        # self.total_count = dl_count + ul_count  # 전체 콜건수
+
+        #### 방식 2
+        # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다. 
+        if mdata.networkId != 'NR':
+            # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
-                dl_sum += mdata.downloadBandwidth
-                dl_count += 1
+                self.avg_downloadBandwidth = round(((self.avg_downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 3)
+                self.dl_count += 1
+            # UP 평균속도 계산
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
-                ul_sum += mdata.uploadBandwidth
-                ul_count += 1
-        if dl_count:
-            self.avg_downloadBandwidth = round(dl_sum / dl_count, 3)
-        if ul_count:
-            self.avg_uploadBandwidth = round(ul_sum / ul_count, 3)
-
-        # 단말기의 콜 수를 업데이트 한다.
-        self.dl_count = dl_count  # 다운로드 콜건수
-        self.ul_count = ul_count  # 업로드 콜건수
+                self.avg_uploadBandwidth = round(((self.avg_uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
+                self.ul_count += 1
+        
+        # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
         self.currentCount = mdata.currentCount # 현재 콜카운트
-        self.total_count = dl_count + ul_count  # 전체 콜건수
-
+        self.total_count = self.dl_count + self.ul_count  # 전체 콜건수
+        
         # 단말기의 상태를 업데이트 한다.
         # 상태 - 'POWERON', 'START', 'MEASURING', 'END'
         self.status = "START" if self.total_count == 1 else "MEASURING"

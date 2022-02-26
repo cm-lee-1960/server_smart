@@ -1,3 +1,4 @@
+from django.conf import settings
 from haversine import haversine # 이동거리
 # from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
 import requests
@@ -212,7 +213,8 @@ def call_staying_check(mdata):
 #--------------------------------------------------------------------------------------------------
 def make_event_message(mdata, evnet_code):
     '''이벤트 메시지 작성 함수'''
-    channelId = '-736183270' 
+    # channelId = '-736183270' 
+    channelId = settings.CHANNEL_ID
     if mdata.downloadBandwidth:
         phone_type, bandwidth = 'DL', mdata.downloadBandwidth
     elif mdata.uploadBandwidth: 

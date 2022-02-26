@@ -13,7 +13,8 @@ def current_count_check(mdata):
     # 해당지역에 단말이 첫번째로 측정을 시작했는지 확인한다.
     # print("current_count_check()-total_count", phone.total_count)
     if phone.total_count == 1:
-        # 해당일자에 측정중인 단말이 없다면 메시지를 전송한다.
+        # 해당일자에 첫번째 측정 단말기일 경우, 측정시작 메시지를 전송한다. 
+        # 즉, 해당일자에 측정중인 단말이 없다면 메시지를 전송한다.
         qs = Phone.objects.filter(measdate=phone.measdate, manage=True).exclude(phone_no=phone.phone_no)
         if not qs.exists():
             result = True
@@ -49,6 +50,7 @@ def make_message(mdata):
         avg_downloadBandwidth = 0  # 다운로드 평균속도
         avg_uploadBandwidth = 0  # 업로드 평균속도
         
+   
         # count_check = 0  ## 쌍폰의 카운트 체크
         #
         # # for phone in phone.phoneGroup.phone_set.all():  ## 그룹폰 가져오기
