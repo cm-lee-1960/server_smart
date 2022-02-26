@@ -170,3 +170,4 @@ def receive_json(request):
     
     return HttpResponse("성공")
 
+
