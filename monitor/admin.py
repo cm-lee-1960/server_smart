@@ -19,7 +19,7 @@ from .models import Phone, MeasureCallData
 class PhoneAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
     # form = PhoneForm
-    list_display = ['phone_no', 'userInfo1', 'networkId', 'avg_downloadBandwidth', \
+    list_display = ['userInfo1', 'phone_no', 'networkId', 'avg_downloadBandwidth', \
         'avg_uploadBandwidth', 'status', 'total_count', 'last_updated_at', 'active']
     list_display_links = ['phone_no']
     search_fields = ('phone_no', )
