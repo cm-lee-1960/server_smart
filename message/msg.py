@@ -1,5 +1,6 @@
 from django.conf import settings
-from monitor.models import Phone, Message
+from django.db.models import Q
+from monitor.models import Phone, MeasureCallData, Message
 
 #--------------------------------------------------------------------------------------------------
 # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.
@@ -13,10 +14,15 @@ def current_count_check(mdata):
     # 해당지역에 단말이 첫번째로 측정을 시작했는지 확인한다.
     # print("current_count_check()-total_count", phone.total_count)
     if mdata.currentCount == 1:
-        # 해당일자에 첫번째 측정 단말기일 경우, 측정시작 메시지를 전송한다. 
-        # 즉, 해당일자에 측정중인 단말이 없다면 메시지를 전송한다.
-        qs = Phone.objects.filter(measdate=phone.measdate, manage=True).exclude(phone_no=phone.phone_no)
-        if not qs.exists():
+        # # 해당일자에 첫번째 측정 단말기일 경우, 측정시작 메시지를 전송한다. 
+        # # 즉, 해당일자에 측정중인 단말이 없다면 메시지를 전송한다.
+        # qs = Phone.objects.filter(measdate=phone.measdate, manage=True).exclude(phone_no=phone.phone_no)
+        # if not qs.exists():
+        #     result = True
+        meastime_from = int(str(mdata.meastime)[:8] + '000000000') # 조회시작
+        meastime_to = int(str(mdata.meastime)[:8] + '235959999') # 조회종료
+        qs = MeasureCallData.objects.filter(Q(meastime__gte=meastime_from) & Q(meastime__lte=meastime_to))
+        if len(qs) <= 1:
             result = True
     elif mdata.currentCount in [3, 10, 27, 37, 57,]:
         # 단말기 체인지 되고 재측정시 그데이터도 더해져서 메시지가 보내질수도 있다 그때는 예외조건
