@@ -12,7 +12,7 @@ def current_count_check(mdata):
     phone = mdata.phone
     # 해당지역에 단말이 첫번째로 측정을 시작했는지 확인한다.
     # print("current_count_check()-total_count", phone.total_count)
-    if phone.total_count == 1:
+    if mdata.currentCount == 1:
         # 해당일자에 첫번째 측정 단말기일 경우, 측정시작 메시지를 전송한다. 
         # 즉, 해당일자에 측정중인 단말이 없다면 메시지를 전송한다.
         qs = Phone.objects.filter(measdate=phone.measdate, manage=True).exclude(phone_no=phone.phone_no)
@@ -140,25 +140,29 @@ def make_message(mdata):
 
         # 메시지를 작성한다.
         messages = {
-            "POWERON": f"{phone.userInfo1}에서 단말이 켜졌습니다.",
-            "START": f"{phone.userInfo1}에서 측정을 시작합니다.\n" + \
+            "POWERON": f"{mdata.userInfo1}에서 단말이 켜졌습니다.",
+            "START": f"{mdata.userInfo1}에서 측정을 시작합니다.\n" + \
                      f"전화번호/DL/UL\n" + \
-                     f"{phone.phone_no}/{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
-            "MEASURING": f"{phone.userInfo1}에서 {phone.currentCount}번째 측정중입니다.\n" + \
+                     f"{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
+            "MEASURING": f"{mdata.userInfo1}에서 {mdata.currentCount}번째 측정중입니다.\n" + \
                          f"전화번호/DL/UL\n" + \
-                         f"{phone.phone_no}/{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
+                         f"{mdata.userInfo1}/{mdata.currentCount}/{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
             "END": f"측정이 종료되었습니다(총{phone.total_count}건).\n" + \
                    f"전화번호/DL/UL\n" + \
-                   f"{phone.phone_no}/{avg_downloadBandwidth:.1f} / {avg_uploadBandwidth:.1f}",
+                   f"{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
         }
 
 
         # 전송 메시지를 생성한다.
         Message.objects.create(
             phone=phone,
-            send_type="TELE",
-            currentCount=phone.total_count,
+            measdate=str(mdata.meastime)[0:8],
+            send_type='TELE',
+            userInfo1=mdata.userInfo1,
+            currentCount=mdata.currentCount,
+            phone_no=mdata.phone_no,
             message=messages[phone.status],
             channelId=channelId,
-            sended=True,
+            sended=True
         )
+

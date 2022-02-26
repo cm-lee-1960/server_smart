@@ -1,3 +1,4 @@
+from xml.dom.pulldom import PROCESSING_INSTRUCTION
 from django.db import models
 from django.db.models.signals import post_save
 from message.tele_msg import send_message_bot
@@ -77,9 +78,9 @@ class Phone(models.Model):
         return f"{self.phone_no}/{self.id}/{self.total_count}"
 
     # 측정 단말기의 통계정보를 업데이트 한다.
-    def update_info(self, mdata):
+    def update_phone(self, mdata):
         """측정단말의 통계정보를 업데이트 한다."""
-        #### 방식 2
+        #### 방식 1 ####
         # # DL/UL 평균속도를 업데이트 한다.
         # # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
         # # 2022.02.25 속도 데이터 + NR(5G->LTE)제외 조건
@@ -106,7 +107,7 @@ class Phone(models.Model):
         # self.currentCount = mdata.currentCount # 현재 콜카운트
         # self.total_count = dl_count + ul_count  # 전체 콜건수
 
-        #### 방식 2
+        #### 방식 2 ####
         # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다. 
         if mdata.networkId != 'NR':
             # DL 평균속도 계산
@@ -277,12 +278,15 @@ class MeasureingTeam(models.Model):
 class Message(models.Model):
     '''전송 메시지'''
     phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
+    measdate = models.CharField(max_length=10)
     send_type = models.CharField(max_length=10) # 메시지유형(TELE: 텔레그램, XROS: 크로샷)
+    userInfo1 = models.CharField(max_length=100, null=True, blank=True) 
     currentCount = models.IntegerField()
+    phone_no = models.BigIntegerField(null=True, blank=True)
     message = models.TextField(default=False)
     channelId = models.CharField(max_length=25)
     sended = models.BooleanField(default=True)
-    # 전송일시 항목추가
+
 
 # -------------------------------------------------------------------------------------------------
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 메시지를 전송한다.

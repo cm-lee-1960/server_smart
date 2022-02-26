@@ -130,7 +130,7 @@ def receive_json(request):
         # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).
         # 2022.02.24 통계값 산출은 KT 데이터/속도 조건을 만족하는 경우에만 처리한다. 
         if data['ispId'] == '45008' and data['testNetworkType'] == 'speed': 
-            phone.update_info(mdata)
+            phone.update_phone(mdata)
 
     except Exception as e:
         # 오류코드 리턴 필요
