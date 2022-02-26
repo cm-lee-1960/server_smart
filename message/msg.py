@@ -143,7 +143,7 @@ def make_message(mdata):
 
         #                01234567890123456
         # last_updated : 20211101235959999
-        last_updated_str = mdata.phone.last_updated
+        last_updated_str = str(mdata.phone.last_updated)
         mmdd = last_updated_str[4:6] + "." + str(int(last_updated_str[6:8]))
         hhmm = last_updated_str[8:10] + ":" + last_updated_str[10:12]
         # 메시지를 작성한다.
