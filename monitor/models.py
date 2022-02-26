@@ -108,6 +108,7 @@ class Phone(models.Model):
         # self.total_count = dl_count + ul_count  # 전체 콜건수
 
         #### 방식 2 ####
+        # UL/DL 평균속도 산출시 NR(5G->LTE전환) 데이터는 제외한다.
         # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다. 
         if mdata.networkId != 'NR':
             # DL 평균속도 계산
@@ -280,9 +281,13 @@ class Message(models.Model):
     phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10)
     send_type = models.CharField(max_length=10) # 메시지유형(TELE: 텔레그램, XROS: 크로샷)
+    #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정)
     userInfo1 = models.CharField(max_length=100, null=True, blank=True) 
     currentCount = models.IntegerField()
     phone_no = models.BigIntegerField(null=True, blank=True)
+    ownloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
+    uploadBandwidth = models.FloatField(null=True, blank=True)  # UP속도
+    #######################################
     message = models.TextField(default=False)
     channelId = models.CharField(max_length=25)
     sended = models.BooleanField(default=True)

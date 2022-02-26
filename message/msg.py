@@ -25,8 +25,11 @@ def current_count_check(mdata):
         if qs.exists():
             p = qs[0]
             # 상대편 측정 단말기의 현재 콜 카운트가 측정 단말 보다 같거나 커야 한다.
-            if p.currentCount == phone.currentCount:
+            if p.currentCount >= phone.currentCount:
                 result = True
+        # *** 2022.02.26 측정단말이 하나인 경우 어떻게 처리해야 할지 고민이 필요하다.
+        else:
+            pass
 
     return result
 
@@ -103,6 +106,7 @@ def make_message(mdata):
         beforeCount, fpterns = 1, 1
         for m in phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
             if total_count > phone.total_count: break
+            if m.networkId == 'NR': continue # NR(5G->LTE전환) 데이터 제외
             if m.downloadBandwidth and m.downloadBandwidth > 0:
                 dl_sum +=  m.downloadBandwidth
                 dl_count += 1
@@ -112,7 +116,7 @@ def make_message(mdata):
             if m.currentCount < beforeCount: fpterns += 1
             beforeCount = m.currentCount
             total_count += 1
-            print(f"###-1 {phone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
+            # print(f"###-1 {phone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
            
         # 상대편 측정 단말기
         qs = phone.phoneGroup.phone_set.filter(ispId='45008', manage=True).exclude(phone_no=phone.phone_no)
@@ -121,9 +125,8 @@ def make_message(mdata):
             beforeCount, spterns = 1, 1
             for m in oPhone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
                 # 2022.02.25 DL/UL 측정건수가 10건 이상 차이가 나지 않는다는 가정에서 아래 코드가 정상 동작한다.
-                if spterns >= fpterns and m. currentCount > m. currentCount: 
-                    print(f"{spterns}/{fpterns}/{m. currentCount}/{m. currentCount}/{spterns >= fpterns}/{m. currentCount > m. currentCount}")
-                    break
+                if spterns >= fpterns and m. currentCount > m. currentCount: break
+                if m.networkId == 'NR': continue # NR(5G->LTE전환) 데이터 제외
                 if m.downloadBandwidth and m.downloadBandwidth > 0:
                     dl_sum +=  m.downloadBandwidth
                     dl_count += 1
@@ -132,22 +135,28 @@ def make_message(mdata):
                         ul_count += 1
                 if m.currentCount < beforeCount: spterns += 1
                 beforeCount = m.currentCount
-                print(f"###-2 {oPhone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
+                # print(f"###-2 {oPhone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
 
         # DL/UL 평균속도를 산출한다.         
-        if dl_count > 0 : avg_downloadBandwidth = dl_sum / dl_count
-        if ul_count > 0 : avg_uploadBandwidth = ul_sum / ul_count
+        if dl_count > 0 : avg_downloadBandwidth = round(dl_sum / dl_count,2)
+        if ul_count > 0 : avg_uploadBandwidth = round(ul_sum / ul_count,2)
 
+        #                01234567890123456
+        # last_updated : 20211101235959999
+        last_updated_str = mdata.phone.last_updated
+        mmdd = last_updated_str[4:6] + "." + str(int(last_updated_str[6:8]))
+        hhmm = last_updated_str[8:10] + ":" + last_updated_str[10:12]
         # 메시지를 작성한다.
         messages = {
             "POWERON": f"{mdata.userInfo1}에서 단말이 켜졌습니다.",
-            "START": f"{mdata.userInfo1}에서 측정을 시작합니다.\n" + \
+            "START": f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}에서 시작되었습니다.\n" + \
                      f"전화번호/DL/UL\n" + \
-                     f"{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
+                     f"{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}" +\
+                      "\n평가에 만전을 기하여 주시기 바랍니다. ",
             "MEASURING": f"{mdata.userInfo1}에서 {mdata.currentCount}번째 측정중입니다.\n" + \
                          f"전화번호/DL/UL\n" + \
                          f"{mdata.userInfo1}/{mdata.currentCount}/{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
-            "END": f"측정이 종료되었습니다(총{phone.total_count}건).\n" + \
+            "END": f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
                    f"전화번호/DL/UL\n" + \
                    f"{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
         }
@@ -161,6 +170,8 @@ def make_message(mdata):
             userInfo1=mdata.userInfo1,
             currentCount=mdata.currentCount,
             phone_no=mdata.phone_no,
+            ownloadBandwidth=avg_downloadBandwidth,
+            uploadBandwidth=avg_uploadBandwidth,
             message=messages[phone.status],
             channelId=channelId,
             sended=True
