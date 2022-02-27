@@ -268,8 +268,12 @@ class MeasureSecondData(models.Model):
 # 금일측정조 데이터
 ###################################################################################################
 class MeasureingTeam(models.Model):
-    meastime = models.DateField(verbose_name="측정일자")
-    message = models.TextField(verbose_name="메시지 내용")
+    measdate = models.DateField(verbose_name="측정일자")
+    message = models.TextField(verbose_name="금일 측정조")
+
+    class Meta:
+        verbose_name = "금일 측정조"
+        verbose_name_plural = "금일 측정조"
 
 
 ###################################################################################################

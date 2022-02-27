@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Phone, MeasureCallData
+from .models import Phone, MeasureCallData, MeasureingTeam
 
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
@@ -16,6 +16,9 @@ from .models import Phone, MeasureCallData
 #     class Meta:
 #         model = Phone
 #         fields = '__all__'
+# -------------------------------------------------------------------------------------------------
+# 측정 단말 관리자 페이지 설정
+# -------------------------------------------------------------------------------------------------
 class PhoneAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
     # form = PhoneForm
@@ -100,7 +103,9 @@ class PhoneAdmin(admin.ModelAdmin):
             })
         return super().render_change_form(request, context, add, change, form_url, obj)
 
-
+# -------------------------------------------------------------------------------------------------
+# 측정 데이터(콜단위) 관리자 페이지 설정
+# -------------------------------------------------------------------------------------------------
 class MeasureCallDataAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 데이터 건 by 건 보여주기 위한 클래스'''
     list_display = ['userInfo1', 'phone_no', 'currentCount', 'networkId', 'ispId',\
@@ -116,6 +121,21 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
         filtered_query = query.filter(ispId='45008', testNetworkType='speed')
         return filtered_query
 
+
+# -------------------------------------------------------------------------------------------------
+# 금일 측정조 관리자 페이지 설정
+# -------------------------------------------------------------------------------------------------
+class MeasureingTeamAdmin(admin.ModelAdmin):
+    list_display = ['measdate_fmt', 'message']
+    list_display_links = ['message']
+    search_fields = ('message', 'message')
+    list_filter = ['measdate',]
+    ordering = ('-measdate', )
+
+    def measdate_fmt(self, obj):
+        return obj.measdate.strftime('%Y-%m-%d')
+
+
 class MonitorAdminArea(admin.AdminSite):
     '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
     index_title = "단말상태 관리"
@@ -128,4 +148,6 @@ admin.site.register(Phone, PhoneAdmin) # 측정 단말
 monitor_site.register(Phone, PhoneAdmin) # 측정 단말 -- 어드민 페이지 별도분리 테스트
 admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
 monitor_site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위) -- 어드민 페이지 별도분리 테스트
+
+admin.site.register(MeasureingTeam, MeasureingTeamAdmin)
 

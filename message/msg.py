@@ -1,11 +1,15 @@
+from datetime import datetime
 from django.conf import settings
 from django.db.models import Q
-from monitor.models import Phone, MeasureCallData, Message
+from monitor.models import Phone, MeasureCallData, MeasureingTeam, Message
 
 #--------------------------------------------------------------------------------------------------
 # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.
 # 2022.02.25 - 측정 단말기의 총 콜카운트가 아닌 측정 데이터의 현재 콜카운트를 기준으로 메시지 전송여부를 판단한다.
 #              단, 측정시작은 현재 콜카운트가 누락될 수 있으니 측정단말의 총 콜카운트가 1일 때로 판단한다.
+# 2022.02.27 - 측정시작 메시지 조건 분리 반영
+#            - 통신사, 측정유형에 상관없이 측정시작을 판단한다.
+#            *** [해결해야할 잠재이슈] 단말 하나로 측정을 하는 경우 주기적인 메시지 전송 판단처리 고민 필요
 #--------------------------------------------------------------------------------------------------
 def current_count_check(mdata):
     """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
@@ -19,6 +23,9 @@ def current_count_check(mdata):
         # qs = Phone.objects.filter(measdate=phone.measdate, manage=True).exclude(phone_no=phone.phone_no)
         # if not qs.exists():
         #     result = True
+        # 측정시작 조건 : 현재 콜카운트가 1인 다른 측정 데이터가 있는지 확인
+        # - 결과 <= 1건 : 자기 자신밖에 없으니 측정시작 메시지 전송
+        # - 결과 > 1건 : 이미 측정시작 메시지를 전송했으니 메시지를 전송하지 않음
         meastime_from = int(str(mdata.meastime)[:8] + '000000000') # 조회시작
         meastime_to = int(str(mdata.meastime)[:8] + '235959999') # 조회종료
         qs = MeasureCallData.objects.filter(Q(meastime__gte=meastime_from) & Q(meastime__lte=meastime_to))
@@ -147,24 +154,44 @@ def make_message(mdata):
         if dl_count > 0 : avg_downloadBandwidth = round(dl_sum / dl_count,2)
         if ul_count > 0 : avg_uploadBandwidth = round(ul_sum / ul_count,2)
 
+        # 메시지를 작성한다.
         #                01234567890123456
         # last_updated : 20211101235959999
         last_updated_str = str(mdata.phone.last_updated)
         mmdd = last_updated_str[4:6] + "." + str(int(last_updated_str[6:8]))
         hhmm = last_updated_str[8:10] + ":" + last_updated_str[10:12]
-        # 메시지를 작성한다.
+        # [파워온 메시지] -------------------------------------------------------------------------------------
+        POWERON_MSG = f"{mdata.userInfo1}에서 단말이 켜졌습니다."
+        # [측정시작 메시지] -----------------------------------------------------------------------------------
+        # 당일 측정조 메시지 내용을 가져온다.
+        measuringteam_msg = ''
+        if phone.status == 'START':
+            meastime_str = str(mdata.meastime)
+            measdate = datetime.strptime(meastime_str[:8], "%Y%m%d")
+            qs = MeasureingTeam.objects.filter(measdate=measdate)
+            if qs.exists(): 
+                measuringteam_msg = qs[0].message
+        START_MSG = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}에서 시작되었습니다.\n" + \
+                     f"{measuringteam_msg}\n" + \
+                      "\n평가에 만전을 기하여 주시기 바랍니다. "
+        # [측정진행 메시지] -----------------------------------------------------------------------------------
+        if phone.networkId == 'WiFi':
+            MEASURING_MSG = f"{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
+                            "속도(DL/UL, Mbps)\n" + \
+                            f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
+        else:
+            MEASURING_MSG = f"{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
+                            "(DL/UL/시도호/성공률)\n" + \
+                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{phone.total_count}/-"
+        # [측정종료 메시지] -----------------------------------------------------------------------------------
+        END_MSG = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
+                   "(DL/UL/시도호/성공률)\n" + \
+                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{phone.total_count}/-"
         messages = {
-            "POWERON": f"{mdata.userInfo1}에서 단말이 켜졌습니다.",
-            "START": f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}에서 시작되었습니다.\n" + \
-                     f"전화번호/DL/UL\n" + \
-                     f"{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}" +\
-                      "\n평가에 만전을 기하여 주시기 바랍니다. ",
-            "MEASURING": f"{mdata.userInfo1}에서 {mdata.currentCount}번째 측정중입니다.\n" + \
-                         f"전화번호/DL/UL\n" + \
-                         f"{mdata.userInfo1}/{mdata.currentCount}/{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
-            "END": f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
-                   f"전화번호/DL/UL\n" + \
-                   f"{mdata.phone_no}/{avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
+            "POWERON": POWERON_MSG,
+            "START": START_MSG,
+            "MEASURING": MEASURING_MSG,
+            "END": END_MSG,
         }
 
 
