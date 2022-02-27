@@ -164,8 +164,7 @@ def receive_json(request):
         # 측정시작 메시지
         # 2022.02.27 - 측정시작 메시지 분리
         #            - 통신사 및 기타 조건에 상관없이 해당일자 측정이 시작하면 측정시작 메시지를 전송하도록 한다.
-        if data['currentCount'] == 1:
-                make_message(mdata)
+        if data['currentCount'] == 1: make_message(mdata)
 
         # *** 모폴로지 조건체크는 향후 DB 테이블에서 가져오서 확인하는 코드로 변경해야 함
         elif data['ispId'] == '45008' and \
@@ -182,6 +181,6 @@ def receive_json(request):
         print("메시지/이벤트처리:",str(e))
         return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
     
-    return HttpResponse("성공")
+    return HttpResponse("처리완료")
 
 
