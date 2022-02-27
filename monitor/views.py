@@ -8,6 +8,7 @@ from message.msg import make_message
 from .events import event_occur_check
 # from django.conf import settings
 
+# 로그를 기록하기 위한 로거를 생성한다.
 # import logging
 # logger = logging.getLogger(__name__)
 
@@ -159,7 +160,7 @@ def receive_json(request):
     # 3) 측정종류
     # - 측정종류가 속도(speed)인 경우만 메시지 및 이벤트 처리를 한다.
     # - 예) speed / latency / web
-   # ---------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     try:
         # 측정시작 메시지
         # 2022.02.27 - 측정시작 메시지 분리

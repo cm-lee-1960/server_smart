@@ -155,17 +155,19 @@ def out_measuring_range(mdata):
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
     if not mdata.userInfo2.startswith("행-") : return None
 
-    # 2.20 역지오코딩 - 도로명 주소로 반환되어 카카오지도 API로 대체
+    # 2022.02.20 - 역지오코딩 - 도로명 주소로 반환되어 카카오지도 API로 대체
     # geolocator = Nominatim(user_agent="myGeolocator")
     # location = geolocator.reverse(str(mdata.latitude) + ',' + str(mdata.longitude))
     # Location(영서로, 학곡리, 춘천시, 강원도, 24408, 대한민국, (37.81069349300918, 127.7657987426381, 0.0))
     # print("out_measuring_range():", location)
 
+    # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
     rest_api_key = settings.KAKAO_REST_API_KEY
     kakao = KakaoLocalAPI(rest_api_key)
     input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
     result = kakao.geo_coord2address(mdata.longitude, mdata.latitude, input_coord)
+    # [ 리턴값 형식 ]
     # print("out_measuring_range():", result)
     # {'meta': {'total_count': 1}, 
     #   'documents': [
@@ -179,6 +181,9 @@ def out_measuring_range(mdata):
     #          -> address -> region_3depth_name
     # 좌표(위도,경도)로 찾은 주소와 어떤 것을 비교할지? 고민필요
     # userInfo1가 위도,경도 좌표로 변환한 행정동을 포함하고 있는지 확인
+    # 2022.02.28 - 단말기가 처음 측정을 시작할 때(현재 콜카운트가=1) 위치(위도,경도)가 정확하다고 가정하고 그때이 상세주소 값을
+    #              측정 단말기 정보에 가져간다.
+    #            - 측정 단말기의 상세주소와 해당 측정 데이터의 위도,경도를 통해 찾은 행정도 명칭과 비교한다.
     try: 
         region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
@@ -197,12 +202,13 @@ def out_measuring_range(mdata):
 # 2022.02.22 - 처리대상 데이터를 속도측정 데이터('speed')에 한정하여 처리한다.  
 #            - 행정동 측정일때만 체크한다. (예: 테마의 경우 위도,경도가 동일한 경우가 다수 발생함)
 #            - 행정동: 도로주행 측정, 테마: 놀이공원 등 걸어서 측정, 인빌딩: 건물내 걸어서 측정
+# 2022.02.27 - 기존 이동거리 5미터 이상, 연속해서 3회 초과 -> 이동거리 10미터 이상, 연속해서 5회 초과 발생으로 기준 변경
 #--------------------------------------------------------------------------------------------------
 def call_staying_check(mdata):
     ''' 측정단말이 한곳에 머무는지 확인
         - 타사 측정단말에 문제가 발생하여 조치를 하거나 차량에 문제가 있거나 등 한곳에 오랫동안 멈는 경우가 있는데,
           이렇게 한곳에 멈춰 있는 경우 보고 대상임
-        - 이동거리가 5미터 이내 연속해서 3회 이상 발생하면 한 곳에 머무는 것으로 판단 <- 기준확인 필요
+        - 이동거리가 10미터 이내 연속해서 5회 이상 발생하면 한 곳에 머무는 것으로 판단
         - return message
     '''
     message = None
