@@ -202,7 +202,7 @@ def call_staying_check(mdata):
     '''
     message = None
     # 측정유형이 행정동인 경우에만 측정단말이 한곳에 머무는지 확인한다.
-    if not mdata.userInfo2.startswith("행-"):
+    if mdata.userInfo2.startswith("행-"):
         # mdata_list = mdata.phone.measurecalldata_set.all()
         mdata_list = mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("-currentCount")
         count = len(mdata_list)
@@ -225,7 +225,7 @@ def call_staying_check(mdata):
                         callstay = False
                         break
                     before_loc = current_loc
-                if idx >= 3 : break
+                if idx >= 6 : break
         else:
             callstay = False
 
