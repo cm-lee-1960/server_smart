@@ -114,7 +114,8 @@ def make_message(mdata):
         #             avg_uploadBandwidth += ul_sum / phone.total_count
 
         # 2022.02.25 현재 메시지를 보내려고 하는 현재 콜카운트와 총 콜카운트를 활용해서 평균값을 산출한다.
-       
+
+        # 2022.02.26 데이터가 맞지 않아 재작성 함       
         # 메시지를 보내려고 하는 측정 단말기
         beforeCount, fpterns = 1, 1
         for m in phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):

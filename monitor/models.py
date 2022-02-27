@@ -1,3 +1,4 @@
+from datetime import datetime
 from xml.dom.pulldom import PROCESSING_INSTRUCTION
 from django.db import models
 from django.db.models.signals import post_save
@@ -268,7 +269,7 @@ class MeasureSecondData(models.Model):
 # 금일측정조 데이터
 ###################################################################################################
 class MeasureingTeam(models.Model):
-    measdate = models.DateField(verbose_name="측정일자")
+    measdate = models.DateField(default=datetime.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     message = models.TextField(verbose_name="금일 측정조")
 
     class Meta:

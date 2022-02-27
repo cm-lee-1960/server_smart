@@ -133,7 +133,7 @@ class MeasureingTeamAdmin(admin.ModelAdmin):
     ordering = ('-measdate', )
 
     def measdate_fmt(self, obj):
-        return obj.measdate.strftime('%Y-%m-%d')
+        return obj.measdate.strftime('%Y-%m-%d') # YYYY-MM-DD 표시 예) 2021-11-01
 
 
 class MonitorAdminArea(admin.AdminSite):
