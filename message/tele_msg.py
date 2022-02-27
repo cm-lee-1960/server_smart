@@ -10,12 +10,23 @@ bot_token = settings.BOT_TOKEN
 bot = telegram.Bot(bot_token)
 
 #--------------------------------------------------------------------------------------------------
+# 메시지 내용(문자열)이 특정 크기 이상은 잘라낸다
+# 2022.02.27 - 메시지 내용 중에서 디버깅을 위해 관련정보를 붙이다 보니 512 bytes가 초과되어 텔레그램 전송시 오류 발생
+#            - 오류메시지 (Flood control exceeded. Retry in 11.0 seconds)
+#            - https://stackoverflow.com/questions/51423139/python-telegram-bot-flood-control-exceeded
+#--------------------------------------------------------------------------------------------------
+def unicode_truncate(s, length, encoding='utf-8'):
+    encoded = s.encode(encoding)[:length]
+    return encoded.decode(encoding, 'ignore')
+
+#--------------------------------------------------------------------------------------------------
 # 텔레그램 메시지를 전송한다.
 #--------------------------------------------------------------------------------------------------
 def send_message_bot(channelId, message):
     bot_token = settings.BOT_TOKEN
+    max_length = 512 # 텔레그램 메시지로 보낼 수 있는 최대 문자길이(Bytes)
     bot = telegram.Bot(bot_token)
-    bot.sendMessage(channelId, text=message)
+    bot.sendMessage(channelId, text=unicode_truncate(message,max_length))
 
 
 # 챗봇 활성화

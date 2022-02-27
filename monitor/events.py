@@ -1,7 +1,8 @@
 from django.conf import settings
 from haversine import haversine # 이동거리
 # from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
-import requests
+# import requests
+from django.http import HttpResponseServerError
 from .geo import KakaoLocalAPI
 from .models import Message
 
@@ -82,6 +83,7 @@ def send_failure_check(mdata):
                                 f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
             except Exception as e:  
                 print("low_throughput_check():"+str(e))
+                raise Exception("send_failure_check(): %s" % e) 
     
     return message
 
@@ -92,7 +94,7 @@ def send_failure_check(mdata):
 def low_throughput_check(mdata):
     '''속도저하(Low Throughput) 발생여부 확인
         - 속도저하 기준 별도 테이블 관리 예정
-        - return 'CALLFAIL'
+        - return message
     '''
     message = None
     # *** 속도저하 판단 기준(DB)에서 가져와서 확인하는 코드 작성필요
@@ -121,7 +123,7 @@ def voice_call_drop_check(mdata):
 def fivgtolte_trans_check(mdata):
     ''' 5G에서 LTE료 전환여부 확인
         - 5G 측정시 LTE로 데이터가 전환되는 경우
-        - return 'FIVETOLTE'
+        - return message
     '''
     message = None
     # 2022.02.21 - 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
@@ -139,13 +141,14 @@ def fivgtolte_trans_check(mdata):
 # 2022.02.27 - 측정 단말기 상세주소(addressDetail) 항목에서 행정동을 비교한다. 
 #            - 측정 데이터의 경우 위도,경도에 따른 상세주소가 잘못되어 있는 데이터가 있음 (측정 단말기에 처음 상세주소 가져감)
 #            - 측정 단말기에 있는 상세주소와 해당 측정 데이터의 위도,경도로 행정동을 찾아서 비고하도록 소스코드 수정함
-#
+# 2022.02.27 - 행정동을 측정하는데, 여러 개의 동을 걸쳐서 측정하는 경우가 있음 <= 데이터 검증 필요
+#            - 경상남도-사천시-남양동 2021.11.01 : 죽림동, 송포동, 노룡동 등
 #--------------------------------------------------------------------------------------------------
 def out_measuring_range(mdata):
     ''' 단말이 측정범위를 벗어났는지 확인
         - 측정하는 행정동을 벗어나서 측정이 되는 경우
         - (아이디어) 행정동을 벗어남이 의심된다는 메시지 + 위치 지도 이미지도 함께 전송
-        - return 'OUTRANGE'
+        - return message
     '''
     message = None
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
@@ -184,6 +187,7 @@ def out_measuring_range(mdata):
 
     except Exception as e:
         print("out_measuring_range():", str(e))
+        raise Exception("out_measuring_range(): %s" % e) 
 
     return message
 
