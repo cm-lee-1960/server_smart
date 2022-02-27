@@ -21,13 +21,33 @@ def unicode_truncate(s, length, encoding='utf-8'):
 
 #--------------------------------------------------------------------------------------------------
 # 텔레그램 메시지를 전송한다.
+# 2022.02.27 - 텔레그램 봇에 메시지를 보낼때 제약사항이 있는 것으로 확인됨
+# My bot is hitting limits, how do I avoid this?
+# When sending messages inside a particular chat, avoid sending more than one message per second. 
+# We may allow short bursts that go over this limit, but eventually you'll begin receiving 429 errors.
+#
+# If you're sending bulk notifications to multiple users, the API will not allow more than 30 messages per second or so. 
+# Consider spreading out notifications over large intervals of 8—12 hours for best results.
+# [출처]https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
+#
+# Telegram bot API limitations
+# I have simple telegram bot with simple rate limiter:
+# it doesn't use group chats;
+# it sends only 1 message per second inside particular chat;
+# it sends less than 20 messages per minute inside particular chat;
+# But i always receive 429 error:
+# [출처] https://stackoverflow.com/questions/44152519/telegram-bot-api-limitations
 #--------------------------------------------------------------------------------------------------
 def send_message_bot(channelId, message):
     bot_token = settings.BOT_TOKEN
     max_length = 512 # 텔레그램 메시지로 보낼 수 있는 최대 문자길이(Bytes)
     bot = telegram.Bot(bot_token)
-    bot.sendMessage(channelId, text=unicode_truncate(message,max_length))
-
+    try: 
+        bot.sendMessage(channelId, text=unicode_truncate(message,max_length))
+    except Exception as e:  
+        print("low_throughput_check():"+str(e))
+        print(message)
+        raise Exception("send_message_bot(): %s" % e) 
 
 # 챗봇 활성화
 def set_chatbot(set, webhook_url, port=5000, token=bot_token):
