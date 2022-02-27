@@ -173,9 +173,9 @@ def receive_json(request):
             data['testNetworkType'] == 'speed':
                 make_message(mdata)
 
-            # # 이벤트 발생여부를 체크한다. 
-            # if data['testNetworkType'] == 'speed':
-            #     event_occur_check(mdata)
+        # 이벤트 발생여부를 체크한다. 
+        if data['testNetworkType'] == 'speed':
+            event_occur_check(mdata)
 
     except Exception as e:
         # 오류코드 리턴 필요
