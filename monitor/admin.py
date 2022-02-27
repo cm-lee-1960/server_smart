@@ -4,9 +4,10 @@ from .models import Phone, MeasureCallData, MeasureingTeam
 
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
-# [ 모니터링 리스트 ]
-#  - 측정 단말
-#  - 측정 데이터(콜단위)
+# [ 측정 모니터링 ]
+#  - 측정 단말, 측정 데이터(콜단위), 금일 측정조
+# [ 환경설정 관리 ]
+#  - 모폴러지, 센터정보, 속도저하 기준
 ###################################################################################################
 # class PhoneForm(forms.ModelForm):
 #     def __init__(self, *args, **kwargs):
@@ -149,5 +150,5 @@ monitor_site.register(Phone, PhoneAdmin) # 측정 단말 -- 어드민 페이지 
 admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
 monitor_site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위) -- 어드민 페이지 별도분리 테스트
 
-admin.site.register(MeasureingTeam, MeasureingTeamAdmin)
+admin.site.register(MeasureingTeam, MeasureingTeamAdmin) # 금일 측정조
 
