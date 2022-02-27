@@ -200,12 +200,13 @@ def make_message(mdata):
         Message.objects.create(
             phone=phone,
             measdate=str(mdata.meastime)[0:8],
-            send_type='TELE',
+            sendType='TELE',
             userInfo1=mdata.userInfo1,
             currentCount=mdata.currentCount,
             phone_no=mdata.phone_no,
             ownloadBandwidth=avg_downloadBandwidth,
             uploadBandwidth=avg_uploadBandwidth,
+            messageType='SMS',
             message=messages[phone.status],
             channelId=channelId,
             sended=True

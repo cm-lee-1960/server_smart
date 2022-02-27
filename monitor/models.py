@@ -28,7 +28,9 @@ class PhoneGroup(models.Model):
 # * 측정중인 단말을 관리한다.
 # * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
 # ------------------------------------------------------------------------------------------------
-# 2022.02.25 측정일자(measdate) 문자열(8자래) 항목 추가
+# 2022.02.25 - 측정일자(measdate) 문자열(8자래) 항목 추가
+# 2022.02.27 - 주소상세(addressDetail) 항목 추가 
+#            - 측정 콜이 행정동 범위를 벗어났는지 확인하기 위해 첫번째 콜 위치를 측정 단말기 정보에 담아 둔다.
 ###################################################################################################
 class Phone(models.Model):
     """측정 단말기 정보"""
@@ -64,6 +66,7 @@ class Phone(models.Model):
     )
     currentCount = models.IntegerField(null=True, blank=True)
     total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
+    addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
     last_updated = models.BigIntegerField(
         null=True, blank=True, verbose_name="최종보고시간"
     )  # 최종 위치보고시간
@@ -260,6 +263,7 @@ class MeasureSecondData(models.Model):
     # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
 
+
     def __str__(self):
         return f"{self.phone_no}/{self.neworkid}/{self.meastime}/{self.currentCount}"
 
@@ -279,20 +283,22 @@ class MeasureingTeam(models.Model):
 
 ###################################################################################################
 # 전송 메시지 클래스
-# 2022.02.25 의존성으로 마이그레이트 및 롤백 시 오류가 자주 발생하여 모니터 앱으로 옮겨 왔음
+# 2022.02.25 - 의존성으로 마이그레이트 및 롤백 시 오류가 자주 발생하여 모니터 앱으로 옮겨 왔음
+# 2022.02.27 - 메시지 유형을 메시지(SMS)와 이벤트(EVENT)로 구분할 수 있도록 항목 추가
 ###################################################################################################
 class Message(models.Model):
     '''전송 메시지'''
     phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10)
-    send_type = models.CharField(max_length=10) # 메시지유형(TELE: 텔레그램, XROS: 크로샷)
+    sendType = models.CharField(max_length=10) # 전송유형(TELE: 텔레그램, XROS: 크로샷)
     #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정)
     userInfo1 = models.CharField(max_length=100, null=True, blank=True) 
-    currentCount = models.IntegerField()
+    currentCount = models.IntegerField(null=True, blank=True)
     phone_no = models.BigIntegerField(null=True, blank=True)
     ownloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
     uploadBandwidth = models.FloatField(null=True, blank=True)  # UP속도
     #######################################
+    messageType = models.CharField(max_length=10) # 메시지유형(SMS: 메시지, EVENT: 이벤트)
     message = models.TextField(default=False)
     channelId = models.CharField(max_length=25)
     sended = models.BooleanField(default=True)
@@ -303,10 +309,10 @@ class Message(models.Model):
 #--------------------------------------------------------------------------------------------------
 def send_message(sender, **kwargs):
     # 텔레그램으로 메시지를 전송한다.
-    if kwargs['instance'].send_type == 'TELE':
+    if kwargs['instance'].sendType == 'TELE':
         send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
     # 크로샷으로 메시지를 전송한다.
-    elif kwargs['instance'].send_type == 'XROS':
+    elif kwargs['instance'].sendType == 'XROS':
         pass
 
 # -------------------------------------------------------------------------------------------------

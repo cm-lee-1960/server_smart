@@ -44,9 +44,10 @@ def get_secret(setting, secrets=secrets):
 
 SECRET_KEY = get_secret("SECRET_KEY")
 
-# 텔레그램 봇 토큰 및 채널ID를 찾아 온다.
+# 텔레그램 봇 토큰, 채널ID, 카카오 REST API키를 찾아 온다.
 BOT_TOKEN = get_secret("BOT_TOKEN")
 CHANNEL_ID = get_secret("CHANNEL_ID")
+KAKAO_REST_API_KEY = get_secret("KAKAO_REST_API_KEY")
 ################################################################
 
 # SECURITY WARNING: don't run with debug turned on in production!

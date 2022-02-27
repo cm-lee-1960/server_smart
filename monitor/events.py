@@ -117,6 +117,9 @@ def fivgtolte_trans_check(mdata):
 # 단말이 측정범위를 벗어났는지 확인
 # 2022.02.21 - 측정유형(userinfo2)이 행정동("행-")인 경우만 처리하는 것이 맞지 않나? 
 #            - 행정동: 도로주행 측정, 테마: 놀이공원 등 걸어서 측정, 인빌딩: 건물내 걸어서 측정
+# 2022.02.27 - 측정 단말기 상세주소(addressDetail) 항목에서 행정동을 비교한다. 
+#            - 측정 데이터의 경우 위도,경도에 따른 상세주소가 잘못되어 있는 데이터가 있음
+#            - 
 #--------------------------------------------------------------------------------------------------
 def out_measuring_range(mdata):
     ''' 단말이 측정범위를 벗어났는지 확인
@@ -133,7 +136,7 @@ def out_measuring_range(mdata):
     # Location(영서로, 학곡리, 춘천시, 강원도, 24408, 대한민국, (37.81069349300918, 127.7657987426381, 0.0))
     # print("out_measuring_range():", location)
 
-    rest_api_key = "9daef46439c87ea1a53391feb26ebb8b"
+    rest_api_key = settings.KAKAO_REST_API_KEY
     kakao = KakaoLocalAPI(rest_api_key)
     input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
@@ -153,7 +156,7 @@ def out_measuring_range(mdata):
     # userInfo1가 위도,경도 좌표로 변환한 행정동을 포함하고 있는지 확인
     try: 
         region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
-        if mdata.userInfo1.find(region_3depth_name) == -1:
+        if mdata.addressDetail and mdata.addressDetail.find(region_3depth_name) == -1:
             return 'OUTRANGE'
         else:
             return None
@@ -233,8 +236,9 @@ def make_event_message(mdata, evnet_code):
         # 전송 메시지를 생성한다. 
         Message.objects.create(
             phone = mdata.phone,
-            send_type = 'TELE',
+            sendType = 'TELE',
             currentCount = mdata.currentCount,
+            messageType='EVENT',
             message = messages[evnet_code],
             channelId = channelId
         )

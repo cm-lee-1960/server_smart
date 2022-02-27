@@ -108,6 +108,7 @@ def receive_json(request):
                         status='START',
                         currentCount=data['currentCount'],
                         total_count=data['currentCount'],
+                        addressDetail=data['addressDetail'],
                         last_updated=data['meastime'],
                         manage=manage,
                         active=True,
