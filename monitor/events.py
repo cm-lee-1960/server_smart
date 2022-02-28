@@ -203,6 +203,8 @@ def out_measuring_range(mdata):
 #            - 행정동 측정일때만 체크한다. (예: 테마의 경우 위도,경도가 동일한 경우가 다수 발생함)
 #            - 행정동: 도로주행 측정, 테마: 놀이공원 등 걸어서 측정, 인빌딩: 건물내 걸어서 측정
 # 2022.02.27 - 기존 이동거리 5미터 이상, 연속해서 3회 초과 -> 이동거리 10미터 이상, 연속해서 5회 초과 발생으로 기준 변경
+# 2022.03.01 - 이동거리를 강제로 500미터 이상으로 해서 한곳에 머무는지 판단하는 소스코드 검증
+#            - 행정도 측정에서 기본 이동거리는 200~300미터 정도임
 #--------------------------------------------------------------------------------------------------
 def call_staying_check(mdata):
     ''' 측정단말이 한곳에 머무는지 확인
@@ -230,8 +232,9 @@ def call_staying_check(mdata):
                     current_loc = (md.latitude, md.longitude)
                     distance = haversine(before_loc, current_loc) * 1000 # 미터(meters)
                     # print("call_staying_check():", idx, str(md), distance, before_loc, current_loc)
-                    # 측정 단말기 이동거리가 5M 이상이 되면 한곳에 머무르지 않고, 이동하는 것으로 판단한다.
+                    # 측정 단말기 이동거리가 10M 이상이 되면 한곳에 머무르지 않고, 이동하는 것으로 판단한다.
                     result += str(before_loc)+ '/' + str(current_loc) + '/' + str(distance) + ',\n'
+                    # if distance > 500 : <= 2022.03.01 테스트 시 사용
                     if distance > 10 :
                         callstay = False
                         break
