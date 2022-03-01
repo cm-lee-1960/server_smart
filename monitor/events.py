@@ -104,6 +104,7 @@ def send_failure_check(mdata):
                     # 메시지 내용을 작성한다.
                     message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
                             f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
+            print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
         except Exception as e:
             print("event_occur_check():", str(e))
             raise Exception("event_occur_check(): %s" % e) 

@@ -22,7 +22,7 @@ class Morphology(models.Model):
 class SendFailure(models.Model):
     AREAIND__CHOICES = {('NORM','보통지역'), ('WEEK', '취약지역')}
     NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
-    DATATYPE_CHOICES = {('DL','DL'), ('UP','UL')}
+    DATATYPE_CHOICES = {('DL','DL'), ('UL','UL')}
 
     areaInd = models.CharField(max_length=10, choices=AREAIND__CHOICES, verbose_name='지역구분')
     networkId = models.CharField(max_length=10, null=True, blank=True, choices=NETWORKID_CHOICES, verbose_name='단말유형') # 네트워크ID(5G, LTE, 3G, WiFi)
