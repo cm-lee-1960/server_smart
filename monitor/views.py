@@ -110,10 +110,15 @@ def receive_json(request):
                         currentCount=data['currentCount'],
                         total_count=data['currentCount'],
                         addressDetail=data['addressDetail'],
+                        latitude=data['latitude'],
+                        longitude=data['longitude'],
                         last_updated=data['meastime'],
                         manage=manage,
                         active=True,
                     )
+
+            # 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 저잔한다. 
+            phone.update_address_detail()
 
     except Exception as e:
         # 오류코드 리턴 필요

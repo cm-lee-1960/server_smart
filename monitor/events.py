@@ -3,6 +3,8 @@ from haversine import haversine # 이동거리
 # from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
 # import requests
 from django.http import HttpResponseServerError
+
+from management.models import SendFailure
 from .geo import KakaoLocalAPI
 from .models import Message
 
@@ -58,33 +60,53 @@ def send_failure_check(mdata):
         - 취약지구는 '~산로' 등 특정문구가 들어간 것으로 식별을 해야 하는데, 어려움이 있음(관리자 지정해야? -> 정보관리 대상)
         - return message
     '''
-    # 측정종류가 속도(speed)일 때만 이벤트 발생여부를 학인한다. 
-    message = None
-    if mdata.testNetworkType == 'speed' :
-        # 전송실패 판단기준
-        LOW_THROUGHPUT_TABLE = {
-            '5G' : {'DL': 12, 'UL': 2},
-            'LTE': {'DL': 6, 'UL': 1},
-            '3G' : {'DL': 256/1024, 'UL': 128/1024},
-            'WiFi': {'DL': 1, 'UL': 0.5} }
+    # # 측정종류가 속도(speed)일 때만 이벤트 발생여부를 학인한다. 
+    # message = None
+    # if mdata.testNetworkType == 'speed' :
+    #     # 전송실패 판단기준
+    #     LOW_THROUGHPUT_TABLE = {
+    #         '5G' : {'DL': 12, 'UL': 2},
+    #         'LTE': {'DL': 6, 'UL': 1},
+    #         '3G' : {'DL': 256/1024, 'UL': 128/1024},
+    #         'WiFi': {'DL': 1, 'UL': 0.5} }
 
-        # 측정 단말기 및 데이터 유형(DL/UL)을 확인한다. 
-        dataType = None
-        phone = mdata.phone
-        if mdata.downloadBandwidth and mdata.downloadBandwidth > 0 : dataType = 'DL'
-        if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType = 'UL'
-        values = {'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth}
-        # 2022.0227 DL/UL 속도 값이 있는 데이터에 대해서만 처리한다.
-        if dataType and dataType in ['DL', 'UL']:
-            try:
-                if phone.networkId in list(LOW_THROUGHPUT_TABLE.keys()):
-                    if values[dataType] < LOW_THROUGHPUT_TABLE[phone.networkId][dataType]:
-                        # 메시지 내용을 작성한다.
-                        message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
-                                f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
-            except Exception as e:  
-                print("low_throughput_check():"+str(e))
-                raise Exception("send_failure_check(): %s" % e) 
+    #     # 측정 단말기 및 데이터 유형(DL/UL)을 확인한다. 
+    #     dataType = None
+    #     phone = mdata.phone
+    #     if mdata.downloadBandwidth and mdata.downloadBandwidth > 0 : dataType = 'DL'
+    #     if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType = 'UL'
+    #     values = {'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth}
+    #     # 2022.0227 DL/UL 속도 값이 있는 데이터에 대해서만 처리한다.
+    #     if dataType and dataType in ['DL', 'UL']:
+    #         try:
+    #             if phone.networkId in list(LOW_THROUGHPUT_TABLE.keys()):
+    #                 if values[dataType] < LOW_THROUGHPUT_TABLE[phone.networkId][dataType]:
+    #                     # 메시지 내용을 작성한다.
+    #                     message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
+    #                             f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
+    #         except Exception as e:  
+    #             print("low_throughput_check():"+str(e))
+    #             raise Exception("send_failure_check(): %s" % e) 
+
+    # 2022.03.01 - 전송실패(Send Failure) 기준을 DB 테이블에서 가져온다.
+    #            - 네트워크유형이 NT(5G->LTE)인 경우 전송실패를 어떻게 체크할 것인지 협의 필요 (체크 PASS or LTE 기준?)
+    message = None
+    areaInd = 'NORM' # 보통지역
+    networkId = mdata.phone.networkId
+    dataType = ''
+    if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
+    if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType, bandwidth = 'UL', mdata.uploadBandwidth
+    if dataType in ('DL', 'UL'):
+        try:
+            qs = SendFailure.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
+            if qs.exists():
+                if bandwidth < qs[0].bandwidth:
+                    # 메시지 내용을 작성한다.
+                    message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
+                            f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
+        except Exception as e:
+            print("event_occur_check():", str(e))
+            raise Exception("event_occur_check(): %s" % e) 
     
     return message
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib import auth
-from management.models import Morphology, LowThroughput, CenterInfo
+from management.models import Morphology, SendFailure, LowThroughput, CenterInfo
 
 ###################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
@@ -23,7 +23,15 @@ class LowThroughputAdmin(admin.ModelAdmin):
     list_display_links = ['networkId',]
     search_fields = ('networkId', )
 
+class SendFailureAdmin(admin.ModelAdmin):
+    '''어드민 페이지에 전송실패(Send Failure) 기준을 보여주기 위한 클래스'''
+    # form = PhoneForm
+    list_display = ['areaInd', 'networkId', 'dataType', 'bandwidth',]
+    list_display_links = ['networkId',]
+    search_fields = ('areaInd', 'networkId', )
+
 admin.site.register(Morphology, MorphologyAdmin) # 모폴러지 등록
+admin.site.register(SendFailure, SendFailureAdmin) # 전송실패 기준 등록
 admin.site.register(LowThroughput, LowThroughputAdmin) # 속도저하 기준 등록
 admin.site.register(CenterInfo) # 센터정보 등록(전국 14개 센터)
 

@@ -2,6 +2,8 @@ from datetime import datetime
 from xml.dom.pulldom import PROCESSING_INSTRUCTION
 from django.db import models
 from django.db.models.signals import post_save
+from django.conf import settings
+from .geo import KakaoLocalAPI
 from message.tele_msg import send_message_bot
 # import logging
 
@@ -31,6 +33,7 @@ class PhoneGroup(models.Model):
 # 2022.02.25 - 측정일자(measdate) 문자열(8자래) 항목 추가
 # 2022.02.27 - 주소상세(addressDetail) 항목 추가 
 #            - 측정 콜이 행정동 범위를 벗어났는지 확인하기 위해 첫번째 콜 위치를 측정 단말기 정보에 담아 둔다.
+# 2022.03.01 - 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 업데이트 하는 함수를 추가함
 ###################################################################################################
 class Phone(models.Model):
     """측정 단말기 정보"""
@@ -67,6 +70,8 @@ class Phone(models.Model):
     currentCount = models.IntegerField(null=True, blank=True)
     total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
     addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
+    latitude = models.FloatField(null=True, blank=True)  # 위도
+    longitude = models.FloatField(null=True, blank=True)  # 경도
     last_updated = models.BigIntegerField(
         null=True, blank=True, verbose_name="최종보고시간"
     )  # 최종 위치보고시간
@@ -138,6 +143,19 @@ class Phone(models.Model):
         # 단말기의 정보를 데이터베이스에 저장한다.
         self.save()
 
+    # 해당 위도, 경도에 대한 주소지를 행정동으로 변환하여 업데이트 한다.
+    def update_address_detail(self):
+        # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
+        rest_api_key = settings.KAKAO_REST_API_KEY
+        kakao = KakaoLocalAPI(rest_api_key)
+        input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+
+        result = kakao.geo_coord2address(self.longitude, self.latitude, input_coord)
+
+        region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
+
+        self.addressDetail = region_3depth_name
+        self.save()
 
 ###################################################################################################
 # 실시간 측정 데이터(콜 단위)
