@@ -5,7 +5,7 @@ from haversine import haversine # 이동거리
 from django.http import HttpResponseServerError
 
 from management.models import SendFailure
-from .geo import KakaoLocalAPI
+from .geo import KakaoLocalAPI, make_map_locations
 from .models import Message
 
 ###################################################################################################
@@ -22,6 +22,7 @@ from .models import Message
 #              새롭게 속도저하(Low Throughput) 모듈을 추가함
 # 2022.02.27 - 메시지 작성 코드를 각각의 이벤트를 체크하는 함수 내부로 이동함 (이벤트 발생 관련정보를 메시지 내에 넣기 위해)
 # 2022.02.27 - 오류 발생시 앞단으로 오류코드를 전달하기 위해 Exception을 발생하여 실행중인 함수명과 오류 메시지 전달
+# 2022.03.01 - 전송실패 기준 관리 모듈 추가 및 이벤트 모듈에 반영(기존 소스코드 체크 -> DB 모델에서 불러와 체크)
 ###################################################################################################  
 def event_occur_check(mdata):
     '''이벤트 발생여부를 체크한다.'''
@@ -52,6 +53,7 @@ def event_occur_check(mdata):
 # -------------------------------------------------------------------------------------------------
 # 속도저하(Low Throughput) 발생여부 확인
 # 2022.02.24 - WiFi 전송실패 기준 추가 (DL: 1M, UL: 0.5M)
+# 2022.03.01 - 전송실패 기준 관리 모듈 추가 및 이벤트 모듈에 반영(기존 소스코드 체크 -> DB 모델에서 불러와 체크)
 #--------------------------------------------------------------------------------------------------
 def send_failure_check(mdata):
     '''전송실패(Send Failure) 발생여부 확인
@@ -104,7 +106,7 @@ def send_failure_check(mdata):
                     # 메시지 내용을 작성한다.
                     message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
                             f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
-            print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
+            # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
         except Exception as e:
             print("event_occur_check():", str(e))
             raise Exception("event_occur_check(): %s" % e) 
@@ -210,10 +212,12 @@ def out_measuring_range(mdata):
     try: 
         region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
+            # 해당 위치에 대한 지도맵을 작성한다.
+            make_map_locations(mdata)
+            # 메시지를 작성한다.
             message = f"{mdata.userInfo1}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
                     "(전화번호/단말시작위치/위도/경도/측정위치)\n" + \
                     f"{mdata.phone_no}/{mdata.phone.addressDetail.split()[0]}/{mdata.latitude}/{mdata.longitude}/{region_3depth_name}"
-
     except Exception as e:
         print("out_measuring_range():", str(e))
         raise Exception("out_measuring_range(): %s" % e) 
@@ -266,11 +270,12 @@ def call_staying_check(mdata):
         else:
             callstay = False
 
-        if callstay: 
+        if callstay:
             # 메시지 내용을 작성한다.
             message = f"{mdata.userInfo1}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
                         f"{mdata.phone_no}/{mdata.latitude}/{mdata.longitude}/{mdata.addressDetail}\n" + \
                         "[검증데이터]\n" + result
+            
     return message
 
 # -------------------------------------------------------------------------------------------------

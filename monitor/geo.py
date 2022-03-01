@@ -5,7 +5,7 @@
 
 import json
 import requests
-
+import folium
 class KakaoLocalAPI:
     '''Kakao Local API 컨트롤러'''
     def __init__(self, rest_api_key):
@@ -146,3 +146,32 @@ class KakaoLocalAPI:
         document = json.loads(res.text)
 
         return document
+
+
+#######################################################################################################
+# 측정 위치에 대한 지도맵 그리기
+#######################################################################################################
+def make_map_locations(mdata):
+    # if locations and len(locations) < 1: return None
+    map = folium.Map(location=[mdata.phone.latitude, mdata.phone.longitude], zoom_start=15)
+
+    # 첫번째 측정위치를 지도맵에 표시한다.
+    folium.Marker(
+        location=[mdata.phone.latitude, mdata.phone.longitude],
+        icon=folium.Icon(color="red", icon="star"),
+        icon_size=(10,10),
+    ).add_to(map)
+
+    # 측정 위치를 지도맵에 표시한다.
+    for m in mdata.phone.measurecalldata_set.all():
+        folium.Circle(
+            location=[m.latitude, m.longitude],
+            radius=14.5, # CircleMarker 크기 지정
+            color='#3186cc', # CirclaMarker 테두리 색상
+            fill_color='#3186cc', # CircleMarker 내부 색상 '#000000' 
+            fill_opacity=1.,
+            weight=1
+        ).add_to(map)
+
+    filename = f'0_{mdata.phone.measdate}_{mdata.phone_no}.html'
+    map.save(filename)
