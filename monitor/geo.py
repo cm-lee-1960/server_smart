@@ -173,5 +173,7 @@ def make_map_locations(mdata):
             weight=1
         ).add_to(map)
 
-    filename = f'0_{mdata.phone.measdate}_{mdata.phone_no}.html'
-    map.save(filename)
+    filename = f'{mdata.phone.measdate}-{mdata.phone_no}.html'
+    map.save("monitor/templates/maps/" + filename)
+
+    return filename

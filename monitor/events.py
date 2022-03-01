@@ -215,11 +215,12 @@ def out_measuring_range(mdata):
         region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
             # 해당 위치에 대한 지도맵을 작성한다.
-            make_map_locations(mdata)
+            filename = make_map_locations(mdata)
             # 메시지를 작성한다.
             message = f"{mdata.userInfo1}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
                     "(전화번호/단말시작위치/위도/경도/측정위치)\n" + \
-                    f"{mdata.phone_no}/{mdata.phone.addressDetail.split()[0]}/{mdata.latitude}/{mdata.longitude}/{region_3depth_name}"
+                    f"{mdata.phone_no}/{mdata.phone.addressDetail.split()[0]}/{mdata.latitude}/{mdata.longitude}/{region_3depth_name}\n" + \
+                    f"<a href='http://localhost:8000/monitor/maps/{filename}'>지도보기</a>"
     except Exception as e:
         print("out_measuring_range():", str(e))
         raise Exception("out_measuring_range(): %s" % e) 

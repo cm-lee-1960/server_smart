@@ -1,5 +1,6 @@
 import telegram
 from telegram.ext import CommandHandler, MessageHandler
+from telegram import ParseMode
 from django.conf import settings
 from . import tele_chatbot
 
@@ -43,7 +44,12 @@ def send_message_bot(channelId, message):
     max_length = 512 # 텔레그램 메시지로 보낼 수 있는 최대 문자길이(Bytes)
     bot = telegram.Bot(bot_token)
     try: 
-        bot.sendMessage(channelId, text=unicode_truncate(message,max_length))
+        # message = message.replace('-', '\-').replace('.', '\.').replace('(', '\(').replace(')', '\)').replace('=', '\=')
+        # bot.sendMessage(channelId, text=unicode_truncate(message,max_length), parse_mode=ParseMode.HTML)
+        # bot.sendMessage(channelId, text=unicode_truncate(message,max_length), parse_mode='MarkdownV2')
+        # bot.sendMessage(channelId, text=unicode_truncate(message,max_length), parse_mode='Markdown')
+        bot.sendMessage(channelId, text=unicode_truncate(message,max_length), parse_mode='HTML')
+        # bot.sendMessage(channelId, text=unicode_truncate(message,max_length))
     except Exception as e:  
         print("low_throughput_check():"+str(e))
         print(message)

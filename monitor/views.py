@@ -1,6 +1,7 @@
 # from tracemalloc import start
 # from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
@@ -189,4 +190,9 @@ def receive_json(request):
     
     return HttpResponse("처리완료")
 
-
+###################################################################################################
+# 작성된 지도맵 파일 전달
+###################################################################################################
+def maps_files(request, filename):
+    # filename = request.GET.get('filename')
+    return render(request, 'maps/' + filename)
