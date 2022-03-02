@@ -220,7 +220,7 @@ def out_measuring_range(mdata):
             message = f"{mdata.userInfo1}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
                     "(전화번호/단말시작위치/위도/경도/측정위치)\n" + \
                     f"{mdata.phone_no}/{mdata.phone.addressDetail.split()[0]}/{mdata.latitude}/{mdata.longitude}/{region_3depth_name}\n" + \
-                    f"<a href='http://localhost:8000/monitor/maps/{filename}'>지도보기</a>"
+                    f"<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
     except Exception as e:
         print("out_measuring_range():", str(e))
         raise Exception("out_measuring_range(): %s" % e) 

@@ -183,7 +183,7 @@ def make_map_locations(mdata):
     # 측정 위치를 지도맵에 표시한다.
     locations = []
     points = folium.FeatureGroup(name="All Points")
-    for m in mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("currentCount"):
+    for m in mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
         # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
         if m.networkId == '5G':
             pci, RSRP, SINR = m.NR_PCI, m.NR_RSRP, m.NR_SINR
