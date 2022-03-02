@@ -19,9 +19,9 @@ class MorphologyAdmin(admin.ModelAdmin):
 class LowThroughputAdmin(admin.ModelAdmin):
     '''어드민 페이지에 속도저하(Low Throughput) 기준을 보여주기 위한 클래스'''
     # form = PhoneForm
-    list_display = ['networkId', 'dataType', 'bandwidth',]
+    list_display = ['areaInd', 'networkId', 'dataType', 'bandwidth',]
     list_display_links = ['networkId',]
-    search_fields = ('networkId', )
+    search_fields = ('areaInd', 'networkId', )
 
 class SendFailureAdmin(admin.ModelAdmin):
     '''어드민 페이지에 전송실패(Send Failure) 기준을 보여주기 위한 클래스'''
