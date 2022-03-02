@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_685da03d77b14dd9af5b38bab1d17ca4 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_685da03d77b14dd9af5b38bab1d17ca4" ></div>
+        
+</body>
+<script>    
+    
+            var map_685da03d77b14dd9af5b38bab1d17ca4 = L.map(
+                "map_685da03d77b14dd9af5b38bab1d17ca4",
+                {
+                    center: [34.97066201, 128.06350682],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 15,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_0b8842504ff842ada7575df877a06f7f = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_685da03d77b14dd9af5b38bab1d17ca4);
+        
+    
+            var marker_24251ce4c2374b24a680ef73cb86ae12 = L.marker(
+                [34.97066201, 128.06350682],
+                {"iconSize": [10, 10]}
+            ).addTo(map_685da03d77b14dd9af5b38bab1d17ca4);
+        
+    
+            var icon_da913d2dbe8448d79975a54f3c3235c5 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "star", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_24251ce4c2374b24a680ef73cb86ae12.setIcon(icon_da913d2dbe8448d79975a54f3c3235c5);
+        
+    
+            var poly_line_ac405551ad0e436eaf5855f26c412c57 = L.polyline(
+                [[34.97066201, 128.06350682], [34.98812155, 128.05516589], [34.99143513, 128.05104522], [34.99065396, 128.04529931], [34.97067124, 128.06350865], [34.98815494, 128.05527001], [34.97067124, 128.06350865], [34.98814742, 128.05526254], [34.97062463, 128.06266361], [34.98822015, 128.05545624], [34.99034881, 128.06009408], [34.96943816, 128.06309475], [34.98727548, 128.0623487], [34.9677901, 128.06368849], [34.98356406, 128.06327734], [34.96726027, 128.06242535], [34.9701047, 128.06140358], [34.98442374, 128.06579752], [34.97570425, 128.05938358], [34.98342416, 128.06301789], [34.97472996, 128.05332625], [34.97841054, 128.05177401], [34.97917504, 128.06258184], [34.98063054, 128.04683124], [34.97595801, 128.06196994], [34.98273297, 128.04429025], [34.97473852, 128.06211966], [34.98485869, 128.04420499], [34.97385627, 128.06218096], [34.9872273, 128.04369116], [34.96988951, 128.06166748], [34.97586589, 128.06021635], [34.98938429, 128.04252388], [34.99116685, 128.04022274], [34.99229836, 128.03972139], [34.99454275, 128.03953641], [34.99567496, 128.03909987], [34.99698642, 128.03888846], [34.99812599, 128.03895981], [34.99936072, 128.04019649], [34.99936589, 128.04014343]],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_685da03d77b14dd9af5b38bab1d17ca4);
+        
+    
+            var feature_group_2fdbae20bffb48e9bf7630816d8bcd2e = L.featureGroup(
+                {}
+            ).addTo(map_685da03d77b14dd9af5b38bab1d17ca4);
+        
+    
+            var circle_b788fb7ffb1944d2a15e0c65ffab9b10 = L.circle(
+                [34.97066201, 128.06350682],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_4ffd3fbf6751448d8945be411992bf7f = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_62ee75d0818f479b9b2df71ea92396da = $(`<div id="html_62ee75d0818f479b9b2df71ea92396da" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>165</td>       <td>11927079</td>       <td>-105.0</td>       <td>8.5</td>       <td>671.325</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_4ffd3fbf6751448d8945be411992bf7f.setContent(html_62ee75d0818f479b9b2df71ea92396da);
+        
+
+        circle_b788fb7ffb1944d2a15e0c65ffab9b10.bindPopup(popup_4ffd3fbf6751448d8945be411992bf7f)
+        ;
+
+        
+    
+    
+            var circle_8125678130274b9e844a777185759a2d = L.circle(
+                [34.98812155, 128.05516589],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_ee7e593f79f84722a2b8ec3a7da41bae = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_293586de1a82476caa81f3d808f46d09 = $(`<div id="html_293586de1a82476caa81f3d808f46d09" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>588</td>       <td>12249643</td>       <td>-89.0</td>       <td>10.5</td>       <td>None</td>       <td>138.419</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_ee7e593f79f84722a2b8ec3a7da41bae.setContent(html_293586de1a82476caa81f3d808f46d09);
+        
+
+        circle_8125678130274b9e844a777185759a2d.bindPopup(popup_ee7e593f79f84722a2b8ec3a7da41bae)
+        ;
+
+        
+    
+    
+            var circle_34dad61a126343208ca21ad3cfa00ada = L.circle(
+                [34.99143513, 128.05104522],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_b50bbc6d7d8d47a7841e1fe9eacfd053 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_93c7c426dbbb4692aa6c7cc70f0710ad = $(`<div id="html_93c7c426dbbb4692aa6c7cc70f0710ad" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>480</td>       <td>12249643</td>       <td>-94.0</td>       <td>6.5</td>       <td>None</td>       <td>139.363</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_b50bbc6d7d8d47a7841e1fe9eacfd053.setContent(html_93c7c426dbbb4692aa6c7cc70f0710ad);
+        
+
+        circle_34dad61a126343208ca21ad3cfa00ada.bindPopup(popup_b50bbc6d7d8d47a7841e1fe9eacfd053)
+        ;
+
+        
+    
+    
+            var circle_010f647c11414df98ba201f56785dd55 = L.circle(
+                [34.99065396, 128.04529931],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_0ad5a96e5ea54676aea41b543c4aa48b = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_02ecaf35b69441619eab9558b5c59563 = $(`<div id="html_02ecaf35b69441619eab9558b5c59563" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>26</td>       <td>12249863</td>       <td>-89.0</td>       <td>30.5</td>       <td>990.653</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_0ad5a96e5ea54676aea41b543c4aa48b.setContent(html_02ecaf35b69441619eab9558b5c59563);
+        
+
+        circle_010f647c11414df98ba201f56785dd55.bindPopup(popup_0ad5a96e5ea54676aea41b543c4aa48b)
+        ;
+
+        
+    
+    
+            var circle_c03e6d2e1bd94be7a6f4e6637332c62b = L.circle(
+                [34.97067124, 128.06350865],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_757854aff3a24b7eab19c568117f14c3 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_bcd8e716e6b44dfba0608121be803dbf = $(`<div id="html_bcd8e716e6b44dfba0608121be803dbf" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>165</td>       <td>11927079</td>       <td>-102.0</td>       <td>9.0</td>       <td>646.256</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_757854aff3a24b7eab19c568117f14c3.setContent(html_bcd8e716e6b44dfba0608121be803dbf);
+        
+
+        circle_c03e6d2e1bd94be7a6f4e6637332c62b.bindPopup(popup_757854aff3a24b7eab19c568117f14c3)
+        ;
+
+        
+    
+    
+            var circle_83d2cd1adea3414da739fdb98a78e4b7 = L.circle(
+                [34.98815494, 128.05527001],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_e8a4a84012814f39983e6ad316a6eb3d = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_9f901f2725e249469cc41bbe593d0310 = $(`<div id="html_9f901f2725e249469cc41bbe593d0310" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>588</td>       <td>12249643</td>       <td>-85.0</td>       <td>10.5</td>       <td>None</td>       <td>134.841</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_e8a4a84012814f39983e6ad316a6eb3d.setContent(html_9f901f2725e249469cc41bbe593d0310);
+        
+
+        circle_83d2cd1adea3414da739fdb98a78e4b7.bindPopup(popup_e8a4a84012814f39983e6ad316a6eb3d)
+        ;
+
+        
+    
+    
+            var circle_64a0fb5b594740a2b441bc1a1af1d0fd = L.circle(
+                [34.97067124, 128.06350865],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "black", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_6360f60a157a4d5bb4f7da019cfb15c3 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_4d6c88ddfbae435092cc7629925a5bc7 = $(`<div id="html_4d6c88ddfbae435092cc7629925a5bc7" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>165</td>       <td>11927079</td>       <td>-110.0</td>       <td>5.0</td>       <td>575.473</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_6360f60a157a4d5bb4f7da019cfb15c3.setContent(html_4d6c88ddfbae435092cc7629925a5bc7);
+        
+
+        circle_64a0fb5b594740a2b441bc1a1af1d0fd.bindPopup(popup_6360f60a157a4d5bb4f7da019cfb15c3)
+        ;
+
+        
+    
+    
+            var circle_70517c732a384d1cb84c61a4c9d43bee = L.circle(
+                [34.98814742, 128.05526254],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_92ac19c8413c4358808ea5758ee16c93 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_d297a18166c143638129fcb1f34c239b = $(`<div id="html_d297a18166c143638129fcb1f34c239b" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>588</td>       <td>12249643</td>       <td>-86.0</td>       <td>9.5</td>       <td>None</td>       <td>139.481</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_92ac19c8413c4358808ea5758ee16c93.setContent(html_d297a18166c143638129fcb1f34c239b);
+        
+
+        circle_70517c732a384d1cb84c61a4c9d43bee.bindPopup(popup_92ac19c8413c4358808ea5758ee16c93)
+        ;
+
+        
+    
+    
+            var circle_9643f4f6127d44c7b069e524006a1907 = L.circle(
+                [34.97062463, 128.06266361],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_ba72e837ad7e42e28211e38d366b31d4 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_3074c955e0254784a4b431f2ea18c28e = $(`<div id="html_3074c955e0254784a4b431f2ea18c28e" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>785</td>       <td>11926295</td>       <td>-90.0</td>       <td>19.0</td>       <td>986.858</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_ba72e837ad7e42e28211e38d366b31d4.setContent(html_3074c955e0254784a4b431f2ea18c28e);
+        
+
+        circle_9643f4f6127d44c7b069e524006a1907.bindPopup(popup_ba72e837ad7e42e28211e38d366b31d4)
+        ;
+
+        
+    
+    
+            var circle_29163e333c2943dabde49e4f0cf2597a = L.circle(
+                [34.98822015, 128.05545624],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_25ff393ebdfc45baa8f9cf76924d920c = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_c0bfdcdb89564f7e88ac7f4a496677c3 = $(`<div id="html_c0bfdcdb89564f7e88ac7f4a496677c3" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>588</td>       <td>12249643</td>       <td>-94.0</td>       <td>4.0</td>       <td>None</td>       <td>125.757</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_25ff393ebdfc45baa8f9cf76924d920c.setContent(html_c0bfdcdb89564f7e88ac7f4a496677c3);
+        
+
+        circle_29163e333c2943dabde49e4f0cf2597a.bindPopup(popup_25ff393ebdfc45baa8f9cf76924d920c)
+        ;
+
+        
+    
+    
+            var circle_922705e589ed42b6a9619338e2aa6685 = L.circle(
+                [34.99034881, 128.06009408],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_b1aa2ec75de2424eb1744a443424640b = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_5c9e362cdd1349e4801e61b4ba2e59e7 = $(`<div id="html_5c9e362cdd1349e4801e61b4ba2e59e7" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>143</td>       <td>12250131</td>       <td>-78.0</td>       <td>33.0</td>       <td>None</td>       <td>98.114</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_b1aa2ec75de2424eb1744a443424640b.setContent(html_5c9e362cdd1349e4801e61b4ba2e59e7);
+        
+
+        circle_922705e589ed42b6a9619338e2aa6685.bindPopup(popup_b1aa2ec75de2424eb1744a443424640b)
+        ;
+
+        
+    
+    
+            var circle_92f7dc7c2ae04758ae42610f0bf3f2ef = L.circle(
+                [34.96943816, 128.06309475],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_bbb270a5d45448e4843f01c74d97e490 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_49b73835f4e34f1b93580a9cc6cada8a = $(`<div id="html_49b73835f4e34f1b93580a9cc6cada8a" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>131</td>       <td>11927079</td>       <td>-76.0</td>       <td>32.0</td>       <td>1025.387</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_bbb270a5d45448e4843f01c74d97e490.setContent(html_49b73835f4e34f1b93580a9cc6cada8a);
+        
+
+        circle_92f7dc7c2ae04758ae42610f0bf3f2ef.bindPopup(popup_bbb270a5d45448e4843f01c74d97e490)
+        ;
+
+        
+    
+    
+            var circle_9794fe6fd21c4c7b80b781503448a249 = L.circle(
+                [34.98727548, 128.0623487],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "black", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_3baebc14e9824fad9f624ab81fd1ba3c = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_b62fde910b524b0183bf5c16447045a6 = $(`<div id="html_b62fde910b524b0183bf5c16447045a6" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>143</td>       <td>12249643</td>       <td>-65.0</td>       <td>38.0</td>       <td>None</td>       <td>119.82</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_3baebc14e9824fad9f624ab81fd1ba3c.setContent(html_b62fde910b524b0183bf5c16447045a6);
+        
+
+        circle_9794fe6fd21c4c7b80b781503448a249.bindPopup(popup_3baebc14e9824fad9f624ab81fd1ba3c)
+        ;
+
+        
+    
+    
+            var circle_8f923a67ca2744289217537db0311b7f = L.circle(
+                [34.9677901, 128.06368849],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_689aefe86f804e23aafdcbc1cbbd1258 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_585ab40c826b4486aaebe6a9c55fc88b = $(`<div id="html_585ab40c826b4486aaebe6a9c55fc88b" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>131</td>       <td>11927079</td>       <td>-77.0</td>       <td>33.5</td>       <td>1204.678</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_689aefe86f804e23aafdcbc1cbbd1258.setContent(html_585ab40c826b4486aaebe6a9c55fc88b);
+        
+
+        circle_8f923a67ca2744289217537db0311b7f.bindPopup(popup_689aefe86f804e23aafdcbc1cbbd1258)
+        ;
+
+        
+    
+    
+            var circle_8e17ba7042644490a2546ca581c4c973 = L.circle(
+                [34.98356406, 128.06327734],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_12b540b3d62b47f1b470ff790bbaf22a = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_dac88bed8680422ab80a3c116ca856d9 = $(`<div id="html_dac88bed8680422ab80a3c116ca856d9" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>115</td>       <td>11926275</td>       <td>-85.0</td>       <td>25.5</td>       <td>None</td>       <td>126.898</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_12b540b3d62b47f1b470ff790bbaf22a.setContent(html_dac88bed8680422ab80a3c116ca856d9);
+        
+
+        circle_8e17ba7042644490a2546ca581c4c973.bindPopup(popup_12b540b3d62b47f1b470ff790bbaf22a)
+        ;
+
+        
+    
+    
+            var circle_284d96789a04492c837c8e985230db61 = L.circle(
+                [34.96726027, 128.06242535],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_b9ef37808b724171b385328a2c34bea6 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_55a914e9592b4b04ad9cf1473c6979b0 = $(`<div id="html_55a914e9592b4b04ad9cf1473c6979b0" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>366</td>       <td>11926827</td>       <td>-93.0</td>       <td>21.0</td>       <td>863.771</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_b9ef37808b724171b385328a2c34bea6.setContent(html_55a914e9592b4b04ad9cf1473c6979b0);
+        
+
+        circle_284d96789a04492c837c8e985230db61.bindPopup(popup_b9ef37808b724171b385328a2c34bea6)
+        ;
+
+        
+    
+    
+            var circle_2b181c004ea444379f47f5e827b6346c = L.circle(
+                [34.9701047, 128.06140358],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_1b96ba2d998b4ff6ada0646a6def8c00 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_32f5fb2df1c24bf6ae854b1afe224c58 = $(`<div id="html_32f5fb2df1c24bf6ae854b1afe224c58" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>366</td>       <td>11926295</td>       <td>-89.0</td>       <td>21.5</td>       <td>804.5</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_1b96ba2d998b4ff6ada0646a6def8c00.setContent(html_32f5fb2df1c24bf6ae854b1afe224c58);
+        
+
+        circle_2b181c004ea444379f47f5e827b6346c.bindPopup(popup_1b96ba2d998b4ff6ada0646a6def8c00)
+        ;
+
+        
+    
+    
+            var circle_a00599835cb540d09cfff7052a269eca = L.circle(
+                [34.98442374, 128.06579752],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_3a3de1d57333442299a9f2c7a7b8b577 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_9c23cf9ac42a4f3b9b76f6edb8bdf562 = $(`<div id="html_9c23cf9ac42a4f3b9b76f6edb8bdf562" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>9</td>       <td>11926275</td>       <td>-99.0</td>       <td>13.5</td>       <td>None</td>       <td>54.9</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_3a3de1d57333442299a9f2c7a7b8b577.setContent(html_9c23cf9ac42a4f3b9b76f6edb8bdf562);
+        
+
+        circle_a00599835cb540d09cfff7052a269eca.bindPopup(popup_3a3de1d57333442299a9f2c7a7b8b577)
+        ;
+
+        
+    
+    
+            var circle_d8f517bbf92b409385eb15fea8c9fbbe = L.circle(
+                [34.97570425, 128.05938358],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_1aef81c83312460696ba4bf54dda9bcf = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_db80a8e2aa904113af469ca14797c7df = $(`<div id="html_db80a8e2aa904113af469ca14797c7df" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>584</td>       <td>11926295</td>       <td>-84.0</td>       <td>29.0</td>       <td>1299.998</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_1aef81c83312460696ba4bf54dda9bcf.setContent(html_db80a8e2aa904113af469ca14797c7df);
+        
+
+        circle_d8f517bbf92b409385eb15fea8c9fbbe.bindPopup(popup_1aef81c83312460696ba4bf54dda9bcf)
+        ;
+
+        
+    
+    
+            var circle_ba9fec5a916547da8cbf9394d1ddcf2d = L.circle(
+                [34.98342416, 128.06301789],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "black", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_4b6bcd1d4b804867ba57c51e4db9259e = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_40998f0f83a7447794454a405a1548f6 = $(`<div id="html_40998f0f83a7447794454a405a1548f6" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>None</td>       <td>11926275</td>       <td>None</td>       <td>None</td>       <td>None</td>       <td>172.983</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_4b6bcd1d4b804867ba57c51e4db9259e.setContent(html_40998f0f83a7447794454a405a1548f6);
+        
+
+        circle_ba9fec5a916547da8cbf9394d1ddcf2d.bindPopup(popup_4b6bcd1d4b804867ba57c51e4db9259e)
+        ;
+
+        
+    
+    
+            var circle_a1752aa6728340c8b230df7a742fea81 = L.circle(
+                [34.97472996, 128.05332625],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_dd52f3e0a1c749e2b4247d3db3e20e84 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_1314abcd762d43dc80179ec4a1f2ec1f = $(`<div id="html_1314abcd762d43dc80179ec4a1f2ec1f" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>112</td>       <td>12002327</td>       <td>-67.0</td>       <td>31.5</td>       <td>1111.735</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_dd52f3e0a1c749e2b4247d3db3e20e84.setContent(html_1314abcd762d43dc80179ec4a1f2ec1f);
+        
+
+        circle_a1752aa6728340c8b230df7a742fea81.bindPopup(popup_dd52f3e0a1c749e2b4247d3db3e20e84)
+        ;
+
+        
+    
+    
+            var circle_a9ecf234f95e4eeeb6400775f62e2a8e = L.circle(
+                [34.97841054, 128.05177401],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_42f5adeeada0450b8dfa0dbe87b0cef1 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_c549c01598f94a04aa26d6a539a00cb6 = $(`<div id="html_c549c01598f94a04aa26d6a539a00cb6" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>112</td>       <td>12002327</td>       <td>-100.0</td>       <td>11.0</td>       <td>618.546</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_42f5adeeada0450b8dfa0dbe87b0cef1.setContent(html_c549c01598f94a04aa26d6a539a00cb6);
+        
+
+        circle_a9ecf234f95e4eeeb6400775f62e2a8e.bindPopup(popup_42f5adeeada0450b8dfa0dbe87b0cef1)
+        ;
+
+        
+    
+    
+            var circle_7c17ca64eac24a25b70ab5512cd8d231 = L.circle(
+                [34.97917504, 128.06258184],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_bec970030ac2495c9e09539952f4a96a = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_8d4a9f8ec01e4834b51286fdd2215860 = $(`<div id="html_8d4a9f8ec01e4834b51286fdd2215860" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>115</td>       <td>11926279</td>       <td>-95.0</td>       <td>17.5</td>       <td>None</td>       <td>52.305</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_bec970030ac2495c9e09539952f4a96a.setContent(html_8d4a9f8ec01e4834b51286fdd2215860);
+        
+
+        circle_7c17ca64eac24a25b70ab5512cd8d231.bindPopup(popup_bec970030ac2495c9e09539952f4a96a)
+        ;
+
+        
+    
+    
+            var circle_19081ce2be444edb906d7751975eabd3 = L.circle(
+                [34.98063054, 128.04683124],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_dcefccf16c454b818fe7a376c3aae597 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_1efff67b69964ca58ca4a64f5c7b47ae = $(`<div id="html_1efff67b69964ca58ca4a64f5c7b47ae" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>684</td>       <td>12249875</td>       <td>-103.0</td>       <td>6.5</td>       <td>502.958</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_dcefccf16c454b818fe7a376c3aae597.setContent(html_1efff67b69964ca58ca4a64f5c7b47ae);
+        
+
+        circle_19081ce2be444edb906d7751975eabd3.bindPopup(popup_dcefccf16c454b818fe7a376c3aae597)
+        ;
+
+        
+    
+    
+            var circle_f628df5826094437b885805986f1f0fb = L.circle(
+                [34.97595801, 128.06196994],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_8eacab2b91e447a4a2af909c27831f4c = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_bacd5e9148f74f9a873cbd134950a4d0 = $(`<div id="html_bacd5e9148f74f9a873cbd134950a4d0" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>584</td>       <td>11926279</td>       <td>-80.0</td>       <td>30.0</td>       <td>None</td>       <td>106.844</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_8eacab2b91e447a4a2af909c27831f4c.setContent(html_bacd5e9148f74f9a873cbd134950a4d0);
+        
+
+        circle_f628df5826094437b885805986f1f0fb.bindPopup(popup_8eacab2b91e447a4a2af909c27831f4c)
+        ;
+
+        
+    
+    
+            var circle_b9115f25de794324a2d1a2118d2bf35a = L.circle(
+                [34.98273297, 128.04429025],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_2c6a9aa2b5354c2ba25bc29e92e05b91 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_cdd50188585248d7aae80314e6dd1cb0 = $(`<div id="html_cdd50188585248d7aae80314e6dd1cb0" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>684</td>       <td>12249875</td>       <td>-92.0</td>       <td>11.0</td>       <td>690.457</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_2c6a9aa2b5354c2ba25bc29e92e05b91.setContent(html_cdd50188585248d7aae80314e6dd1cb0);
+        
+
+        circle_b9115f25de794324a2d1a2118d2bf35a.bindPopup(popup_2c6a9aa2b5354c2ba25bc29e92e05b91)
+        ;
+
+        
+    
+    
+            var circle_6c11415a30b645a4ae5c3f63aa7e89d7 = L.circle(
+                [34.97473852, 128.06211966],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_d4df8f3a014a42fa887d1935c9e12c2b = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_6f51ca53567c445f9d025da6564ae383 = $(`<div id="html_6f51ca53567c445f9d025da6564ae383" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>584</td>       <td>11926279</td>       <td>-79.0</td>       <td>29.5</td>       <td>None</td>       <td>131.026</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_d4df8f3a014a42fa887d1935c9e12c2b.setContent(html_6f51ca53567c445f9d025da6564ae383);
+        
+
+        circle_6c11415a30b645a4ae5c3f63aa7e89d7.bindPopup(popup_d4df8f3a014a42fa887d1935c9e12c2b)
+        ;
+
+        
+    
+    
+            var circle_be4ff75d3732496182ca62a6d051c9e1 = L.circle(
+                [34.98485869, 128.04420499],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_29b94c95e819443ea3c234ac44543a84 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_3b32c38b6ad04dde9f04460505228c4f = $(`<div id="html_3b32c38b6ad04dde9f04460505228c4f" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>150</td>       <td>12249875</td>       <td>-100.0</td>       <td>7.0</td>       <td>366.679</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_29b94c95e819443ea3c234ac44543a84.setContent(html_3b32c38b6ad04dde9f04460505228c4f);
+        
+
+        circle_be4ff75d3732496182ca62a6d051c9e1.bindPopup(popup_29b94c95e819443ea3c234ac44543a84)
+        ;
+
+        
+    
+    
+            var circle_8105b46e46e546fe81c4b5e4c9550b92 = L.circle(
+                [34.97385627, 128.06218096],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_8f52243469314a9aa33a1278eb1c720c = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_88a981159b684dc888832c92ae89ad11 = $(`<div id="html_88a981159b684dc888832c92ae89ad11" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>785</td>       <td>11926279</td>       <td>-86.0</td>       <td>23.5</td>       <td>None</td>       <td>107.237</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_8f52243469314a9aa33a1278eb1c720c.setContent(html_88a981159b684dc888832c92ae89ad11);
+        
+
+        circle_8105b46e46e546fe81c4b5e4c9550b92.bindPopup(popup_8f52243469314a9aa33a1278eb1c720c)
+        ;
+
+        
+    
+    
+            var circle_25be0896228d43a0b1cca821492f3e85 = L.circle(
+                [34.9872273, 128.04369116],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_cbddc1f7197c46eaad2aa22c58244c0e = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_50176cc28dee4ec3ad9e9d6673972d64 = $(`<div id="html_50176cc28dee4ec3ad9e9d6673972d64" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>150</td>       <td>12249875</td>       <td>-98.0</td>       <td>0.5</td>       <td>196.727</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_cbddc1f7197c46eaad2aa22c58244c0e.setContent(html_50176cc28dee4ec3ad9e9d6673972d64);
+        
+
+        circle_25be0896228d43a0b1cca821492f3e85.bindPopup(popup_cbddc1f7197c46eaad2aa22c58244c0e)
+        ;
+
+        
+    
+    
+            var circle_9021a76067fc44e8b195ad77e05f3d25 = L.circle(
+                [34.96988951, 128.06166748],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_4f56593dfd0d49919e90617de7179847 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_3ece0da313e64c02988bd5451b91d5ea = $(`<div id="html_3ece0da313e64c02988bd5451b91d5ea" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>366</td>       <td>11926279</td>       <td>-87.0</td>       <td>17.0</td>       <td>None</td>       <td>103.855</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_4f56593dfd0d49919e90617de7179847.setContent(html_3ece0da313e64c02988bd5451b91d5ea);
+        
+
+        circle_9021a76067fc44e8b195ad77e05f3d25.bindPopup(popup_4f56593dfd0d49919e90617de7179847)
+        ;
+
+        
+    
+    
+            var circle_73f0986a4d0845e8af63928d5e3d8bf5 = L.circle(
+                [34.97586589, 128.06021635],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 29.0, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_06b85073eee34a628a47fb73b026781b = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_d3b8d8ab3b784e8ea4fc27085d3a50b0 = $(`<div id="html_d3b8d8ab3b784e8ea4fc27085d3a50b0" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>584</td>       <td>11926279</td>       <td>-77.0</td>       <td>32.5</td>       <td>None</td>       <td>116.713</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_06b85073eee34a628a47fb73b026781b.setContent(html_d3b8d8ab3b784e8ea4fc27085d3a50b0);
+        
+
+        circle_73f0986a4d0845e8af63928d5e3d8bf5.bindPopup(popup_06b85073eee34a628a47fb73b026781b)
+        ;
+
+        
+    
+    
+            var circle_23517ddeb5e647c7940948998aa74813 = L.circle(
+                [34.98938429, 128.04252388],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_72f3501fa9ca48b2a8da4f55bb38aadf = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_87b96520d8c748ff8948dba5ee851ca5 = $(`<div id="html_87b96520d8c748ff8948dba5ee851ca5" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>684</td>       <td>12249875</td>       <td>-94.0</td>       <td>13.5</td>       <td>395.308</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_72f3501fa9ca48b2a8da4f55bb38aadf.setContent(html_87b96520d8c748ff8948dba5ee851ca5);
+        
+
+        circle_23517ddeb5e647c7940948998aa74813.bindPopup(popup_72f3501fa9ca48b2a8da4f55bb38aadf)
+        ;
+
+        
+    
+    
+            var circle_090410264ec54d2abe492042a9f422bd = L.circle(
+                [34.99116685, 128.04022274],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_d6f6849afac24259ac473d1ef990bbb2 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_c5386335cbfc454e86700ea63050706b = $(`<div id="html_c5386335cbfc454e86700ea63050706b" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>465</td>       <td>12249867</td>       <td>-83.0</td>       <td>26.5</td>       <td>900.536</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_d6f6849afac24259ac473d1ef990bbb2.setContent(html_c5386335cbfc454e86700ea63050706b);
+        
+
+        circle_090410264ec54d2abe492042a9f422bd.bindPopup(popup_d6f6849afac24259ac473d1ef990bbb2)
+        ;
+
+        
+    
+    
+            var circle_dc2461d0f0e040ebb1843ef81bdd5f19 = L.circle(
+                [34.99229836, 128.03972139],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_3a3ac09526b84c5dbb77fab070c1c1e9 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_87a5b6841667479cb619cbf2d887b22e = $(`<div id="html_87a5b6841667479cb619cbf2d887b22e" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>465</td>       <td>12249867</td>       <td>-93.0</td>       <td>18.0</td>       <td>798.965</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_3a3ac09526b84c5dbb77fab070c1c1e9.setContent(html_87a5b6841667479cb619cbf2d887b22e);
+        
+
+        circle_dc2461d0f0e040ebb1843ef81bdd5f19.bindPopup(popup_3a3ac09526b84c5dbb77fab070c1c1e9)
+        ;
+
+        
+    
+    
+            var circle_b562806b756d4794a3e9a2ef75ea17ee = L.circle(
+                [34.99454275, 128.03953641],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_c3130b66373f491abeb54084ce51852e = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_883a3b12bac84b5d9c380735318e3d36 = $(`<div id="html_883a3b12bac84b5d9c380735318e3d36" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>372</td>       <td>12249867</td>       <td>-88.0</td>       <td>3.6</td>       <td>135.495</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_c3130b66373f491abeb54084ce51852e.setContent(html_883a3b12bac84b5d9c380735318e3d36);
+        
+
+        circle_b562806b756d4794a3e9a2ef75ea17ee.bindPopup(popup_c3130b66373f491abeb54084ce51852e)
+        ;
+
+        
+    
+    
+            var circle_ec32f29dbacd4969b896597149c0c498 = L.circle(
+                [34.99567496, 128.03909987],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "black", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_81af3369098740f8b5d3bd48e224d4e9 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_f81abfa84f5b40889d7d330fedfa3729 = $(`<div id="html_f81abfa84f5b40889d7d330fedfa3729" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>465</td>       <td>12249727</td>       <td>-106.0</td>       <td>11.5</td>       <td>462.439</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_81af3369098740f8b5d3bd48e224d4e9.setContent(html_f81abfa84f5b40889d7d330fedfa3729);
+        
+
+        circle_ec32f29dbacd4969b896597149c0c498.bindPopup(popup_81af3369098740f8b5d3bd48e224d4e9)
+        ;
+
+        
+    
+    
+            var circle_4fbaf85def8048baad13310b0819aed7 = L.circle(
+                [34.99698642, 128.03888846],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "black", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_82e5a9dfd34f42cf8f752f49ce193d22 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_f9885cbd107240d9b7551eae93b88649 = $(`<div id="html_f9885cbd107240d9b7551eae93b88649" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>465</td>       <td>12249727</td>       <td>-106.0</td>       <td>9.0</td>       <td>614.734</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_82e5a9dfd34f42cf8f752f49ce193d22.setContent(html_f9885cbd107240d9b7551eae93b88649);
+        
+
+        circle_4fbaf85def8048baad13310b0819aed7.bindPopup(popup_82e5a9dfd34f42cf8f752f49ce193d22)
+        ;
+
+        
+    
+    
+            var circle_5357cee958e2448ba5e6e06a2550f959 = L.circle(
+                [34.99812599, 128.03895981],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_3a24840fd5e945908918590804f7f790 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_e5d8ec43d1f8400bab072a66a0a3ad73 = $(`<div id="html_e5d8ec43d1f8400bab072a66a0a3ad73" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>465</td>       <td>12249727</td>       <td>-99.0</td>       <td>11.0</td>       <td>765.01</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_3a24840fd5e945908918590804f7f790.setContent(html_e5d8ec43d1f8400bab072a66a0a3ad73);
+        
+
+        circle_5357cee958e2448ba5e6e06a2550f959.bindPopup(popup_3a24840fd5e945908918590804f7f790)
+        ;
+
+        
+    
+    
+            var circle_900eae681eae4a61ab63a18fbfc69147 = L.circle(
+                [34.99936072, 128.04019649],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_2dd0c597be26472f8712da2ef464f811 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_04dd853c9d754fe588d3c5b654d9af7c = $(`<div id="html_04dd853c9d754fe588d3c5b654d9af7c" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>315</td>       <td>12249727</td>       <td>-73.0</td>       <td>23.6</td>       <td>449.137</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_2dd0c597be26472f8712da2ef464f811.setContent(html_04dd853c9d754fe588d3c5b654d9af7c);
+        
+
+        circle_900eae681eae4a61ab63a18fbfc69147.bindPopup(popup_2dd0c597be26472f8712da2ef464f811)
+        ;
+
+        
+    
+    
+            var circle_c43f5696bf8b4c93bde72c52460d6a60 = L.circle(
+                [34.99936589, 128.04014343],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "black", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.5, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2fdbae20bffb48e9bf7630816d8bcd2e);
+        
+    
+        var popup_3b6b91c09f1e483d96789ad53e20e089 = L.popup({"maxWidth": 300, "minWidth": 100});
+
+        
+            var html_9e70d0b9aeae46bd9a76c1eebea015b2 = $(`<div id="html_9e70d0b9aeae46bd9a76c1eebea015b2" style="width: 100.0%; height: 100.0%;"><table border="1" class="dataframe table table-striped table-hover table-condensed table-responsive text-center">   <thead>     <tr style="text-align: right;">       <th>PCI</th>       <th>셀ID</th>       <th>RSRP</th>       <th>SINR</th>       <th>DL</th>       <th>UL</th>     </tr>   </thead>   <tbody>     <tr>       <td>465</td>       <td>12249607</td>       <td>-110.0</td>       <td>5.0</td>       <td>732.132</td>       <td>None</td>     </tr>   </tbody> </table></div>`)[0];
+            popup_3b6b91c09f1e483d96789ad53e20e089.setContent(html_9e70d0b9aeae46bd9a76c1eebea015b2);
+        
+
+        circle_c43f5696bf8b4c93bde72c52460d6a60.bindPopup(popup_3b6b91c09f1e483d96789ad53e20e089)
+        ;
+
+        
+    
+</script>

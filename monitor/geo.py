@@ -151,6 +151,7 @@ class KakaoLocalAPI:
 
 #######################################################################################################
 # 측정 위치에 대한 지도맵 그리기
+# 2022.03.02 - 파일명에 통신사업자 코드를 넣음(파일명으로 어느 통신사 측정단말인지 알기 위해)
 #######################################################################################################
 # RSRP 값에 따라 색상코드를 결정한다. 
 def rsrp2color(x):
@@ -203,7 +204,7 @@ def make_map_locations(mdata):
             popup=popup,
             radius=radius, # 크기 지정
             color='black', # 테두리 색상
-            fill_color=rsrp2color(RSRP), # 내부 색상 '#000000' 
+            fill_color=rsrp2color(RSRP) if RSRP else 'black', # 내부 색상 '#000000' 
             fill_opacity=1.,
             weight=1
         ).add_to(points)
@@ -216,7 +217,7 @@ def make_map_locations(mdata):
     # 이동경로와 겹쳐서 먼저 이동경로를 그리고 난 후 측점지점들을 표시한다.
     points.add_to(map)
 
-    filename = f'{mdata.phone.measdate}-{mdata.phone_no}.html'
+    filename = f'{mdata.phone.measdate}-{mdata.ispId}-{mdata.phone_no}.html'
     map.save("monitor/templates/maps/" + filename)
 
     return filename
