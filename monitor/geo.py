@@ -152,6 +152,22 @@ class KakaoLocalAPI:
 #######################################################################################################
 # 측정 위치에 대한 지도맵 그리기
 #######################################################################################################
+# RSRP 값에 따라 색상코드를 결정한다. 
+def rsrp2color(x):
+    if x > -65:
+        color = 'red'
+    elif -75 <= x < -65:
+        color = 'orange'
+    elif -85 <= x < -75:
+        color = 'yellow'
+    elif -95 <= x < -85:
+        color = 'green'
+    elif -105 <= x < -95:
+        color = 'blue'
+    else:
+        color = 'black'
+    return color
+
 def make_map_locations(mdata):
     # if locations and len(locations) < 1: return None
     map = folium.Map(location=[mdata.phone.latitude, mdata.phone.longitude], zoom_start=15)
@@ -164,24 +180,41 @@ def make_map_locations(mdata):
     ).add_to(map)
 
     # 측정 위치를 지도맵에 표시한다.
-    for m in mdata.phone.measurecalldata_set.filter(testNetworkType='speed'):
-        if m.latitude == mdata.latitude and m.longitude == mdata.longitude:
-            color = 'red'
+    locations = []
+    points = folium.FeatureGroup(name="All Points")
+    for m in mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("currentCount"):
+        # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
+        if m.networkId == '5G':
+            pci, RSRP, SINR = m.NR_PCI, m.NR_RSRP, m.NR_SINR
         else:
-            color = '#3186cc'
-        df = pd.DataFrame([{'셀ID': m.cellId, '콜카운트': m.currentCount, 'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, },])
+            pci, RSRP, SINR= m.p_pci, m.p_rsrp, m.p_SINR
+        # RSRP 값에 따라서 색상을 계산한다.
+        if m.latitude == mdata.latitude and m.longitude == mdata.longitude:
+            radius = 14.5 * 2
+        else:
+            radius = 14.5
+        df = pd.DataFrame([{'PCI': pci, '셀ID': m.cellId, 'RSRP': RSRP, 'SINR': SINR, \
+                            'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, },])
         html = df.to_html(index=False, 
                           classes='table table-striped table-hover table-condensed table-responsive text-center')
         popup = folium.Popup(html, min_width=100, max_width=300)
         folium.Circle(
             location=[m.latitude, m.longitude],
             popup=popup,
-            radius=14.5, # CircleMarker 크기 지정
-            color=color, # CirclaMarker 테두리 색상
-            fill_color=color, # CircleMarker 내부 색상 '#000000' 
+            radius=radius, # 크기 지정
+            color='black', # 테두리 색상
+            fill_color=rsrp2color(RSRP), # 내부 색상 '#000000' 
             fill_opacity=1.,
             weight=1
-        ).add_to(map)
+        ).add_to(points)
+        locations.append([m.latitude, m.longitude])
+
+    # 지도맵에 이동경로를 표시한다.
+    folium.PolyLine(locations=locations).add_to(map)
+
+    # 지도맵에 측정지점들을 표시한다.
+    # 이동경로와 겹쳐서 먼저 이동경로를 그리고 난 후 측점지점들을 표시한다.
+    points.add_to(map)
 
     filename = f'{mdata.phone.measdate}-{mdata.phone_no}.html'
     map.save("monitor/templates/maps/" + filename)

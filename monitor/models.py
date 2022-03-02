@@ -215,6 +215,7 @@ class MeasureCallData(models.Model):
     p_dl_earfcn = models.IntegerField(null=True, blank=True)  # P 주파수
     p_pci = models.IntegerField(null=True, blank=True)  # P PCI
     p_rsrp = models.FloatField(null=True, blank=True)  # P RSRP
+    p_SINR = models.FloatField(null=True, blank=True)   # P SINR
     NR_EARFCN = models.IntegerField(null=True, blank=True)  # 5G 주파수
     NR_PCI = models.IntegerField(null=True, blank=True)  # 5G CI
     NR_RSRP = models.FloatField(null=True, blank=True)  # 5G PCI
