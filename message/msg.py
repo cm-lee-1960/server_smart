@@ -1,7 +1,8 @@
 from datetime import datetime
 from django.conf import settings
 from django.db.models import Q
-from monitor.models import Phone, MeasureCallData, MeasureingTeam, Message
+from monitor.models import Phone, MeasureCallData, Message
+from management.models import MeasureingTeam
 
 #--------------------------------------------------------------------------------------------------
 # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.

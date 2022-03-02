@@ -28,7 +28,20 @@ class MorphSettingsAdmin(admin.ModelAdmin):
     list_display = ['morph', 'morph_startswith', 'morph_vulzone', 'fvg_dl_criteria', 'fvg_ul_criteria', 'lte_dl_criteria', 'lte_ul_criteria',\
                     'thg_dl_criteria', 'thg_ul_criteria', 'wifi_dl_criteria', 'wifi_ul_criteria']
     list_display_links = ['morph']
-    
+
+# -------------------------------------------------------------------------------------------------
+# 금일 측정조 관리자 페이지 설정
+# -------------------------------------------------------------------------------------------------
+class MeasureingTeamAdmin(admin.ModelAdmin):
+    list_display = ['measdate_fmt', 'message']
+    list_display_links = ['message']
+    search_fields = ('message', 'message')
+    list_filter = ['measdate',]
+    ordering = ('-measdate', )
+
+    def measdate_fmt(self, obj):
+        return obj.measdate.strftime('%Y-%m-%d') # YYYY-MM-DD 표시 예) 2021-11-01
+
 admin.site.register(Morphology, MorphologyAdmin) # 모폴러지 등록
 admin.site.register(LowThroughput, LowThroughputAdmin) # 속도저하 기준 등록
 admin.site.register(CenterInfo) # 센터정보 등록(전국 14개 센터)

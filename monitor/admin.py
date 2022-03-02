@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Phone, MeasureCallData, MeasureingTeam
+from .models import Phone, MeasureCallData
 
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
@@ -122,21 +122,6 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
         filtered_query = query.filter(ispId='45008', testNetworkType='speed')
         return filtered_query
 
-
-# -------------------------------------------------------------------------------------------------
-# 금일 측정조 관리자 페이지 설정
-# -------------------------------------------------------------------------------------------------
-class MeasureingTeamAdmin(admin.ModelAdmin):
-    list_display = ['measdate_fmt', 'message']
-    list_display_links = ['message']
-    search_fields = ('message', 'message')
-    list_filter = ['measdate',]
-    ordering = ('-measdate', )
-
-    def measdate_fmt(self, obj):
-        return obj.measdate.strftime('%Y-%m-%d') # YYYY-MM-DD 표시 예) 2021-11-01
-
-
 class MonitorAdminArea(admin.AdminSite):
     '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
     index_title = "단말상태 관리"
@@ -149,6 +134,4 @@ admin.site.register(Phone, PhoneAdmin) # 측정 단말
 monitor_site.register(Phone, PhoneAdmin) # 측정 단말 -- 어드민 페이지 별도분리 테스트
 admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
 monitor_site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위) -- 어드민 페이지 별도분리 테스트
-
-admin.site.register(MeasureingTeam, MeasureingTeamAdmin) # 금일 측정조
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 
 ###################################################################################################
@@ -57,3 +58,14 @@ class CenterInfo(models.Model):
     class Meta:
         verbose_name = ('센터정보')
         verbose_name_plural = ('센터정보')
+
+###################################################################################################
+# 금일측정조 데이터
+###################################################################################################
+class MeasureingTeam(models.Model):
+    measdate = models.DateField(default=datetime.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
+    message = models.TextField(verbose_name="금일 측정조")
+
+    class Meta:
+        verbose_name = "금일 측정조"
+        verbose_name_plural = "금일 측정조"

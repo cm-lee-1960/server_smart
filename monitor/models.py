@@ -1,4 +1,3 @@
-from datetime import datetime
 from xml.dom.pulldom import PROCESSING_INSTRUCTION
 from django.db import models
 from django.db.models.signals import post_save
@@ -285,19 +284,6 @@ class MeasureSecondData(models.Model):
 
     def __str__(self):
         return f"{self.phone_no}/{self.neworkid}/{self.meastime}/{self.currentCount}"
-
-
-
-###################################################################################################
-# 금일측정조 데이터
-###################################################################################################
-class MeasureingTeam(models.Model):
-    measdate = models.DateField(default=datetime.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
-    message = models.TextField(verbose_name="금일 측정조")
-
-    class Meta:
-        verbose_name = "금일 측정조"
-        verbose_name_plural = "금일 측정조"
 
 
 ###################################################################################################
