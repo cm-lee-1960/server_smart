@@ -211,7 +211,7 @@ def make_message(mdata):
             userInfo1=mdata.userInfo1,
             currentCount=mdata.currentCount,
             phone_no=mdata.phone_no,
-            ownloadBandwidth=avg_downloadBandwidth,
+            downloadBandwidth=avg_downloadBandwidth,
             uploadBandwidth=avg_uploadBandwidth,
             messageType='SMS',
             message=messages[phone.status],

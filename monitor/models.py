@@ -313,7 +313,7 @@ class Message(models.Model):
     userInfo1 = models.CharField(max_length=100, null=True, blank=True) 
     currentCount = models.IntegerField(null=True, blank=True)
     phone_no = models.BigIntegerField(null=True, blank=True)
-    ownloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
+    downloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
     uploadBandwidth = models.FloatField(null=True, blank=True)  # UP속도
     #######################################
     messageType = models.CharField(max_length=10) # 메시지유형(SMS: 메시지, EVENT: 이벤트)

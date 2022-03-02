@@ -6,6 +6,7 @@
 import json
 import requests
 import folium
+import pandas as pd
 class KakaoLocalAPI:
     '''Kakao Local API 컨트롤러'''
     def __init__(self, rest_api_key):
@@ -163,12 +164,21 @@ def make_map_locations(mdata):
     ).add_to(map)
 
     # 측정 위치를 지도맵에 표시한다.
-    for m in mdata.phone.measurecalldata_set.all():
+    for m in mdata.phone.measurecalldata_set.filter(testNetworkType='speed'):
+        if m.latitude == mdata.latitude and m.longitude == mdata.longitude:
+            color = 'red'
+        else:
+            color = '#3186cc'
+        df = pd.DataFrame([{'셀ID': m.cellId, '콜카운트': m.currentCount, 'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, },])
+        html = df.to_html(index=False, 
+                          classes='table table-striped table-hover table-condensed table-responsive text-center')
+        popup = folium.Popup(html, min_width=100, max_width=300)
         folium.Circle(
             location=[m.latitude, m.longitude],
+            popup=popup,
             radius=14.5, # CircleMarker 크기 지정
-            color='#3186cc', # CirclaMarker 테두리 색상
-            fill_color='#3186cc', # CircleMarker 내부 색상 '#000000' 
+            color=color, # CirclaMarker 테두리 색상
+            fill_color=color, # CircleMarker 내부 색상 '#000000' 
             fill_opacity=1.,
             weight=1
         ).add_to(map)

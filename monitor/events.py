@@ -302,7 +302,7 @@ def make_event_message(mdata, message):
             userInfo1=mdata.userInfo1,
             currentCount=mdata.currentCount,
             phone_no=mdata.phone_no,
-            ownloadBandwidth=mdata.downloadBandwidth,
+            downloadBandwidth=mdata.downloadBandwidth,
             uploadBandwidth=mdata.uploadBandwidth,
             messageType='EVENT',
             message = message,
