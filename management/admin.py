@@ -18,9 +18,10 @@ from management.models import Morphology, SendFailure, LowThroughput, CenterInfo
 class MorphologyAdmin(admin.ModelAdmin):
     '''어드민 페이지에 모폴러지 정보를 보여주기 위한 클래스'''
     # form = PhoneForm
-    list_display = ['userInfo2', 'morphology',]
-    list_display_links = ['userInfo2',  'morphology', ]
-    search_fields = ('userInfo2', )
+    list_display = ['words', 'wordsCond', 'morphology', 'manage',]
+    list_display_links = ['words', 'morphology', ]
+    search_fields = ('words', )
+
 
 # -------------------------------------------------------------------------------------------------
 # 속도저하 기준 관리자 페이지 설정
@@ -64,14 +65,3 @@ admin.site.register(MeasureingTeam, MeasureingTeamAdmin) # 금일 측정조
 
 # 사용자 인증관련 그룹을 어드민 페이지에서 제외한다.
 admin.site.unregister(auth.models.Group)
-
-
-############################# 모폴로지 분류 조건 관리자 페이지(3.3) ################################
-from management.models import morph_set
-class MorphSetAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 모폴로지 설정 추가'''
-    list_display = ['userInfo_sort', 'words_cond', 'words', 'morph', 'manage']
-    list_display_links = ['morph']
-
-admin.site.register(morph_set, MorphSetAdmin)
-###################################################################################################

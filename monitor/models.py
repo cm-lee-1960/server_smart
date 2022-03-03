@@ -3,8 +3,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.conf import settings
 from .geo import KakaoLocalAPI
-from message.tele_msg import tele_bot
-from management.models import morph_set  # phone에서 모폴로지 분류 (3.3)
+from message.tele_msg import TelegramBot
+from management.models import Morphology
 # import logging
 
 # logger = logging.getLogger(__name__)
@@ -88,7 +88,6 @@ class Phone(models.Model):
     verbose_name='모폴러지')
     manage = models.BooleanField(default=False)  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
-    morph2 = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES2, verbose_name='모폴러지2')  # 모폴러지 자동분류(3.3)
 
     class Meta:
         verbose_name = "측정 단말"
@@ -152,33 +151,6 @@ class Phone(models.Model):
         # 최종 위치보고시간을 업데이트 한다.
         self.last_updated = mdata.meastime
 
-
-        ###################### 모폴로지 결정 (3.3) ##########################################################
-        ### 일단 userInfo2 기준 시작단어 및 포함단어만 구현 (3.3) ############################################
-        ### 우선순위 : 시작단어 확인 -> 일치하는 시작단어 없을 시 포함단어 확인  ###############################
-        if not self.morph2 or self.morph2=='미지정':
-            try:
-                words_start_list = morph_set.objects.filter(words_cond='시작단어').values_list('words', flat=True)
-                words_contain_list = morph_set.objects.filter(words_cond='포함단어').values_list('words', flat=True)
-                if mdata.userInfo2[0] in words_start_list:
-                    self.morph2 = morph_set.objects.get(words_cond='시작단어', words=mdata.userInfo2[0]).morph
-                elif words_contain_list:
-                    for word in words_contain_list:
-                        if word in mdata.userInfo2:
-                            self.morph2 = morph_set.objects.get(words_cond='포함단어', words=word).morph
-                            break
-                        else:
-                            print('모폴러지 설정을 확인해주세요.')
-                            self.morph2 = '미지정'
-                else:
-                    print('모폴러지 설정을 확인해주세요.')
-                    self.morph2 = '미지정'
-            except:
-                print('모폴러지를 지정할 수 없습니다.')
-                self.morph2 = '미지정'
-        ######################################################################################################
-
-
         # 단말기의 정보를 데이터베이스에 저장한다.
         self.save()
 
@@ -204,12 +176,22 @@ class Phone(models.Model):
         # -----------------------------------------------------------------------------------------
         morphology = None
         if self.userInfo2:
-            if self.userInfo2.startswith('행-'): morphology = '행정동'
-            if self.userInfo2.startswith('테-'): morphology = '테마'
-            if self.userInfo2.startswith('인-'): morphology = '인빌딩'
-            if self.userInfo2.startswith('커-') or self.userInfo2.find('커버리지') >= 0: morphology = '커버리지'
+            # if self.userInfo2.startswith('행-'): morphology = '행정동'
+            # if self.userInfo2.startswith('테-'): morphology = '테마'
+            # if self.userInfo2.startswith('인-'): morphology = '인빌딩'
+            # if self.userInfo2.startswith('커-') or self.userInfo2.find('커버리지') >= 0: morphology = '커버리지'
 
-            self.morphology = morphology
+            for mp in Morphology.objects.all():
+                if mp.wordsCond == '시작단어':
+                    if self.userInfo2.startswith(mp.words):
+                        morphology = mp.morphology
+                        break
+                elif mp.wordsCond == '포함단어':
+                    if self.userInfo2.find(mp.words) >= 0:
+                        morphology = mp.morphology
+                        break
+            
+        self.morphology = morphology
 
         # 측정 단말기 정보를 저장한다.
         self.save()
@@ -371,10 +353,10 @@ class Message(models.Model):
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 메시지를 전송한다.
 #--------------------------------------------------------------------------------------------------
 def send_message(sender, **kwargs):
-    msg_tele = tele_bot()  ## 텔레그램 인스턴스 선언(3.3)
+    bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
     # 텔레그램으로 메시지를 전송한다.
     if kwargs['instance'].sendType == 'TELE':
-        msg_tele.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
+        bot.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
     # 크로샷으로 메시지를 전송한다.
     elif kwargs['instance'].sendType == 'XROS':
         pass
