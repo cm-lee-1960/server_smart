@@ -4,7 +4,7 @@ from haversine import haversine # 이동거리
 # import requests
 from django.http import HttpResponseServerError
 
-from management.models import SendFailure
+from management.models import SendFailure, LowThroughput
 from .geo import KakaoLocalAPI, make_map_locations
 from .models import Message
 
@@ -108,14 +108,15 @@ def send_failure_check(mdata):
                             f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
         except Exception as e:
-            print("event_occur_check():", str(e))
-            raise Exception("event_occur_check(): %s" % e) 
+            print("send_failure_check():", str(e))
+            raise Exception("send_failure_check(): %s" % e) 
     
     return message
 
 # -------------------------------------------------------------------------------------------------
 # 속도저하(Low Throughput) 발생여부 확인
-# 2022.02.24 속도저하 기준 별도 테이블 관리 필요 -- LowThroughput
+# 2022.02.24 - 속도저하 기준 별도 테이블 관리 필요 -- LowThroughput
+# 2022.03.03 - 속도저하 기준 테이블(모델) 생성 및 체크 모듈 작성 
 #--------------------------------------------------------------------------------------------------
 def low_throughput_check(mdata):
     '''속도저하(Low Throughput) 발생여부 확인
@@ -123,10 +124,25 @@ def low_throughput_check(mdata):
         - return message
     '''
     message = None
-    # *** 속도저하 판단 기준(DB)에서 가져와서 확인하는 코드 작성필요
-    # # 메시지 내용을 작성한다. 
-    # message = f"{mdata.userInfo1}에서 속도저하(Low Throughput)가 발생했습니다.\n" + \
-    #             f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
+    areaInd = 'NORM' # 보통지역
+    networkId = mdata.phone.networkId
+    # 해당 측정 데이터가 DL인지, UL인지 확인한다.
+    dataType = ''
+    if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
+    if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType, bandwidth = 'UL', mdata.uploadBandwidth
+    if dataType in ('DL', 'UL'):
+        try:
+            # 데이터베이스에서 속도저하 판단 기준을 조회한다.
+            qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
+            if qs.exists():
+                if bandwidth < qs[0].bandwidth:
+                    # 메시지 내용을 작성한다.
+                    message = f"{mdata.userInfo1}에서 속도저하(Low Throughput)가 발생했습니다.\n" + \
+                            f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
+            # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
+        except Exception as e:
+            print("low_throughput_check():", str(e))
+            raise Exception("low_throughput_check(): %s" % e) 
 
     return message
 
@@ -181,6 +197,7 @@ def out_measuring_range(mdata):
     message = None
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
     if not mdata.userInfo2.startswith("행-") : return None
+    if not (mdata.longitude and mdata.latitude) : return None
 
     # 2022.02.20 - 역지오코딩 - 도로명 주소로 반환되어 카카오지도 API로 대체
     # geolocator = Nominatim(user_agent="myGeolocator")
@@ -192,27 +209,37 @@ def out_measuring_range(mdata):
     rest_api_key = settings.KAKAO_REST_API_KEY
     kakao = KakaoLocalAPI(rest_api_key)
     input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+    output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
-    result = kakao.geo_coord2address(mdata.longitude, mdata.latitude, input_coord)
+    result = kakao.geo_coord2regioncode(mdata.longitude,mdata.latitude, input_coord, output_coord)
     # [ 리턴값 형식 ]
     # print("out_measuring_range():", result)
-    # {'meta': {'total_count': 1}, 
-    #   'documents': [
-    #       {'road_address': None, 
-    #       'address': 
-    #       {'address_name': '강원 춘천시 동내면 사암리 산 121-1', 'region_1depth_name': '강원', 
-    #       'region_2depth_name': '춘천시', 'region_3depth_name': '동내면 사암리', 'mountain_yn': 'Y', 
-    #       'main_address_no': '121', 'sub_address_no': '1', 'zip_code': ''}}]}
-    # meta,
-    # document -> road_address
-    #          -> address -> region_3depth_name
+    # {'meta': {'total_count': 2},
+    # 'documents': [{'region_type': 'B',
+    # 'code': '4824012400',
+    # 'address_name': '경상남도 사천시 노룡동',
+    # 'region_1depth_name': '경상남도',
+    # 'region_2depth_name': '사천시',
+    # 'region_3depth_name': '노룡동',
+    # 'region_4depth_name': '',
+    # 'x': 296184.5342265043,
+    # 'y': 165683.29710986698},
+    # {'region_type': 'H',
+    # 'code': '4824059500',
+    # 'address_name': '경상남도 사천시 남양동',
+    # 'region_1depth_name': '경상남도',
+    # 'region_2depth_name': '사천시',
+    # 'region_3depth_name': '남양동',
+    # 'region_4depth_name': '',
+    # 'x': 297008.1130364056,
+    # 'y': 164008.47612447804}]}
     # 좌표(위도,경도)로 찾은 주소와 어떤 것을 비교할지? 고민필요
     # userInfo1가 위도,경도 좌표로 변환한 행정동을 포함하고 있는지 확인
     # 2022.02.28 - 단말기가 처음 측정을 시작할 때(현재 콜카운트가=1) 위치(위도,경도)가 정확하다고 가정하고 그때이 상세주소 값을
     #              측정 단말기 정보에 가져간다.
     #            - 측정 단말기의 상세주소와 해당 측정 데이터의 위도,경도를 통해 찾은 행정도 명칭과 비교한다.
     try: 
-        region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
+        region_3depth_name = result['documents'][1]['region_3depth_name']
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
             # 해당 위치에 대한 지도맵을 작성한다.
             filename = make_map_locations(mdata)

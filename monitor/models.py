@@ -145,16 +145,18 @@ class Phone(models.Model):
     # 해당 위도, 경도에 대한 주소지를 행정동으로 변환하여 업데이트 한다.
     def update_address_detail(self):
         # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
-        rest_api_key = settings.KAKAO_REST_API_KEY
-        kakao = KakaoLocalAPI(rest_api_key)
-        input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+        if self.longitude and self.latitude:
+            rest_api_key = settings.KAKAO_REST_API_KEY
+            kakao = KakaoLocalAPI(rest_api_key)
+            input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+            output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
-        result = kakao.geo_coord2address(self.longitude, self.latitude, input_coord)
+            result = kakao.geo_coord2regioncode(self.longitude, self.latitude, input_coord, output_coord)
 
-        region_3depth_name = result['documents'][0]['address']['region_3depth_name'].split()[0]
+            region_3depth_name = result['documents'][1]['region_3depth_name']
 
-        self.addressDetail = region_3depth_name
-        self.save()
+            self.addressDetail = region_3depth_name
+            self.save()
 
 ###################################################################################################
 # 실시간 측정 데이터(콜 단위)
