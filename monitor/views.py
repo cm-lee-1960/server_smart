@@ -4,10 +4,12 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
-from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
+
 from message.msg import make_message
+from management.models import Morphology
 from .events import event_occur_check
-# from django.conf import settings
+from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
+
 
 # 로그를 기록하기 위한 로거를 생성한다.
 # import logging
@@ -176,16 +178,16 @@ def receive_json(request):
         # 측정시작 메시지
         # 2022.02.27 - 측정시작 메시지 분리
         #            - 통신사 및 기타 조건에 상관없이 해당일자 측정이 시작하면 측정시작 메시지를 전송하도록 한다.
-        if data['currentCount'] == 1: make_message(mdata)
+        if data['currentCount'] == 1: 
+            make_message(mdata)
 
-        # *** 모폴로지 조건체크는 향후 DB 테이블에서 가져오서 확인하는 코드로 변경해야 함
-        elif data['ispId'] == '45008' and \
-            (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")) and \
-            data['testNetworkType'] == 'speed':
+        # 2022.03.03 - 관리대상 모폴러지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
+        elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
+            mps= Morphology.objects.filter(manage=True).values_list('morphology', flat=True)
+            if mdata.phone.morphology in mps:
                 make_message(mdata)
 
-        # 이벤트 발생여부를 체크한다. 
-        if data['testNetworkType'] == 'speed':
+            # 이벤트 발생여부를 체크한다. 
             event_occur_check(mdata)
 
     except Exception as e:

@@ -1,5 +1,7 @@
 secrets.json
 
+/monitor/templates/maps
+
 /logs
 /management/__pycache__
 /message/__pycache__
