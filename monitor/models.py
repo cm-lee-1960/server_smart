@@ -55,6 +55,9 @@ class Phone(models.Model):
     MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
                             ('커버리지','커버리지')}
 
+    MORPHOLOGY_CHOICES2 = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
+                            ('커버리지','커버리지'), ('미지정','미지정')}
+
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10)
     phone_no = models.BigIntegerField(verbose_name="측정단말")
@@ -85,7 +88,7 @@ class Phone(models.Model):
     verbose_name='모폴러지')
     manage = models.BooleanField(default=False)  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
-    morph2 = models.CharField(max_length=100, null=True, blank=True, verbose_name='모폴러지2')  # 모폴러지 자동분류(3.3)
+    morph2 = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES2, verbose_name='모폴러지2')  # 모폴러지 자동분류(3.3)
 
     class Meta:
         verbose_name = "측정 단말"
@@ -159,11 +162,17 @@ class Phone(models.Model):
                 words_contain_list = morph_set.objects.filter(words_cond='포함단어').values_list('words', flat=True)
                 if mdata.userInfo2[0] in words_start_list:
                     self.morph2 = morph_set.objects.get(words_cond='시작단어', words=mdata.userInfo2[0]).morph
-                else:
+                elif words_contain_list:
                     for word in words_contain_list:
                         if word in mdata.userInfo2:
                             self.morph2 = morph_set.objects.get(words_cond='포함단어', words=word).morph
                             break
+                        else:
+                            print('모폴러지 설정을 확인해주세요.')
+                            self.morph2 = '미지정'
+                else:
+                    print('모폴러지 설정을 확인해주세요.')
+                    self.morph2 = '미지정'
             except:
                 print('모폴러지를 지정할 수 없습니다.')
                 self.morph2 = '미지정'
@@ -362,10 +371,10 @@ class Message(models.Model):
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 메시지를 전송한다.
 #--------------------------------------------------------------------------------------------------
 def send_message(sender, **kwargs):
-    send_message_bot = tele_bot()  ## 텔레그램 인스턴스 선언(3.3)
+    msg_tele = tele_bot()  ## 텔레그램 인스턴스 선언(3.3)
     # 텔레그램으로 메시지를 전송한다.
     if kwargs['instance'].sendType == 'TELE':
-        send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
+        msg_tele.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
     # 크로샷으로 메시지를 전송한다.
     elif kwargs['instance'].sendType == 'XROS':
         pass
