@@ -27,7 +27,7 @@ class PhoneAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
     # form = PhoneForm
     list_display = ['userInfo1', 'morphology', 'phone_no', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
-        'status', 'total_count', 'last_updated_at', 'active']
+        'status', 'total_count', 'last_updated_at', 'active', 'morph2']
     list_display_links = ['phone_no']
     search_fields = ('userInfo1', 'phone_no', )
     list_filter = ['active',]
@@ -64,7 +64,7 @@ class PhoneAdmin(admin.ModelAdmin):
             # 'description' : '단말에 대한 정보를 보여줍니다.'
         }),
         ('측정정보', {
-             'fields': (('userInfo1', 'morphology'),
+             'fields': (('userInfo1', 'morphology', 'morph2'),
                         ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
                         ('dl_count', 'ul_count'),
                         ('status', 'total_count'),

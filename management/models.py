@@ -76,3 +76,20 @@ class MeasureingTeam(models.Model):
     class Meta:
         verbose_name = "금일 측정조"
         verbose_name_plural = "금일 측정조"
+
+
+############################# 모폴로지 분류 조건 (3.3) #############################################
+### 시작단어/포함단어 설정하여 userInfo2와 비교 후 모폴로지 자동 분류
+### 우선순위 : 시작단어 -> 포함단어
+###################################################################################################
+class morph_set(models.Model):
+    '''모폴로지 DB(사용자 입력 가능)'''
+    MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), ('커버리지','커버리지')}
+    userInfo_CHOICES = {('userInfo2', 'userInfo2')}
+    words_cond_CHOICES = {('시작단어','시작단어'), ('포함단어','포함단어')}
+
+    userInfo_sort = models.CharField(max_length=100, null=True, blank=True, choices=userInfo_CHOICES, verbose_name='구분')
+    words_cond = models.CharField(max_length=20, null=True, blank=True, choices=words_cond_CHOICES, verbose_name='조건')
+    words = models.CharField(max_length=200, null=True, blank=True, verbose_name="단어") # 모폴로지 판단 컬럼2 : 특정 단어 포함
+    morph = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES, verbose_name='모폴러지')
+    manage = models.BooleanField(default=False, verbose_name='관리대상')  # 관리대상 여부

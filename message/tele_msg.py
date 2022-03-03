@@ -5,7 +5,8 @@ from django.conf import settings
 from . import tele_chatbot
 
 
-class tele_msg:
+class tele_bot:
+    ''' Telegram 인스턴스(메시지 전송, 챗봇활성화) '''
     def __init__(self):
         self.bot_token = settings.BOT_TOKEN
         self.bot = telegram.Bot(self.bot_token)
