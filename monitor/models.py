@@ -36,6 +36,7 @@ class PhoneGroup(models.Model):
 # 2022.03.01 - 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 업데이트 하는 함수를 추가함
 # 2022.03.03 - 모폴러지 항목 추가
 #            - 측정 데이터의 userInfo2에서 측정자가 입력한 모폴러지가 부정확하게 입력된 경우 매핑 테이블로 재지정하기 위함
+#            - 측정 데이터의 userInfo2 -> Morphology -> 모폴러지 맵핑 재지정 모듈 추가
 ###################################################################################################
 class Phone(models.Model):
     """측정 단말기 정보"""
@@ -181,6 +182,7 @@ class Phone(models.Model):
             # if self.userInfo2.startswith('인-'): morphology = '인빌딩'
             # if self.userInfo2.startswith('커-') or self.userInfo2.find('커버리지') >= 0: morphology = '커버리지'
 
+            # 모폴러지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모폴러지를 재지정한다. 
             for mp in Morphology.objects.all():
                 if mp.wordsCond == '시작단어':
                     if self.userInfo2.startswith(mp.words):
