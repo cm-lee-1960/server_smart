@@ -187,6 +187,7 @@ def fivgtolte_trans_check(mdata):
 #            - 경상남도-사천시-남양동 2021.11.01 : 죽림동, 송포동, 노룡동 등
 # 2022.03.01 - 측정범위를 벗어난 경우 측정 위치 및 경로를 지도맵(Folium)에 표시한다.
 #            - 향후 작성된 지도맵을 이미지 형태로 텔레그램 메시지에 첨부하여 보내기 위함
+# 2022.03.03 - 위,경도에 따른 행정동 검색 오류 수정 (2.27 이슈해결)
 #--------------------------------------------------------------------------------------------------
 def out_measuring_range(mdata):
     ''' 단말이 측정범위를 벗어났는지 확인
@@ -220,7 +221,7 @@ def out_measuring_range(mdata):
     # 'address_name': '경상남도 사천시 노룡동',
     # 'region_1depth_name': '경상남도',
     # 'region_2depth_name': '사천시',
-    # 'region_3depth_name': '노룡동',
+    # 'region_3depth_name': '노룡동', <-- 주소지 동
     # 'region_4depth_name': '',
     # 'x': 296184.5342265043,
     # 'y': 165683.29710986698},
@@ -229,7 +230,7 @@ def out_measuring_range(mdata):
     # 'address_name': '경상남도 사천시 남양동',
     # 'region_1depth_name': '경상남도',
     # 'region_2depth_name': '사천시',
-    # 'region_3depth_name': '남양동',
+    # 'region_3depth_name': '남양동', <-- 행정구역
     # 'region_4depth_name': '',
     # 'x': 297008.1130364056,
     # 'y': 164008.47612447804}]}
