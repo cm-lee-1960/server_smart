@@ -101,6 +101,7 @@ def receive_json(request):
                         measdate=str(data['meastime'])[0:8],
                         phone_no=data['phone_no'],
                         userInfo1=data['userInfo1'],
+                        userInfo2=data['userInfo2'],
                         networkId=networkId,
                         ispId=data['ispId'],
                         avg_downloadBandwidth=0.0,
@@ -117,9 +118,10 @@ def receive_json(request):
                         manage=manage,
                         active=True,
                     )
-
-            # 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 저잔한다. 
-            phone.update_address_detail()
+            # 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 내용을 담아 놓음
+            # 1) 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 저장한다.
+            # 2) 측정 데이터의 userInfo2를 확인하여 모폴러지를 매핑하여 지정한다.
+            phone.update_initial_data()
 
     except Exception as e:
         # 오류코드 리턴 필요

@@ -33,6 +33,8 @@ class PhoneGroup(models.Model):
 # 2022.02.27 - 주소상세(addressDetail) 항목 추가 
 #            - 측정 콜이 행정동 범위를 벗어났는지 확인하기 위해 첫번째 콜 위치를 측정 단말기 정보에 담아 둔다.
 # 2022.03.01 - 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 업데이트 하는 함수를 추가함
+# 2022.03.03 - 모폴러지 항목 추가
+#            - 측정 데이터의 userInfo2에서 측정자가 입력한 모폴러지가 부정확하게 입력된 경우 매핑 테이블로 재지정하기 위함
 ###################################################################################################
 class Phone(models.Model):
     """측정 단말기 정보"""
@@ -49,10 +51,14 @@ class Phone(models.Model):
         ("END", "측정종료"),
     }
 
+    MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
+                            ('커버리지','커버리지')}
+
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10)
     phone_no = models.BigIntegerField(verbose_name="측정단말")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정지역")
+    userInfo2 = models.CharField(max_length=100, verbose_name="모폴러지(측정데이터)")
     networkId = models.CharField(
         max_length=100, null=True, blank=True, verbose_name="유형"
     )  # 네트워크ID(5G, LTE, 3G, WiFi)
@@ -74,6 +80,8 @@ class Phone(models.Model):
     last_updated = models.BigIntegerField(
         null=True, blank=True, verbose_name="최종보고시간"
     )  # 최종 위치보고시간
+    morphology = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES,\
+    verbose_name='모폴러지')
     manage = models.BooleanField(default=False)  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
 
@@ -143,8 +151,10 @@ class Phone(models.Model):
         self.save()
 
     # 해당 위도, 경도에 대한 주소지를 행정동으로 변환하여 업데이트 한다.
-    def update_address_detail(self):
+    def update_initial_data(self):
+        # -----------------------------------------------------------------------------------------
         # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
+        # -----------------------------------------------------------------------------------------
         if self.longitude and self.latitude:
             rest_api_key = settings.KAKAO_REST_API_KEY
             kakao = KakaoLocalAPI(rest_api_key)
@@ -156,7 +166,21 @@ class Phone(models.Model):
             region_3depth_name = result['documents'][1]['region_3depth_name']
 
             self.addressDetail = region_3depth_name
-            self.save()
+
+        # -----------------------------------------------------------------------------------------
+        # 측정 데이터의 userInfo2를 확인하여 모폴러지를 매핑하여 지정한다.
+        # -----------------------------------------------------------------------------------------
+        morphology = None
+        if self.userInfo2:
+            if self.userInfo2.startswith('행-'): morphology = '행정동'
+            if self.userInfo2.startswith('테-'): morphology = '테마'
+            if self.userInfo2.startswith('인-'): morphology = '인빌딩'
+            if self.userInfo2.startswith('커-') or self.userInfo2.find('커버리지') >= 0: morphology = '커버리지'
+
+            self.morphology = morphology
+
+        # 측정 단말기 정보를 저장한다.
+        self.save()
 
 ###################################################################################################
 # 실시간 측정 데이터(콜 단위)
