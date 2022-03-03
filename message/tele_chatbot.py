@@ -25,7 +25,7 @@ def select_y(update, context):
 
     # 선택한 서비스의 이름을 가진 파일을 검색하여 년도만 추출
     select_year_list = list()
-    for filename in glob.glob('smartchoice/*' + query.data + '*'):
+    for filename in glob.glob('message/smartchoice/*' + query.data + '*'):
         filename = filename.split('_')
         select_year_list.append(filename[1])
     select_year_list = list(set(select_year_list))  # 중복제거
@@ -54,8 +54,8 @@ def select_city3(update, context):
 
     # 선택한 년도의 이름을 가진 파일을 검색하여 행정동 추출
     select_city3_list = list()
-    for filename in glob.glob('smartchoice/*' + query.data + '*'):
-        filename = filename.split('_')[0][12:]
+    for filename in glob.glob('message/smartchoice/*' + query.data + '*'):
+        filename = filename.split('_')[0][20:]
         select_city3_list.append(filename)
     select_city3_list = list(set(select_city3_list))  # 중복제거
 
@@ -76,7 +76,7 @@ def select_city3(update, context):
 def send_result(update, context):
     query = update.callback_query
     chat_id = query.message.chat_id
-    result_filename = 'smartchoice/' + query.data
+    result_filename = 'message/smartchoice/' + query.data
 
     try:
         context.bot.edit_message_text(chat_id=chat_id, message_id=query.message.message_id, text='조회결과는 다음과 같습니다.')
@@ -99,7 +99,7 @@ def search(update, context):
     if len(context.args) == 2:
         search_name = context.args[0]
         search_year = context.args[1]
-        search_file = 'C:\chan/smartchoice/' + str(search_name) + '_' + str(search_year) + '_5G.png'
+        search_file = 'message/smartchoice/' + str(search_name) + '_' + str(search_year) + '_5G.png'
         if os.path.isfile(search_file):
             output_message = str(context.args[0]) + ' ' + str(context.args[1]) + '년 ' + '측정 결과 입니다.'
             update.message.reply_text(output_message)
@@ -117,7 +117,7 @@ def where(update, context):
         update.message.reply_text('잘못된 입력입니다.\n/where 년도(4자리 숫자) 로 입력해주세요.\n예)/where 2020')
     elif context.args[0].isnumeric():
         where_list = list()
-        for filename in os.listdir('smartchoice'):
+        for filename in os.listdir('message/smartchoice/'):
             if fnmatch.fnmatch(filename, '*_' + context.args[0] + '_5G.png'):
                 where_list.append(filename[:-12])
         if len(where_list) == 0:
@@ -137,7 +137,7 @@ def when(update, context):
 
     elif isinstance(context.args[0], str):
         when_list = list()
-        for filename in os.listdir('smartchoice'):
+        for filename in os.listdir('message/smartchoice/'):
             if fnmatch.fnmatch(filename, context.args[0] + '_*_5G.png'):
                 when_list.append(filename[-11:-7])
         if len(when_list) == 0:
