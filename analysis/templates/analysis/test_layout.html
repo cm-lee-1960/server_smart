@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>레이아웃 테스트</title>
+<style>
+	*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+header{
+	position : sticky;
+	top : 0;
+	z-index : 100;
+}
+nav{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+nav a{
+    position: relative;
+    margin: 0 20px;
+    font-size:20pt;
+	top : 10pt;
+    color:white;
+    text-decoration: none;
+}
+nav #underline{
+    position: absolute;
+    left: 0;
+    height: 4px;
+    width: 0;
+    background: #000000;
+    bottom: -9px;
+    transition: 0.2s;
+    border-radius: 5px;
+
+}
+	</style>
+	</head>
+<script type="text/javascript"
+	src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script>
+	$(document).ready(function(){
+		$('a').hover(function(){
+			$(this).css('color','aquamarine');
+			},	function(){
+				$(this).css('color','white');
+			
+		});
+	});
+</script>
+</head>
+
+<body>
+	<header>
+    <div class = "title" style = "background-color: mediumaquamarine; width : 100%; height : 50pt ;">
+        <div class = "logo" style = "width:10%; float : left " >
+			<a href="http://127.0.0.1:8000/analysis/test_layout">
+            <img src = "{% static 'images/logo2.png' %}" style = " width : 130pt;" /> 
+			</a>
+		</div>
+				<nav style = " float : left">
+					<!-- <div id="underline"></div> -->
+					<a href="http://127.0.0.1:8000/analysis/new">대상등록</a>
+					<a href="http://127.0.0.1:8000/analysis/report">일일보고</a>
+					<a href="#">menu3</a>
+					<a href="#">menu4</a>
+					<a href="#">menu5</a>
+					<a href="#">menu6</a>
+				</nav>
+			
+       
+		
+    </div>
+	
+	
+    <script type="text/javascript">
+            var underline = document.querySelector('#underline');
+            var item = document.querySelectorAll('nav a');
+            function select(event){
+                // console.log(event);
+                underline.style.left = event.offsetLeft+"px";
+                underline.style.width = event.offsetWidth+"px";
+                // console.log(e.offsetLeft+"px");
+               
+            }
+            item.forEach(link =>{
+                link.addEventListener('click', (event)=>{
+                    select(event.target);
+                })
+            })
+    </script>
+	</header>
+</body>

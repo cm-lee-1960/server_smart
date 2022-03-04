@@ -1,9 +1,49 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>일일보고 테스트</title>
 <style>
+	*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+header{
+	position : sticky;
+	top : 0;
+	z-index : 100;
+}
+nav{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+nav a{
+    position: relative;
+    margin: 0 20px;
+    font-size:20pt;
+	top : 10pt;
+    color:white;
+    text-decoration: none;
+}
+nav #underline{
+    position: absolute;
+    left: 0;
+    height: 4px;
+    width: 0;
+    background: #000000;
+    bottom: -9px;
+    transition: 0.2s;
+    border-radius: 5px;
+
+}
+
 table {
 	width: 100%;
 	border: 1px solid #444444;
@@ -35,7 +75,23 @@ thead {
 	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
-<script type="text/javascript">
+<script>
+	$(document).ready(function(){
+		$('a').hover(function(){
+			$(this).css('color','aquamarine');
+			},	function(){
+				$(this).css('color','white');
+			
+		});
+	});
+</script>
+<script type="text/javascript"
+	src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<!-- <script type="text/javascript">
 
 	$(document).ready(
 			function() {
@@ -73,7 +129,7 @@ thead {
 				
 				
 			});
-</script>
+</script> -->
 <script>
 	function printName() {
 		const name = document.getElementById('name').value;
@@ -87,11 +143,51 @@ thead {
 		const name = document.getElementById('name2').value;
 		document.getElementById("result2").innerText = name;
 	}
+	
 </script>
 
 </head>
 
 <body>
+	<header>
+		<div class = "title" style = "background-color: mediumaquamarine; width : 100%; height : 50pt ;">
+			<div class = "logo" style = "width:10%; float : left " >
+				<a href="http://127.0.0.1:8000/analysis/test_layout">
+				<img src = "{% static 'images/logo2.png' %}" style = " width : 130pt;" /> 
+				</a>
+			</div>
+					<nav style = " float : left">
+						<!-- <div id="underline"></div> -->
+						<a href="http://127.0.0.1:8000/analysis/new">대상등록</a>
+						<a href="http://127.0.0.1:8000/analysis/report">일일보고</a>
+						<a href="#">menu3</a>
+						<a href="#">menu4</a>
+						<a href="#">menu5</a>
+						<a href="#">menu6</a>
+					</nav>
+				
+		   
+			
+		</div>
+		
+		
+		<script type="text/javascript">
+				var underline = document.querySelector('#underline');
+				var item = document.querySelectorAll('nav a');
+				function select(event){
+					// console.log(event);
+					underline.style.left = event.offsetLeft+"px";
+					underline.style.width = event.offsetWidth+"px";
+					// console.log(e.offsetLeft+"px");
+				   
+				}
+				item.forEach(link =>{
+					link.addEventListener('click', (event)=>{
+						select(event.target);
+					})
+				})
+		</script>
+		</header>
 	<button role="button" id="modify"
 		class="add ui-button ui-button ui-state-default ui-button-text-only">
 		<span class="ui-button-text">수정</span>
@@ -103,35 +199,28 @@ thead {
 	<div style="display: inline" id="editor"></div>
 	<button id="cmd">PDF 다운</button>
 
-	<div id='content'>
+	<div id='content' style = "position: relative; left: 7%;">
 		<div id='title'>
 			<h1 style="display: inline">S-CXI 상황실 일일 보고</h1>
 			<h3 style="display: inline">(</h3>
 			<h3 style="display: inline" id="current_date"></h3>
-			<script>
-				date = new Date();
-				year = date.getFullYear();
-				month = date.getMonth() + 1;
-				day = date.getDate();
-				document.getElementById("current_date").innerHTML = month + "."
-						+ day + "." + year;
-			</script>
 			<h3 style="display: inline">)</h3>
 		</div>
 		<hr class="one" align="left" style="width: 83%;">
 		<br> <br>
 		<div>
-			<h2>□ 측정 현황</h2><h3 style="display: inline">(0일~0일):</h3><h2>전국</h2><h2> 0개</h2><h2> 지역 중</h2><h2> 0개</h2><h2> 완료</h2><h2>(진도율:0%)</h2>
+			<h2>□ 측정 현황 </h2><h3 style="display: inline" id = 'firstdate'>{{firstdate.date}}</h3><h3 style="display: inline" id='lastdate'>{{lastdate.date}}</h3>
+			<h2>: 전국 </h2><h2 id="tt"></h2><h2> 지역 중 </h2><h2 id="ttf"></h2><h2> 완료</h2><h2 id="pcf"></h2>
 		</div>
 		<br> 
 		<div>
-			<h2>&nbsp;&nbsp;○ 5G : 전국 </h2><h2 id = "target01"></h2><h2>개 지역 중 </h2><h2 id = "target05"></h2><h2>개 완료</h2><h2>(</h2><h2></h2><h2>%)</h2>
+			<h2>&nbsp;&nbsp;○ 5G : 전국 </h2><h2>{{regi5G.total}}개 지역 중 </h2><h2>{{sregi5G}}개 완료</h2><h2 id = pc1></h2>
 			<h2 style="color: blue;" id='result'></h2><input id='name' onchange='printName()' autocomplete="off" />
 		</div>
 		<br>
-		
+	
 		<div id="output" style="text-align: center; width: 83%;">
-			<table id="5ghh">
+			<table id="5Ghh">
 				<thead>
 					<tr>
 						<th >구분</th>
@@ -142,35 +231,35 @@ thead {
 					</tr>
 				</thead>
 				<tbody>
-					{% for regi5G in regi5G %}
+					
 					<tr>
 						<td >대상</td>
-					   <td id>{{regi5G.total}}</td>
+					   <td id="5tt">{{regi5G.total}}</td>
 					   <td id>{{regi5G.dong}}</td>
 					   <td id>{{regi5G.dagyo}}</td>
 					   <td id>{{regi5G.coverage}}</td>
-				   {% endfor %}	
+				   
 					<tr>
 				 		<td >누적</td>
-						 <td id>{{phones1.phoneGroup}}</td>
-						 <td id>{{phones1.phone_no}}</td>
-						 <td id>{{phones1.userInfo1}}</td>
-						 <td id>{{phones1.networkId}}</td>
+						 <td id ="5nj">{{sregi5G}}</td>
+						 <td id>{{sregi5G1}}</td>
+						 <td id>{{sregi5G2}}</td>
+						 <td id>{{sregi5G3}}</td>
 					<tr>
-					{% for phone in phones2 %}
+	
 				 		<td >금일</td>
-						 <td id>{{phone.phoneGroup}}</td>
-						 <td id>{{phone.phone_no}}</td>
-						 <td id>{{phone.userInfo1}}</td>
-						 <td id>{{pho.networkId}}</td>
-					{% endfor %}
+						 <td id>{{tregi5G}}</td>
+						 <td id>{{tregi5G1}}</td>
+						 <td id>{{tregi5G2}}</td>
+						 <td id>{{tregi5G3}}</td>
+					
 				</tbody>
 			</table>
 			
 		
 		</div>
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-		<p>※ 행정동 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+		<p>※ 행정동 : </p><p>서울 {{hjd5gseoul}}</p><p> 인천 {{hjd5gincheon}}</p><p> 울산 {{hjd5gincheon}}</p><p> 대구</p><p> 0</p><p>, 광주</p>
 		<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
 		<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p><br>
 		<p>※ 다중이용시설/교통인프라 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
@@ -178,17 +267,10 @@ thead {
 		<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p>
 		</div>
 			<br><br>
+		
 		<div>
-			<h2>&nbsp;&nbsp;○ LTE : 전국</h2>
-			<h2 id="target1"></h2>
-			<h2>개 지역 중</h2>
-			<h2 id="target2"></h2>
-			<h2>개 완료</h2>
-			<h2>(</h2>
-			<h2 id='target3'></h2>
-			<h2>%)</h2>
-			<h2 style="color: blue;" id='result'></h2>
-			<input id='name' onchange='printName()' autocomplete="off" />
+			<h2>&nbsp;&nbsp;○ LTE : 전국 </h2><h2>{{regiLTE.total}}개 지역 중 </h2><h2> {{sregiLTE}}개 완료</h2><h2 id = pc2></h2>
+			<h2 style="color: blue;" id='result'></h2><input id='name' onchange='printName()' autocomplete="off" />
 		</div>
 		<br>
 		<div id="output" style="text-align: center; width: 83%;">
@@ -210,10 +292,10 @@ thead {
 					</tr>
 				</thead>
 				<tbody>
-					{% for regiLTE in regiLTE %}
+					
 					<tr>
 						<td >대상</td>
-					   <td >{{regiLTE.total}}</td>
+					   <td id = "ltt">{{regiLTE.total}}</td>
 					   <td >{{regiLTE.bigct}}</td>
 					   <td >{{regiLTE.smallct}}</td>
 					   <td >{{regiLTE.nong}}</td>
@@ -221,46 +303,43 @@ thead {
 					   <td >{{regiLTE.theme}}</td>
 					   <td >{{regiLTE.coverage}}</td>
 				   </tr>
-				   {% endfor %}
+				   
 					<tr>
 				 		<td >누적</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
+						<td id = lnj>{{sregiLTE}}</td>
+						<td >{{sregiLTE1}}</td>
+						<td >{{sregiLTE2}}</td>
+						<td >{{sregiLTE3}}</td>
+						<td >{{sregiLTE4}}</td>
+						<td >{{sregiLTE5}}</td>
+						<td >{{sregiLTE6}}</td>
 					</tr>
 					<tr>
 				 		<td >금일</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
+						<td >{{tregiLTE}}</td>
+						<td >{{tregiLTE1}}</td>
+						<td >{{tregiLTE2}}</td>
+						<td >{{tregiLTE3}}</td>
+						<td >{{tregiLTE4}}</td>
+						<td >{{tregiLTE5}}</td>
+						<td >{{tregiLTE6}}</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<p style="font-size: 10pt;">※서비스 가용률:</p>
-		<p style="font-size: 10pt;" id='result2'></p>
-		<input id='name2' onchange='printName2()' autocomplete="off" />
+		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
+			<p>※ 행정동 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
+			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p><br>
+			<p>※ 다중이용시설/교통인프라 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
+			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p>
+			</div>
 		<br>
 		<br>
 		<div>
-			<h2>&nbsp;&nbsp;○ WiFi : 전국</h2>
-			<h2 id="target1"></h2>
-			<h2>개 국소 중</h2>
-			<h2 id="target2"></h2>
-			<h2>국소 완료</h2>
-			<h2>(진도율:</h2>
-			<h2 id='target3'></h2>
-			<h2>%)</h2>
-			<h2 style="color: blue;" id='result'></h2>
-			<input id='name' onchange='printName()' autocomplete="off" />
+			<h2>&nbsp;&nbsp;○ WiFi : 전국 </h2><h2>{{regiWiFi.total}}개 국소 중 </h2><h2> {{sregiWiFi}}국소 완료</h2><h2 id = pc3></h2>
+			<h2 style="color: blue;" id='result'></h2><input id='name' onchange='printName()' autocomplete="off" />
 		</div>
 		<br>
 		<div id="output" style="text-align: center; width: 83%;">
@@ -274,45 +353,43 @@ thead {
 					</tr>
 				</thead>
 				<tbody>
-					{% for regiWiFi in regiWiFi %}
+					
 					<tr>
 						<td >대상</td>
-					   <td >{{regiWiFi.total}}</td>
+					   <td id = "witt">{{regiWiFi.total}}</td>
 					   <td >{{regiWiFi.sangyong}}</td>
 					   <td >{{regiWiFi.gaebang}}</td>
 				   </tr>
-				   {% endfor %}
+				  
 					<tr>
 				 		<td >누적</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
+						<td id = winj>{{sregiWiFi}}</td>
+						<td >{{sregiWiFi1}}</td>
+						<td >{{sregiWiFi2}}</td>
 					</tr>
 					<tr>
 				 		<td >금일</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
+						<td >{{tregiWiFi}}</td>
+						<td >{{tregiWiFi1}}</td>
+						<td >{{tregiWiFi2}}</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<p style="font-size: 10pt;">※행정동:</p>
-		<p style="font-size: 10pt;" id='result1'></p>
-		<input id='name1' onchange='printName1()' autocomplete="off" /> 
+		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
+			<p>※ 행정동 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
+			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p><br>
+			<p>※ 다중이용시설/교통인프라 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
+			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p>
+			</div>
 		<br>
 		<br>
+		
 		<div>
-			<h2>&nbsp;&nbsp;○ 품질취약지역 : 전국</h2>
-			<h2 id="target1"></h2>
-			<h2>개 지역 중</h2>
-			<h2 id="target2"></h2>
-			<h2>개 완료</h2>
-			<h2>(진도율:</h2>
-			<h2 id='target3'></h2>
-			<h2>%)</h2>
-			<h2 style="color: blue;" id='result'></h2>
-			<input id='name' onchange='printName()' autocomplete="off" />
+			<h2>&nbsp;&nbsp;○ 품질취약지역 : 전국 </h2><h2>{{regiweak.total}}개 지역 중 </h2><h2> {{sregiweak}}개 완료</h2><h2 id = pc4></h2>
+			<h2 style="color: blue;" id='result'></h2><input id='name' onchange='printName()' autocomplete="off" />
 		</div>
 		<br>
 		<div id="output" style="text-align: center; width: 83%;">
@@ -328,37 +405,42 @@ thead {
 					</tr>
 				</thead>
 				<tbody>
-					{% for regiweak in regiweak %}
+					
 					<tr>
 						<td >대상</td>
-					   <td >{{regiweak.total}}</td>
+					   <td id = 'wtt' >{{regiweak.total}}</td>
 					   <td >{{regiweak.mountain}}</td>
 					   <td >{{regiweak.ship}}</td>
 					   <td >{{regiweak.yooin}}</td>
 					   <td >{{regiweak.searoad}}</td>
-				   {% endfor %}
+				   
 					<tr>
 				 		<td >누적</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
+						<td id="wnj">{{sregiweak}}</td>
+						<td >{{sregiweak1}}</td>
+						<td >{{sregiweak2}}</td>
+						<td >{{sregiweak3}}</td>
+						<td >{{sregiweak4}}</td>
 					</tr>
 					<tr>
 				 		<td >금일</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
+						<td >{{tregiweak}}</td>
+						<td >{{tregiweak1}}</td>
+						<td >{{tregiweak2}}</td>
+						<td >{{tregiweak3}}</td>
+						<td >{{tregiweak4}}</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<p style="font-size: 10pt;">※행정동:</p>
-		<p style="font-size: 10pt;" id='result1'></p>
-		<input id='name1' onchange='printName1()' autocomplete="off" /> 
+		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
+			<p>※ 행정동 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
+			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p><br>
+			<p>※ 다중이용시설/교통인프라 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
+			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
+			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p>
+			</div>
 		<br>
 		<br>
 		<div>
@@ -376,7 +458,7 @@ thead {
 			<h2>%)</h2>
 		</div>
 		<br><div id="output1" style="text-align: center; width: 83%;">
-			<table id="5ggg">
+			<table id="5Ggg">
 				<thead>
 					<tr>
 						<th  colspan = "2" rowspan = "2">구분<br>(20년 결과)</th>
@@ -473,7 +555,7 @@ thead {
 			<input id='name' onchange='printName()' autocomplete="off" />
 		</div>
 		<br><div id="output1" style="text-align: center; width: 83%;">
-			<table id="5gsh" style="border: solid 1px black;" >
+			<table id="5Gsh" style="border: solid 1px black;" >
 				<thead>
 					<tr>
 						<th rowspan = "2">지역<br>(측정수)</th>
@@ -795,6 +877,7 @@ thead {
 
 		});
 	</script>
+	
 	<script>
 		$('#cmd').click(
 				function() {
@@ -831,6 +914,57 @@ thead {
 					});
 				});
 	</script>
+	<script>
+		
+		var total1 = parseInt(document.getElementById("5tt").outerText);
+		var total2 = parseInt(document.getElementById("ltt").outerText);
+		var total3 = parseInt(document.getElementById("witt").outerText);
+		var total4 = parseInt(document.getElementById("wtt").outerText);
+		var total5 = parseInt(document.getElementById("5nj").outerText);
+		var total6 = parseInt(document.getElementById("lnj").outerText);
+		var total7 = parseInt(document.getElementById("winj").outerText);
+		var total8 = parseInt(document.getElementById("wnj").outerText);
+
+		
+		document.getElementById("pc1").innerHTML = "(" + ((total5/total1)*100).toFixed(2) + "%)";
+		document.getElementById("pc2").innerHTML = "(" + ((total6/total2)*100).toFixed(2) + "%)";
+		document.getElementById("pc3").innerHTML = "(" + ((total7/total3)*100).toFixed(2) + "%)";
+		document.getElementById("pc4").innerHTML = "(" + ((total8/total4)*100).toFixed(2) + "%)";
+		document.getElementById("tt").innerHTML = total1+total2+total3+total4+"개";
+		document.getElementById("ttf").innerHTML = total5+total6+total7+total8+"개";
+		document.getElementById("pcf").innerHTML = "(진도율:" + (((total5+total6+total7+total8)/(total1+total2+total3+total4))*100).toFixed(2) + "%)";
+	</script>
+	<script>
+		date = new Date();
+		year = date.getFullYear();
+		month = date.getMonth() + 1;
+		day = date.getDate();
+		document.getElementById("current_date").innerHTML = month + "."
+				+ day + "." + year;
+		document.getElementById("day").innerHTML = month + "월"
+				+ day + "일";
+	</script>
+	<script>
+		date =  new Date(document.getElementById("firstdate").outerText);
+		year = date.getFullYear();
+		month = date.getMonth() + 1;
+		day = date.getDate();
+		document.getElementById("firstdate").innerHTML = "(" + month + "월" + day + "일~";
+	</script>
+	<script>
+		date = new Date(document.getElementById("lastdate").outerText);
+		year = date.getFullYear();
+		month = date.getMonth() + 1;
+		day = date.getDate();
+		document.getElementById("lastdate").innerHTML = month + "월"+ day + "일)";
+	</script>
+
+	<script> 
+	const modal = document.querySelector('.modal'); 
+	const btnOpenPopup = document.querySelector('.btn-open-popup'); 
+	btnOpenPopup.addEventListener('click', () => { modal.style.display = 'block'; }); 
+	</script>
+
 
 </body>
 </html>

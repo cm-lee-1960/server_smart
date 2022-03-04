@@ -180,6 +180,11 @@ CRONJOBS = [
     ('* * * * *', 'monitor.cron.measuring_end_check', '>>' + str(BASE_DIR) + '/monitor/cron.log'),
 ]
 
+#이미지 테스트
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,"static")
+]
+
 # 로깅
 # logger.debug()
 # logger.info()

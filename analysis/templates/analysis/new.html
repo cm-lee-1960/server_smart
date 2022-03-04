@@ -1,10 +1,49 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>일일보고 데이터 등록</title>
 <style>
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+header{
+	position : sticky;
+	top : 0;
+	z-index : 100;
+    
+}
+nav{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+nav a{
+    position: relative;
+    margin: 0 20px;
+    font-size:20pt;
+	top : 10pt;
+    color:white;
+    text-decoration: none;
+}
+nav #underline{
+    position: absolute;
+    left: 0;
+    height: 4px;
+    width: 0;
+    background: #000000;
+    bottom: -9px;
+    transition: 0.2s;
+    border-radius: 5px;
 
+}
 
 table {
 	width: 100%;
@@ -31,14 +70,51 @@ thead {
 	color: black;
 }
 #register{
-    width: 30%;
-    float:left;
+    width: 15%;
+    
+    z-index : 100;
+    position: absolute; top:100px; left:200px; text-align:center;
+    border: 1px solid#000000;
+    background-color: yellowgreen;
 }
-#show{
-    width: 50%;
+#register2{
+    width: 15%;
+    float:middle; 
+    z-index : 100;
+    position: absolute;
+    border: 1px solid #000000;
+    background-color: aquamarine;
+}
+#show1{
+    width: 40%;
     float:left;
+    
+    position: relative;
+}
+#show2{
+    width: 40%;
+    float:left;
+    
+    position: relative;
 }
 </style>
+<script type="text/javascript"
+	src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script>
+	$(document).ready(function(){
+		$('a').hover(function(){
+			$(this).css('color','aquamarine');
+			},	function(){
+				$(this).css('color','white');
+			
+		});
+	});
+</script>
+
 <script type="text/javascript"
 	src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script type="text/javascript"
@@ -48,12 +124,51 @@ thead {
 
 </head>
 
-<body>
+<body style="height: 100vh;">
+    <header>
+        <div class = "title" style = "background-color: mediumaquamarine; width : 100%; height : 50pt ;">
+            <div class = "logo" style = "width:10%; float : left " >
+                <a href="http://127.0.0.1:8000/analysis/test_layout">
+                <img src = "{% static 'images/logo2.png' %}" style = " width : 130pt;" /> 
+                </a>
+            </div>
+                    <nav style = " float : left">
+                        <!-- <div id="underline"></div> -->
+                        <a href="http://127.0.0.1:8000/analysis/new">대상등록</a>
+                        <a href="http://127.0.0.1:8000/analysis/report">일일보고</a>
+                        <a href="#">menu3</a>
+                        <a href="#">menu4</a>
+                        <a href="#">menu5</a>
+                        <a href="#">menu6</a>
+                    </nav>
+                
+           
+            
+        </div>
+        
+        
+        <script type="text/javascript">
+                var underline = document.querySelector('#underline');
+                var item = document.querySelectorAll('nav a');
+                function select(event){
+                    // console.log(event);
+                    underline.style.left = event.offsetLeft+"px";
+                    underline.style.width = event.offsetWidth+"px";
+                    // console.log(e.offsetLeft+"px");
+                   
+                }
+                item.forEach(link =>{
+                    link.addEventListener('click', (event)=>{
+                        select(event.target);
+                    })
+                })
+        </script>
+    </header>
 
 
-<form action="{% url 'make_register' %}" method="POST">
-{% csrf_token %}
-<div id="register">
+    <form action="{% url 'make_register' %}" method="POST">{% csrf_token %}
+
+    <div id="register">
     <div> 
        <select name="category">
             <option value="5G" selected> 5G 
@@ -64,7 +179,7 @@ thead {
     </div>
     <div>
         <label for = 'title'>행정동</label><br/>
-        <input type="text" name="dong" id="dong" value=0>
+        <input type="text" name="dong" id="dong" value=0 disabled>
     </div>
     <div>
         <label for = 'dagyo'>다중이용시설/교통인프라</label><br/>
@@ -83,13 +198,14 @@ thead {
         <input type="text" name="smallct" id="smallct" value=0>
     </div>
     <div>
-        <label for = 'inbuiling'>인빌딩</label><br/>
-        <input type="text" name="inbuiling" id="inbuiling" value=0>
-    </div>
-    <div>
         <label for = 'nong'>농어촌</label><br/>
         <input type="text" name="nong" id="nong" value=0>
     </div>
+    <div>
+        <label for = 'inbuiling'>인빌딩</label><br/>
+        <input type="text" name="inbuiling" id="inbuiling" value=0>
+    </div>
+    
     <div>
         <label for = 'theme'>테마</label><br/>
         <input type="text" name="theme" id="theme" value=0>
@@ -119,18 +235,118 @@ thead {
         <input type="text" name="searoad" id="searoad" value=0>
     </div><br/>
     
-    <input type="submit" value="글생성" value=0>
+    <input type="submit" id = 'bt1' value="등록대상생성" value=0>
 
-</form>
-</div>
-<div id="show">
+    </form>
+    <form action="{% url 'delete_register' %}" method="POST">{% csrf_token %}
+    <input type="submit" value="데이터초기화" value=''>
+    </form>
+    
+
+    </div>
+
+    <form action="{% url 'make_todayregister' %}" method="POST">{% csrf_token %}
+
+    <div id="register2">
+        <div>
+            <label for = 'date'>날짜</label><br/>
+            <input type="date" name="date" id="date"value = "today">
+        </div>
+        <div>
+            <label for = 'name'>측정명</label><br/>
+            <input type="text" name="name" id="name" value=''>
+        </div>
+        <div> 
+           <select name="category">
+                <option value="5G" selected> 5G 
+                <option value="LTE"> LTE
+                <option value="WiFi"> WiFi
+                <option value="품질취약지역"> 품질취약지역
+            </select>
+        </div>
+        <div> 
+            <select name="jiyok">
+                 <option value="서울" selected> 서울 
+                 <option value="수도권"> 수도권
+                 <option value="인천"> 인천
+                 <option value="울산"> 울산
+                 <option value="대구"> 대구
+                 <option value="광주"> 광주
+                 <option value="대전"> 대전
+                 <option value="경기"> 경기
+                 <option value="경북"> 경북
+                 <option value="전남"> 전남
+                 <option value="전북"> 전북
+                 <option value="충남"> 충남
+                 <option value="충북"> 충북
+                 <option value="세종"> 세종
+             </select>
+        </div>
+        
+        <div>
+            <select name="dongdaco">
+                <option value="행정동" selected> 행정동
+                <option value="다중이용시설/교통인프라"> 다중이용시설/교통인프라
+                <option value="커버리지"> 커버리지
+               
+            </select>
+        </div>
+        <div>
+            <select name="bigsmallnongintheme">
+                <option value="대도시" selected> 대도시
+                <option value="중소도시"> 중소도시
+                <option value="농어촌"> 농어촌
+                <option value="인빌딩" selected> 인빌딩
+                <option value="테마"> 테마
+            </select>
+        </div>
+        
+        <div>
+            <select name="sanggae">
+                <option value="상용" selected> 상용
+                <option value="개방"> 개방
+            </select>
+        </div>
+        <div>
+            <select name="weakjiyok">
+                <option value="등산로" selected> 등산로
+                <option value="여객항로"> 여객항로
+                <option value="유인도서"> 유인도서
+                <option value="해안도로"> 해안도로
+            </select>
+        </div>
+        <br/>
+        
+        <input type="submit" id="bt2" value="등록대상생성" value=0>
+    
+    </form>
+    <form action="{% url 'delete_todayregister' %}" method="POST">{% csrf_token %}
+        <input type="submit" value="데이터초기화" value=0>
+    </form>
+        
+    
+    </div>
+    
+    <div id = button>
+        <button role="button" id="dsdr"
+		class="add ui-button ui-button ui-state-default ui-button-text-only">
+		<span class="ui-button-text">측정대상등록</span>
+	</button>
+	<button role="button" id="wrdr"
+		class="add ui-button ui-button ui-state-default ui-button-text-only">
+		<span class="ui-button-text">측정완료대상등록</span>
+	</button>
+	
+    </div>
+
+    <div id="show1">
 
 
-<h1>
-5G 등록대상
-</h1>
-<div id="output" style="text-align: center;">
-    <table id="5ghh">
+    <h1>
+    5G 등록대상
+    </h1>
+    <div id="output" style="text-align: center;">
+    <table id="5Ghh">
         <thead>
             <tr>
                 <th >구분</th>
@@ -149,14 +365,31 @@ thead {
                 <td id>{{regi5G.dagyo}}</td>
                 <td id>{{regi5G.coverage}}</td>
             {% endfor %}	
-           
-        </tbody>
+
+          
+            <tr>
+                <td >누적</td>
+               <td id>{{sregi5G}}</td>
+               <td id>{{sregi5G1}}</td>
+               <td id>{{sregi5G2}}</td>
+               <td id>{{sregi5G3}}</td>
+            
+            
+            
+            <tr>
+                <td >금일</td>
+               <td id>{{tregi5G}}</td>
+               <td id>{{tregi5G1}}</td>
+               <td id>{{tregi5G2}}</td>
+               <td id>{{tregi5G3}}</td>
+           	
+           </tbody>
     </table>
     
-</div>
-<h1>
+    </div>
+    <h1>
     LTE 등록대상
-</h1>
+    </h1>
     <div id="output" style="text-align: center;">
         <table id="ltehh">
             <thead>
@@ -188,14 +421,34 @@ thead {
                     <td >{{regiLTE.coverage}}</td>
                 </tr>
                 {% endfor %}
+                <tr>
+                    <td >누적</td>
+                   <td id = lnj>{{sregiLTE}}</td>
+                   <td >{{sregiLTE1}}</td>
+                   <td >{{sregiLTE2}}</td>
+                   <td >{{sregiLTE3}}</td>
+                   <td >{{sregiLTE4}}</td>
+                   <td >{{sregiLTE5}}</td>
+                   <td >{{sregiLTE6}}</td>
+               </tr>
+               <tr>
+                    <td >금일</td>
+                   <td >{{tregiLTE}}</td>
+                   <td >{{tregiLTE1}}</td>
+                   <td >{{tregiLTE2}}</td>
+                   <td >{{tregiLTE3}}</td>
+                   <td >{{tregiLTE4}}</td>
+                   <td >{{tregiLTE5}}</td>
+                   <td >{{tregiLTE6}}</td>
+               </tr>
             </tbody>
         </table>
         
     </div>
-<h1>
+    <h1>
     WiFi 등록대상
-</h1>
-<div id="output" style="text-align: center;">
+    </h1>
+    <div id="output" style="text-align: center;">
     <table id="wifihh">
         <thead>
             
@@ -216,13 +469,25 @@ thead {
                 <td >{{regiWiFi.gaebang}}</td>
             </tr>
             {% endfor %}
+            <tr>
+                <td >누적</td>
+               <td id = winj>{{sregiWiFi}}</td>
+               <td >{{sregiWiFi1}}</td>
+               <td >{{sregiWiFi2}}</td>
+           </tr>
+           <tr>
+                <td >금일</td>
+               <td >{{tregiWiFi}}</td>
+               <td >{{tregiWiFi1}}</td>
+               <td >{{tregiWiFi2}}</td>
+           </tr>
         </tbody>
     </table>
-</div>
-<h1>
+    </div>
+    <h1>
     품질취약지역 등록대상
-</h1>
-<div id="output" style="text-align: center;">
+    </h1>
+    <div id="output" style="text-align: center;">
     <table id="pjhh">
         <thead>
             <tr>
@@ -244,9 +509,90 @@ thead {
                 <td >{{regiweak.yooin}}</td>
                 <td >{{regiweak.searoad}}</td>
             {% endfor %}
+            <tr>
+                <td >누적</td>
+               <td id="wnj">{{sregiweak}}</td>
+               <td >{{sregiweak1}}</td>
+               <td >{{sregiweak2}}</td>
+               <td >{{sregiweak3}}</td>
+               <td >{{sregiweak4}}</td>
+           </tr>
+           <tr>
+                <td >금일</td>
+               <td >{{tregiweak}}</td>
+               <td >{{tregiweak1}}</td>
+               <td >{{tregiweak2}}</td>
+               <td >{{tregiweak3}}</td>
+               <td >{{tregiweak4}}</td>
+           </tr>
         </tbody>
     </table>
-</div>
-</div>
+    </div>
+    
+    </div>
+    <div id ='show2'>
+    <h1>
+    금일확인
+    </h1>
+    <div id="output" style="text-align: center;">
+        <table id="5Ghh">
+            <thead>
+                <tr>
+                    <th >날짜</th>
+                    <th >측정명</th>
+                    <th >구분</th>
+                    <th >지역</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for sregi in sregi %}
+                 <tr>
+                    <td id>{{sregi.date}}</td>
+                    <td id>{{sregi.name}}</td>
+                    <td id>{{sregi.category}}</td>
+                    <td id>{{sregi.jiyok}}</td>
+                {% endfor %}
+    
+               </tbody>
+        </table>
+        
+    </div>
+    </div>
+    <script>
+		$("#register").hide();
+		$("#register2").hide();
+
+		$('#dsdr').click(function() {
+
+			$("#register").show();
+            $("#register2").hide();
+		});
+		$('#wrdr').click(function() {
+
+			$("#register2").show();
+            $("#register").hide();
+		});
+        $('#bt1').click(function() {
+
+        $("#register").hide();
+        $("#register2").hide();
+        });
+        $('#bt2').click(function() {
+
+        $("#register").hide();
+        $("#register2").hide();
+        });
+	</script>
+    <script> 
+        const modal = document.querySelector('#register'); 
+        const btnOpenPopup = document.querySelector('#dsdr'); 
+        btnOpenPopup.addEventListener('click', () => { modal.style.display = 'block'; }); 
+        // 모달 on  -->
+        body.style.overflow = 'hidden';
+        // 모달 off  -->
+        body.style.overflow = 'auto';
+        </script>
 </body>
+
 </html>
