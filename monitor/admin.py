@@ -5,12 +5,13 @@ from .models import Phone, MeasureCallData
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
 # [ 측정 모니터링 ]
-#  - 측정 단말, 측정 데이터(콜단위), 금일 측정조
+#  - 측정 단말, 측정 데이터(콜단위)
 # [ 환경설정 관리 ]
-#  - 모폴러지, 센터정보, 속도저하 기준
+#  - 센터정보, 모폴러지, 전송실패 기준, 속도저하 기준, 측정 보고주기, 금일측정조
 # -------------------------------------------------------------------------------------------------
 # 2022.02.25 - 측정 단말기 관리자 페이지의 화면상 항목들을 세션/그룹핑해서 표시 되도록 함
-# 2022.03.03 - 측정 단말기 모폴러지 항목 추가 반영 (측정 데이터의 모폴로지가 오입력 되는 경우 맵핑 테이블을 통해 재지정 하기 위함)
+# 2022.03.03 - 측정 단말기 모폴러지 항목 추가 반영 
+#             (측정 데이터의 모폴로지가 오입력 되는 경우 맵핑 테이블을 통해 재지정 하기 위함)
 ###################################################################################################
 # class PhoneForm(forms.ModelForm):
 #     def __init__(self, *args, **kwargs):
@@ -35,25 +36,15 @@ class PhoneAdmin(admin.ModelAdmin):
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
     def avg_downloadBandwidth_fmt(self, obj):
         return '%.2f' % obj.avg_downloadBandwidth
+
     avg_downloadBandwidth_fmt.short_description = 'DL'
 
     # UL 평균속도를 소수점 2자리까지 화면에 표시한다. 
     def avg_uploadBandwidth_fmt(self, obj):
         return '%.2f' % obj.avg_uploadBandwidth
-    avg_uploadBandwidth_fmt.short_description = 'UL'
-    
 
-    # 2020.02.25 화면상에 항목들을 그룹핑해서 보여준다. 
-    # fields = [ 'phone_no',
-    #             ('networkId', 'ispId'),
-    #             'userInfo1',
-    #             ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
-    #             ('dl_count', 'ul_count'),
-    #             ('status', 'total_count'),
-    #             'last_updated', 
-    #             'manage',
-    #             'active',
-    #         ]
+    avg_uploadBandwidth_fmt.short_description = 'UL'
+
 
     # 2022.02.25 - 화면상의 항목들을 세션/그룹핑해서 보여준다. 
     fieldsets = (
@@ -93,10 +84,6 @@ class PhoneAdmin(admin.ModelAdmin):
         filtered_query = query.filter(ispId='45008', manage=True)
         return filtered_query
 
-    # def has_delete_permission(self, request, obj=None):
-    #     # return request.phone.is_superuser()
-    #     return False
-
     # 저장 버튼을 제외한 나머지 버튼들을 화면에서 보이지 않게 한다.
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
         context.update({
@@ -106,6 +93,7 @@ class PhoneAdmin(admin.ModelAdmin):
                 'show_delete': False
             })
         return super().render_change_form(request, context, add, change, form_url, obj)
+
 
 # -------------------------------------------------------------------------------------------------
 # 측정 데이터(콜단위) 관리자 페이지 설정

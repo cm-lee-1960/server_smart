@@ -23,6 +23,8 @@ from .models import Message
 # 2022.02.27 - 메시지 작성 코드를 각각의 이벤트를 체크하는 함수 내부로 이동함 (이벤트 발생 관련정보를 메시지 내에 넣기 위해)
 # 2022.02.27 - 오류 발생시 앞단으로 오류코드를 전달하기 위해 Exception을 발생하여 실행중인 함수명과 오류 메시지 전달
 # 2022.03.01 - 전송실패 기준 관리 모듈 추가 및 이벤트 모듈에 반영(기존 소스코드 체크 -> DB 모델에서 불러와 체크)
+# 2022.03.04 - 하드코딩 되어 있는 조건문 => DB 관리기준 조회 조건문으로 변환 (보통지역, 최약지역 구분)
+#
 ###################################################################################################  
 def event_occur_check(mdata):
     '''이벤트 발생여부를 체크한다.'''
@@ -62,38 +64,11 @@ def send_failure_check(mdata):
         - 취약지구는 '~산로' 등 특정문구가 들어간 것으로 식별을 해야 하는데, 어려움이 있음(관리자 지정해야? -> 정보관리 대상)
         - return message
     '''
-    # # 측정종류가 속도(speed)일 때만 이벤트 발생여부를 학인한다. 
-    # message = None
-    # if mdata.testNetworkType == 'speed' :
-    #     # 전송실패 판단기준
-    #     LOW_THROUGHPUT_TABLE = {
-    #         '5G' : {'DL': 12, 'UL': 2},
-    #         'LTE': {'DL': 6, 'UL': 1},
-    #         '3G' : {'DL': 256/1024, 'UL': 128/1024},
-    #         'WiFi': {'DL': 1, 'UL': 0.5} }
-
-    #     # 측정 단말기 및 데이터 유형(DL/UL)을 확인한다. 
-    #     dataType = None
-    #     phone = mdata.phone
-    #     if mdata.downloadBandwidth and mdata.downloadBandwidth > 0 : dataType = 'DL'
-    #     if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType = 'UL'
-    #     values = {'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth}
-    #     # 2022.0227 DL/UL 속도 값이 있는 데이터에 대해서만 처리한다.
-    #     if dataType and dataType in ['DL', 'UL']:
-    #         try:
-    #             if phone.networkId in list(LOW_THROUGHPUT_TABLE.keys()):
-    #                 if values[dataType] < LOW_THROUGHPUT_TABLE[phone.networkId][dataType]:
-    #                     # 메시지 내용을 작성한다.
-    #                     message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
-    #                             f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
-    #         except Exception as e:  
-    #             print("low_throughput_check():"+str(e))
-    #             raise Exception("send_failure_check(): %s" % e) 
-
-    # 2022.03.01 - 전송실패(Send Failure) 기준을 DB 테이블에서 가져온다.
-    #            - 네트워크유형이 NT(5G->LTE)인 경우 전송실패를 어떻게 체크할 것인지 협의 필요 (체크 PASS or LTE 기준?)
     message = None
-    areaInd = 'NORM' # 보통지역
+    if mdata.phone.morphology and mdata.phone.morphology == '취약지역':
+        areaInd = 'WEEK' # 취약지역
+    else:
+        areaInd = 'NORM' # 보통지역
     networkId = mdata.phone.networkId
     dataType = ''
     if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
@@ -124,7 +99,10 @@ def low_throughput_check(mdata):
         - return message
     '''
     message = None
-    areaInd = 'NORM' # 보통지역
+    if mdata.phone.morphology and mdata.phone.morphology == '취약지역':
+        areaInd = 'WEEK' # 취약지역
+    else:
+        areaInd = 'NORM' # 보통지역
     networkId = mdata.phone.networkId
     # 해당 측정 데이터가 DL인지, UL인지 확인한다.
     dataType = ''
