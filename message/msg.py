@@ -2,7 +2,7 @@ from datetime import datetime
 from django.conf import settings
 from django.db.models import Q
 from monitor.models import Phone, MeasureCallData, Message
-from management.models import MeasureingTeam
+from management.models import MeasureingTeam, ReportCycle
 
 #--------------------------------------------------------------------------------------------------
 # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.
@@ -11,6 +11,7 @@ from management.models import MeasureingTeam
 # 2022.02.27 - 측정시작 메시지 조건 분리 반영
 #            - 통신사, 측정유형에 상관없이 측정시작을 판단한다.
 #            *** [해결해야할 잠재이슈] 단말 하나로 측정을 하는 경우 주기적인 메시지 전송 판단처리 고민 필요
+# 2022.03.04 - 측정 보고주기를 데이터베이스에 등록하여 관리하도록 코드를 수정함 (측정 보고주기 확인 : ReportCycle)
 #--------------------------------------------------------------------------------------------------
 def current_count_check(mdata):
     """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
@@ -32,7 +33,8 @@ def current_count_check(mdata):
         qs = MeasureCallData.objects.filter(Q(meastime__gte=meastime_from) & Q(meastime__lte=meastime_to))
         if len(qs) <= 1:
             result = True
-    elif mdata.currentCount in [3, 10, 27, 37, 57,]:
+    # elif mdata.currentCount in [3, 10, 27, 37, 57,]:
+    elif mdata.currentCount in [ int(x) for x in ReportCycle.objects.all()[0].reportCycle.split(',')]:
         # 단말기 체인지 되고 재측정시 그데이터도 더해져서 메시지가 보내질수도 있다 그때는 예외조건
         # 단밀기 그룹으로 묶여 았는 상대편 측정 단말기를 조회한다.
         qs = phone.phoneGroup.phone_set.exclude(phone_no=phone.phone_no)

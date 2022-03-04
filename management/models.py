@@ -92,3 +92,13 @@ class MeasureingTeam(models.Model):
         verbose_name_plural = "금일 측정조"
 
 
+# -------------------------------------------------------------------------------------------------
+# 금일측정조 데이터
+# -------------------------------------------------------------------------------------------------
+class ReportCycle(models.Model):
+    center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
+    reportCycle = models.CharField(max_length=100, verbose_name="보고주기")
+
+    class Meta:
+        verbose_name = "측정 보고주기"
+        verbose_name_plural = "측정 보고주기"

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib import auth
-from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam
+from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam, ReportCycle
 
 ###################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
@@ -69,12 +69,23 @@ class MeasureingTeamAdmin(admin.ModelAdmin):
 
     measdate_fmt.short_description = '측정일자'
 
+
+# -------------------------------------------------------------------------------------------------
+# 측정 보고주기 관리자 페이지 설정
+# -------------------------------------------------------------------------------------------------
+class ReportCycleAdmin(admin.ModelAdmin):
+    list_display = ['center', 'reportCycle',]
+    list_display_links = ['center', 'reportCycle']
+    search_fields = ('center', 'reportCycle')
+    list_filter = ['center',]
+
 admin.site.register(Morphology, MorphologyAdmin) # 모폴러지 등록
 admin.site.register(SendFailure, SendFailureAdmin) # 전송실패 기준 등록
 admin.site.register(LowThroughput, LowThroughputAdmin) # 속도저하 기준 등록
 admin.site.register(Center, CenterAdmin) # 센터정보 등록(전국 14개 센터)
 
 admin.site.register(MeasureingTeam, MeasureingTeamAdmin) # 금일 측정조
+admin.site.register(ReportCycle, ReportCycleAdmin) # 측정 보고주기
 
 # 사용자 인증관련 그룹을 어드민 페이지에서 제외한다.
 admin.site.unregister(auth.models.Group)
