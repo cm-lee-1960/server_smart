@@ -182,7 +182,9 @@ class Phone(models.Model):
         # -----------------------------------------------------------------------------------------
         # 측정 데이터의 userInfo2를 확인하여 모폴러지를 매핑하여 지정한다.
         # -----------------------------------------------------------------------------------------
-        morphology = None
+        morphology = None # 모폴러지
+        manage = False # 관리대상 여부
+
         if self.userInfo2:
             # if self.userInfo2.startswith('행-'): morphology = '행정동'
             # if self.userInfo2.startswith('테-'): morphology = '테마'
@@ -194,13 +196,16 @@ class Phone(models.Model):
                 if mp.wordsCond == '시작단어':
                     if self.userInfo2.startswith(mp.words):
                         morphology = mp.morphology
+                        manage = mp.manage
                         break
                 elif mp.wordsCond == '포함단어':
                     if self.userInfo2.find(mp.words) >= 0:
                         morphology = mp.morphology
+                        manage = mp.manage
                         break
             
         self.morphology = morphology
+        self.manage = manage
 
         # 측정 단말기 정보를 저장한다.
         self.save()

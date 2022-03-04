@@ -84,13 +84,13 @@ def receive_json(request):
             phone.active = True
             phone.save()
         else:
-            # 측정 단말기의 관래대상 여부를 판단한다.
-            # *** 모폴로지 조건체크는 향후 DB 테이블에서 가져오서 확인하는 코드로 변경해야 함
-            if data['ispId'] == '45008' and \
-                (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")):
-                manage = True
-            else:
-                manage = False
+            # # 측정 단말기의 관래대상 여부를 판단한다.
+            # # *** 모폴로지 조건체크는 향후 DB 테이블에서 가져오서 확인하는 코드로 변경해야 함
+            # if data['ispId'] == '45008' and \
+            #     (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")):
+            #     manage = True
+            # else:
+            #     manage = False
 
             # 5G 측정단말인데, 네트워크 유형이 'NR' 들어오는 경우 '5G'로 처리한다.
             # 2022.02.24 - 네트워크유형(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.
@@ -120,7 +120,7 @@ def receive_json(request):
                         latitude=data['latitude'],
                         longitude=data['longitude'],
                         last_updated=data['meastime'],
-                        manage=manage,
+                        manage=False,
                         active=True,
                     )
             # 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 내용을 담아 놓음
