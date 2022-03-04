@@ -38,6 +38,8 @@ class PhoneGroup(models.Model):
 # 2022.03.03 - 모폴러지 항목 추가
 #            - 측정 데이터의 userInfo2에서 측정자가 입력한 모폴러지가 부정확하게 입력된 경우 매핑 테이블로 재지정하기 위함
 #            - 측정 데이터의 userInfo2 -> Morphology -> 모폴러지 맵핑 재지정 모듈 추가
+# 2022.03.04 - 5G->LTE 전환 콜수 항목 추가 및 누적 업데이트 코드 추가
+#
 ###################################################################################################
 class Phone(models.Model):
     """측정 단말기 정보"""
@@ -75,6 +77,7 @@ class Phone(models.Model):
     avg_uploadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="UL")
     dl_count = models.IntegerField(null=True, default=0)  # 다운로드 콜수
     ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
+    nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수   
     status = models.CharField(
         max_length=10, null=True, choices=STATUS_CHOICES, verbose_name="진행단계"
     )
@@ -141,6 +144,9 @@ class Phone(models.Model):
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.avg_uploadBandwidth = round(((self.avg_uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
                 self.ul_count += 1
+        # 5G 측정 단말기 이고, 측정시 NR이면 5G->LTE 전환 콜수를 누적한다.
+        elif mdata.phone.networkId == '5G':
+            self.nr_count += 1
         
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
         self.currentCount = mdata.currentCount # 현재 콜카운트

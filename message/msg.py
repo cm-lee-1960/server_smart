@@ -68,55 +68,8 @@ def make_message(mdata):
         dl_sum, ul_sum, dl_count, ul_count, total_count = 0, 0, 0, 0, 0
         avg_downloadBandwidth = 0  # 다운로드 평균속도
         avg_uploadBandwidth = 0  # 업로드 평균속도
-        
-   
-        # count_check = 0  ## 쌍폰의 카운트 체크
-        #
-        # # for phone in phone.phoneGroup.phone_set.all():  ## 그룹폰 가져오기
-        # for phone_id in phone.phoneGroup.phone_set.all():  ##그룹폰의 목록 카운트
-        #     # if 콜카운트가 낮은 phone이면 정보 저장하고 패스
-        #     if phone_id.id == phone.id:
-        #         # print("이게궁금하다.", phone.id)
-        #         dl_count = phone.dl_count  ##현재 dl카운트
-        #         avg_downloadBandwidth += phone.avg_downloadBandwidth  ## 현재 dl 에버리지
-        #         ul_count = phone.ul_count  ## 현재 ul카운트
-        #         avg_uploadBandwidth += phone.avg_uploadBandwidth  ## 현재 ul 에버리지
-        #         print(dl_count, avg_downloadBandwidth, ul_count, avg_uploadBandwidth)
-
-        #     else:
-        #         for count, measure in enumerate(
-        #             Phone.objects.get(id=phone_id.id).measurecalldata_set.all()
-        #         ):
-        #             if count <= phone.total_count:
-        #                 ## 인스턴스여야만한다. 카운트 체크
-        #                 g_phone_dl = int(
-        #                     0
-        #                     if measure.downloadBandwidth == None
-        #                     else measure.downloadBandwidth
-        #                 )
-        #                 g_phone_ul = int(
-        #                     0
-        #                     if measure.uploadBandwidth == None
-        #                     else measure.uploadBandwidth
-        #                 )
-        #                 ## None값 0으로 초기화
-
-        #                 # dl_count = phone.dl_count  ##현재 카운트
-        #                 dl_sum += g_phone_dl
-        #                 # ul_count = phone.ul_count  ## 현재 카운트
-        #                 ul_sum += g_phone_ul
-
-        #                 print(phone)
-        #                 print(
-        #                     "####", phone.phone_no, ul_count, dl_count, ul_sum, dl_sum
-        #                 )
-
-        #         if dl_sum != 0:
-        #             avg_downloadBandwidth += dl_sum / phone.total_count
-        #         if ul_sum != 0:
-        #             avg_uploadBandwidth += ul_sum / phone.total_count
-
-        # 2022.02.25 현재 메시지를 보내려고 하는 현재 콜카운트와 총 콜카운트를 활용해서 평균값을 산출한다.
+        nr_count = 0 # 5G->NR 전환 콜수
+        avg_nrRate = 0.0 # 5G->NR 전환율
 
         # 2022.02.26 - 데이터가 맞지 않아 재작성 함
         #            - 속도평균값을 산출할 때 고민해야 하는 사항은 몇번째 턴인지, 현재 콜카운트, 총 측정횟수 등을 고려해야 한다.
@@ -130,7 +83,10 @@ def make_message(mdata):
         beforeCount, fpterns = 1, 1
         for m in phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
             if total_count > phone.total_count: break
-            if m.networkId == 'NR': continue # NR(5G->LTE전환) 데이터 제외
+            if m.networkId == 'NR':
+                # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
+                if m.phone.networkId == '5G': nr_count += 1
+                continue # NR(5G->LTE전환) 데이터 제외
             if m.downloadBandwidth and m.downloadBandwidth > 0:
                 dl_sum +=  m.downloadBandwidth
                 dl_count += 1
@@ -150,7 +106,10 @@ def make_message(mdata):
             for m in oPhone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
                 # 2022.02.25 DL/UL 측정건수가 10건 이상 차이가 나지 않는다는 가정에서 아래 코드가 정상 동작한다.
                 if spterns >= fpterns and m. currentCount > m. currentCount: break
-                if m.networkId == 'NR': continue # NR(5G->LTE전환) 데이터 제외
+                if m.networkId == 'NR':
+                    # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
+                    if m.phone.networkId == '5G': nr_count += 1
+                    continue # NR(5G->LTE전환) 데이터 제외
                 if m.downloadBandwidth and m.downloadBandwidth > 0:
                     dl_sum +=  m.downloadBandwidth
                     dl_count += 1
@@ -164,6 +123,7 @@ def make_message(mdata):
         # DL/UL 평균속도를 산출한다.         
         if dl_count > 0 : avg_downloadBandwidth = round(dl_sum / dl_count,2)
         if ul_count > 0 : avg_uploadBandwidth = round(ul_sum / ul_count,2)
+        if nr_count > 0 : avg_nrRate = round(nr_count / (dl_count + ul_count) * 100,2)
 
         # 메시지를 작성한다.
         #                01234567890123456
@@ -190,14 +150,18 @@ def make_message(mdata):
             MEASURING_MSG = f"{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
                             "속도(DL/UL, Mbps)\n" + \
                             f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
+        elif phone.networkId == '5G':
+            MEASURING_MSG = f"{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
+                            "(DL/UL/시도호/성공률/전환율)\n" + \
+                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-/{avg_nrRate:.1f}%"
         else:
             MEASURING_MSG = f"{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
                             "(DL/UL/시도호/성공률)\n" + \
-                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{phone.total_count}/-"
+                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-"
         # [측정종료 메시지] -----------------------------------------------------------------------------------
         END_MSG = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
                    "(DL/UL/시도호/성공률)\n" + \
-                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{phone.total_count}/-"
+                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-"
         messages = {
             "POWERON": POWERON_MSG,
             "START": START_MSG,
@@ -221,6 +185,7 @@ def make_message(mdata):
             channelId=channelId,
             sended=True
         )
+
 
 
 
