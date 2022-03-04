@@ -50,6 +50,7 @@ class SendFailure(models.Model):
     NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
     DATATYPE_CHOICES = {('DL','DL'), ('UL','UL')}
 
+    center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     areaInd = models.CharField(max_length=10, choices=AREAIND__CHOICES, verbose_name='지역구분')
     networkId = models.CharField(max_length=10, null=True, blank=True, choices=NETWORKID_CHOICES, verbose_name='단말유형') # 네트워크ID(5G, LTE, 3G, WiFi)
     dataType = models.CharField(max_length=10, choices=DATATYPE_CHOICES, verbose_name='데이터유형') # 데이터유형(DL, UL)
