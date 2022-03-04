@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot
+from message.sms import send_sms   ###### (3.4) 크로샷 전송 함수 호출 // 변수 전달(메시지내용/수신번호) 가능하도록 수정 필요
 from management.models import Morphology
 # import logging
 
@@ -361,7 +362,12 @@ def send_message(sender, **kwargs):
         bot.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
     # 크로샷으로 메시지를 전송한다.
     elif kwargs['instance'].sendType == 'XROS':
-        pass
+        #######################################################################################################
+        # (3.4) 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
+        # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
+        # npm install request 명령어로 모듈 설치 후 사용 가능 
+        #######################################################################################################
+        send_sms()
 
 # -------------------------------------------------------------------------------------------------
 # 전송 메시지가 저장된 후 메시지 전송 모듈을 호출한다(SIGNAL). 
