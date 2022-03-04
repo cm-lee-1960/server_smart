@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib import auth
-from management.models import Morphology, SendFailure, LowThroughput, CenterInfo, MeasureingTeam
+from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam
 
 ###################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
@@ -17,10 +17,11 @@ from management.models import Morphology, SendFailure, LowThroughput, CenterInfo
 # -------------------------------------------------------------------------------------------------
 class MorphologyAdmin(admin.ModelAdmin):
     '''어드민 페이지에 모폴러지 정보를 보여주기 위한 클래스'''
-    # form = PhoneForm
+    # # form = PhoneForm
     list_display = ['words', 'wordsCond', 'morphology', 'manage',]
     list_display_links = ['words', 'morphology', ]
     search_fields = ('words', )
+    pass
 
 
 # -------------------------------------------------------------------------------------------------
@@ -28,20 +29,22 @@ class MorphologyAdmin(admin.ModelAdmin):
 # -------------------------------------------------------------------------------------------------
 class LowThroughputAdmin(admin.ModelAdmin):
     '''어드민 페이지에 속도저하(Low Throughput) 기준을 보여주기 위한 클래스'''
-    # form = PhoneForm
+    # # form = PhoneForm
     list_display = ['areaInd', 'networkId', 'dataType', 'bandwidth',]
     list_display_links = ['networkId',]
     search_fields = ('areaInd', 'networkId', )
+    pass
 
 # -------------------------------------------------------------------------------------------------
 # 전송실패 기준 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class SendFailureAdmin(admin.ModelAdmin):
     '''어드민 페이지에 전송실패(Send Failure) 기준을 보여주기 위한 클래스'''
-    # form = PhoneForm
+    # # form = PhoneForm
     list_display = ['areaInd', 'networkId', 'dataType', 'bandwidth',]
     list_display_links = ['networkId',]
     search_fields = ('areaInd', 'networkId', )
+    pass
 
 # -------------------------------------------------------------------------------------------------
 # 금일 측정조 관리자 페이지 설정
@@ -59,7 +62,7 @@ class MeasureingTeamAdmin(admin.ModelAdmin):
 admin.site.register(Morphology, MorphologyAdmin) # 모폴러지 등록
 admin.site.register(SendFailure, SendFailureAdmin) # 전송실패 기준 등록
 admin.site.register(LowThroughput, LowThroughputAdmin) # 속도저하 기준 등록
-admin.site.register(CenterInfo) # 센터정보 등록(전국 14개 센터)
+admin.site.register(Center) # 센터정보 등록(전국 14개 센터)
 
 admin.site.register(MeasureingTeam, MeasureingTeamAdmin) # 금일 측정조
 

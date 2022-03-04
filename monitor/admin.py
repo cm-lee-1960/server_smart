@@ -138,3 +138,4 @@ monitor_site.register(Phone, PhoneAdmin) # 측정 단말 -- 어드민 페이지 
 admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
 monitor_site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위) -- 어드민 페이지 별도분리 테스트
 
+
