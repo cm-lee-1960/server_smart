@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot
-# from .models import Morphology
+from management.models import Morphology
 # import logging
 
 # logger = logging.getLogger(__name__)
@@ -172,28 +172,28 @@ class Phone(models.Model):
 
             self.addressDetail = region_3depth_name
 
-        # # -----------------------------------------------------------------------------------------
-        # # 측정 데이터의 userInfo2를 확인하여 모폴러지를 매핑하여 지정한다.
-        # # -----------------------------------------------------------------------------------------
-        # morphology = None
-        # if self.userInfo2:
-        #     # if self.userInfo2.startswith('행-'): morphology = '행정동'
-        #     # if self.userInfo2.startswith('테-'): morphology = '테마'
-        #     # if self.userInfo2.startswith('인-'): morphology = '인빌딩'
-        #     # if self.userInfo2.startswith('커-') or self.userInfo2.find('커버리지') >= 0: morphology = '커버리지'
+        # -----------------------------------------------------------------------------------------
+        # 측정 데이터의 userInfo2를 확인하여 모폴러지를 매핑하여 지정한다.
+        # -----------------------------------------------------------------------------------------
+        morphology = None
+        if self.userInfo2:
+            # if self.userInfo2.startswith('행-'): morphology = '행정동'
+            # if self.userInfo2.startswith('테-'): morphology = '테마'
+            # if self.userInfo2.startswith('인-'): morphology = '인빌딩'
+            # if self.userInfo2.startswith('커-') or self.userInfo2.find('커버리지') >= 0: morphology = '커버리지'
 
-        #     # 모폴러지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모폴러지를 재지정한다. 
-        #     for mp in Morphology.objects.all():
-        #         if mp.wordsCond == '시작단어':
-        #             if self.userInfo2.startswith(mp.words):
-        #                 morphology = mp.morphology
-        #                 break
-        #         elif mp.wordsCond == '포함단어':
-        #             if self.userInfo2.find(mp.words) >= 0:
-        #                 morphology = mp.morphology
-        #                 break
+            # 모폴러지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모폴러지를 재지정한다. 
+            for mp in Morphology.objects.all():
+                if mp.wordsCond == '시작단어':
+                    if self.userInfo2.startswith(mp.words):
+                        morphology = mp.morphology
+                        break
+                elif mp.wordsCond == '포함단어':
+                    if self.userInfo2.find(mp.words) >= 0:
+                        morphology = mp.morphology
+                        break
             
-        # self.morphology = morphology
+        self.morphology = morphology
 
         # 측정 단말기 정보를 저장한다.
         self.save()

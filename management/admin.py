@@ -13,15 +13,24 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 ###################################################################################################
 
 # -------------------------------------------------------------------------------------------------
+# 센터 관리자 페이지 설정
+# -------------------------------------------------------------------------------------------------
+class CenterAdmin(admin.ModelAdmin):
+    '''어드민 페이지에 센터 정보를 보여주기 위한 클래스'''
+    # # form = PhoneForm
+    list_display = ['centerName', 'centerName', 'permissionLevel', 'active', ]
+    list_display_links = ['centerName',  ]
+    search_fields = ('centerName', 'centerName',)
+
+# -------------------------------------------------------------------------------------------------
 # 모폴러지 기준 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class MorphologyAdmin(admin.ModelAdmin):
     '''어드민 페이지에 모폴러지 정보를 보여주기 위한 클래스'''
     # # form = PhoneForm
-    list_display = ['words', 'wordsCond', 'morphology', 'manage',]
+    list_display = ['center', 'words', 'wordsCond', 'morphology', 'manage',]
     list_display_links = ['words', 'morphology', ]
     search_fields = ('words', )
-    pass
 
 
 # -------------------------------------------------------------------------------------------------
@@ -30,10 +39,9 @@ class MorphologyAdmin(admin.ModelAdmin):
 class LowThroughputAdmin(admin.ModelAdmin):
     '''어드민 페이지에 속도저하(Low Throughput) 기준을 보여주기 위한 클래스'''
     # # form = PhoneForm
-    list_display = ['areaInd', 'networkId', 'dataType', 'bandwidth',]
+    list_display = ['center', 'areaInd', 'networkId', 'dataType', 'bandwidth',]
     list_display_links = ['networkId',]
     search_fields = ('areaInd', 'networkId', )
-    pass
 
 # -------------------------------------------------------------------------------------------------
 # 전송실패 기준 관리자 페이지 설정
@@ -41,16 +49,16 @@ class LowThroughputAdmin(admin.ModelAdmin):
 class SendFailureAdmin(admin.ModelAdmin):
     '''어드민 페이지에 전송실패(Send Failure) 기준을 보여주기 위한 클래스'''
     # # form = PhoneForm
-    list_display = ['areaInd', 'networkId', 'dataType', 'bandwidth',]
+    list_display = ['center', 'areaInd', 'networkId', 'dataType', 'bandwidth',]
     list_display_links = ['networkId',]
     search_fields = ('areaInd', 'networkId', )
-    pass
+
 
 # -------------------------------------------------------------------------------------------------
 # 금일 측정조 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class MeasureingTeamAdmin(admin.ModelAdmin):
-    list_display = ['measdate_fmt', 'message']
+    list_display = ['center', 'measdate_fmt', 'message']
     list_display_links = ['message']
     search_fields = ('message', 'message')
     list_filter = ['measdate',]
@@ -59,10 +67,12 @@ class MeasureingTeamAdmin(admin.ModelAdmin):
     def measdate_fmt(self, obj):
         return obj.measdate.strftime('%Y-%m-%d') # YYYY-MM-DD 표시 예) 2021-11-01
 
+    measdate_fmt.short_description = '측정일자'
+
 admin.site.register(Morphology, MorphologyAdmin) # 모폴러지 등록
 admin.site.register(SendFailure, SendFailureAdmin) # 전송실패 기준 등록
 admin.site.register(LowThroughput, LowThroughputAdmin) # 속도저하 기준 등록
-admin.site.register(Center) # 센터정보 등록(전국 14개 센터)
+admin.site.register(Center, CenterAdmin) # 센터정보 등록(전국 14개 센터)
 
 admin.site.register(MeasureingTeam, MeasureingTeamAdmin) # 금일 측정조
 
