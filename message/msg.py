@@ -48,8 +48,16 @@ def current_count_check(mdata):
         #              발생한다는 가정으로 진행함
         #              즉, 3콜에도 상대편 단말기의 측정 데이터가 없으면 1개의 측정 단말기로 측정을 진행한다고 생각하고,
         #              보고주기에 따라 메시지를 보냄
+        # Case 1 : 1,2,3,4,5,...27,1,2,3,4,5,..27,.. (DL을 측정하고, 이후 UL을 측정하는 경우)
+        # Case 1 : 1,1,2,2,3,3,4,4,5,5,6,6,...27,27,.. (DL과 UL을 번갈아 한번씩 측정하는 경우)
         else:
-            result = True
+            qs = MeasureCallData.objects.filter(phone_no=mdata.phone_no, currentCount__lte=mdata.currentCount)
+            if qs.exists() and qs.count() > mdata.currentCount:
+               qs = qs.filter(currentCount = mdata.currentCount)
+               if qs.count() > 1:
+                    result = True
+            else:
+                result = True
 
     return result
 
@@ -154,7 +162,7 @@ def make_message(mdata):
         if phone.networkId == 'WiFi':
             MEASURING_MSG = f"<code>{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
                             "속도(DL/UL, Mbps)\n" + \
-                            f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>",
+                            f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
         elif phone.networkId == '5G':
             MEASURING_MSG = f"<code>{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
                             "(DL/UL/시도호/성공률/전환율)\n" + \
