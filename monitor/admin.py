@@ -24,14 +24,58 @@ from .models import Phone, MeasureCallData
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
+from django.utils.translation import gettext_lazy as _
+from django.contrib.admin import SimpleListFilter
+class ManageFilter(SimpleListFilter):
+    '''측정 단말기 관리자 페이지에서 디폴트 필터값을 지정하기 위한 클래스'''
+    title = '관리대상'
+    parameter_name = 'manage'
+    default_value = 1 # 디폴트 필터값
+
+    # 필터 항목중 '모두'를 없애기 위해서 함수를 오버라이딩 함
+    # https://github.com/django/django/blob/main/django/contrib/admin/filters.py#L62
+    def choices(self, changelist):
+        for lookup, title in self.lookup_choices:
+            yield {
+                "selected": self.value() == str(lookup),
+                "query_string": changelist.get_query_string(
+                    {self.parameter_name: lookup}
+                ),
+                "display": title,
+            }
+
+    # 보여질 필터 항목들을 정의한다.
+    def lookups(self, request, model_admin):
+        list_of_manage = [
+            (0, _('아니요')),
+            (1, _('예')),
+        ]
+        return sorted(list_of_manage, key=lambda tp: tp[1])
+
+    # 선택된 필터 항목값에 따라 자료를 조회한다.
+    def queryset(self, request, queryset):
+        if self.value() in ('1', '0'):
+            return queryset.filter(manage=self.value())
+        return queryset
+
+    # 측정 단말기를 조회하는 관리자 페이지를 처음 들어왔을 때 기본값으로 조회되게 한다.
+    def value(self):
+        value = super(ManageFilter, self).value()
+        if value is None:
+            if self.default_value is None:
+                pass
+            else:
+                value = self.default_value
+        return str(value)
+
 class PhoneAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
     # form = PhoneForm
     list_display = ['userInfo1', 'morphology', 'phone_no', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
-        'status', 'total_count', 'last_updated_at', 'active',]
+        'status', 'total_count', 'last_updated_at', 'active', 'manage']
     list_display_links = ['phone_no']
     search_fields = ('userInfo1', 'phone_no', )
-    list_filter = ['active',]
+    list_filter = ['active', ManageFilter,]
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
     def avg_downloadBandwidth_fmt(self, obj):
@@ -55,7 +99,7 @@ class PhoneAdmin(admin.ModelAdmin):
             # 'description' : '단말에 대한 정보를 보여줍니다.'
         }),
         ('측정정보', {
-             'fields': (('userInfo1', 'morphology', 'morph2'),
+             'fields': (('userInfo1', 'morphology'),
                         ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
                         ('dl_count', 'ul_count'),
                         ('status', 'total_count'),
@@ -81,8 +125,17 @@ class PhoneAdmin(admin.ModelAdmin):
     # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
     def get_queryset(self, request):
         query = super(PhoneAdmin, self).get_queryset(request)
-        filtered_query = query.filter(ispId='45008', manage=True)
+        # filtered_query = query.filter(ispId='45008', manage=True)
+        filtered_query = query.filter(ispId='45008')
         return filtered_query
+
+    # def changelist_view(self, request, extra_context=None):
+    #     if not request.GET.has_key('manage'):
+    #         q = request.GET.copy()
+    #         q['manage'] = 1
+    #         request.GET = q
+    #         request.META['QUERY_STRING'] = request.GET.urlencode()
+    #     return super(PhoneAdmin,self).changelist_view(request, extra_context=extra_context)
 
     # 저장 버튼을 제외한 나머지 버튼들을 화면에서 보이지 않게 한다.
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):

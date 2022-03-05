@@ -91,7 +91,7 @@ class Phone(models.Model):
     )  # 최종 위치보고시간
     morphology = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES,\
     verbose_name='모폴러지')
-    manage = models.BooleanField(default=False)  # 관리대상 여부
+    manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
 
     class Meta:
