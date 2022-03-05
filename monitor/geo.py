@@ -217,6 +217,11 @@ def make_map_locations(mdata):
     # 이동경로와 겹쳐서 먼저 이동경로를 그리고 난 후 측점지점들을 표시한다.
     points.add_to(map)
 
+    # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
+    sw = pd.DataFrame(locations).min().values.tolist()
+    ne = pd.DataFrame(locations).max().values.tolist()
+    map.fit_bounds([sw, ne])
+
     filename = f'{mdata.phone.measdate}-{mdata.ispId}-{mdata.phone_no}.html'
     map.save("monitor/templates/maps/" + filename)
 
