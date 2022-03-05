@@ -5,7 +5,7 @@ from django.conf import settings
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot
 from message.sms import send_sms   ###### (3.4) 크로샷 전송 함수 호출 // 변수 전달(메시지내용/수신번호) 가능하도록 수정 필요
-from management.models import Morphology
+from management.models import Morphology, MorphologyMap
 # import logging
 
 # logger = logging.getLogger(__name__)
@@ -35,11 +35,13 @@ class PhoneGroup(models.Model):
 # 2022.02.27 - 주소상세(addressDetail) 항목 추가 
 #            - 측정 콜이 행정동 범위를 벗어났는지 확인하기 위해 첫번째 콜 위치를 측정 단말기 정보에 담아 둔다.
 # 2022.03.01 - 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 업데이트 하는 함수를 추가함
-# 2022.03.03 - 모폴러지 항목 추가
-#            - 측정 데이터의 userInfo2에서 측정자가 입력한 모폴러지가 부정확하게 입력된 경우 매핑 테이블로 재지정하기 위함
-#            - 측정 데이터의 userInfo2 -> Morphology -> 모폴러지 맵핑 재지정 모듈 추가
+# 2022.03.03 - 모풀로지 항목 추가
+#            - 측정 데이터의 userInfo2에서 측정자가 입력한 모풀로지가 부정확하게 입력된 경우 매핑 테이블로 재지정하기 위함
+#            - 측정 데이터의 userInfo2 -> Morphology -> 모풀로지 맵핑 재지정 모듈 추가
 # 2022.03.04 - 5G->LTE 전환 콜수 항목 추가 및 누적 업데이트 코드 추가
-# 2022.03.05 - 모폴러지를 변경하는 경우 측정 단말기의 관리대상 여부도 자동으로 변경되도록 함 (모폴러지에 따라 관리대상여부 결정)
+# 2022.03.05 - 모폴로지를 변경하는 경우 측정 단말기의 관리대상 여부도 자동으로 변경되도록 함 (모풀로지에 따라 관리대상여부 결정)
+#            - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 분리함에 따라 관련 소스코드 수정함
+#              '행정동', '테마', '인빌딩, '커버리지', 취약지역 등을 소스에 하드코딩 하지 않고, 또 추가 가능하게 하기 위함
 #
 ###################################################################################################
 class Phone(models.Model):
@@ -57,17 +59,11 @@ class Phone(models.Model):
         ("END", "측정종료"),
     }
 
-    MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
-                            ('커버리지','커버리지')}
-
-    MORPHOLOGY_CHOICES2 = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
-                            ('커버리지','커버리지'), ('미지정','미지정')}
-
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10)
     phone_no = models.BigIntegerField(verbose_name="측정단말")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정지역")
-    userInfo2 = models.CharField(max_length=100, verbose_name="모폴러지(측정데이터)")
+    userInfo2 = models.CharField(max_length=100, verbose_name="모풀로지(측정데이터)")
     networkId = models.CharField(
         max_length=100, null=True, blank=True, verbose_name="유형"
     )  # 네트워크ID(5G, LTE, 3G, WiFi)
@@ -90,8 +86,7 @@ class Phone(models.Model):
     last_updated = models.BigIntegerField(
         null=True, blank=True, verbose_name="최종보고시간"
     )  # 최종 위치보고시간
-    morphology = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES,\
-    verbose_name='모폴러지')
+    morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
 
@@ -103,7 +98,7 @@ class Phone(models.Model):
         # return f"{self.phone_no}/{self.avg_downloadBandwidth}/{self.avg_uploadBandwidth}/{self.dl_count}/{self.ul_count}"
         return f"{self.phone_no}/{self.id}/{self.total_count}"
 
-    # 모폴러지가 변경되는 경우 측정 단말기의 관래대상 여부를 자동으로 변경한다.
+    # 모풀로지가 변경되는 경우 측정 단말기의 관래대상 여부를 자동으로 변경한다.
     def save(self, *args, **kwargs):
         qs = Morphology.objects.filter(morphology=self.morphology)
         if qs.exists():
@@ -190,19 +185,14 @@ class Phone(models.Model):
             self.addressDetail = region_3depth_name
 
         # -----------------------------------------------------------------------------------------
-        # 측정 데이터의 userInfo2를 확인하여 모폴러지를 매핑하여 지정한다.
+        # 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
         # -----------------------------------------------------------------------------------------
-        morphology = None # 모폴러지
+        morphology = None # 모풀로지
         manage = False # 관리대상 여부
 
         if self.userInfo2:
-            # if self.userInfo2.startswith('행-'): morphology = '행정동'
-            # if self.userInfo2.startswith('테-'): morphology = '테마'
-            # if self.userInfo2.startswith('인-'): morphology = '인빌딩'
-            # if self.userInfo2.startswith('커-') or self.userInfo2.find('커버리지') >= 0: morphology = '커버리지'
-
-            # 모폴러지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모폴러지를 재지정한다. 
-            for mp in Morphology.objects.all():
+            # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 재지정한다. 
+            for mp in MorphologyMap.objects.all():
                 if mp.wordsCond == '시작단어':
                     if self.userInfo2.startswith(mp.words):
                         morphology = mp.morphology
@@ -213,7 +203,7 @@ class Phone(models.Model):
                         morphology = mp.morphology
                         manage = mp.manage
                         break
-            
+
         self.morphology = morphology
         self.manage = manage
 
@@ -254,7 +244,7 @@ class MeasureCallData(models.Model):
     )  # 측정종류(speed, latency, web)
     userInfo1 = models.CharField(max_length=100, null=True, blank=True)  # 입력된 주소정보
     userInfo2 = models.CharField(
-        max_length=100, null=True, blank=True, verbose_name="모폴러지"
+        max_length=100, null=True, blank=True, verbose_name="모풀로지"
     )  # 측정위치(행정동, 테마, 인빌딩, 커버리지)
     siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
     guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군

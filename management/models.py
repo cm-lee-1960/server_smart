@@ -4,7 +4,10 @@ from django.db import models
 
 ###################################################################################################
 # 환경설정 관리 관련 클래스
-# - 모폴러지, 전송실패 기준, 속도저하 기준, 금일 측정조, 센터정보
+# - 모풀로지, 모풀로지 맵, 전송실패 기준, 속도저하 기준, 금일 측정조, 센터정보
+# -------------------------------------------------------------------------------------------------
+# 2022.03.05 - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 클래스를 분리함
+#              즉, 기존에 하드코딩 되어 있는 '행정동', '테마', '인빌딩', '커버리지' 등을 DB로 등로관리 할 수 있도록 함
 ###################################################################################################
 
 # -------------------------------------------------------------------------------------------------
@@ -23,24 +26,36 @@ class Center(models.Model):
         return self.centerName
 
 # -------------------------------------------------------------------------------------------------
-# 모폴러지 정보관리 클래스
+# 모풀로지 정보관리 클래스
 # 측정 데이터에서 넘어오는 모폴로지 정보를 기준으로 재정의
 # MessureCallData.userinfo2 --> Morphology.morphology : 맵핑정보 관리
 # -------------------------------------------------------------------------------------------------
 class Morphology(models.Model):
-    MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
-                            ('커버리지','커버리지')}
+    center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
+    morphology = models.CharField(max_length=100, null=True, blank=True,verbose_name='모풀로지')
+    manage = models.BooleanField(default=False, verbose_name='관리대상')  # 관리대상 여부
+    class Meta:
+        verbose_name = ('모풀로지')
+        verbose_name_plural = ('모풀로지')
+
+    def __str__(self):
+        return self.morphology
+
+# -------------------------------------------------------------------------------------------------
+# 모풀로지 맵 정보관리 클래스
+# -------------------------------------------------------------------------------------------------
+class MorphologyMap(models.Model):
     WORDSCOND_CHOICES = {('시작단어','시작단어'), ('포함단어','포함단어')}
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     words = models.CharField(max_length=200, null=True, blank=True, verbose_name="단어") # 모폴로지 판단 컬럼2 : 특정 단어 포함
     wordsCond = models.CharField(max_length=20, null=True, blank=True, choices=WORDSCOND_CHOICES, verbose_name='조건')
-    morphology = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES,\
-        verbose_name='모폴러지')
+    morphology = models.ForeignKey(Morphology, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     manage = models.BooleanField(default=False, verbose_name='관리대상')  # 관리대상 여부
     class Meta:
-        verbose_name = ('모폴러지')
-        verbose_name_plural = ('모폴러지')
+        verbose_name = ('모풀로지 맵')
+        verbose_name_plural = ('모풀로지 맵')
+
 
 # -------------------------------------------------------------------------------------------------
 # 전송실패(Send Failure) 기준관리 클래스

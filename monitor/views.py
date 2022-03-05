@@ -24,7 +24,7 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
 # 5) 메시지 및 이벤트 처리
 # -------------------------------------------------------------------------------------------------
 # 2022.03.03 - 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 모듈 추가
-#            - 업데이트 항목: 단말기 행정동 위치, 모폴러지 맵핑 재지정
+#            - 업데이트 항목: 단말기 행정동 위치, 모풀로지 맵핑 재지정
 ###################################################################################################
 @csrf_exempt
 def receive_json(request):
@@ -125,7 +125,7 @@ def receive_json(request):
                     )
             # 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 내용을 담아 놓음
             # 1) 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 저장한다.
-            # 2) 측정 데이터의 userInfo2를 확인하여 모폴러지를 매핑하여 지정한다.
+            # 2) 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
             phone.update_initial_data()
 
     except Exception as e:
@@ -181,7 +181,7 @@ def receive_json(request):
         if data['currentCount'] == 1: 
             make_message(mdata)
 
-        # 2022.03.03 - 관리대상 모폴러지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
+        # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
         elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
             mps= Morphology.objects.filter(manage=True).values_list('morphology', flat=True)
             if mdata.phone.morphology in mps:

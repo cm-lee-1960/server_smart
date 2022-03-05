@@ -189,7 +189,7 @@ class MeasureCallData(models.Model):
     )  # 측정종류(speed, latency, web)
     userInfo1 = models.CharField(max_length=100, null=True, blank=True)  # 입력된 주소정보
     userInfo2 = models.CharField(
-        max_length=100, null=True, blank=True, verbose_name="모폴러지"
+        max_length=100, null=True, blank=True, verbose_name="모풀로지"
     )  # 측정위치(행정동, 테마, 인빌딩, 커버리지)
     siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
     guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군

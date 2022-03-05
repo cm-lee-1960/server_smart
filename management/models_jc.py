@@ -1,7 +1,7 @@
 from django.db import models
 
 ###################################################################################################
-# 모폴러지 정보관리 클래스
+# 모풀로지 정보관리 클래스
 # 측정 데이터에서 넘어오는 모폴로지 정보를 기준으로 재정의
 # MessureCallData.userinfo2 --> Morphology.morphology : 맵핑정보 관리
 ###################################################################################################
@@ -9,12 +9,12 @@ class Morphology(models.Model):
     MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), \
                             ('커버리지','커버리지')}
 
-    userInfo2 = models.CharField(max_length=100, null=True, blank=True, verbose_name='모폴러지(측정데이터)') # 측정위치(행정동, 테마, 인빌딩, 커버리지)
+    userInfo2 = models.CharField(max_length=100, null=True, blank=True, verbose_name='모풀로지(측정데이터)') # 측정위치(행정동, 테마, 인빌딩, 커버리지)
     morphology = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES,\
-        verbose_name='모폴러지')
+        verbose_name='모풀로지')
     class Meta:
-        verbose_name = ('모폴러지')
-        verbose_name_plural = ('모폴러지')
+        verbose_name = ('모풀로지')
+        verbose_name_plural = ('모풀로지')
 
 
 ###################################################################################################
@@ -50,7 +50,7 @@ class morph_settings(models.Model):
   # 폰그룹 별로 모폴로지 할당 가능?
   MORPHOLOGY_CHOICES = {('행정동','행정동'), ('인빌딩', '인빌딩'), ('테마','테마'), ('취약지구', '취약지구'), ('커버리지','커버리지')}
   
-  morph = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES, verbose_name='모폴러지')
+  morph = models.CharField(max_length=100, null=True, blank=True, choices=MORPHOLOGY_CHOICES, verbose_name='모풀로지')
   fvg_dl_criteria = models.FloatField(null=True, blank=True, verbose_name="5G DL 이벤트 조건") # 5g dl lowthroughput 조건
   fvg_ul_criteria = models.FloatField(null=True, blank=True, verbose_name="5G UL 이벤트 조건") # 5g ul lowthroughput 조건
   lte_dl_criteria = models.FloatField(null=True, blank=True, verbose_name="LTE UL 이벤트 조건") # lte dl lowthroughput 조건

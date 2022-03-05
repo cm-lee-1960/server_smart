@@ -5,12 +5,12 @@ from management.models import Morphology, LowThroughput, CenterInfo, morph_setti
 ###################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
 # [ 관리정보 리스트 ]
-#  - 모폴러지(Morphology): 측정 데이터 내에 있는 부정확한 모폴러지를 수정하여 맵핑정보를 관리함
+#  - 모풀로지(Morphology): 측정 데이터 내에 있는 부정확한 모풀로지를 수정하여 맵핑정보를 관리함
 #  - 속도저하 기준(LowThroughput): 상황에 따라 변경되는 속도저하 기준 정보를 관리함 
 #  - 센터정보(CenterInfo): 전국 14개 센터정보를 관리함
 ###################################################################################################
 class MorphologyAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 모폴러지 정보를 보여주기 위한 클래스'''
+    '''어드민 페이지에 모풀로지 정보를 보여주기 위한 클래스'''
     # form = PhoneForm
     list_display = ['userInfo2', 'morphology',]
     list_display_links = ['userInfo2',  'morphology', ]
@@ -42,7 +42,7 @@ class MeasureingTeamAdmin(admin.ModelAdmin):
     def measdate_fmt(self, obj):
         return obj.measdate.strftime('%Y-%m-%d') # YYYY-MM-DD 표시 예) 2021-11-01
 
-admin.site.register(Morphology, MorphologyAdmin) # 모폴러지 등록
+admin.site.register(Morphology, MorphologyAdmin) # 모풀로지 등록
 admin.site.register(LowThroughput, LowThroughputAdmin) # 속도저하 기준 등록
 admin.site.register(CenterInfo) # 센터정보 등록(전국 14개 센터)
 admin.site.register(morph_settings, MorphSettingsAdmin)
