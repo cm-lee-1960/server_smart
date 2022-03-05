@@ -39,6 +39,7 @@ class PhoneGroup(models.Model):
 #            - 측정 데이터의 userInfo2에서 측정자가 입력한 모폴러지가 부정확하게 입력된 경우 매핑 테이블로 재지정하기 위함
 #            - 측정 데이터의 userInfo2 -> Morphology -> 모폴러지 맵핑 재지정 모듈 추가
 # 2022.03.04 - 5G->LTE 전환 콜수 항목 추가 및 누적 업데이트 코드 추가
+# 2022.03.05 - 모폴러지를 변경하는 경우 측정 단말기의 관리대상 여부도 자동으로 변경되도록 함 (모폴러지에 따라 관리대상여부 결정)
 #
 ###################################################################################################
 class Phone(models.Model):
@@ -101,6 +102,15 @@ class Phone(models.Model):
     def __str__(self):
         # return f"{self.phone_no}/{self.avg_downloadBandwidth}/{self.avg_uploadBandwidth}/{self.dl_count}/{self.ul_count}"
         return f"{self.phone_no}/{self.id}/{self.total_count}"
+
+    # 모폴러지가 변경되는 경우 측정 단말기의 관래대상 여부를 자동으로 변경한다.
+    def save(self, *args, **kwargs):
+        qs = Morphology.objects.filter(morphology=self.morphology)
+        if qs.exists():
+            self.manage = qs[0].manage
+        else:
+            self.manage = False
+        super(Phone, self).save(*args, **kwargs)
 
     # 측정 단말기의 통계정보를 업데이트 한다.
     def update_phone(self, mdata):

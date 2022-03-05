@@ -12,22 +12,20 @@ from .models import Phone, MeasureCallData
 # 2022.02.25 - 측정 단말기 관리자 페이지의 화면상 항목들을 세션/그룹핑해서 표시 되도록 함
 # 2022.03.03 - 측정 단말기 모폴러지 항목 추가 반영 
 #             (측정 데이터의 모폴로지가 오입력 되는 경우 맵핑 테이블을 통해 재지정 하기 위함)
+# 2022.03.05 - 측정 단말기 관리자 페이지 조회시 필터 기본값을 설정하기 위한 필터 클래스를 추가함
 ###################################################################################################
 # class PhoneForm(forms.ModelForm):
-#     def __init__(self, *args, **kwargs):
-#         super(PhoneForm, self).__init__(*args, **kwargs)
-#         # self.fields['phoneGroup'].editable = False
-#         self.fields['phoneGroup'].widget.attrs['readonly'] = True
-#     class Meta:
-#         model = Phone
-#         fields = '__all__'
+
+#     def clean(self):
+#         cleaned_data = self.cleaned_data
+#         print(cleaned_data)
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
 class ManageFilter(SimpleListFilter):
-    '''측정 단말기 관리자 페이지에서 디폴트 필터값을 지정하기 위한 클래스'''
+    '''측정 단말기 관리자 페이지에서 필터 기본값을 지정하기 위한 클래스'''
     title = '관리대상'
     parameter_name = 'manage'
     default_value = 1 # 디폴트 필터값
@@ -50,7 +48,7 @@ class ManageFilter(SimpleListFilter):
             (0, _('아니요')),
             (1, _('예')),
         ]
-        return sorted(list_of_manage, key=lambda tp: tp[1])
+        return sorted(list_of_manage, key=lambda tp: tp[1], reverse=True)
 
     # 선택된 필터 항목값에 따라 자료를 조회한다.
     def queryset(self, request, queryset):
