@@ -52,6 +52,7 @@ def current_count_check(mdata):
 #--------------------------------------------------------------------------------------------------
 # 측정 단말기의 상태에 따라서 전송 메시지를 생성한다.
 # 2022.02.27 - 측정 단말기 Power-On/Off 데이터를 별도로 추가 받아야 한다고 함
+# 2022.03.05 - 메시지 내용 중에서 숫자에 자동으로 링크가 붙는 것을 조치함 (앞뒤에 <code></code>를 붙임)
 #--------------------------------------------------------------------------------------------------
 def make_message(mdata):
     """측정단말의 상태에 따라서 메시지를 작성한다."""
@@ -147,21 +148,21 @@ def make_message(mdata):
                       "\n평가에 만전을 기하여 주시기 바랍니다. "
         # [측정진행 메시지] -----------------------------------------------------------------------------------
         if phone.networkId == 'WiFi':
-            MEASURING_MSG = f"{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
+            MEASURING_MSG = f"<code>{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
                             "속도(DL/UL, Mbps)\n" + \
-                            f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}",
+                            f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>",
         elif phone.networkId == '5G':
-            MEASURING_MSG = f"{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
+            MEASURING_MSG = f"<code>{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
                             "(DL/UL/시도호/성공률/전환율)\n" + \
-                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-/{avg_nrRate:.1f}%"
+                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-/{avg_nrRate:.1f}%</code>"
         else:
-            MEASURING_MSG = f"{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
+            MEASURING_MSG = f"<code>{mdata.userInfo1}에서 현재 콜카운트 {mdata.currentCount}번째 측정중입니다.\n" + \
                             "(DL/UL/시도호/성공률)\n" + \
-                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-"
+                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-</code>"
         # [측정종료 메시지] -----------------------------------------------------------------------------------
-        END_MSG = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
+        END_MSG = f"<code>금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
                    "(DL/UL/시도호/성공률)\n" + \
-                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-"
+                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-</code>"
         messages = {
             "POWERON": POWERON_MSG,
             "START": START_MSG,
