@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot # 텔레그램 메시지 전송 클래스
-from message.xmcs_msg import send_message # 2022.03.04 크로샷 메시지 전송 함수 호출
+from message.xmcs_msg import send_sms # 2022.03.04 크로샷 메시지 전송 함수 호출
 from management.models import Morphology, MorphologyMap
 # import logging
 
@@ -381,7 +381,7 @@ def send_message(sender, **kwargs):
         # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
         # npm install request 명령어로 모듈 설치 후 사용 가능 
         #######################################################################################################
-        send_message()
+        send_sms()
 
 # -------------------------------------------------------------------------------------------------
 # 전송 메시지가 저장된 후 메시지 전송 모듈을 호출한다(SIGNAL). 

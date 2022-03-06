@@ -4,7 +4,7 @@ from subprocess import check_output
 ######## node.js 파일 호출 / 변수 전달(메시지 내용, 수신번호) 가능하도록 수정해야함 ##
 ######## 현재 sms_broadcast.js 에 작성된 내용/수신번호로만 전달됨 ###################
 ###################################################################################
-def send_message():
+def send_sms():
   result = check_output(['node', 'sms_broadcast.js'])
   return print(result)
 
