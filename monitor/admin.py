@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.forms import TextInput, Textarea
+from django.db import models
 from django import forms
 from .models import Phone, MeasureCallData
 
@@ -11,6 +13,9 @@ from .models import Phone, MeasureCallData
 # 2022.03.03 - 측정 단말기 모풀로지 항목 추가 반영 
 #             (측정 데이터의 모폴로지가 오입력 되는 경우 맵핑 테이블을 통해 재지정 하기 위함)
 # 2022.03.05 - 측정 단말기 관리자 페이지 조회시 필터 기본값을 설정하기 위한 필터 클래스를 추가함
+# 2022.03.06 - 3.5 작성한 필터 클래스 보완
+#            - 측정단말 관리자 페이지를 처음 들어갈 때 관리대상만 보여지게 하고, 이후 필터조건에 따라 조회되게 함
+#              (필터조건: 예, 아니요, 모두)
 #
 ###################################################################################################
 # class PhoneForm(forms.ModelForm):
@@ -78,11 +83,13 @@ class ManageFilter(SimpleListFilter):
 
 class PhoneAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
+
+
     # form = PhoneForm
-    list_display = ['userInfo1', 'morphology', 'phone_no', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
+    list_display = ['userInfo1', 'morphology', 'phone_no_abbr', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
         'status', 'total_count', 'last_updated_at', 'active', 'manage']
-    list_display_links = ['phone_no']
-    search_fields = ('userInfo1', 'phone_no', )
+    list_display_links = ['phone_no_abbr']
+    search_fields = ('userInfo1', 'phone_no_abbr', )
     list_filter = ['active', ManageFilter,]
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
@@ -97,6 +104,16 @@ class PhoneAdmin(admin.ModelAdmin):
 
     avg_uploadBandwidth_fmt.short_description = 'UL'
 
+    # 2022.03.06 - 측정 단말기의 상세화면에서 특정 항목의 길이를 조정한다.
+    # formfield_overrides = {
+    #     models.CharField: {'widget': TextInput(attrs={'size':'25'})},
+    # }
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(PhoneAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['userInfo1'].widget.attrs['style'] = 'width: 15em;'
+        form.base_fields['userInfo2'].widget.attrs['style'] = 'width: 10em;'
+        return form
 
     # 2022.02.25 - 화면상의 항목들을 세션/그룹핑해서 보여준다. 
     fieldsets = (
@@ -107,7 +124,7 @@ class PhoneAdmin(admin.ModelAdmin):
             # 'description' : '단말에 대한 정보를 보여줍니다.'
         }),
         ('측정정보', {
-             'fields': (('userInfo1', 'morphology'),
+             'fields': (('userInfo1', 'userInfo2', 'morphology'),
                         ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
                         ('dl_count', 'ul_count'),
                         ('status', 'total_count'),
@@ -121,6 +138,12 @@ class PhoneAdmin(admin.ModelAdmin):
             # 'classes': ('collapse',),
         }),
     )
+
+    # 전화번호는 뒷 4자리만 출력한다.
+    def phone_no_abbr(self, phone):
+        return str(phone.phone_no)[-4:]
+    
+    phone_no_abbr.short_description = '전화번호'
 
     # 최종 위치보고시간을 출력한다(Integer -> String)
     def last_updated_at(self, phone):
