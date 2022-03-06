@@ -105,15 +105,7 @@ def receive_json(request):
             phone.active = True
             phone.save()
         else:
-            # # 측정 단말기의 관래대상 여부를 판단한다.
-            # # *** 모폴로지 조건체크는 향후 DB 테이블에서 가져오서 확인하는 코드로 변경해야 함
-            # if data['ispId'] == '45008' and \
-            #     (data['userInfo2'].startswith("테-") or data['userInfo2'].startswith("행-") or data['userInfo2'].startswith("인-")):
-            #     manage = True
-            # else:
-            #     manage = False
-
-            # 5G 측정단말인데, 네트워크 유형이 'NR' 들어오는 경우 '5G'로 처리한다.
+            # 측정 단말기의 관래대상 여부를 판단한다.
             # 2022.02.24 - 네트워크유형(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.
             #            - 발견사례) 서울특별시-신분당선(강남-광교) 010-2921-3951 2021-11-08
             if data['networkId'] == 'NR':
@@ -220,7 +212,7 @@ def receive_json(request):
 
 
 ###################################################################################################
-# 작성된 지도맵 파일 전달
+# 측정위치로 작성된 지도맵 파일 전달
 ###################################################################################################
 def maps_files(request, filename):
     # filename = request.GET.get('filename')

@@ -13,13 +13,14 @@ from management.models import Morphology, MorphologyMap
 ###################################################################################################
 # 측정 단말기 그룹정보
 # 2022.02.25 - 해당지역에 단말이 첫번째 측정을 시작했을 때 측정시작(START) 메시지를 한번 전송한다.
+# 2022.03.06 - 측정 데이터에 통신사(ispId)가 널(NULL)인 값이 들어와서 동일하게 모델의 해당 항목에 널을 허용함
 ###################################################################################################
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
 
     measdate = models.CharField(max_length=10)
     userInfo1 = models.CharField(max_length=100)
-    ispId = models.CharField(max_length=10)  # 한국:450 / KT:08, SKT:05, LGU+:60
+    ispId = models.CharField(max_length=10, null=True, blank=True)  # 한국:450 / KT:08, SKT:05, LGU+:60
     active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -42,6 +43,7 @@ class PhoneGroup(models.Model):
 # 2022.03.05 - 모폴로지를 변경하는 경우 측정 단말기의 관리대상 여부도 자동으로 변경되도록 함 (모풀로지에 따라 관리대상여부 결정)
 #            - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 분리함에 따라 관련 소스코드 수정함
 #              '행정동', '테마', '인빌딩, '커버리지', 취약지역 등을 소스에 하드코딩 하지 않고, 또 추가 가능하게 하기 위함
+# 2022.03.06 - 행정동 찾기 및 모폴로지 변환 모듈에 대한 예외처리 루팅 추가
 #
 ###################################################################################################
 class Phone(models.Model):
@@ -180,42 +182,49 @@ class Phone(models.Model):
     # ---------------------------------------------------------------------------------------------
     def update_initial_data(self):
         '''측정 단말기가 생성될 때 최초 한번 수행한다.'''
-        # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
-        if self.longitude and self.latitude:
-            rest_api_key = settings.KAKAO_REST_API_KEY
-            kakao = KakaoLocalAPI(rest_api_key)
-            input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
-            output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+        try: 
+            # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
+            if self.longitude and self.latitude:
+                rest_api_key = settings.KAKAO_REST_API_KEY
+                kakao = KakaoLocalAPI(rest_api_key)
+                input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+                output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
-            result = kakao.geo_coord2regioncode(self.longitude, self.latitude, input_coord, output_coord)
+                result = kakao.geo_coord2regioncode(self.longitude, self.latitude, input_coord, output_coord)
 
-            region_3depth_name = result['documents'][1]['region_3depth_name']
+                region_3depth_name = result['documents'][1]['region_3depth_name']
 
-            self.addressDetail = region_3depth_name
+                self.addressDetail = region_3depth_name
 
-        # 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
-        morphology = None # 모풀로지
-        manage = False # 관리대상 여부
+            # 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
+            morphology = None # 모풀로지
+            manage = False # 관리대상 여부
 
-        if self.userInfo2:
-            # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 재지정한다. 
-            for mp in MorphologyMap.objects.all():
-                if mp.wordsCond == '시작단어':
-                    if self.userInfo2.startswith(mp.words):
-                        morphology = mp.morphology
-                        manage = mp.manage
-                        break
-                elif mp.wordsCond == '포함단어':
-                    if self.userInfo2.find(mp.words) >= 0:
-                        morphology = mp.morphology
-                        manage = mp.manage
-                        break
+            if self.userInfo2:
+                # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 재지정한다. 
+                for mp in MorphologyMap.objects.all():
+                    if mp.wordsCond == '시작단어':
+                        if self.userInfo2.startswith(mp.words):
+                            morphology = mp.morphology
+                            manage = mp.manage
+                            break
+                    elif mp.wordsCond == '포함단어':
+                        if self.userInfo2.find(mp.words) >= 0:
+                            morphology = mp.morphology
+                            manage = mp.manage
+                            break
 
-        self.morphology = morphology
-        self.manage = manage
+            self.morphology = morphology
+            self.manage = manage
 
-        # 측정 단말기 정보를 저장한다.
-        self.save()
+            # 측정 단말기 정보를 저장한다.
+            self.save()
+
+        except Exception as e:
+            print("update_initial_data():", str(e))
+            raise Exception("update_initial_data(): %s" % e) 
+
+
 
 ###################################################################################################
 # 실시간 측정 데이터(콜 단위)
