@@ -185,44 +185,46 @@ def make_map_locations(mdata):
     # 측정 위치를 지도맵에 표시한다.
     locations = []
     points = folium.FeatureGroup(name="All Points")
-    for m in mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
-        # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
-        if m.networkId == '5G':
-            pci, RSRP, SINR = m.NR_PCI, m.NR_RSRP, m.NR_SINR
-        else:
-            pci, RSRP, SINR= m.p_pci, m.p_rsrp, m.p_SINR
-        # RSRP 값에 따라서 색상을 계산한다.
-        if m.latitude == mdata.latitude and m.longitude == mdata.longitude:
-            radius = 14.5 * 2
-        else:
-            radius = 14.5
-        df = pd.DataFrame([{'PCI': pci, '셀ID': m.cellId, 'RSRP': RSRP, 'SINR': SINR, \
-                            'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, },])
-        html = df.to_html(index=False, 
-                          classes='table table-striped table-hover table-condensed table-responsive text-center')
-        popup = folium.Popup(html, min_width=100, max_width=300)
-        folium.Circle(
-            location=[m.latitude, m.longitude],
-            popup=popup,
-            radius=radius, # 크기 지정
-            color='black', # 테두리 색상
-            fill_color=rsrp2color(RSRP) if RSRP else 'black', # 내부 색상 '#000000' 
-            fill_opacity=1.,
-            weight=1
-        ).add_to(points)
-        locations.append([m.latitude, m.longitude])
+    qs = mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime")
+    if qs.exists():
+        for m in qs:
+            # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
+            if m.networkId == '5G':
+                pci, RSRP, SINR = m.NR_PCI, m.NR_RSRP, m.NR_SINR
+            else:
+                pci, RSRP, SINR= m.p_pci, m.p_rsrp, m.p_SINR
+            # RSRP 값에 따라서 색상을 계산한다.
+            if m.latitude == mdata.latitude and m.longitude == mdata.longitude:
+                radius = 14.5 * 2
+            else:
+                radius = 14.5
+            df = pd.DataFrame([{'PCI': pci, '셀ID': m.cellId, 'RSRP': RSRP, 'SINR': SINR, \
+                                'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, },])
+            html = df.to_html(index=False, 
+                            classes='table table-striped table-hover table-condensed table-responsive text-center')
+            popup = folium.Popup(html, min_width=100, max_width=300)
+            folium.Circle(
+                location=[m.latitude, m.longitude],
+                popup=popup,
+                radius=radius, # 크기 지정
+                color='black', # 테두리 색상
+                fill_color=rsrp2color(RSRP) if RSRP else 'black', # 내부 색상 '#000000' 
+                fill_opacity=1.,
+                weight=1
+            ).add_to(points)
+            locations.append([m.latitude, m.longitude])
 
-    # 지도맵에 이동경로를 표시한다.
-    folium.PolyLine(locations=locations).add_to(map)
+        # 지도맵에 이동경로를 표시한다.
+        folium.PolyLine(locations=locations).add_to(map)
 
-    # 지도맵에 측정지점들을 표시한다.
-    # 이동경로와 겹쳐서 먼저 이동경로를 그리고 난 후 측점지점들을 표시한다.
-    points.add_to(map)
+        # 지도맵에 측정지점들을 표시한다.
+        # 이동경로와 겹쳐서 먼저 이동경로를 그리고 난 후 측점지점들을 표시한다.
+        points.add_to(map)
 
-    # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
-    sw = pd.DataFrame(locations).min().values.tolist()
-    ne = pd.DataFrame(locations).max().values.tolist()
-    map.fit_bounds([sw, ne])
+        # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
+        sw = pd.DataFrame(locations).min().values.tolist()
+        ne = pd.DataFrame(locations).max().values.tolist()
+        map.fit_bounds([sw, ne])
 
     filename = f'{mdata.phone.measdate}-{mdata.ispId}-{mdata.phone_no}.html'
     map.save("monitor/templates/maps/" + filename)

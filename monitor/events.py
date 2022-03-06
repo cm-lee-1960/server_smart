@@ -220,13 +220,11 @@ def out_measuring_range(mdata):
     try: 
         region_3depth_name = result['documents'][1]['region_3depth_name']
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
-            # 해당 위치에 대한 지도맵을 작성한다.
-            filename = make_map_locations(mdata)
             # 메시지를 작성한다.
             message = f"{mdata.userInfo1}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
                     "(전화번호/단말시작위치/위도/경도/측정위치)\n" + \
-                    f"{mdata.phone_no}/{mdata.phone.addressDetail.split()[0]}/{mdata.latitude}/{mdata.longitude}/{region_3depth_name}\n" + \
-                    f"<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
+                    f"{mdata.phone_no}/{mdata.phone.addressDetail.split()[0]}/{mdata.latitude}/{mdata.longitude}/{region_3depth_name}" 
+
     except Exception as e:
         print("out_measuring_range():", str(e))
         raise Exception("out_measuring_range(): %s" % e) 
@@ -297,6 +295,9 @@ def make_event_message(mdata, message):
     # 환경변수에서 채널ID를 가져온다.
     channelId = settings.CHANNEL_ID
 
+    # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
+    filename = make_map_locations(mdata)
+    message += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
 
     # 전송 메시지를 생성한다.
     if message:

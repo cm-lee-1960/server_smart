@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db.models import Q
 from monitor.models import Phone, MeasureCallData, Message
 from management.models import MeasureingTeam, ReportCycle
+from monitor.geo import make_map_locations
 
 #--------------------------------------------------------------------------------------------------
 # 두개의 측정 단말기의 콜 가운트가 동일하고, 메시지 전송기준 콜 수 있지 확인한다.
@@ -182,6 +183,12 @@ def make_message(mdata):
             "END": END_MSG,
         }
 
+        # 작성된 메시지 내용을 가져온다.
+        messageContent = messages[phone.status]
+
+        # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
+        filename = make_map_locations(mdata)
+        messageContent += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
 
         # 전송 메시지를 생성한다.
         Message.objects.create(
@@ -194,7 +201,7 @@ def make_message(mdata):
             downloadBandwidth=avg_downloadBandwidth,
             uploadBandwidth=avg_uploadBandwidth,
             messageType='SMS',
-            message=messages[phone.status],
+            message=messageContent,
             channelId=channelId,
             sended=True
         )
