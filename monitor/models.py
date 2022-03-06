@@ -97,7 +97,7 @@ class Phone(models.Model):
         verbose_name_plural = "측정 단말"
 
     def __str__(self):
-        return f"{self.userInfo1}/{self.phone_no}/{self.total_count}"
+        return f"{self.userInfo1}/{self.userInfo2}/{self.phone_no}/{self.total_count}"
 
     # ---------------------------------------------------------------------------------------------
     # 모델을 DB에 저장하는 함수(오버라이딩)
@@ -353,7 +353,7 @@ class MeasureSecondData(models.Model):
 
 
     def __str__(self):
-        return f"{self.phone_no}/{self.neworkid}/{self.meastime}/{self.currentCount}"
+        return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}/"
 
 
 ###################################################################################################
