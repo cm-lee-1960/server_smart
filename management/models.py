@@ -4,16 +4,25 @@ from django.db import models
 
 ###################################################################################################
 # 환경설정 관리 관련 클래스
-# - 모풀로지, 모풀로지 맵, 전송실패 기준, 속도저하 기준, 금일 측정조, 센터정보
+# [ 관리정보 리스트 ]
+#  - 센터정보(Center): 전국 14개 센터정보를 관리함
+#  - 모풀로지(Morphology): 모폴로지를 관리함(행정동, 테마, 인빌딩, 커버리지, 취약지구 등)
+#  - 모폴로지 맵(MorphologyMap): 측정 데이터 내에 있는 부정확한 모풀로지를 수정하여 맵핑정보를 관리함
+#  - 전송실패 기준(SendFailure): 품질불량에 따른 전송실패 기준 정보를 관리함 
+#  - 속도저하 기준(LowThroughput): 상황에 따라 변경되는 속도저하 기준 정보를 관리함 
+#  - 금일 측정조(MeasureingTeam): 당일 측정을 수행하는 측정조 현황을 입력 관리(측정 시작메시지에 포함됨)
+#  - 측정 보고주기(ReportCycle): 측정 보고주기를 DB화 함(3, 10, 27, 37, 57)
 # -------------------------------------------------------------------------------------------------
 # 2022.03.05 - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 클래스를 분리함
 #              즉, 기존에 하드코딩 되어 있는 '행정동', '테마', '인빌딩', '커버리지' 등을 DB로 등로관리 할 수 있도록 함
+#            - 측정 보고주기를 하드코딩에서 DB화 함
 ###################################################################################################
 
 # -------------------------------------------------------------------------------------------------
 # 센터정보 클래스
 # -------------------------------------------------------------------------------------------------
 class Center(models.Model):
+    '''센터정보 클래스'''
     centerName = models.CharField(max_length=100, verbose_name="센터명")
     channelId = models.CharField(max_length=25, verbose_name="채널ID")
     permissionLevel = models.IntegerField(default=1, verbose_name="권한레벨")
@@ -45,6 +54,7 @@ class Morphology(models.Model):
 # 모풀로지 맵 정보관리 클래스
 # -------------------------------------------------------------------------------------------------
 class MorphologyMap(models.Model):
+    '''모폴로지 클래스'''
     WORDSCOND_CHOICES = {('시작단어','시작단어'), ('포함단어','포함단어')}
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
@@ -61,6 +71,7 @@ class MorphologyMap(models.Model):
 # 전송실패(Send Failure) 기준관리 클래스
 # -------------------------------------------------------------------------------------------------
 class SendFailure(models.Model):
+    '''전송실패 기준 클래스'''
     AREAIND__CHOICES = {('NORM','보통지역'), ('WEEK', '취약지역')}
     NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
     DATATYPE_CHOICES = {('DL','DL'), ('UL','UL')}
@@ -79,6 +90,7 @@ class SendFailure(models.Model):
 # 속도저하(Low Throughput) 기준관리 클래스
 # -------------------------------------------------------------------------------------------------
 class LowThroughput(models.Model):
+    '''속도저하 기준 플래스'''
     AREAIND__CHOICES = {('NORM','보통지역'), ('WEEK', '취약지역')}
     NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
     DATATYPE_CHOICES = {('DL','DL'), ('UL','UL')}
@@ -98,6 +110,7 @@ class LowThroughput(models.Model):
 # 금일측정조 데이터
 # -------------------------------------------------------------------------------------------------
 class MeasureingTeam(models.Model):
+    '''금일 측정조 클래스'''
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     measdate = models.DateField(default=datetime.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     message = models.TextField(verbose_name="금일 측정조")
@@ -111,6 +124,7 @@ class MeasureingTeam(models.Model):
 # 금일측정조 데이터
 # -------------------------------------------------------------------------------------------------
 class ReportCycle(models.Model):
+    '''측정 보고주기 클래스'''
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     reportCycle = models.CharField(max_length=100, verbose_name="보고주기")
 

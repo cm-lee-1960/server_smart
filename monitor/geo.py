@@ -170,6 +170,7 @@ def rsrp2color(x):
     return color
 
 def make_map_locations(mdata):
+    '''측정위치로 지도를 작성하는 함수'''
     # if locations and len(locations) < 1: return None
     map = folium.Map(location=[mdata.phone.latitude, mdata.phone.longitude], zoom_start=15)
 
