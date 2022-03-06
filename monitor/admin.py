@@ -23,11 +23,16 @@ from .models import Phone, MeasureCallData
 # -------------------------------------------------------------------------------------------------
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
+
 class ManageFilter(SimpleListFilter):
     '''측정 단말기 관리자 페이지에서 필터 기본값을 지정하기 위한 클래스'''
+    # 2022.03.06 - 하고 싶은 것은 측정단말을 조회했을 때, 관리대상 측정단말 리스트만 보여지게 하고 싶음
+    #              즉, 측정단말 관리자 페이지를 처음 들어갔을 때는 관리대상만 보여지고, 필터를 통해 조회할 때는
+    #              각각 필터조건에 맞게 조회하고 싶음
+    #            - 어떻게 어떻게 해서 구현은 했는데, 왠지 로직이 좋아 보이지는 않음
     title = '관리대상'
     parameter_name = 'manage'
-    default_value = 1 # 디폴트 필터값
+    default_value = None
 
     # 필터 항목중 '모두'를 없애기 위해서 함수를 오버라이딩 함
     # https://github.com/django/django/blob/main/django/contrib/admin/filters.py#L62
@@ -46,24 +51,30 @@ class ManageFilter(SimpleListFilter):
         list_of_manage = [
             (0, _('아니요')),
             (1, _('예')),
+            (2, _('모두'))
         ]
         return sorted(list_of_manage, key=lambda tp: tp[1], reverse=True)
 
-    # 선택된 필터 항목값에 따라 자료를 조회한다.
     def queryset(self, request, queryset):
-        if self.value() in ('1', '0'):
+        if self.value() == '2':
+            pass
+        elif self.value() == 'None':
+            return queryset.filter(manage=1)
+        elif self.value():
             return queryset.filter(manage=self.value())
         return queryset
 
-    # 측정 단말기를 조회하는 관리자 페이지를 처음 들어왔을 때 기본값으로 조회되게 한다.
     def value(self):
         value = super(ManageFilter, self).value()
         if value is None:
             if self.default_value is None:
-                pass
+                # If there is at least one Species, return the first by name. Otherwise, None.
+                # first_species = Species.objects.order_by('name').first()
+                value = None #if first_species is None else first_species.id
+                self.default_value = value
             else:
                 value = self.default_value
-        return str(value)
+        return str(value) 
 
 class PhoneAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
