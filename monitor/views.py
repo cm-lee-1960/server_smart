@@ -197,7 +197,7 @@ def receive_json(request):
         # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
         elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
             mps= Morphology.objects.filter(manage=True).values_list('morphology', flat=True)
-            if mdata.phone.morphology in mps:
+            if mdata.phone.morphology.morphology in mps:
                 make_message(mdata)
 
             # 이벤트 발생여부를 체크한다. 
