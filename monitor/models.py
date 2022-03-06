@@ -3,8 +3,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.conf import settings
 from .geo import KakaoLocalAPI
-from message.tele_msg import TelegramBot
-from message.sms import send_sms   ###### (3.4) 크로샷 전송 함수 호출 // 변수 전달(메시지내용/수신번호) 가능하도록 수정 필요
+from message.tele_msg import TelegramBot # 텔레그램 메시지 전송 클래스
+from message.xmcs_msg import send_message # 2022.03.04 크로샷 메시지 전송 함수 호출
 from management.models import Morphology, MorphologyMap
 # import logging
 
@@ -98,7 +98,9 @@ class Phone(models.Model):
         # return f"{self.phone_no}/{self.avg_downloadBandwidth}/{self.avg_uploadBandwidth}/{self.dl_count}/{self.ul_count}"
         return f"{self.phone_no}/{self.id}/{self.total_count}"
 
+    # ---------------------------------------------------------------------------------------------
     # 모풀로지가 변경되는 경우 측정 단말기의 관래대상 여부를 자동으로 변경한다.
+    # ---------------------------------------------------------------------------------------------
     def save(self, *args, **kwargs):
         qs = Morphology.objects.filter(morphology=self.morphology)
         if qs.exists():
@@ -107,7 +109,9 @@ class Phone(models.Model):
             self.manage = False
         super(Phone, self).save(*args, **kwargs)
 
+    # ---------------------------------------------------------------------------------------------
     # 측정 단말기의 통계정보를 업데이트 한다.
+    # ---------------------------------------------------------------------------------------------
     def update_phone(self, mdata):
         """측정단말의 통계정보를 업데이트 한다."""
         #### 방식 1 ####
@@ -167,11 +171,12 @@ class Phone(models.Model):
         # 단말기의 정보를 데이터베이스에 저장한다.
         self.save()
 
-    # 해당 위도, 경도에 대한 주소지를 행정동으로 변환하여 업데이트 한다.
+    # ---------------------------------------------------------------------------------------------
+    # 해당 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 업데이트 한다.
+    # 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
+    # ---------------------------------------------------------------------------------------------
     def update_initial_data(self):
-        # -----------------------------------------------------------------------------------------
         # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
-        # -----------------------------------------------------------------------------------------
         if self.longitude and self.latitude:
             rest_api_key = settings.KAKAO_REST_API_KEY
             kakao = KakaoLocalAPI(rest_api_key)
@@ -184,9 +189,7 @@ class Phone(models.Model):
 
             self.addressDetail = region_3depth_name
 
-        # -----------------------------------------------------------------------------------------
         # 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
-        # -----------------------------------------------------------------------------------------
         morphology = None # 모풀로지
         manage = False # 관리대상 여부
 
@@ -349,14 +352,14 @@ class Message(models.Model):
     '''전송 메시지'''
     phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10)
-    sendType = models.CharField(max_length=10) # 전송유형(TELE: 텔레그램, XROS: 크로샷)
-    #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정)
+    sendType = models.CharField(max_length=10) # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+    #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정) ###########
     userInfo1 = models.CharField(max_length=100, null=True, blank=True) 
     currentCount = models.IntegerField(null=True, blank=True)
     phone_no = models.BigIntegerField(null=True, blank=True)
     downloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
     uploadBandwidth = models.FloatField(null=True, blank=True)  # UP속도
-    #######################################
+    ###################################################
     messageType = models.CharField(max_length=10) # 메시지유형(SMS: 메시지, EVENT: 이벤트)
     message = models.TextField(default=False)
     channelId = models.CharField(max_length=25)
@@ -372,13 +375,13 @@ def send_message(sender, **kwargs):
     if kwargs['instance'].sendType == 'TELE':
         bot.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
     # 크로샷으로 메시지를 전송한다.
-    elif kwargs['instance'].sendType == 'XROS':
+    elif kwargs['instance'].sendType == 'XMCS':
         #######################################################################################################
         # (3.4) 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
         # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
         # npm install request 명령어로 모듈 설치 후 사용 가능 
         #######################################################################################################
-        send_sms()
+        send_message()
 
 # -------------------------------------------------------------------------------------------------
 # 전송 메시지가 저장된 후 메시지 전송 모듈을 호출한다(SIGNAL). 
