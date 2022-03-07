@@ -62,7 +62,7 @@ class Phone(models.Model):
     }
 
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
-    measdate = models.CharField(max_length=10)
+    measdate = models.CharField(max_length=10, verbose_name="측정일자")
     phone_no = models.BigIntegerField(verbose_name="측정단말")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정지역")
     userInfo2 = models.CharField(max_length=100, verbose_name="모풀로지(측정데이터)")
@@ -181,7 +181,7 @@ class Phone(models.Model):
     # - 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
     # ---------------------------------------------------------------------------------------------
     def update_initial_data(self):
-        '''측정 단말기가 생성될 때 최초 한번 수행한다.'''
+        '''측정 단말기가 생성될 때 최초 한번만 수행한다.'''
         try: 
             # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
             if self.longitude and self.latitude:
@@ -196,10 +196,10 @@ class Phone(models.Model):
 
                 self.addressDetail = region_3depth_name
 
-            # 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
+
+            # 측정자 입력값2(userInfo2)에 따라 모폴로지와 관리대상여부를 결정한다.
             morphology = None # 모풀로지
             manage = False # 관리대상 여부
-
             if self.userInfo2:
                 # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 재지정한다. 
                 for mp in MorphologyMap.objects.all():

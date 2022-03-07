@@ -74,7 +74,7 @@ def receive_json(request):
     # 2022.02.23 - userInfo1 + meastime(8자리)
     # ---------------------------------------------------------------------------------------------
     # 해당일자/해당지역 측정 단말기 그룹이 등록되어 있는지 확인한다.
-    #  meastime '20211101063756701'
+    # meastime '20211101063756701'
     try: 
         measdate = str(data['meastime'])[:8]
         qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], ispId=data['ispId'], \
@@ -201,6 +201,7 @@ def receive_json(request):
         elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
             mps= Morphology.objects.filter(manage=True).values_list('morphology', flat=True)
             if mdata.phone.morphology.morphology in mps:
+                # 메시지를 작성한다.
                 make_message(mdata)
 
                 # 이벤트 발생여부를 체크한다. 

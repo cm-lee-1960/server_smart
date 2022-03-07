@@ -87,11 +87,11 @@ class PhoneAdmin(admin.ModelAdmin):
 
 
     # form = PhoneForm
-    list_display = ['userInfo1', 'morphology', 'phone_no_abbr', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
+    list_display = ['measdate', 'userInfo1', 'morphology', 'phone_no_abbr', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
         'status', 'total_count', 'last_updated_at', 'active', 'manage']
     list_display_links = ['phone_no_abbr']
     search_fields = ('userInfo1', 'phone_no_abbr', )
-    list_filter = ['active', ManageFilter,]
+    list_filter = ['measdate', ManageFilter, 'active', ]
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
     def avg_downloadBandwidth_fmt(self, obj):
@@ -109,7 +109,6 @@ class PhoneAdmin(admin.ModelAdmin):
     # formfield_overrides = {
     #     models.CharField: {'widget': TextInput(attrs={'size':'25'})},
     # }
-    
     def get_form(self, request, obj=None, **kwargs):
         form = super(PhoneAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['userInfo1'].widget.attrs['style'] = 'width: 15em;'
