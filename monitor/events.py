@@ -2,8 +2,6 @@ from django.conf import settings
 from haversine import haversine # 이동거리
 # from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
 # import requests
-from django.http import HttpResponseServerError
-
 from management.models import SendFailure, LowThroughput
 from .geo import KakaoLocalAPI, make_map_locations
 from .models import Message
@@ -65,16 +63,17 @@ def send_failure_check(mdata):
         - return message
     '''
     message = None
-    if mdata.phone.morphology and mdata.phone.morphology == '취약지역':
-        areaInd = 'WEEK' # 취약지역
-    else:
-        areaInd = 'NORM' # 보통지역
-    networkId = mdata.phone.networkId
-    dataType = ''
-    if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
-    if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType, bandwidth = 'UL', mdata.uploadBandwidth
-    if dataType in ('DL', 'UL'):
-        try:
+    try: 
+        if mdata.phone.morphology.morphology and mdata.phone.morphology.morphology == '취약지역':
+            areaInd = 'WEEK' # 취약지역
+        else:
+            areaInd = 'NORM' # 보통지역
+        networkId = mdata.phone.networkId
+        dataType = ''
+        if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
+        if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType, bandwidth = 'UL', mdata.uploadBandwidth
+        if dataType in ('DL', 'UL'):
+
             qs = SendFailure.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
                 if bandwidth < qs[0].bandwidth:
@@ -82,9 +81,10 @@ def send_failure_check(mdata):
                     message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
                             f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
-        except Exception as e:
-            print("send_failure_check():", str(e))
-            raise Exception("send_failure_check(): %s" % e) 
+
+    except Exception as e:
+        print("send_failure_check():", str(e))
+        raise Exception("send_failure_check(): %s" % e) 
     
     return message
 
@@ -99,17 +99,18 @@ def low_throughput_check(mdata):
         - return message
     '''
     message = None
-    if mdata.phone.morphology and mdata.phone.morphology == '취약지역':
-        areaInd = 'WEEK' # 취약지역
-    else:
-        areaInd = 'NORM' # 보통지역
-    networkId = mdata.phone.networkId
-    # 해당 측정 데이터가 DL인지, UL인지 확인한다.
-    dataType = ''
-    if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
-    if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType, bandwidth = 'UL', mdata.uploadBandwidth
-    if dataType in ('DL', 'UL'):
-        try:
+    try:
+        if mdata.phone.morphology.morphology and mdata.phone.morphology.morphology == '취약지역':
+            areaInd = 'WEEK' # 취약지역
+        else:
+            areaInd = 'NORM' # 보통지역
+        networkId = mdata.phone.networkId
+        # 해당 측정 데이터가 DL인지, UL인지 확인한다.
+        dataType = ''
+        if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
+        if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType, bandwidth = 'UL', mdata.uploadBandwidth
+        if dataType in ('DL', 'UL'):
+     
             # 데이터베이스에서 속도저하 판단 기준을 조회한다.
             qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
@@ -118,9 +119,10 @@ def low_throughput_check(mdata):
                     message = f"{mdata.userInfo1}에서 속도저하(Low Throughput)가 발생했습니다.\n" + \
                             f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
-        except Exception as e:
-            print("low_throughput_check():", str(e))
-            raise Exception("low_throughput_check(): %s" % e) 
+
+    except Exception as e:
+        print("low_throughput_check():", str(e))
+        raise Exception("low_throughput_check(): %s" % e) 
 
     return message
 
@@ -150,7 +152,7 @@ def fivgtolte_trans_check(mdata):
     # 2022.02.27 - 메시지 내용을 작성한다.
     if mdata.phone.networkId == '5G' and mdata.networkId == 'NR':
         message = f"{mdata.userInfo1}에서 5G->LTE로 전환되었습니다.\n" + \
-                    f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
+                    f"{mdata.phone_no}/{mdata.networkId}/{mdata.currentCount}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
 
     return message
 
@@ -175,7 +177,7 @@ def out_measuring_range(mdata):
     '''
     message = None
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
-    if not mdata.userInfo2.startswith("행-") : return None
+    if mdata.phone.morphology.morphology != '행정동' : return None
     if not (mdata.longitude and mdata.latitude) : return None
 
     # 2022.02.20 - 역지오코딩 - 도로명 주소로 반환되어 카카오지도 API로 대체
@@ -249,7 +251,7 @@ def call_staying_check(mdata):
     '''
     message = None
     # 측정유형이 행정동인 경우에만 측정단말이 한곳에 머무는지 확인한다.
-    if mdata.userInfo2.startswith("행-"):
+    if mdata.phone.morphology.morphology == '행정동':
         # mdata_list = mdata.phone.measurecalldata_set.all()
         mdata_list = mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("-currentCount")
         count = len(mdata_list)
