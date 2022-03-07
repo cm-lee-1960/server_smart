@@ -93,6 +93,8 @@ class PhoneAdmin(admin.ModelAdmin):
     search_fields = ('userInfo1', 'phone_no', )
     list_filter = ['measdate', ManageFilter, 'active', ]
 
+    list_per_page = 25 # 페이지당 데이터 건수 
+
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
     def avg_downloadBandwidth_fmt(self, obj):
         return '%.2f' % obj.avg_downloadBandwidth
@@ -197,6 +199,8 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
     search_fields = ('userInfo1', 'phone_no', 'currentCount')
     list_filter = ['userInfo1',]
     ordering = ('userInfo1', 'phone_no', '-meastime', '-currentCount')
+
+    list_per_page = 25 # 페이지당 데이터 건수 
 
     # 측정시간을 출력한다(Integer -> String)
     def meastime_at(self, mdata):
