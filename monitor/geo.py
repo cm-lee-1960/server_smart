@@ -153,6 +153,7 @@ class KakaoLocalAPI:
 #######################################################################################################
 # 측정 위치에 대한 지도맵 그리기
 # 2022.03.02 - 파일명에 통신사업자 코드를 넣음(파일명으로 어느 통신사 측정단말인지 알기 위해)
+# 2022.03.07 - 측정위치 팝업 항목 표시 순서 변경(PCI, Cell ID, DL, UL, RSRP, SINR)
 #######################################################################################################
 # RSRP 값에 따라 색상코드를 결정한다. 
 def rsrp2color(x):
@@ -195,13 +196,15 @@ def make_map_locations(mdata):
                 pci, RSRP, SINR= m.p_pci, m.p_rsrp, m.p_SINR
             # RSRP 값에 따라서 색상을 계산한다.
             if m.latitude == mdata.latitude and m.longitude == mdata.longitude:
-                radius = 14.5 * 2
+                radius = 40
             else:
-                radius = 14.5
-            df = pd.DataFrame([{'PCI': pci, '셀ID': m.cellId, 'RSRP': RSRP, 'SINR': SINR, \
-                                'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, },])
+                radius = 25
+            df = pd.DataFrame([{'PCI': pci, 'Cell ID': m.cellId, 'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, \
+                                'RSRP': RSRP, 'SINR': SINR },])
             html = df.to_html(index=False, 
                             classes='table table-striped table-hover table-condensed table-responsive text-center')
+            html = html.replace('<th>', '<td align="center">') # 항목명 가운데 정렬
+            html = html.replace('<td>', '<td align="center">') # 항목값 가운데 정렬
             popup = folium.Popup(html, min_width=100, max_width=300)
             folium.Circle(
                 location=[m.latitude, m.longitude],
@@ -222,9 +225,12 @@ def make_map_locations(mdata):
         points.add_to(map)
 
         # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
-        sw = pd.DataFrame(locations).min().values.tolist()
-        ne = pd.DataFrame(locations).max().values.tolist()
-        map.fit_bounds([sw, ne])
+        # 2022.03.07 - 측정 데이터가 10개 이상일 때만 지도를 자동확대 하도록 한다. 
+        #              측정 데이터가 몇개 안될때 지도를 자동확대 하면 측정위치가 너무 크게 확대되는 현상이 있음
+        if len(locations) >= 10:
+            sw = pd.DataFrame(locations).min().values.tolist()
+            ne = pd.DataFrame(locations).max().values.tolist()
+            map.fit_bounds([sw, ne])
 
     filename = f'{mdata.phone.measdate}-{mdata.ispId}-{mdata.phone_no}.html'
     map.save("monitor/templates/maps/" + filename)
