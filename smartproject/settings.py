@@ -88,7 +88,9 @@ ROOT_URLCONF = 'smartproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'smartproject', 'templates'),
+            ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -184,6 +186,7 @@ CRONJOBS = [
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,"static")
 ]
+
 
 # 로깅
 # logger.debug()
