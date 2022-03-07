@@ -3,6 +3,8 @@ from telegram.ext import CommandHandler, MessageHandler
 from telegram import ParseMode
 from django.conf import settings
 from . import tele_chatbot
+from .models import SentTelegramMessage
+import requests
 
 #######################################################################################################
 # 텔레그램 봇 클래스
@@ -50,11 +52,29 @@ class TelegramBot:
     #--------------------------------------------------------------------------------------------------
     def send_message_bot(self, channelId, message):
         try: 
-            self.bot.sendMessage(channelId, text=self.unicode_truncate(message,self.max_length), parse_mode='HTML')
+            sent = self.bot.sendMessage(channelId, text=self.unicode_truncate(message,self.max_length), parse_mode='HTML')
+            ### 보낸 메시지 정보를 DB에 저장한다 (3.7)
+            SentTelegramMessage.objects.create(
+                chat_id = sent['chat']['id'],
+                chat_type = sent['chat']['type'],
+                chat_title = sent['chat']['title'],
+                chat_message_id = sent['message_id'],
+                chat_text = sent['text'],
+            )
+            #return sent
+
         except Exception as e:  
             print("low_throughput_check():"+str(e))
             print(message)
             raise Exception("send_message_bot(): %s" % e)
+
+    #-------------------------------------------------------------------------------------------------- (3.7)
+    # 보낸 메시지 삭제 함수 - Chat_ID와 Message_ID 정보로 삭제 가능
+    # 삭제하고자 하는 Message 에 필요한 정보를 DB에서 읽어와서 삭제
+    #--------------------------------------------------------------------------------------------------
+    def del_message(self, cid, mid):
+        self.result = requests.get(f'https://api.telegram.org/bot{self.bot_token}/deleteMessage?chat_id={cid}&message_id={mid}')
+        return self.result
 
 
     #--------------------------------------------------------------------------------------------------
