@@ -103,3 +103,26 @@ admin.site.register(ReportCycle, ReportCycleAdmin) # 측정 보고주기
 
 # 사용자 인증관련 그룹을 어드민 페이지에서 제외한다.
 admin.site.unregister(auth.models.Group)
+
+# 환경설정 관리 모델 클래스를 정렬한다.
+def get_app_list(self, request):
+    """환경설정 관리 모델 클래스를 정렬하는 함수"""
+    app_dict = self._build_app_dict(request)
+    app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
+
+    for app in app_list:
+        if app['app_label'] == 'management':
+            ordering = {
+                "금일 측정조": 1,
+                "모풀로지 맵": 2,
+                "속도저하 기준": 3,
+                "전송실패 기준": 4,
+                "측정 보고주기": 5, 
+                "모풀로지": 6,
+                "센터정보": 7,           
+            }
+            app['models'].sort(key=lambda x: ordering[x['name']])
+
+    return app_list
+
+admin.AdminSite.get_app_list = get_app_list

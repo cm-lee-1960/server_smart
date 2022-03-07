@@ -234,35 +234,6 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-class MonitorAdminArea(admin.AdminSite):
-    '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
-    index_title = "단말상태 관리"
-    site_header = "스마트 상황실 관리"
-    site_title = "스마트 상활실"
-
-# 환경설정 관리 모델 클래스를 정렬한다.
-def get_app_list(self, request):
-    """환경설정 관리 모델 클래스를 정렬하는 함수"""
-    app_dict = self._build_app_dict(request)
-    app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
-
-    for app in app_list:
-        if app['app_label'] == 'management':
-            ordering = {
-                "금일 측정조": 1,
-                "모풀로지 맵": 2,
-                "속도저하 기준": 3,
-                "전송실패 기준": 4,
-                "측정 보고주기": 5, 
-                "모풀로지": 6,
-                "센터정보": 7,           
-            }
-            app['models'].sort(key=lambda x: ordering[x['name']])
-
-    return app_list
-
-admin.AdminSite.get_app_list = get_app_list
-
 admin.site.register(Phone, PhoneAdmin) # 측정 단말
 admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
 
