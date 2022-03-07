@@ -90,7 +90,7 @@ class PhoneAdmin(admin.ModelAdmin):
     list_display = ['measdate', 'userInfo1', 'morphology', 'phone_no_abbr', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
         'status', 'total_count', 'last_updated_at', 'active', 'manage']
     list_display_links = ['phone_no_abbr']
-    search_fields = ('userInfo1', 'phone_no_abbr', )
+    search_fields = ('userInfo1', 'phone_no', )
     list_filter = ['measdate', ManageFilter, 'active', ]
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
@@ -178,6 +178,13 @@ class PhoneAdmin(admin.ModelAdmin):
             })
         return super().render_change_form(request, context, add, change, form_url, obj)
 
+    # 선택된 ROW를 삭제하는 액션을 삭제한다("선택된 측정 단말 을/를 삭제합니다.").
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
 
 # -------------------------------------------------------------------------------------------------
 # 측정 데이터(콜단위) 관리자 페이지 설정
@@ -185,17 +192,43 @@ class PhoneAdmin(admin.ModelAdmin):
 class MeasureCallDataAdmin(admin.ModelAdmin):
     '''어드민 페이지에 측정단말 데이터 건 by 건 보여주기 위한 클래스'''
     list_display = ['userInfo1', 'phone_no', 'currentCount', 'networkId', 'ispId',\
-                    'downloadBandwidth', 'uploadBandwidth', 'meastime', 'userInfo2', 'addressDetail', 'cellId', 'isWifi',]
+                    'downloadBandwidth', 'uploadBandwidth', 'meastime_at', 'userInfo2', 'cellId',]
     list_display_links = ['phone_no']
-    search_fields = ('phone_no', '-currentCount')
+    search_fields = ('userInfo1', 'phone_no', 'currentCount')
     list_filter = ['userInfo1',]
-    ordering = ('userInfo1', 'phone_no', '-currentCount')
+    ordering = ('userInfo1', 'phone_no', '-meastime', '-currentCount')
+
+    # 측정시간을 출력한다(Integer -> String)
+    def meastime_at(self, mdata):
+        s = str(mdata.meastime)
+        # 202201172315000
+        # return s[0:4]+'-'+s[4:6]+'-'+s[6:8]+' '+s[8:10]+':'+s[10:12]+':'+s[12:14]
+        return s[8:10]+':'+s[10:12]+':'+s[12:14]
+
+    meastime_at.short_description = '측정시간'
 
     # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
     def get_queryset(self, request):
         query = super(MeasureCallDataAdmin, self).get_queryset(request)
         filtered_query = query.filter(ispId='45008', testNetworkType='speed')
         return filtered_query
+
+    # 모든 버튼을 보이지 않게 한다.
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        context.update({
+                'show_save': False,
+                'show_save_and_add_another': False,
+                'show_save_and_continue': False,
+                'show_delete': False
+            })
+        return super().render_change_form(request, context, add, change, form_url, obj)
+
+    # 선택된 ROW를 삭제하는 액션을 삭제한다("선택된 측정 데이터(콜단위) 을/를 삭제합니다.").
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
 class MonitorAdminArea(admin.AdminSite):
     '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
