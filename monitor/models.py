@@ -1,246 +1,408 @@
-from django.contrib import admin
-from django.forms import TextInput, Textarea
+from xml.dom.pulldom import PROCESSING_INSTRUCTION
 from django.db import models
-from django import forms
-from .models import Phone, MeasureCallData
+from django.db.models.signals import post_save
+from django.conf import settings
+from .geo import KakaoLocalAPI
+from message.tele_msg import TelegramBot # 텔레그램 메시지 전송 클래스
+from message.xmcs_msg import send_sms # 2022.03.04 크로샷 메시지 전송 함수 호출
+from management.models import Morphology, MorphologyMap
+# import logging
+
+# logger = logging.getLogger(__name__)
 
 ###################################################################################################
-# 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
-# [ 측정 모니터링 ]
-#  - 측정 단말기, 측정 데이터(콜단위)
-# -------------------------------------------------------------------------------------------------
-# 2022.02.25 - 측정 단말기 관리자 페이지의 화면상 항목들을 세션/그룹핑해서 표시 되도록 함
-# 2022.03.03 - 측정 단말기 모풀로지 항목 추가 반영 
-#             (측정 데이터의 모폴로지가 오입력 되는 경우 맵핑 테이블을 통해 재지정 하기 위함)
-# 2022.03.05 - 측정 단말기 관리자 페이지 조회시 필터 기본값을 설정하기 위한 필터 클래스를 추가함
-# 2022.03.06 - 3.5 작성한 필터 클래스 보완
-#            - 측정단말 관리자 페이지를 처음 들어갈 때 관리대상만 보여지게 하고, 이후 필터조건에 따라 조회되게 함
-#              (필터조건: 예, 아니요, 모두)
-#            - 측정단말의 전화번호 끝 4자리만 표기, 측정단말 관리자 상세화면에서 필드 항목의 사이즈 조정
+# 측정 단말기 그룹정보
+# 2022.02.25 - 해당지역에 단말이 첫번째 측정을 시작했을 때 측정시작(START) 메시지를 한번 전송한다.
+# 2022.03.06 - 측정 데이터에 통신사(ispId)가 널(NULL)인 값이 들어와서 동일하게 모델의 해당 항목에 널을 허용함
+###################################################################################################
+class PhoneGroup(models.Model):
+    """측정 단말기 그룹정보"""
+
+    measdate = models.CharField(max_length=10)
+    userInfo1 = models.CharField(max_length=100)
+    ispId = models.CharField(max_length=10, null=True, blank=True)  # 한국:450 / KT:08, SKT:05, LGU+:60
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.measdate}"
+
+
+###################################################################################################
+# 측정 단말기 정보
+# * 측정중인 단말을 관리한다.
+# * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
+# ------------------------------------------------------------------------------------------------
+# 2022.02.25 - 측정일자(measdate) 문자열(8자래) 항목 추가
+# 2022.02.27 - 주소상세(addressDetail) 항목 추가 
+#            - 측정 콜이 행정동 범위를 벗어났는지 확인하기 위해 첫번째 콜 위치를 측정 단말기 정보에 담아 둔다.
+# 2022.03.01 - 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 업데이트 하는 함수를 추가함
+# 2022.03.03 - 모풀로지 항목 추가
+#            - 측정 데이터의 userInfo2에서 측정자가 입력한 모풀로지가 부정확하게 입력된 경우 매핑 테이블로 재지정하기 위함
+#            - 측정 데이터의 userInfo2 -> Morphology -> 모풀로지 맵핑 재지정 모듈 추가
+# 2022.03.04 - 5G->LTE 전환 콜수 항목 추가 및 누적 업데이트 코드 추가
+# 2022.03.05 - 모폴로지를 변경하는 경우 측정 단말기의 관리대상 여부도 자동으로 변경되도록 함 (모풀로지에 따라 관리대상여부 결정)
+#            - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 분리함에 따라 관련 소스코드 수정함
+#              '행정동', '테마', '인빌딩, '커버리지', 취약지역 등을 소스에 하드코딩 하지 않고, 또 추가 가능하게 하기 위함
+# 2022.03.06 - 행정동 찾기 및 모폴로지 변환 모듈에 대한 예외처리 루팅 추가
 #
 ###################################################################################################
-# class PhoneForm(forms.ModelForm):
-#     def clean(self):
-#         cleaned_data = self.cleaned_data
-#         print(cleaned_data)
+class Phone(models.Model):
+    """측정 단말기 정보"""
 
-# -------------------------------------------------------------------------------------------------
-# 측정 단말 관리자 페이지 설정
-# -------------------------------------------------------------------------------------------------
-from django.utils.translation import gettext_lazy as _
-from django.contrib.admin import SimpleListFilter
+    ISPID_CHOICES = {
+        ("45008", "KT"),
+        ("45005", "SKT"),
+        ("45006", "LGU+"),
+    }
+    STATUS_CHOICES = {
+        ("POWERON", "PowerOn"),
+        ("START", "측정시작"),
+        ("MEASURING", "측정중"),
+        ("END", "측정종료"),
+    }
 
-class ManageFilter(SimpleListFilter):
-    '''측정 단말기 관리자 페이지에서 필터 기본값을 지정하기 위한 클래스'''
-    # 2022.03.06 - 하고 싶은 것은 측정단말을 조회했을 때, 관리대상 측정단말 리스트만 보여지게 하고 싶음
-    #              즉, 측정단말 관리자 페이지를 처음 들어갔을 때는 관리대상만 보여지고, 필터를 통해 조회할 때는
-    #              각각 필터조건에 맞게 조회하고 싶음
-    #            - 어떻게 어떻게 해서 구현은 했는데, 왠지 로직이 좋아 보이지는 않음
-    title = '관리대상'
-    parameter_name = 'manage'
-    default_value = None
-
-    # 필터 항목중 '모두'를 없애기 위해서 함수를 오버라이딩 함
-    # https://github.com/django/django/blob/main/django/contrib/admin/filters.py#L62
-    def choices(self, changelist):
-        for lookup, title in self.lookup_choices:
-            yield {
-                "selected": self.value() == str(lookup),
-                "query_string": changelist.get_query_string(
-                    {self.parameter_name: lookup}
-                ),
-                "display": title,
-            }
-
-    # 보여질 필터 항목들을 정의한다.
-    def lookups(self, request, model_admin):
-        list_of_manage = [
-            (0, _('아니요')),
-            (1, _('예')),
-            (2, _('모두'))
-        ]
-        return sorted(list_of_manage, key=lambda tp: tp[1], reverse=True)
-
-    def queryset(self, request, queryset):
-        if self.value() == '2':
-            pass
-        elif self.value() == 'None':
-            return queryset.filter(manage=1)
-        elif self.value():
-            return queryset.filter(manage=self.value())
-        return queryset
-
-    def value(self):
-        value = super(ManageFilter, self).value()
-        if value is None:
-            if self.default_value is None:
-                # If there is at least one Species, return the first by name. Otherwise, None.
-                # first_species = Species.objects.order_by('name').first()
-                value = None #if first_species is None else first_species.id
-                self.default_value = value
-            else:
-                value = self.default_value
-        return str(value) 
-
-class PhoneAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
-
-
-    # form = PhoneForm
-    list_display = ['measdate', 'userInfo1', 'morphology', 'phone_no_abbr', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
-        'status', 'total_count', 'last_updated_at', 'active', 'manage']
-    list_display_links = ['phone_no_abbr']
-    search_fields = ('userInfo1', 'phone_no', )
-    list_filter = ['measdate', ManageFilter, 'active', ]
-
-    # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
-    def avg_downloadBandwidth_fmt(self, obj):
-        return '%.2f' % obj.avg_downloadBandwidth
-
-    avg_downloadBandwidth_fmt.short_description = 'DL'
-
-    # UL 평균속도를 소수점 2자리까지 화면에 표시한다. 
-    def avg_uploadBandwidth_fmt(self, obj):
-        return '%.2f' % obj.avg_uploadBandwidth
-
-    avg_uploadBandwidth_fmt.short_description = 'UL'
-
-    # 2022.03.06 - 측정 단말기의 상세화면에서 특정 항목의 길이를 조정한다.
-    # formfield_overrides = {
-    #     models.CharField: {'widget': TextInput(attrs={'size':'25'})},
-    # }
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(PhoneAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['userInfo1'].widget.attrs['style'] = 'width: 15em;'
-        form.base_fields['userInfo2'].widget.attrs['style'] = 'width: 10em;'
-        return form
-
-    # 2022.02.25 - 화면상의 항목들을 세션/그룹핑해서 보여준다. 
-    fieldsets = (
-        ('단말정보', {
-            'fields': ('phone_no',
-                        ('networkId', 'ispId'),
-            ),
-            # 'description' : '단말에 대한 정보를 보여줍니다.'
-        }),
-        ('측정정보', {
-             'fields': (('userInfo1', 'userInfo2', 'morphology'),
-                        ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
-                        ('dl_count', 'ul_count'),
-                        ('status', 'total_count'),
-                        'last_updated', 
-            ),
-        }),
-        ('상태정보', {
-            'fields': ('manage',
-                        'active', 
-            ),
-            # 'classes': ('collapse',),
-        }),
+    phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
+    measdate = models.CharField(max_length=10, verbose_name="측정일자")
+    phone_no = models.BigIntegerField(verbose_name="측정단말")
+    userInfo1 = models.CharField(max_length=100, verbose_name="측정지역")
+    userInfo2 = models.CharField(max_length=100, verbose_name="모풀로지(측정데이터)")
+    networkId = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name="유형"
+    )  # 네트워크ID(5G, LTE, 3G, WiFi)
+    ispId = models.CharField(
+        max_length=10, null=True, blank=True, choices=ISPID_CHOICES, verbose_name="통신사"
+    )  # 한국:450 / KT:08, SKT:05, LGU+:60
+    avg_downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="DL")
+    avg_uploadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="UL")
+    dl_count = models.IntegerField(null=True, default=0)  # 다운로드 콜수
+    ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
+    nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수   
+    status = models.CharField(
+        max_length=10, null=True, choices=STATUS_CHOICES, verbose_name="진행단계"
     )
+    currentCount = models.IntegerField(null=True, blank=True)
+    total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
+    addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
+    latitude = models.FloatField(null=True, blank=True)  # 위도
+    longitude = models.FloatField(null=True, blank=True)  # 경도
+    last_updated = models.BigIntegerField(
+        null=True, blank=True, verbose_name="최종보고시간"
+    )  # 최종 위치보고시간
+    morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
+    manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
+    active = models.BooleanField(default=True, verbose_name="상태")
 
-    # 전화번호는 뒷 4자리만 출력한다.
-    def phone_no_abbr(self, phone):
-        return str(phone.phone_no)[-4:]
-    
-    phone_no_abbr.short_description = '전화번호'
+    class Meta:
+        verbose_name = "측정 단말"
+        verbose_name_plural = "측정 단말"
 
-    # 최종 위치보고시간을 출력한다(Integer -> String)
-    def last_updated_at(self, phone):
-        s = str(phone.last_updated)
-        # 202201172315000
-        return s[0:4]+'-'+s[4:6]+'-'+s[6:8]+' '+s[8:10]+':'+s[10:12]+':'+s[12:14]
+    def __str__(self):
+        return f"{self.userInfo1}/{self.userInfo2}/{self.phone_no}/{self.total_count}"
 
-    last_updated_at.short_description = '최종 위치보고시간'
+    # ---------------------------------------------------------------------------------------------
+    # 모델을 DB에 저장하는 함수(오버라이딩)
+    # - 모델을 DB에 저장하기 전에 처리해야 하는 것들을 작선하다.
+    # * 모풀로지가 변경되는 경우 측정 단말기의 관래대상 여부를 자동으로 변경한다.
+    # ---------------------------------------------------------------------------------------------
+    def save(self, *args, **kwargs):
+        qs = Morphology.objects.filter(morphology=self.morphology)
+        if qs.exists():
+            self.manage = qs[0].manage
+        else:
+            self.manage = False
+        super(Phone, self).save(*args, **kwargs)
 
-    # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
-    def get_queryset(self, request):
-        query = super(PhoneAdmin, self).get_queryset(request)
-        # filtered_query = query.filter(ispId='45008', manage=True)
-        filtered_query = query.filter(ispId='45008')
-        return filtered_query
+    # ---------------------------------------------------------------------------------------------
+    # 측정 단말기의 통계정보를 업데이트 하는 합수
+    # - DL/UL 평균속도, 콜수, 진행상태, 최종 위치보고시간 등
+    # ---------------------------------------------------------------------------------------------
+    def update_phone(self, mdata):
+        """측정단말의 통계정보를 업데이트 한다."""
+        #### 방식 1 ####
+        # # DL/UL 평균속도를 업데이트 한다.
+        # # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
+        # # 2022.02.25 속도 데이터 + NR(5G->LTE)제외 조건
+        # dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
+        # for mdata in self.measurecalldata_set.filter(testNetworkType="speed").exclude(
+        #     networkId="NR"
+        # ):
+        #     # logger.info("콜단위 데이터" + str(mdata))
+        #     # print("콜단위 데이터" + str(mdata))
+        #     if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
+        #         dl_sum += mdata.downloadBandwidth
+        #         dl_count += 1
+        #     if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
+        #         ul_sum += mdata.uploadBandwidth
+        #         ul_count += 1
+        # if dl_count:
+        #     self.avg_downloadBandwidth = round(dl_sum / dl_count, 3)
+        # if ul_count:
+        #     self.avg_uploadBandwidth = round(ul_sum / ul_count, 3)
 
-    # def changelist_view(self, request, extra_context=None):
-    #     if not request.GET.has_key('manage'):
-    #         q = request.GET.copy()
-    #         q['manage'] = 1
-    #         request.GET = q
-    #         request.META['QUERY_STRING'] = request.GET.urlencode()
-    #     return super(PhoneAdmin,self).changelist_view(request, extra_context=extra_context)
+        # # 단말기의 콜 수를 업데이트 한다.
+        # self.dl_count = dl_count  # 다운로드 콜건수
+        # self.ul_count = ul_count  # 업로드 콜건수
+        # self.currentCount = mdata.currentCount # 현재 콜카운트
+        # self.total_count = dl_count + ul_count  # 전체 콜건수
 
-    # 저장 버튼을 제외한 나머지 버튼들을 화면에서 보이지 않게 한다.
-    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
-        context.update({
-                'show_save': True,
-                'show_save_and_add_another': False,
-                'show_save_and_continue': False,
-                'show_delete': False
-            })
-        return super().render_change_form(request, context, add, change, form_url, obj)
+        #### 방식 2 ####
+        # UL/DL 평균속도 산출시 NR(5G->LTE전환) 데이터는 제외한다.
+        # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다. 
+        if mdata.networkId != 'NR':
+            # DL 평균속도 계산
+            if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
+                self.avg_downloadBandwidth = round(((self.avg_downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 3)
+                self.dl_count += 1
+            # UP 평균속도 계산
+            if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
+                self.avg_uploadBandwidth = round(((self.avg_uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
+                self.ul_count += 1
+        # 5G 측정 단말기 이고, 측정시 NR이면 5G->LTE 전환 콜수를 누적한다.
+        elif mdata.phone.networkId == '5G':
+            self.nr_count += 1
+        
+        # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
+        self.currentCount = mdata.currentCount # 현재 콜카운트
+        self.total_count = self.dl_count + self.ul_count  # 전체 콜건수
+        
+        # 단말기의 상태를 업데이트 한다.
+        # 상태 - 'POWERON', 'START', 'MEASURING', 'END'
+        self.status = "START" if self.total_count == 1 else "MEASURING"
 
-    # 선택된 ROW를 삭제하는 액션을 삭제한다("선택된 측정 단말 을/를 삭제합니다.").
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
+        # 최종 위치보고시간을 업데이트 한다.
+        self.last_updated = mdata.meastime
+
+        # 단말기의 정보를 데이터베이스에 저장한다.
+        self.save()
+
+    # ---------------------------------------------------------------------------------------------
+    # 측정 단말기가 최조 생성될 때 한번만 처리하기 위한 함수
+    # - 해당 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 업데이트 한다.
+    # - 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
+    # ---------------------------------------------------------------------------------------------
+    def update_initial_data(self):
+        '''측정 단말기가 생성될 때 최초 한번만 수행한다.'''
+        try: 
+            # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
+            if self.longitude and self.latitude:
+                rest_api_key = settings.KAKAO_REST_API_KEY
+                kakao = KakaoLocalAPI(rest_api_key)
+                input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+                output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+
+                result = kakao.geo_coord2regioncode(self.longitude, self.latitude, input_coord, output_coord)
+
+                region_3depth_name = result['documents'][1]['region_3depth_name']
+
+                self.addressDetail = region_3depth_name
+
+
+            # 측정자 입력값2(userInfo2)에 따라 모폴로지와 관리대상여부를 결정한다.
+            morphology = None # 모풀로지
+            manage = False # 관리대상 여부
+            if self.userInfo2:
+                # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 재지정한다. 
+                for mp in MorphologyMap.objects.all():
+                    if mp.wordsCond == '시작단어':
+                        if self.userInfo2.startswith(mp.words):
+                            morphology = mp.morphology
+                            manage = mp.manage
+                            break
+                    elif mp.wordsCond == '포함단어':
+                        if self.userInfo2.find(mp.words) >= 0:
+                            morphology = mp.morphology
+                            manage = mp.manage
+                            break
+
+            self.morphology = morphology
+            self.manage = manage
+
+            # 측정 단말기 정보를 저장한다.
+            self.save()
+
+        except Exception as e:
+            print("update_initial_data():", str(e))
+            raise Exception("update_initial_data(): %s" % e) 
+
+
+
+###################################################################################################
+# 실시간 측정 데이터(콜 단위)
+###################################################################################################
+class MeasureCallData(models.Model):
+    """실시간 측정 데이터(콜 단위)"""
+
+    phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
+    dataType = models.CharField(max_length=10)
+    phone_no = models.BigIntegerField(
+        null=True, blank=True, verbose_name="전화번호"
+    )  # 전화번호
+    meastime = models.BigIntegerField(
+        null=True, blank=True, verbose_name="측정시간"
+    )  # 측정시간
+    networkId = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name="유형"
+    )  # 네트워크ID(5G, LTE, 3G, WiFi)
+    groupId = models.CharField(max_length=100, null=True, blank=True)  # 그룹ID
+    currentTime = models.CharField(max_length=100, null=True, blank=True)  # 현재시간
+    timeline = models.CharField(max_length=100, null=True, blank=True)  # 타입라인
+    cellId = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name="셀ID"
+    )  # 셀ID
+    currentCount = models.IntegerField(
+        null=True, blank=True, verbose_name="콜카운트"
+    )  # 현재 콜카운트
+    ispId = models.CharField(
+        max_length=10, null=True, blank=True
+    )  # 한국:450 / KT:08, SKT:05, LGU+:60
+    testNetworkType = models.CharField(
+        max_length=100, null=True, blank=True
+    )  # 측정종류(speed, latency, web)
+    userInfo1 = models.CharField(max_length=100, null=True, blank=True)  # 입력된 주소정보
+    userInfo2 = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name="모풀로지"
+    )  # 측정위치(행정동, 테마, 인빌딩, 커버리지)
+    siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
+    guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군
+    addressDetail = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name="주소상세"
+    )  # 주소상세
+    udpJitter = models.FloatField(null=True, blank=True)  # 지연시간
+    downloadBandwidth = models.FloatField(
+        null=True, blank=True, verbose_name="DL"
+    )  # DL속도
+    uploadBandwidth = models.FloatField(
+        null=True, blank=True, verbose_name="UL"
+    )  # UP속도
+    sinr = models.FloatField(null=True, blank=True)  # SINR
+    isWifi = models.CharField(max_length=100, null=True, blank=True)  # 와이파이 사용여부
+    latitude = models.FloatField(null=True, blank=True)  # 위도
+    longitude = models.FloatField(null=True, blank=True)  # 경도
+    bandType = models.CharField(
+        max_length=16, null=True, blank=True
+    )  # CA(ex.1CL2-> 1CA(20M), 3CL4->3CA(40M))
+    p_dl_earfcn = models.IntegerField(null=True, blank=True)  # P 주파수
+    p_pci = models.IntegerField(null=True, blank=True)  # P PCI
+    p_rsrp = models.FloatField(null=True, blank=True)  # P RSRP
+    p_SINR = models.FloatField(null=True, blank=True)   # P SINR
+    NR_EARFCN = models.IntegerField(null=True, blank=True)  # 5G 주파수
+    NR_PCI = models.IntegerField(null=True, blank=True)  # 5G CI
+    NR_RSRP = models.FloatField(null=True, blank=True)  # 5G PCI
+    NR_SINR = models.FloatField(null=True, blank=True)  # 5G SINR
+    # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
+    # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
+
+    class Meta:
+        verbose_name = "측정 데이터(콜단위)"
+        verbose_name_plural = "측정 데이터(콜단위)"
+
+    def __str__(self):
+        return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}/"
+
+
+###################################################################################################
+# 실시간 측정 데이터(초 단위)
+###################################################################################################
+class MeasureSecondData(models.Model):
+    """실시간 측정 데이터(초 단위)"""
+
+    phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
+    dataType = models.CharField(max_length=10)
+    phone_no = models.BigIntegerField(null=True, blank=True)  # 전화번호
+    meastime = models.BigIntegerField(null=True, blank=True)  # 측정시간
+    neworkid = models.CharField(
+        max_length=100, null=True, blank=True
+    )  # 네트워크ID(5G, LTE, 3G, WiFi)
+    groupId = models.CharField(max_length=100, null=True, blank=True)  # 그룹ID
+    currentTime = models.CharField(max_length=100, null=True, blank=True)  # 현재시간
+    timeline = models.CharField(max_length=100, null=True, blank=True)  # 타입라인
+    cellId = models.CharField(max_length=100, null=True, blank=True)  # 셀ID
+    currentCount = models.IntegerField(null=True, blank=True)  # 현재 콜카운트
+    ispId = models.CharField(
+        max_length=10, null=True, blank=True
+    )  # 한국:450 / KT:08, SKT:05, LGU+:60
+    testNetworkType = models.CharField(
+        max_length=100, null=True, blank=True
+    )  # 측정종류(speed, latency, web)
+    userInfo1 = models.CharField(max_length=100, null=True, blank=True)  # 입력된 주소정보
+    userInfo2 = models.CharField(
+        max_length=100, null=True, blank=True
+    )  # 측정위치(행정동, 테마, 인빌딩, 커버리지)
+    siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
+    guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군
+    addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
+    udpJitter = models.FloatField(null=True, blank=True)  # 지연시간
+    downloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
+    uploadBandwidth = models.FloatField(null=True, blank=True)  # UP속도
+    sinr = models.FloatField(null=True, blank=True)  # SINR
+    isWifi = models.CharField(max_length=100, null=True, blank=True)  # 와이파이 사용여부
+    latitude = models.FloatField(null=True, blank=True)  # 위도
+    longitude = models.FloatField(null=True, blank=True)  # 경도
+    bandType = models.CharField(
+        max_length=16, null=True, blank=True
+    )  # CA(ex.1CL2-> 1CA(20M), 3CL4->3CA(40M))
+    p_dl_earfcn = models.IntegerField(null=True, blank=True)  # P 주파수
+    p_pci = models.IntegerField(null=True, blank=True)  # P PCI
+    p_rsrp = models.FloatField(null=True, blank=True)  # P RSRP
+    NR_EARFCN = models.IntegerField(null=True, blank=True)  # 5G 주파수
+    NR_PCI = models.IntegerField(null=True, blank=True)  # 5G CI
+    NR_RSRP = models.FloatField(null=True, blank=True)  # 5G PCI
+    NR_SINR = models.FloatField(null=True, blank=True)  # 5G SINR
+    # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
+    # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
+
+
+    def __str__(self):
+        return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}/"
+
+
+###################################################################################################
+# 전송 메시지 클래스
+# 2022.02.25 - 의존성으로 마이그레이트 및 롤백 시 오류가 자주 발생하여 모니터 앱으로 옮겨 왔음
+# 2022.02.27 - 메시지 유형을 메시지(SMS)와 이벤트(EVENT)로 구분할 수 있도록 항목 추가
+###################################################################################################
+class Message(models.Model):
+    '''전송 메시지'''
+    phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
+    measdate = models.CharField(max_length=10)
+    sendType = models.CharField(max_length=10) # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+    #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정) ###########
+    userInfo1 = models.CharField(max_length=100, null=True, blank=True) 
+    currentCount = models.IntegerField(null=True, blank=True)
+    phone_no = models.BigIntegerField(null=True, blank=True)
+    downloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
+    uploadBandwidth = models.FloatField(null=True, blank=True)  # UP속도
+    ###################################################
+    messageType = models.CharField(max_length=10) # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+    message = models.TextField(default=False)
+    channelId = models.CharField(max_length=25)
+    sended = models.BooleanField(default=True)
 
 
 # -------------------------------------------------------------------------------------------------
-# 측정 데이터(콜단위) 관리자 페이지 설정
+# 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 전송하는 함수
+#--------------------------------------------------------------------------------------------------
+def send_message(sender, **kwargs):
+    '''생성된 메시지를 크로샷 또는 텔레그램으로 전송하는 함수'''
+    bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
+    # 텔레그램으로 메시지를 전송한다.
+    if kwargs['instance'].sendType == 'TELE':
+        bot.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
+    # 크로샷으로 메시지를 전송한다.
+    elif kwargs['instance'].sendType == 'XMCS':
+        #######################################################################################################
+        # (3.4) 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
+        # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
+        # npm install request 명령어로 모듈 설치 후 사용 가능 
+        #######################################################################################################
+        send_sms()
+
 # -------------------------------------------------------------------------------------------------
-class MeasureCallDataAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 측정단말 데이터 건 by 건 보여주기 위한 클래스'''
-    list_display = ['userInfo1', 'phone_no', 'currentCount', 'networkId', 'ispId',\
-                    'downloadBandwidth', 'uploadBandwidth', 'meastime_at', 'userInfo2', 'cellId',]
-    list_display_links = ['phone_no']
-    search_fields = ('userInfo1', 'phone_no', 'currentCount')
-    list_filter = ['userInfo1',]
-    ordering = ('userInfo1', 'phone_no', '-meastime', '-currentCount')
+# 전송 메시지가 저장된 후 메시지 전송 모듈을 호출한다(SIGNAL). 
+#--------------------------------------------------------------------------------------------------
+post_save.connect(send_message, sender=Message)
 
-    # 측정시간을 출력한다(Integer -> String)
-    def meastime_at(self, mdata):
-        s = str(mdata.meastime)
-        # 202201172315000
-        # return s[0:4]+'-'+s[4:6]+'-'+s[6:8]+' '+s[8:10]+':'+s[10:12]+':'+s[12:14]
-        return s[8:10]+':'+s[10:12]+':'+s[12:14]
 
-    meastime_at.short_description = '측정시간'
 
-    # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
-    def get_queryset(self, request):
-        query = super(MeasureCallDataAdmin, self).get_queryset(request)
-        filtered_query = query.filter(ispId='45008', testNetworkType='speed')
-        return filtered_query
-
-    # 모든 버튼을 보이지 않게 한다.
-    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
-        context.update({
-                'show_save': False,
-                'show_save_and_add_another': False,
-                'show_save_and_continue': False,
-                'show_delete': False
-            })
-        return super().render_change_form(request, context, add, change, form_url, obj)
-
-    # 선택된 ROW를 삭제하는 액션을 삭제한다("선택된 측정 데이터(콜단위) 을/를 삭제합니다.").
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
-
-class MonitorAdminArea(admin.AdminSite):
-    '''관리자 페이지의 헤더 및 제목을 변경하기 위한 클래스'''
-    index_title = "단말상태 관리"
-    site_header = "스마트 상황실 관리"
-    site_title = "스마트 상활실"
-
-monitor_site = MonitorAdminArea(name="스마트 상황실")
-
-admin.site.register(Phone, PhoneAdmin) # 측정 단말
-monitor_site.register(Phone, PhoneAdmin) # 측정 단말 -- 어드민 페이지 별도분리 테스트
-admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
-monitor_site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위) -- 어드민 페이지 별도분리 테스트
 
 

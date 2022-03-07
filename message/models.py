@@ -17,10 +17,10 @@ class SentTelegramMessage(models.Model):
   chat_title = models.CharField(max_length=100, null=True, blank=True, verbose_name='Chat Title')
   chat_message_id = models.BigIntegerField(null=True, blank=True, verbose_name='Message ID')
   chat_date = models.DateTimeField(null=True, blank=True, auto_now_add=True, verbose_name='날짜')  ## 전송 메시지 시각이 <UTC> 기준이라 auto_now_add 적용
-  chat_text = models.CharField(max_length=1000, null=True, blank=True, verbose_name='내용')
+  chat_text = models.TextField(null=True, blank=True, verbose_name='내용')
   is_del = models.BooleanField(default=False, verbose_name='회수여부')
   #is_resend = models.BooleanField(default=False, verbose_name='재전송여부')
 
   class Meta:
-    verbose_name = "전송된 텔레그램 메시지"
-    verbose_name_plural = "전송된 텔레그램 메시지"
+    verbose_name = "텔레그램 메시지"
+    verbose_name_plural = "텔레그램 메시지"
