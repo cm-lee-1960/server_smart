@@ -10,6 +10,7 @@ import requests
 # 텔레그램 봇 클래스
 # -----------------------------------------------------------------------------------------------------
 # 2022.03.03 - 텔레그램 봇 관련 함수를 클래스로 랩핑함 
+# 2022.03.07 - 전송된 테레그램 메시지를 회수 또는 재전송하는 함수를 추가함(del_message(...))
 #######################################################################################################
 class TelegramBot:
     ''' Telegram 인스턴스(메시지 전송, 챗봇활성화) '''
@@ -21,12 +22,12 @@ class TelegramBot:
         self.webhook_url = 'https://9c70-121-165-124-29.ngrok.io'
 
     
-    #--------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     # 메시지 내용(문자열)이 특정 크기 이상은 잘라낸다
     # 2022.02.27 - 메시지 내용 중에서 디버깅을 위해 관련정보를 붙이다 보니 512 bytes가 초과되어 텔레그램 전송시 오류 발생
     #            - 오류메시지 (Flood control exceeded. Retry in 11.0 seconds)
     #            - https://stackoverflow.com/questions/51423139/python-telegram-bot-flood-control-exceeded
-    #--------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     def unicode_truncate(self, s, length, encoding='utf-8'):
         self.encoded = s.encode(encoding)[:length]
         return self.encoded.decode(encoding, 'ignore')
@@ -49,39 +50,39 @@ class TelegramBot:
     # it sends less than 20 messages per minute inside particular chat;
     # But i always receive 429 error:
     # [출처] https://stackoverflow.com/questions/44152519/telegram-bot-api-limitations
-    #--------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     def send_message_bot(self, channelId, message):
         try: 
-            sent = self.bot.sendMessage(channelId, text=self.unicode_truncate(message,self.max_length), parse_mode='HTML')
-            ### 보낸 메시지 정보를 DB에 저장한다 (3.7)
+            # 메시지를 텔레그램으로 전송한다.
+            sent_msg = self.bot.sendMessage(channelId, text=self.unicode_truncate(message,self.max_length), parse_mode='HTML')
+            # 전송된 메시지를 데이터베이스에 저장한다.
             SentTelegramMessage.objects.create(
-                chat_id = sent['chat']['id'],
-                chat_type = sent['chat']['type'],
-                chat_title = sent['chat']['title'],
-                chat_message_id = sent['message_id'],
-                chat_text = sent['text'],
+                chat_id = sent_msg['chat']['id'],
+                chat_type = sent_msg['chat']['type'],
+                chat_title = sent_msg['chat']['title'],
+                chat_message_id = sent_msg['message_id'],
+                chat_text = sent_msg['text'],
             )
-            #return sent
 
         except Exception as e:  
             print("low_throughput_check():"+str(e))
             print(message)
             raise Exception("send_message_bot(): %s" % e)
 
-    #-------------------------------------------------------------------------------------------------- (3.7)
+    # --------------------------------------------------------------------------------------------------
     # 보낸 메시지 삭제 함수 - Chat_ID와 Message_ID 정보로 삭제 가능
     # 삭제하고자 하는 Message 에 필요한 정보를 DB에서 읽어와서 삭제
-    #--------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     def del_message(self, cid, mid):
         self.result = requests.get(f'https://api.telegram.org/bot{self.bot_token}/deleteMessage?chat_id={cid}&message_id={mid}')
         return self.result
 
 
-    #--------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     # 챗봇 활성화 : 127.0.0.1:8000/message/start 주소 진입하여 웹훅 활성화 (/message/stop : 비활성화)
     # 챗봇 함수 변경 시 웹훅 재시작 필요
     # 현재 NGROK 로 뚫은 터널 사용, 주소 변경 시 함수 내 self.webhook_url 주소 및 settings 의 ALLOWED_HOST 변경 필요
-    #--------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     def set_chatbot(self, set):
         self.updater = tele_chatbot.set_updater(self.bot_token)
 

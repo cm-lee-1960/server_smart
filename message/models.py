@@ -1,14 +1,11 @@
 from xml.dom.pulldom import PROCESSING_INSTRUCTION
 from django.db import models
-from django.db.models.signals import post_save
-from django.conf import settings
-#from .geo import KakaoLocalAPI
-#from message.tele_msg import TelegramBot # 텔레그램 메시지 전송 클래스
-#from message.xmcs_msg import send_sms # 2022.03.04 크로샷 메시지 전송 함수 호출
-#from management.models import Morphology, MorphologyMap
 
-######################## 텔레그램 전송된 메시지 DB 저장 - 삭제 기능 및 고도화 때 필요 (3.7) ########################
-##### Chat ID와 Message ID 정보로 보낸 메시지 삭제 가능 
+###################################################################################################
+# 전송된 텔레그램 메시지 클래스
+# -------------------------------------------------------------------------------------------------
+# 2022.03.07 - Chat ID와 Message ID로 전송된 메시지를 삭제 가능함
+###################################################################################################
 class SentTelegramMessage(models.Model):
   """ 전송된 텔레그램 메시지 정보 """
  
