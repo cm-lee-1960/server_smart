@@ -77,9 +77,16 @@ def send_failure_check(mdata):
             qs = SendFailure.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
                 if bandwidth < qs[0].bandwidth:
+                    # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
+                    if mdata.networkId == '5G':
+                        pci, RSRP, SINR = mdata.NR_PCI, mdata.NR_RSRP, mdata.NR_SINR
+                    else:
+                        pci, RSRP, SINR= mdata.p_pci, mdata.p_rsrp, mdata.p_SINR
                     # 메시지 내용을 작성한다.
                     message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
-                            f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
+                            "(위치/PCI/CellID/콜카운트/DL/UL/RSRP/SINR)\n" + \
+                            f"{mdata.addressDetail}/{pci}/{mdata.cellId}/{mdata.currentCount}/" + \
+                            f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{RSRP}/{SINR}"
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
@@ -115,10 +122,17 @@ def low_throughput_check(mdata):
             qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
                 if bandwidth < qs[0].bandwidth:
+                    # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
+                    if mdata.networkId == '5G':
+                        pci, RSRP, SINR = mdata.NR_PCI, mdata.NR_RSRP, mdata.NR_SINR
+                    else:
+                        pci, RSRP, SINR= mdata.p_pci, mdata.p_rsrp, mdata.p_SINR
                     # 메시지 내용을 작성한다.
-                    message = f"{mdata.userInfo1}에서 속도저하(Low Throughput)가 발생했습니다.\n" + \
-                            f"{mdata.phone_no}/{mdata.networkId}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
-            # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
+                    message = f"{mdata.userInfo1}에서 속도저하가 발생했습니다.\n" + \
+                            "(위치/PCI/CellID/콜카운트/DL/UL/RSRP/SINR)\n" + \
+                            f"{mdata.addressDetail}/{pci}/{mdata.cellId}/{mdata.currentCount}/" + \
+                            f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{RSRP}/{SINR}"
+                    # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
         print("low_throughput_check():", str(e))
