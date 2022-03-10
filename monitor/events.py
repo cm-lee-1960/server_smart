@@ -50,6 +50,7 @@ def event_occur_check(mdata):
     message = call_staying_check(mdata)
     if message: make_event_message(mdata, message)
 
+
 # -------------------------------------------------------------------------------------------------
 # 속도저하(Low Throughput) 발생여부 확인
 # 2022.02.24 - WiFi 전송실패 기준 추가 (DL: 1M, UL: 0.5M)
@@ -82,10 +83,11 @@ def send_failure_check(mdata):
                         pci, RSRP, SINR = mdata.NR_PCI, mdata.NR_RSRP, mdata.NR_SINR
                     else:
                         pci, RSRP, SINR= mdata.p_pci, mdata.p_rsrp, mdata.p_SINR
+                    meastime_s = str(mdata.meastime)
                     # 메시지 내용을 작성한다.
-                    message = f"{mdata.userInfo1}전송실패가 발생하였습니다.\n" + \
-                            "(위치/PCI/CellID/콜카운트/DL/UL/RSRP/SINR)\n" + \
-                            f"{mdata.addressDetail}/{pci}/{mdata.cellId}/{mdata.currentCount}/" + \
+                    message = f"{mdata.siDo} {mdata.guGun} {mdata.addressDetail.split(' ')[0]}에서 전송실패가 발생하였습니다.\n" + \
+                            "(단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
+                            f"{mdata.phone_no}/{meastime_s[8:10]}:{meastime_s[10:12]}/{mdata.currentCount}/{pci}/{mdata.cellId}/" + \
                             f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{RSRP}/{SINR}"
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
@@ -127,10 +129,11 @@ def low_throughput_check(mdata):
                         pci, RSRP, SINR = mdata.NR_PCI, mdata.NR_RSRP, mdata.NR_SINR
                     else:
                         pci, RSRP, SINR= mdata.p_pci, mdata.p_rsrp, mdata.p_SINR
+                    meastime_s = str(mdata.meastime)
                     # 메시지 내용을 작성한다.
-                    message = f"{mdata.userInfo1}에서 속도저하가 발생했습니다.\n" + \
-                            "(위치/PCI/CellID/콜카운트/DL/UL/RSRP/SINR)\n" + \
-                            f"{mdata.addressDetail}/{pci}/{mdata.cellId}/{mdata.currentCount}/" + \
+                    message = f"{mdata.siDo} {mdata.guGun} {mdata.addressDetail.split(' ')[0]}에서 속도저하가 발생했습니다.\n" + \
+                            "(시간/단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
+                            f"{mdata.phone_no}/{meastime_s[8:10]}:{meastime_s[10:12]}/{mdata.currentCount}/{pci}/{mdata.cellId}/" + \
                             f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{RSRP}/{SINR}"
                     # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
@@ -165,8 +168,11 @@ def fivgtolte_trans_check(mdata):
     # 2022.02.21 - 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
     # 2022.02.27 - 메시지 내용을 작성한다.
     if mdata.phone.networkId == '5G' and mdata.networkId == 'NR':
-        message = f"{mdata.userInfo1}에서 5G->LTE로 전환되었습니다.\n" + \
-                    f"{mdata.phone_no}/{mdata.networkId}/{mdata.currentCount}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}"
+        meastime_s = str(mdata.meastime)
+        message = f"{mdata.siDo} {mdata.guGun} {mdata.addressDetail.split(' ')[0]}에서 5G->LTE로 전환되었습니다.\n" + \
+                    "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+                    f"{mdata.phone_no}/{meastime_s[8:10]}:{meastime_s[10:12]}/{mdata.currentCount}/" + \
+                    f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.p_rsrp}/{mdata.p_SINR}" 
 
     return message
 
@@ -236,10 +242,17 @@ def out_measuring_range(mdata):
     try: 
         region_3depth_name = result['documents'][1]['region_3depth_name']
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
+            # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
+            if mdata.networkId == '5G':
+                pci, RSRP, SINR = mdata.NR_PCI, mdata.NR_RSRP, mdata.NR_SINR
+            else:
+                pci, RSRP, SINR= mdata.p_pci, mdata.p_rsrp, mdata.p_SINR
+            meastime_s = str(mdata.meastime)
             # 메시지를 작성한다.
-            message = f"{mdata.userInfo1}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
-                    "(전화번호/단말시작위치/위도/경도/측정위치)\n" + \
-                    f"{mdata.phone_no}/{mdata.phone.addressDetail.split()[0]}/{mdata.latitude}/{mdata.longitude}/{region_3depth_name}" 
+            message = f"{mdata.siDo} {mdata.guGun} {mdata.addressDetail.split(' ')[0]}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
+                    "(단말번호/행정동/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+                    f"{mdata.phone_no}/{region_3depth_name}/{meastime_s[8:10]}:{meastime_s[10:12]}/{mdata.currentCount}/" + \
+                    f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{RSRP}/{SINR}" 
 
     except Exception as e:
         print("out_measuring_range():", str(e))
@@ -294,11 +307,17 @@ def call_staying_check(mdata):
             callstay = False
 
         if callstay:
+            if mdata.networkId == '5G':
+                pci, RSRP, SINR = mdata.NR_PCI, mdata.NR_RSRP, mdata.NR_SINR
+            else:
+                pci, RSRP, SINR= mdata.p_pci, mdata.p_rsrp, mdata.p_SINR
+            meastime_s = str(mdata.meastime)
             # 메시지 내용을 작성한다.
-            message = f"{mdata.userInfo1}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
-                        f"{mdata.phone_no}/{mdata.latitude}/{mdata.longitude}/{mdata.addressDetail}\n" + \
-                        "[검증데이터]\n" + result
-            
+            message = f"{mdata.siDo} {mdata.guGun} {mdata.addressDetail.split(' ')[0]}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
+                       "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+                        f"{mdata.phone_no}/{meastime_s[8:10]}:{meastime_s[10:12]}/{mdata.currentCount}/" + \
+                        f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{RSRP}/{SINR}" 
+
     return message
 
 # -------------------------------------------------------------------------------------------------

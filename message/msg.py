@@ -85,11 +85,11 @@ def make_message(mdata):
     if phone.status in status and current_count_check(mdata):
         # 측정 단말기의 DL/UP 평균값들을 가져온다.
         dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
-        dl_nr_count, ul_nr_count = 0, 0
+        dl_nr_count, ul_nr_count = 0, 0 # 5G->LTE 전환콜수(DL, UL)ß
         avg_downloadBandwidth = 0  # 다운로드 평균속도
         avg_uploadBandwidth = 0  # 업로드 평균속도
         nr_count = 0 # 5G->NR 전환 콜수
-        avg_nrRate = 0.0 # 5G->NR 전환율
+   
 
         # 2022.02.26 - 데이터가 맞지 않아 재작성 함
         #            - 속도평균값을 산출할 때 고민해야 하는 사항은 몇번째 턴인지, 현재 콜카운트, 총 측정횟수 등을 고려해야 한다.
@@ -104,7 +104,7 @@ def make_message(mdata):
         # 메시지를 보내려고 하는 측정 단말기
         total_count = 0
         for m in phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
-            if total_count > phone.total_count: break
+            if total_count >= phone.total_count: break
             if m.phone.networkId == '5G' and m.networkId == 'NR':
                 # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
                 if m.downloadBandwidth and m.downloadBandwidth > 0:
@@ -124,12 +124,13 @@ def make_message(mdata):
             # print(f"###-1 {phone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
            
         # 상대편 측정 단말기
+        total_count = 0
         qs = phone.phoneGroup.phone_set.filter(ispId='45008', manage=True).exclude(phone_no=phone.phone_no)
         if qs.exists():
             oPhone = qs[0]
             for m in oPhone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
                 # 2022.02.25 DL/UL 측정건수가 10건 이상 차이가 나지 않는다는 가정에서 아래 코드가 정상 동작한다.
-                if total_count > phone.total_count: break
+                if total_count >= phone.total_count: break
                 if m.phone.networkId == '5G' and m.networkId == 'NR':
                     # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
                     if m.downloadBandwidth and m.downloadBandwidth > 0:
