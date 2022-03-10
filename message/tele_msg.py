@@ -4,7 +4,7 @@ from telegram import ParseMode
 from django.conf import settings
 from . import tele_chatbot
 from .models import SentTelegramMessage
-import requests
+import time
 
 #######################################################################################################
 # 텔레그램 봇 클래스
@@ -20,6 +20,12 @@ class TelegramBot:
         self.max_length = 512  # 텔레그램 메시지로 보낼 수 있는 최대 문자길이(Bytes)
         self.port = 5000
         self.webhook_url = 'https://9c70-121-165-124-29.ngrok.io'
+
+        ############### 텔레그램 Limit Check 를 위한 변수(3.10)
+        self.now_time = time.time()
+        self.pre_time = time.time()
+        self.term = 0   ## delay time
+        self.count = 0  
 
     
     # --------------------------------------------------------------------------------------------------
@@ -74,8 +80,26 @@ class TelegramBot:
     # 삭제하고자 하는 Message 에 필요한 정보를 DB에서 읽어와서 삭제
     # --------------------------------------------------------------------------------------------------
     def del_message(self, cid, mid):
-        self.result = requests.get(f'https://api.telegram.org/bot{self.bot_token}/deleteMessage?chat_id={cid}&message_id={mid}')
+        self.result = self.bot.deleteMessage(chat_id=cid, message_id=mid)
         return self.result
+
+    # --------------------------------------------------------------------------------------------------
+    # Telegram Limit Check 함수
+    # limit : 30메시지/1초  or  20메시지/그룹  --> 1초간 20 메시지를 Limit로 설정
+    # 1초 내 시간으로 연속 20개 메시지 전송한 경우 (1초 - (현재 시간 - 직전 전송 시간))의 Delay 설정
+    # --------------------------------------------------------------------------------------------------
+    def check_limit(self):
+        self.now_time = time.time()
+        self.term = self.now_time - self.pre_time
+        if self.count >= 20:
+            time.sleep(self.term)
+            self.count = 0
+        elif self.term > 1:
+            self.count = 0
+        else:
+            self.count += 1
+        self.pre_time = self.now_time
+
 
 
     # --------------------------------------------------------------------------------------------------

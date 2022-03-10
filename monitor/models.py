@@ -427,6 +427,7 @@ def send_message(sender, **kwargs):
     bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
     # 텔레그램으로 메시지를 전송한다.
     if kwargs['instance'].sendType == 'TELE':
+        bot.check_limit()
         bot.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
     # 크로샷으로 메시지를 전송한다.
     elif kwargs['instance'].sendType == 'XMCS':
