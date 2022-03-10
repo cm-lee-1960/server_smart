@@ -2,7 +2,7 @@ from django.contrib import admin, sites
 from django.forms import TextInput, Textarea
 from django.db import models
 from django import forms
-from .models import Phone, MeasureCallData
+from .models import PhoneGroup, Phone, MeasureCallData
 
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
@@ -17,8 +17,42 @@ from .models import Phone, MeasureCallData
 #            - 측정단말 관리자 페이지를 처음 들어갈 때 관리대상만 보여지게 하고, 이후 필터조건에 따라 조회되게 함
 #              (필터조건: 예, 아니요, 모두)
 #            - 측정단말의 전화번호 끝 4자리만 표기, 측정단말 관리자 상세화면에서 필드 항목의 사이즈 조정
+# 2022.03.10 - 단말그룹 관리자 페이지 추가 (단말그룹에 측정조를 입력할 수 있도록 함)
 #
 ###################################################################################################
+
+# -------------------------------------------------------------------------------------------------
+# 단말 그룹 관리자 페이지 설정
+# -------------------------------------------------------------------------------------------------
+class PhoneGroupAdmin(admin.ModelAdmin):
+    '''어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스'''
+    list_display = ['measdate', 'phone_list', 'measuringTeam', 'userInfo1',]
+    list_display_links = ['phone_list', ]
+    search_fields = ('measdate', 'userInfo1', 'phone_list', 'measuringTeam')
+    list_filter = ['measdate', 'measuringTeam']
+
+    # 해당 단말그룹에 묶여 있는 단말기 번호를 가져온다.
+    def phone_list(self, phoneGroup):
+        p_list = []
+        for phone in phoneGroup.phone_set.all():
+            p_list.append(str(phone.phone_no)[-4:])
+        return ','.join(p_list)
+
+    phone_list.short_description = '단말번호'
+
+    # 단말그룹 중에서 KT 자료만 보여지게 한다.
+    def get_queryset(self, request):
+        query = super(PhoneGroupAdmin, self).get_queryset(request)
+        filtered_query = query.filter(ispId='45008')
+        return filtered_query
+
+    # 선택된 ROW를 삭제하는 액션을 삭제한다("선택된 측정 단말 을/를 삭제합니다.").
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
 # class PhoneForm(forms.ModelForm):
 #     def clean(self):
 #         cleaned_data = self.cleaned_data
@@ -235,7 +269,7 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-
+admin.site.register(PhoneGroup, PhoneGroupAdmin) # 단말 그룹
 admin.site.register(Phone, PhoneAdmin) # 측정 단말
 admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
 

@@ -1,4 +1,4 @@
-from xml.dom.pulldom import PROCESSING_INSTRUCTION
+from operator import itemgetter
 from django.db import models
 from django.db.models.signals import post_save
 from django.conf import settings
@@ -18,10 +18,29 @@ from management.models import Morphology, MorphologyMap
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
 
-    measdate = models.CharField(max_length=10)
-    userInfo1 = models.CharField(max_length=100)
-    ispId = models.CharField(max_length=10, null=True, blank=True)  # 한국:450 / KT:08, SKT:05, LGU+:60
-    active = models.BooleanField(default=True)
+    MEASURINGTEAM_CHOICES = {
+        ("1조", "1조"),
+        ("2조", "2조"),
+        ("3조", "3조"),
+        ("4조", "4조"),
+        ("5조", "5조"),
+    }
+    ISPID_CHOICES = {
+        ("45008", "KT"),
+        ("45005", "SKT"),
+        ("45006", "LGU+"),
+    }
+
+    measdate = models.CharField(max_length=10, verbose_name="측정일자")
+    userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
+    measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
+        choices=sorted(MEASURINGTEAM_CHOICES,key=itemgetter(0)), verbose_name='측정조')
+    ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
+    active = models.BooleanField(default=True, verbose_name="상태")
+
+    class Meta:
+        verbose_name = "단말 그룹"
+        verbose_name_plural = "단말 그룹"
 
     def __str__(self):
         return f"{self.measdate}"
@@ -99,6 +118,10 @@ class Phone(models.Model):
 
     def __str__(self):
         return f"{self.userInfo1}/{self.userInfo2}/{self.phone_no}/{self.total_count}"
+
+    # 전화번호 뒤에서 4자리를 반환한다.
+    def get_phone_no_sht(self):
+        return str(self.phone_no)[-4:]
 
     # ---------------------------------------------------------------------------------------------
     # 모델을 DB에 저장하는 함수(오버라이딩)
@@ -295,6 +318,10 @@ class MeasureCallData(models.Model):
     # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
 
+    # 전화번호 뒤에서 4자리
+    def get_phone_no_sht(self):
+        return str(self.phone_no)[-4:]
+
     # DL
     def get_dl(self):
         if self.downloadBandwidth and self.downloadBandwidth > 0:
@@ -322,7 +349,7 @@ class MeasureCallData(models.Model):
         if self.networkId == '5G':
             return self.NR_RSRP
         else:
-            return self.p_pci
+            return self.p_rsrp
 
     # SINR
     def get_sinr(self):
@@ -340,11 +367,44 @@ class MeasureCallData(models.Model):
             return ''
 
     # 측정위치(예: 경상남도 사천시 노룡동)
-    def address(self):
+    def get_address(self):
         if self.addressDetail and self.addressDetail != None:
             return f"{self.siDo} {self.guGun} {self.addressDetail.split(' ')[0]}"
         else:
-            return self.userInfo1
+            # 2022.03.10 - NR인 경우 주소정보(siDo, guGun, addressDetail)가 널(Null)임
+            # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
+            rest_api_key = settings.KAKAO_REST_API_KEY
+            kakao = KakaoLocalAPI(rest_api_key)
+            input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+            output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+
+            result = kakao.geo_coord2regioncode(self.longitude,self.latitude, input_coord, output_coord)
+            # [ 리턴값 형식 ]
+            # print("out_measuring_range():", result)
+            # {'meta': {'total_count': 2},
+            # 'documents': [{'region_type': 'B',
+            # 'code': '4824012400',
+            # 'address_name': '경상남도 사천시 노룡동',
+            # 'region_1depth_name': '경상남도',
+            # 'region_2depth_name': '사천시',
+            # 'region_3depth_name': '노룡동', <-- 주소지 동
+            # 'region_4depth_name': '',
+            # 'x': 296184.5342265043,
+            # 'y': 165683.29710986698},
+            # {'region_type': 'H',
+            # 'code': '4824059500',
+            # 'address_name': '경상남도 사천시 남양동',
+            # 'region_1depth_name': '경상남도',
+            # 'region_2depth_name': '사천시',
+            # 'region_3depth_name': '남양동', <-- 행정구역
+            # 'region_4depth_name': '',
+            # 'x': 297008.1130364056,
+            # 'y': 164008.47612447804}]}
+            region_1depth_name = result['documents'][0]['region_1depth_name']
+            region_2depth_name = result['documents'][0]['region_2depth_name']
+            region_3depth_name = result['documents'][0]['region_3depth_name']
+
+            return ' '.join([region_1depth_name, region_2depth_name, region_3depth_name])
         
 
     class Meta:
