@@ -15,6 +15,7 @@ from .models import Message
 #  4) 5G -> LTE 전환
 #  5) 측정범위를 벗어나는 경우
 #  6) 측정콜이 한곳에 머무는 경우
+#  7) 측정단말이 중복측 정하는 경우(예: DL/DL, UL/UL)
 # -------------------------------------------------------------------------------------------------
 # 2022.02.24 - 기존 속도저하(Low Throughput)을 통화불량(Call Failure)로 변경하고, 
 #              새롭게 속도저하(Low Throughput) 모듈을 추가함
@@ -82,8 +83,8 @@ def send_failure_check(mdata):
                     # 메시지 내용을 작성한다.
                     message = f"{mdata.get_address()}에서 전송실패가 발생하였습니다.\n" + \
                             "(단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
-                            f"{mdata.phone_no}/{mdata.get_time()}/{mdata.currentCount}/{mdata.get_pci}/{mdata.cellId}/" + \
-                            f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.get_rsrp()}/{mdata.get_sinr()}"
+                            f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / {mdata.get_pci} / {mdata.cellId} / " + \
+                            f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
@@ -122,8 +123,8 @@ def low_throughput_check(mdata):
                     # 메시지 내용을 작성한다.
                     message = f"{mdata.get_address()}에서 속도저하가 발생했습니다.\n" + \
                             "(시간/단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
-                            f"{mdata.phone_no}/{mdata.get_time()}/{mdata.currentCount}/{mdata.get_pci()}/{mdata.cellId}/" + \
-                            f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.get_rsrp()}/{mdata.get_sinr()}"
+                            f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / {mdata.get_pci()} / {mdata.cellId} / " + \
+                            f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
                     # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
@@ -157,10 +158,10 @@ def fivgtolte_trans_check(mdata):
     # 2022.02.21 - 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
     # 2022.02.27 - 메시지 내용을 작성한다.
     if mdata.phone.networkId == '5G' and mdata.networkId == 'NR':
-        message = f"{mdata.siDo} {mdata.guGun} {mdata.addressDetail.split(' ')[0]}에서 5G->LTE로 전환되었습니다.\n" + \
+        message = f"{mdata.get_address()}에서 5G->LTE로 전환되었습니다.\n" + \
                     "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-                    f"{mdata.phone_no}/{mdata.get_time()}/{mdata.currentCount}/" + \
-                    f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.get_rsrp()}/{mdata.get_sinr()}" 
+                    f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
+                    f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
 
     return message
 
@@ -233,8 +234,8 @@ def out_measuring_range(mdata):
             # 메시지를 작성한다.
             message = f"{mdata.get_address()}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
                     "(단말번호/행정동/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-                    f"{mdata.phone_no}/{region_3depth_name}/{mdata.get_time()}/{mdata.currentCount}/" + \
-                    f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.get_rsrp()}/{mdata.get_sinr()}" 
+                    f"{mdata.get_phone_no_sht()} / {mdata.phone.addressDetail} / {mdata.get_time()} / {mdata.currentCount} / " + \
+                    f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
 
     except Exception as e:
         print("out_measuring_range():", str(e))
@@ -292,8 +293,8 @@ def call_staying_check(mdata):
             # 메시지 내용을 작성한다.
             message = f"{mdata.get_address()}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
                        "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-                        f"{mdata.phone_no}/{mdata.get_time()}/{mdata.currentCount}/" + \
-                        f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.get_rsrp()}/{mdata.get_sinr()}" 
+                        f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
+                        f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
 
     return message
 
