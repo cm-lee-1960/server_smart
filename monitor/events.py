@@ -82,8 +82,8 @@ def send_failure_check(mdata):
                     # 메시지 내용을 작성한다.
                     message = f"{mdata.get_address()}에서 전송실패가 발생하였습니다.\n" + \
                             "(단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
-                            f"{mdata.phone_no}/{mdata.get_time()}/{mdata.currentCount}/{pci}/{mdata.cellId}/" + \
-                            f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.get_rsrp()}/{mdata.geget_sinr}"
+                            f"{mdata.phone_no}/{mdata.get_time()}/{mdata.currentCount}/{mdata.get_pci}/{mdata.cellId}/" + \
+                            f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.get_rsrp()}/{mdata.get_sinr()}"
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
@@ -122,7 +122,7 @@ def low_throughput_check(mdata):
                     # 메시지 내용을 작성한다.
                     message = f"{mdata.get_address()}에서 속도저하가 발생했습니다.\n" + \
                             "(시간/단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
-                            f"{mdata.phone_no}/{mdata.get_time()}/{mdata.currentCount}/{pci}/{mdata.cellId}/" + \
+                            f"{mdata.phone_no}/{mdata.get_time()}/{mdata.currentCount}/{mdata.get_pci()}/{mdata.cellId}/" + \
                             f"{mdata.downloadBandwidth}/{mdata.uploadBandwidth}/{mdata.get_rsrp()}/{mdata.get_sinr()}"
                     # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 

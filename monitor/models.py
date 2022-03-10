@@ -295,6 +295,21 @@ class MeasureCallData(models.Model):
     # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
 
+    # DL
+    def get_dl(self):
+        if self.downloadBandwidth and self.downloadBandwidth > 0:
+            return f"{self.downloadBandwidth:.1f}"
+        else:
+            return '-'
+
+    # UL
+    def get_ul(self):
+        if self.uploadBandwidth and self.uploadBandwidth > 0:
+            return f"{self.uploadBandwidth:.1f}"
+        else:
+            return '-'
+
+
     # PCI
     def get_pci(self):
         if self.networkId == '5G':
@@ -427,7 +442,6 @@ def send_message(sender, **kwargs):
     bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
     # 텔레그램으로 메시지를 전송한다.
     if kwargs['instance'].sendType == 'TELE':
-        bot.check_limit()
         bot.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
     # 크로샷으로 메시지를 전송한다.
     elif kwargs['instance'].sendType == 'XMCS':
