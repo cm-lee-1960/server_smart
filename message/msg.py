@@ -183,11 +183,11 @@ def make_message(mdata):
                             "속도(DL/UL, Mbps)\n" + \
                             f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
         elif phone.networkId == '5G':
-            MEASURING_MSG = f"<code>{phone.networkId}{location} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
+            MEASURING_MSG = f"<code>{phone.networkId} {location} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
                             f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
                             f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
         else:
-            MEASURING_MSG = f"<code>{phone.networkId}{location} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
+            MEASURING_MSG = f"<code>{phone.networkId} {location} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
                             f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
         # [측정종료 메시지] -----------------------------------------------------------------------------------
         END_MSG = f"<code>금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
