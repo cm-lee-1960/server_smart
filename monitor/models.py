@@ -64,8 +64,8 @@ class Phone(models.Model):
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     phone_no = models.BigIntegerField(verbose_name="측정단말")
-    userInfo1 = models.CharField(max_length=100, verbose_name="측정지역")
-    userInfo2 = models.CharField(max_length=100, verbose_name="모풀로지(측정데이터)")
+    userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
+    userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
     networkId = models.CharField(
         max_length=100, null=True, blank=True, verbose_name="유형"
     )  # 네트워크ID(5G, LTE, 3G, WiFi)
@@ -258,9 +258,9 @@ class MeasureCallData(models.Model):
     testNetworkType = models.CharField(
         max_length=100, null=True, blank=True
     )  # 측정종류(speed, latency, web)
-    userInfo1 = models.CharField(max_length=100, null=True, blank=True)  # 입력된 주소정보
+    userInfo1 = models.CharField(max_length=100, null=True, blank=True, verbose_name="측정자 입력값1")  # 입력된 주소정보
     userInfo2 = models.CharField(
-        max_length=100, null=True, blank=True, verbose_name="모풀로지"
+        max_length=100, null=True, blank=True, verbose_name="측정자 입력값2"
     )  # 측정위치(행정동, 테마, 인빌딩, 커버리지)
     siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
     guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군

@@ -87,8 +87,9 @@ class PhoneAdmin(admin.ModelAdmin):
 
 
     # form = PhoneForm
-    list_display = ['measdate', 'userInfo1', 'morphology', 'phone_no_abbr', 'networkId', 'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', \
-        'status', 'total_count', 'last_updated_at', 'active', 'manage']
+    list_display = ['measdate', 'userInfo1', 'userInfo2', 'morphology', 'phone_no_abbr', 'networkId', 
+                    'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', 'status', 'total_count', 
+                    'last_updated_at', 'active', 'manage']
     list_display_links = ['phone_no_abbr']
     search_fields = ('userInfo1', 'phone_no', )
     list_filter = ['measdate', ManageFilter, 'active', ]
@@ -233,6 +234,7 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
+
 
 admin.site.register(Phone, PhoneAdmin) # 측정 단말
 admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
