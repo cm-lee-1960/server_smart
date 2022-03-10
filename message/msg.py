@@ -152,7 +152,7 @@ def make_message(mdata):
         # DL/UL 평균속도를 산출한다.         
         if dl_count > 0 : avg_downloadBandwidth = round(dl_sum / dl_count,2)
         if ul_count > 0 : avg_uploadBandwidth = round(ul_sum / ul_count,2)
-        if nr_count > 0 : avg_nrRate = round(nr_count / (dl_count + ul_count) * 100,2)
+        # if nr_count > 0 : avg_nrRate = round(nr_count / (dl_count + ul_count) * 100,2)
 
         # 메시지를 작성한다.
         #                01234567890123456

@@ -229,6 +229,8 @@ class Phone(models.Model):
 
 ###################################################################################################
 # 실시간 측정 데이터(콜 단위)
+# -------------------------------------------------------------------------------------------------
+# 2022.03.10 - 다른 항목 조건을 고려하거나 연산을 해서 가져오는 속성값을 가져오기 위한 함수들 정의(get)
 ###################################################################################################
 class MeasureCallData(models.Model):
     """실시간 측정 데이터(콜 단위)"""
@@ -292,6 +294,43 @@ class MeasureCallData(models.Model):
     NR_SINR = models.FloatField(null=True, blank=True)  # 5G SINR
     # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
+
+    # PCI
+    def get_pci(self):
+        if self.networkId == '5G':
+            return self.NR_PCI
+        else:
+            return self.p_pci
+
+    # RSRP
+    def get_rsrp(self):
+        if self.networkId == '5G':
+            return self.NR_RSRP
+        else:
+            return self.p_pci
+
+    # SINR
+    def get_sinr(self):
+        if self.networkId == '5G':
+            return self.NR_SINR
+        else:
+            return self.p_SINR
+
+    # 측정시간(예: 09:37)
+    def get_time(self):
+        if self.meastime:
+            meastime_s = str(self.meastime)
+            return f"{meastime_s[8:10]}:{meastime_s[10:12]}"
+        else:
+            return ''
+
+    # 측정위치(예: 경상남도 사천시 노룡동)
+    def address(self):
+        if self.addressDetail and self.addressDetail != None:
+            return f"{self.siDo} {self.guGun} {self.addressDetail.split(' ')[0]}"
+        else:
+            return self.userInfo1
+        
 
     class Meta:
         verbose_name = "측정 데이터(콜단위)"
