@@ -117,9 +117,11 @@ def receive_json(request):
                 networkId = data['networkId']
 
             # 측정 단말기를 생성한다.
+            meastime_s = str(data['meastime']) # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             phone = Phone.objects.create(
                         phoneGroup = phoneGroup,
-                        measdate=str(data['meastime'])[0:8],
+                        measdate=meastime_s[0:8],
+                        starttime=meastime_s[8:10]+ ':' + meastime_s[10:12],
                         phone_no=data['phone_no'],
                         userInfo1=data['userInfo1'],
                         userInfo2=data['userInfo2'],

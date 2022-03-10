@@ -63,6 +63,7 @@ class Phone(models.Model):
 
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
+    starttime = models.CharField(max_length=10, verbose_name="측정시작시간")  # 측정시작시간
     phone_no = models.BigIntegerField(verbose_name="측정단말")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
     userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
