@@ -10,4 +10,5 @@ urlpatterns = [
     path('delete_register/',views.delete_register,name='delete_register'),
     path('delete_todayregister/',views.delete_todayregister,name='delete_todayregister'),
     path('test_layout/',views.test_layout,name='test_layout'),
+    path('make_report/',views.make_report, name='make_report'),
 ]

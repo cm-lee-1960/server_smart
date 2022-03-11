@@ -1,181 +1,37 @@
+{% extends "analysis/base.html" %}
 {% load static %}
+{% block contents %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>일일보고 테스트</title>
-<style>
-	*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: sans-serif;
-}
-header{
-	position : sticky;
-	top : 0;
-	z-index : 100;
-}
-nav{
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-}
-nav a{
-    position: relative;
-    margin: 0 20px;
-    font-size:20pt;
-	top : 10pt;
-    color:white;
-    text-decoration: none;
-}
-nav #underline{
-    position: absolute;
-    left: 0;
-    height: 4px;
-    width: 0;
-    background: #000000;
-    bottom: -9px;
-    transition: 0.2s;
-    border-radius: 5px;
 
-}
+<!-- 모달 기본 라이브러리 -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
+<script defer src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+<script type="text/javascript" defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script type="text/javascript" defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<!-- 폰트 호출 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+<!-- CSS,JS 호출 -->
+<link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
+<script type="text/javascript" defer src="{% static "js/header.js" %}"></script>
+<script type="text/javascript" defer src="{% static "js/reportbtn.js" %}"></script>
+<script type="text/javascript" defer src="{% static "js/reportdata.js" %}"></script>
+<script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
 
-table {
-	width: 100%;
-	border: 1px solid #444444;
-	border-collapse: collapse;
-	font-size: 15pt;
-}
-th, td {
-	border: 1px solid #444444;
-	width: 40px;
-}
-p {
- 	display: inline;
-}
-h2 {
-	display: inline;
-}
-#title {
-	position: relative;
-	left: 25%;
-}
-thead {
-	background-color: lightgrey; 
-	color: black;
-}
-</style>
-<script type="text/javascript"
-	src="https://code.jquery.com/jquery-3.1.0.js"></script>
-<script type="text/javascript"
-	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
-<script>
-	$(document).ready(function(){
-		$('a').hover(function(){
-			$(this).css('color','aquamarine');
-			},	function(){
-				$(this).css('color','white');
-			
-		});
-	});
-</script>
-<script type="text/javascript"
-	src="https://code.jquery.com/jquery-3.1.0.js"></script>
-<script type="text/javascript"
-	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
-<!-- <script type="text/javascript">
 
-	$(document).ready(
-			function() {
-				
-			var target1, target2, target3, target4, target5, target6, target7, target8, target9, target10, target11, target12 = null;
-				$.getJSON("jsontest1.json", function(result) {
-					target1 = result[0].q;
-					document.getElementById("target1").innerHTML = target1;
-					document.getElementById("target01").innerHTML = target1;
-					target2 = result[0].w;
-					document.getElementById("target2").innerHTML = target2;
-					target3 = result[0].e;
-					document.getElementById("target3").innerHTML = target3;
-					target4 = result[0].r;
-					document.getElementById("target4").innerHTML = target4;
-					target5 = result[0].a;
-					document.getElementById("target5").innerHTML = target5;
-					document.getElementById("target05").innerHTML = target5;
-					target6 = result[0].s;
-					document.getElementById("target6").innerHTML = target6;
-					target7 = result[0].d;
-					document.getElementById("target7").innerHTML = target7;
-					target8 = result[0].f;
-					document.getElementById("target8").innerHTML = target8;
-					target9 = result[0].z;
-					document.getElementById("target9").innerHTML = target9;
-					target10 = result[0].x;
-					document.getElementById("target10").innerHTML = target10;
-					target11 = result[0].c;
-					document.getElementById("target11").innerHTML = target11;
-					target12 = result[0].v;
-					document.getElementById("target12").innerHTML = target12;
-					
-				});
-				
-				
-			});
-</script> -->
-<script>
-	function printName() {
-		const name = document.getElementById('name').value;
-		document.getElementById("result").innerText = name;
-	}
-	function printName1() {
-		const name = document.getElementById('name1').value;
-		document.getElementById("result1").innerText = name;
-	}
-	function printName2() {
-		const name = document.getElementById('name2').value;
-		document.getElementById("result2").innerText = name;
-	}
-	
-</script>
 
 </head>
 
 <body>
-	<header>
-		<div class = "title" style = "background-color: mediumaquamarine; width : 100%; height : 50pt ;">
-			<div class = "logo" style = "width:10%; float : left " >
-				<a href="http://127.0.0.1:8000/analysis/test_layout">
-				<img src = "{% static 'images/logo2.png' %}" style = " width : 130pt;" /> 
-				</a>
-			</div>
-					<nav style = " float : left">
-						<!-- <div id="underline"></div> -->
-						<a href="http://127.0.0.1:8000/analysis/new">대상등록</a>
-						<a href="http://127.0.0.1:8000/analysis/report">일일보고</a>
-						<a href="#">menu3</a>
-						<a href="#">menu4</a>
-						<a href="#">menu5</a>
-						<a href="#">menu6</a>
-					</nav>
-				
-		   
-			
-		</div>
-		
-		
-		</script>
-
-		<!-- 지역 숫자  -->
-
-		</header>
+	
 	<button role="button" id="modify"
 		class="add ui-button ui-button ui-state-default ui-button-text-only">
 		<span class="ui-button-text">수정</span>
@@ -271,8 +127,8 @@ thead {
 					<tr>
 						<th >대도시</th>
 						<th >중소도시</th>
-						<th >인빌딩</th>
 						<th >농어촌</th>
+						<th >인빌딩</th>
 						<th >테마</th>
 					</tr>
 				</thead>
@@ -315,12 +171,12 @@ thead {
 			</table>
 		</div>
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p>※ 행정동 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
-			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
-			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p><br>
-			<p>※ 다중이용시설/교통인프라 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
-			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
-			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p>
+			<p>※ 행정동 : 대도시(</p><p id="bigcityLTEseoul">{{bigcityLTEseoul}}</p><p id="bigcityLTEincheon">{{bigcityLTEincheon}}</p><p id="bigcityLTEulsan">{{bigcityLTEulsan}}</p><p id="bigcityLTEdaegu">{{bigcityLTEdaegu}}</p><p id="bigcityLTEgwangju">{{bigcityLTEgwangju}}</p><p id="bigcityLTEdaejun">{{bigcityLTEdaejun}}</p><p id="bigcityLTEgyunggi">{{bigcityLTEgyunggi}}</p><p id="bigcityLTEgyungbuk">{{bigcityLTEgyungbuk}}</p><p id="bigcityLTEjunnam">{{bigcityLTEjunnam}}</p><p id="bigcityLTEjunbuk">{{bigcityLTEjunbuk}}</p><p id="bigcityLTEchungnam">{{bigcityLTEchungnam}}</p><p id="bigcityLTEchungbuk">{{bigcityLTEchungbuk}}</p><p id="bigcityLTEsejong">{{bigcityLTEsejong}}</p><p id="bigcityLTEsudo">{{bigcityLTEsudo}}</p><p>), </p>
+			<p>중소도시(</p><p id="smallcityLTEseoul">{{smallcityLTEseoul}}</p><p id="smallcityLTEincheon">{{smallcityLTEincheon}}</p><p id="smallcityLTEulsan">{{smallcityLTEulsan}}</p><p id="smallcityLTEdaegu">{{smallcityLTEdaegu}}</p><p id="smallcityLTEgwangju">{{smallcityLTEgwangju}}</p><p id="smallcityLTEdaejun">{{smallcityLTEdaejun}}</p><p id="smallcityLTEgyunggi">{{smallcityLTEgyunggi}}</p><p id="smallcityLTEgyungbuk">{{smallcityLTEgyungbuk}}</p><p id="smallcityLTEjunnam">{{smallcityLTEjunnam}}</p><p id="smallcityLTEjunbuk">{{smallcityLTEjunbuk}}</p><p id="smallcityLTEchungnam">{{smallcityLTEchungnam}}</p><p id="smallcityLTEchungbuk">{{smallcityLTEchungbuk}}</p><p id="smallcityLTEsejong">{{smallcityLTEsejong}}</p><p id="smallcityLTEsudo">{{smallcityLTEsudo}}</p><p>), </p>
+			<p>농어촌(</p><p id="nongLTEseoul">{{nongLTEseoul}}</p><p id="nongLTEincheon">{{nongLTEincheon}}</p><p id="nongLTEulsan">{{nongLTEulsan}}</p><p id="nongLTEdaegu">{{nongLTEdaegu}}</p><p id="nongLTEgwangju">{{nongLTEgwangju}}</p><p id="nongLTEdaejun">{{nongLTEdaejun}}</p><p id="nongLTEgyunggi">{{nongLTEgyunggi}}</p><p id="nongLTEgyungbuk">{{nongLTEgyungbuk}}</p><p id="nongLTEjunnam">{{nongLTEjunnam}}</p><p id="nongLTEjunbuk">{{nongLTEjunbuk}}</p><p id="nongLTEchungnam">{{nongLTEchungnam}}</p><p id="nongLTEchungbuk">{{nongLTEchungbuk}}</p><p id="nongLTEsejong">{{nongLTEsejong}}</p><p id="nongLTEsudo">{{nongLTEsudo}}</p><p>)</p>
+		
+		</br><p>※ 인빌딩 :</p><p id="inbuildingLTEcdys">{{inbuildingLTEcdys}}</p><p id="inbuildingLTEdhbw">{{inbuildingLTEdhbw}}<p id="inbuildingLTEbhj">{{inbuildingLTEbhj}}</p><p id="inbuildingLTEtmn">{{inbuildingLTEtmn}}</p><p id="inbuildingLTEgh">{{inbuildingLTEgh}}</p><p id="inbuildingLTEdhjp">{{inbuildingLTEdhjp}}</p><p id="inbuildingLTEjsj">{{inbuildingLTEjsj}}</p><p id="inbuildingLTEjhcys">{{inbuildingLTEjhcys}}</p>
+		</br><p>※ 테마 :</p><p id="themeLTEjunnam">{{themeLTEjunnam}}</p><p id="themeLTEjunbuk">{{themeLTEjunbuk}}<p id="themeLTEchungnam">{{themeLTEchungnam}}</p><p id="themeLTEchungbuk">{{themeLTEchungbuk}}</p><p id="themeLTEsejong">{{themeLTEsejong}}</p>
 			</div>
 		<br>
 		<br>
@@ -424,13 +280,10 @@ thead {
 			</table>
 		</div>
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p>※ 행정동 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
-			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
-			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p><br>
-			<p>※ 다중이용시설/교통인프라 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
-			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
-			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p>
-			</div>
+			<p>※ 행정동 : </p>
+			
+		</div>
+
 		<br>
 		<br>
 		<div>
@@ -847,303 +700,10 @@ thead {
 		<p style="font-size: 10pt;" id='result2'></p>
 		<input id='name2' onchange='printName2()' autocomplete="off" />
 </div>
-	<script>
-		$("#name").hide();
-		$("#name1").hide();
-		$("#name2").hide();
-
-		$('#modify').click(function() {
-
-			$("#name").show();
-			$("#name1").show();
-			$("#name2").show();
-
-		});
-		$('#complete').click(function() {
-
-			$("#name").hide();
-			$("#name1").hide();
-			$("#name2").hide();
-
-		});
-	</script>
 	
-	<script>
-		$('#cmd').click(
-				function() {
-					var doc = new jsPDF();
-					var specialElementHandlers = {
-						'#editor' : function(element, renderer) {
-							return true;
-						}
-					};
-					html2canvas($('#content'), {
+	
+	
 
-						onrendered : function(canvas) {
-							var imgData = canvas.toDataURL('jpeg');
-							var imgWidth = 210; // 이미지 가로 길이(mm) A4 기준
-							var pageHeight = imgWidth * 1.414; // 출력 페이지 세로 길이 계산 A4 기준
-							var imgHeight = canvas.height * imgWidth / canvas.width;
-							var heightLeft = imgHeight;
-							var margin = 20; // 출력 페이지 여백설정
-							var position = 10;
-							var doc = new jsPDF("p", "mm");
-
-							doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-							heightLeft -= pageHeight;
-							// 한 페이지 이상일 경우 루프 돌면서 출력
-							while (heightLeft >= 0) {
-								position += heightLeft - imgHeight;
-								doc.addPage();
-								doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-								heightLeft -= pageHeight;
-							}
-							doc.save('test.pdf');
-
-						}
-					});
-				});
-	</script>
-	<script>
-		
-		var total1 = parseInt(document.getElementById("5tt").outerText);
-		var total2 = parseInt(document.getElementById("ltt").outerText);
-		var total3 = parseInt(document.getElementById("witt").outerText);
-		var total4 = parseInt(document.getElementById("wtt").outerText);
-		var total5 = parseInt(document.getElementById("5nj").outerText);
-		var total6 = parseInt(document.getElementById("lnj").outerText);
-		var total7 = parseInt(document.getElementById("winj").outerText);
-		var total8 = parseInt(document.getElementById("wnj").outerText);
-
-		document.getElementById("tt1").innerHTML = total1+"개 지역 중";
-		document.getElementById("tt2").innerHTML = total2+"개 지역 중";
-		document.getElementById("tt3").innerHTML = total3+"개 지역 중";
-		document.getElementById("tt4").innerHTML = total4+"개 지역 중";
-		document.getElementById("pc1").innerHTML = "(" + ((total5/total1)*100).toFixed(2) + "%)";
-		document.getElementById("pc2").innerHTML = "(" + ((total6/total2)*100).toFixed(2) + "%)";
-		document.getElementById("pc3").innerHTML = "(" + ((total7/total3)*100).toFixed(2) + "%)";
-		document.getElementById("pc4").innerHTML = "(" + ((total8/total4)*100).toFixed(2) + "%)";
-		document.getElementById("tt").innerHTML = total1+total2+total3+total4+"개";
-		document.getElementById("ttf").innerHTML = total5+total6+total7+total8+"개";
-		document.getElementById("pcf").innerHTML = "(진도율:" + (((total5+total6+total7+total8)/(total1+total2+total3+total4))*100).toFixed(2) + "%)";
-	</script>
-
-<script>
-   
-       
-		var hjd5gseoul = parseInt(document.getElementById("hjd5gseoul").outerText);
-		var hjd5gincheon = parseInt(document.getElementById("hjd5gincheon").outerText);
-		var hjd5gulsan = parseInt(document.getElementById("hjd5gulsan").outerText);
-		var hjd5gdaegu = parseInt(document.getElementById("hjd5gdaegu").outerText);
-		var hjd5ggwangju = parseInt(document.getElementById("hjd5ggwangju").outerText);
-		var hjd5gdaejun = parseInt(document.getElementById("hjd5gdaejun").outerText);
-		var hjd5ggyunggi = parseInt(document.getElementById("hjd5ggyunggi").outerText);
-		var hjd5ggyungbuk = parseInt(document.getElementById("hjd5ggyungbuk").outerText);
-		var hjd5gjunnam = parseInt(document.getElementById("hjd5gjunnam").outerText);
-		var hjd5gjunbuk = parseInt(document.getElementById("hjd5gjunbuk").outerText);
-		var hjd5gchungnam = parseInt(document.getElementById("hjd5gchungnam").outerText);
-		var hjd5gchungbuk = parseInt(document.getElementById("hjd5gchungbuk").outerText);
-		var hjd5gsejong = parseInt(document.getElementById("hjd5gsejong").outerText);
-		var dagyo5gseoul = parseInt(document.getElementById("dagyo5gseoul").outerText);
-		var dagyo5gincheon = parseInt(document.getElementById("dagyo5gincheon").outerText);
-		var dagyo5gulsan = parseInt(document.getElementById("dagyo5gulsan").outerText);
-		var dagyo5gdaegu = parseInt(document.getElementById("dagyo5gdaegu").outerText);
-		var dagyo5ggwangju = parseInt(document.getElementById("dagyo5ggwangju").outerText);
-		var dagyo5gdaejun = parseInt(document.getElementById("dagyo5gdaejun").outerText);
-		var dagyo5ggyunggi = parseInt(document.getElementById("dagyo5ggyunggi").outerText);
-		var dagyo5ggyungbuk = parseInt(document.getElementById("dagyo5ggyungbuk").outerText);
-		var dagyo5gjunnam = parseInt(document.getElementById("dagyo5gjunnam").outerText);
-		var dagyo5gjunbuk = parseInt(document.getElementById("dagyo5gjunbuk").outerText);
-		var dagyo5gchungnam = parseInt(document.getElementById("dagyo5gchungnam").outerText);
-		var dagyo5gchungbuk = parseInt(document.getElementById("dagyo5gchungbuk").outerText);
-		var dagyo5gsejong = parseInt(document.getElementById("dagyo5gsejong").outerText);
-		var dagyo5gsudo = parseInt(document.getElementById("dagyo5gsudo").outerText);
-		
-		if (hjd5gseoul > 0) {
-            document.getElementById("hjd5gseoul").innerHTML = " 서울 " + hjd5gseoul;
-			
-        } else {
-			document.getElementById("hjd5gseoul").innerHTML = "";
-		}
-		if (hjd5gincheon > 0) {
-            document.getElementById("hjd5gincheon").innerHTML = " 인천 " + hjd5gincheon;
-			
-        } else {
-			document.getElementById("hjd5gincheon").innerHTML = "";
-		}
-		if (hjd5gulsan > 0) {
-            document.getElementById("hjd5gulsan").innerHTML = " 울산 " + hjd5gulsan;
-			
-        } else {
-			document.getElementById("hjd5gulsan").innerHTML = "";
-		}
-		if (hjd5gdaegu > 0) {
-            document.getElementById("hjd5gdaegu").innerHTML = " 대구 " + hjd5gdaegu;
-			
-        } else {
-			document.getElementById("hjd5gdaegu").innerHTML = "";
-		}
-		if (hjd5ggwangju > 0) {
-            document.getElementById("hjd5ggwangju").innerHTML = " 광주 " + hjd5ggwangju;
-			
-        } else {
-			document.getElementById("hjd5ggwangju").innerHTML = "";
-		}
-		if (hjd5gdaejun > 0) {
-            document.getElementById("hjd5gdaejun").innerHTML = " 대전 " + hjd5gdaejun;
-			
-        } else {
-			document.getElementById("hjd5gdaejun").innerHTML = "";
-		}
-		if (hjd5ggyunggi > 0) {
-            document.getElementById("hjd5ggyunggi").innerHTML = " 경기 " + hjd5ggyunggi;
-			
-        } else {
-			document.getElementById("hjd5ggyunggi").innerHTML = "";
-		}
-		if (hjd5ggyungbuk > 0) {
-            document.getElementById("hjd5ggyungbuk").innerHTML = " 경북 " + hjd5ggyungbuk;
-			
-        } else {
-			document.getElementById("hjd5ggyungbuk").innerHTML = "";
-		}
-		if (hjd5gjunnam > 0) {
-            document.getElementById("hjd5gjunnam").innerHTML = " 전남 " + hjd5gjunnam;
-			
-        } else {
-			document.getElementById("hjd5gjunnam").innerHTML = "";
-		}
-		if (hjd5gjunbuk > 0) {
-            document.getElementById("hjd5gjunbuk").innerHTML = " 전북 " + hjd5gjunbuk;
-			
-        } else {
-			document.getElementById("hjd5gjunbuk").innerHTML = "";
-		}
-		if (hjd5gchungnam > 0) {
-            document.getElementById("hjd5gchungnam").innerHTML = " 충남 " + hjd5gchungnam;
-			
-        } else {
-			document.getElementById("hjd5gchungnam").innerHTML = "";
-		}
-		if (hjd5gchungbuk > 0) {
-            document.getElementById("hjd5gchungbuk").innerHTML = " 충북 " + hjd5gchungbuk;
-			
-        } else {
-			document.getElementById("hjd5gchungbuk").innerHTML = "";
-		}
-		if (hjd5gsejong > 0) {
-            document.getElementById("hjd5gsejong").innerHTML = " 세종 " + hjd5gsejong;
-			
-        } else {
-			document.getElementById("hjd5gsejong").innerHTML = "";
-		}
-		if (dagyo5gseoul > 0) {
-            document.getElementById("dagyo5gseoul").innerHTML = " 서울 " + dagyo5gseoul;
-			
-        } else {
-			document.getElementById("dagyo5gseoul").innerHTML = "";
-		}
-		if (dagyo5gincheon > 0) {
-            document.getElementById("dagyo5gincheon").innerHTML = " 인천 " + dagyo5gincheon;
-			
-        } else {
-			document.getElementById("dagyo5gincheon").innerHTML = "";
-		}
-		if (dagyo5gulsan > 0) {
-            document.getElementById("dagyo5gulsan").innerHTML = " 울산 " + dagyo5gulsan;
-			
-        } else {
-			document.getElementById("dagyo5gulsan").innerHTML = "";
-		}
-		if (dagyo5gdaegu > 0) {
-            document.getElementById("dagyo5gdaegu").innerHTML = " 대구 " + dagyo5gdaegu;
-			
-        } else {
-			document.getElementById("dagyo5gdaegu").innerHTML = "";
-		}
-		if (dagyo5ggwangju > 0) {
-            document.getElementById("dagyo5ggwangju").innerHTML = " 광주 " + dagyo5ggwangju;
-			
-        } else {
-			document.getElementById("dagyo5ggwangju").innerHTML = "";
-		}
-		if (dagyo5gdaejun > 0) {
-            document.getElementById("dagyo5gdaejun").innerHTML = " 대전 " + dagyo5gdaejun;
-			
-        } else {
-			document.getElementById("dagyo5gdaejun").innerHTML = "";
-		}
-		if (dagyo5ggyunggi > 0) {
-            document.getElementById("dagyo5ggyunggi").innerHTML = " 경기 " + dagyo5ggyunggi;
-			
-        } else {
-			document.getElementById("dagyo5ggyunggi").innerHTML = "";
-		}
-		if (dagyo5ggyungbuk > 0) {
-            document.getElementById("dagyo5ggyungbuk").innerHTML = " 경북 " + dagyo5ggyungbuk;
-			
-        } else {
-			document.getElementById("dagyo5ggyungbuk").innerHTML = "";
-		}
-		if (dagyo5gjunnam > 0) {
-            document.getElementById("dagyo5gjunnam").innerHTML = " 전남 " + dagyo5gjunnam;
-			
-        } else {
-			document.getElementById("dagyo5gjunnam").innerHTML = "";
-		}
-		if (dagyo5gjunbuk > 0) {
-            document.getElementById("dagyo5gjunbuk").innerHTML = " 전북 " + dagyo5gjunbuk;
-			
-        } else {
-			document.getElementById("dagyo5gjunbuk").innerHTML = "";
-		}
-		if (dagyo5gchungnam > 0) {
-            document.getElementById("dagyo5gchungnam").innerHTML = " 충남 " + dagyo5gchungnam;
-			
-        } else {
-			document.getElementById("dagyo5gchungnam").innerHTML = "";
-		}
-		if (dagyo5gchungbuk > 0) {
-            document.getElementById("dagyo5gchungbuk").innerHTML = " 충북 " + dagyo5gchungbuk;
-			
-        } else {
-			document.getElementById("dagyo5gchungbuk").innerHTML = "";
-		}
-		if (dagyo5gsejong > 0) {
-            document.getElementById("dagyo5gsejong").innerHTML = " 새종 " + dagyo5gsejong;
-			
-        } else {
-			document.getElementById("dagyo5gsejong").innerHTML = "";
-		}
-		if (dagyo5gsudo > 0) {
-            document.getElementById("dagyo5gsudo").innerHTML = " 수도권 " + dagyo5gsudo;
-			
-        } else {
-			document.getElementById("dagyo5gsudo").innerHTML = "";
-		}
-       
-       
-</script>
-
-	<script>
-		date = new Date();
-		year = date.getFullYear();
-		month = date.getMonth() + 1;
-		day = date.getDate();
-		document.getElementById("current_date").innerHTML = month + "."
-				+ day + "." + year;
-		
-	</script>
-	<script>
-		var date1 =  document.getElementById("firstdate").outerText;
-		date1 = date1.substr(6);
-		document.getElementById("firstdate").innerText = "(" + date1 + "~"
-	</script>
-	<script>
-		var date2 = document.getElementById("lastdate").outerText;
-		date2 = date2.substr(6);
-		document.getElementById("lastdate").innerHTML = date2 + ")"
-	</script>
 
 
 
@@ -1152,3 +712,4 @@ thead {
 
 </body>
 </html>
+{% endblock %}

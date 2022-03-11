@@ -7,3 +7,4 @@ secrets.json
 /message/__pycache__
 /monitor/__pycache__
 /smartproject/__pycache__
+/analysis/__pycache__

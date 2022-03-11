@@ -36,7 +36,7 @@ def make_report(request):
     tregiLTE4 = TodayRegister.objects.filter(category = "LTE",  date = datetime.date.today(), bigsmallnongintheme = "인빌딩").count()
     tregiLTE5 = TodayRegister.objects.filter(category = "LTE",  date = datetime.date.today(), bigsmallnongintheme = "테마").count()
     tregiLTE6 = TodayRegister.objects.filter(category = "LTE",  date = datetime.date.today(), bigsmallnongintheme = "커버리지").count()
-    tregiLTE = TodayRegister.objects.filter(category = "LTE").count()
+    tregiLTE = TodayRegister.objects.filter(category = "LTE",  date = datetime.date.today()).count()
 
     sregiWiFi1 = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용").count()
     sregiWiFi2 = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방").count()
@@ -54,7 +54,7 @@ def make_report(request):
     tregiweak2 = TodayRegister.objects.filter(category = "품질취약지역",  date = datetime.date.today(), weakjiyok = "여객항로").count()
     tregiweak3 = TodayRegister.objects.filter(category = "품질취약지역",  date = datetime.date.today(), weakjiyok = "유인도서").count()
     tregiweak4 = TodayRegister.objects.filter(category = "품질취약지역",  date = datetime.date.today(), weakjiyok = "해안도로").count()
-    tregiweak = TodayRegister.objects.filter(category = "품질취약지역").count()
+    tregiweak = TodayRegister.objects.filter(category = "품질취약지역",  date = datetime.date.today()).count()
     
     hjd5gseoul = TodayRegister.objects.filter(category = "5G", dongdaco = "행정동", jiyok = "서울").count()
     hjd5gincheon = TodayRegister.objects.filter(category = "5G", dongdaco = "행정동", jiyok = "인천").count()
@@ -85,6 +85,115 @@ def make_report(request):
     dagyo5gsejong = TodayRegister.objects.filter(category = "5G", dongdaco = "다중이용시설/교통인프라", jiyok = "세종").count()
     dagyo5gsudo = TodayRegister.objects.filter(category = "5G", dongdaco = "다중이용시설/교통인프라", jiyok = "수도권").count()
 
+    bigcityLTEseoul = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "서울").count()
+    bigcityLTEincheon = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "인천").count()
+    bigcityLTEulsan = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "울산").count()
+    bigcityLTEdaegu = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "대구").count()
+    bigcityLTEgwangju = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "광주").count()
+    bigcityLTEdaejun = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "대전").count()
+    bigcityLTEgyunggi = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "경기").count()
+    bigcityLTEgyungbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "경북").count()
+    bigcityLTEjunnam = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "전남").count()
+    bigcityLTEjunbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "전북").count()
+    bigcityLTEchungnam = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "충남").count()
+    bigcityLTEchungbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "충북").count()
+    bigcityLTEsejong = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "세종").count()
+    bigcityLTEsudo = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "대도시", jiyok = "수도권").count()
+
+    smallcityLTEseoul = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "서울").count()
+    smallcityLTEincheon = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "인천").count()
+    smallcityLTEulsan = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "울산").count()
+    smallcityLTEdaegu = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "대구").count()
+    smallcityLTEgwangju = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "광주").count()
+    smallcityLTEdaejun = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "대전").count()
+    smallcityLTEgyunggi = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "경기").count()
+    smallcityLTEgyungbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "경북").count()
+    smallcityLTEjunnam = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "전남").count()
+    smallcityLTEjunbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "전북").count()
+    smallcityLTEchungnam = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "충남").count()
+    smallcityLTEchungbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "충북").count()
+    smallcityLTEsejong = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "세종").count()
+    smallcityLTEsudo = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "중소도시", jiyok = "수도권").count()
+
+    
+    nongLTEseoul = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "서울").count()
+    nongLTEincheon = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "인천").count()
+    nongLTEulsan = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "울산").count()
+    nongLTEdaegu = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "대구").count()
+    nongLTEgwangju = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "광주").count()
+    nongLTEdaejun = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "대전").count()
+    nongLTEgyunggi = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "경기").count()
+    nongLTEgyungbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "경북").count()
+    nongLTEjunnam = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "전남").count()
+    nongLTEjunbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "전북").count()
+    nongLTEchungnam = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "충남").count()
+    nongLTEchungbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "충북").count()
+    nongLTEsejong = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "세종").count()
+    nongLTEsudo = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "농어촌", jiyok = "수도권").count()
+
+
+    inbuildingLTEcdys = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "인빌딩", jiyok = "철도역사").count()
+    inbuildingLTEdhbw = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "인빌딩", jiyok = "대형병원").count()
+    inbuildingLTEbhj = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "인빌딩", jiyok = "백화점").count()
+    inbuildingLTEtmn = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "인빌딩", jiyok = "터미널").count()
+    inbuildingLTEgh = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "인빌딩", jiyok = "공항").count()
+    inbuildingLTEdhjp = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "인빌딩", jiyok = "대형점포").count()
+    inbuildingLTEjsj = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "인빌딩", jiyok = "전시장").count()
+    inbuildingLTEjhcys = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "인빌딩", jiyok = "지하철역사").count()
+
+
+    themeLTEjunnam = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "테마", jiyok = "대학교").count()
+    themeLTEjunbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "테마", jiyok = "놀이공원").count()
+    themeLTEchungnam = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "테마", jiyok = "주요거리").count()
+    themeLTEchungbuk = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "테마", jiyok = "전통시장").count()
+    themeLTEsejong = TodayRegister.objects.filter(category = "LTE", bigsmallnongintheme = "테마", jiyok = "지하철노선").count()
+    
+
+    sangWiFiseoul = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "서울").count()
+    sangWiFiincheon = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "인천").count()
+    sangWiFiulsan = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "울산").count()
+    sangWiFidaegu = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "대구").count()
+    sangWiFigwangju = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "광주").count()
+    sangWiFidaejun = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "대전").count()
+    sangWiFigyunggi = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "경기").count()
+    sangWiFigyungbuk = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "경북").count()
+    sangWiFijunnam = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "전남").count()
+    sangWiFijunbuk = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "전북").count()
+    sangWiFichungnam = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "충남").count()
+    sangWiFichungbuk = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "충북").count()
+    sangWiFisejong = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "세종").count()
+    sangWiFisudo = TodayRegister.objects.filter(category = "WiFi", sanggae = "상용", jiyok = "수도권").count()
+
+    gaeWiFiseoul = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "서울").count()
+    gaeWiFiincheon = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "인천").count()
+    gaeWiFiulsan = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "울산").count()
+    gaeWiFidaegu = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "대구").count()
+    gaeWiFigwangju = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "광주").count()
+    gaeWiFidaejun = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "대전").count()
+    gaeWiFigyunggi = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "경기").count()
+    gaeWiFigyungbuk = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "경북").count()
+    gaeWiFijunnam = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "전남").count()
+    gaeWiFijunbuk = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "전북").count()
+    gaeWiFichungnam = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "충남").count()
+    gaeWiFichungbuk = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "충북").count()
+    gaeWiFisejong = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "세종").count()
+    gaeWiFisudo = TodayRegister.objects.filter(category = "WiFi", sanggae = "개방", jiyok = "수도권").count()
+
+
+    weakseoul = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "서울").count()
+    weakincheon = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "인천").count()
+    weakulsan = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "울산").count()
+    weakdaegu = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "대구").count()
+    weakgwangju = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "광주").count()
+    weakdaejun = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "대전").count()
+    weakgyunggi = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "경기").count()
+    weakgyungbuk = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "경북").count()
+    weakjunnam = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "전남").count()
+    weakjunbuk = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "전북").count()
+    weakchungnam = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "충남").count()
+    weakchungbuk = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "충북").count()
+    weaksejong = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "세종").count()
+    weaksudo = TodayRegister.objects.filter(category = "품질취약지역", jiyok = "수도권").count()
 
     context = {'regi5G':regi5G,'regiLTE':regiLTE,'regiWiFi':regiWiFi,'regiweak':regiweak
     ,'sregi':sregi,'firstdate':firstdate,'lastdate':lastdate,
@@ -96,6 +205,7 @@ def make_report(request):
     'tregiweak':tregiweak,'hjd5gseoul':hjd5gseoul, 'hjd5gincheon':hjd5gincheon, 'hjd5gulsan':hjd5gulsan,
     "hjd5gseoul":hjd5gseoul,"hjd5gincheon":hjd5gincheon,"hjd5gulsan":hjd5gulsan,"hjd5gdaegu":hjd5gdaegu,"hjd5ggwangju":hjd5ggwangju,"hjd5gdaejun":hjd5gdaejun,"hjd5ggyunggi":hjd5ggyunggi,"hjd5ggyungbuk":hjd5ggyungbuk,"hjd5gjunnam":hjd5gjunnam,"hjd5gjunbuk":hjd5gjunbuk,"hjd5gchungnam":hjd5gchungnam,"hjd5gchungbuk":hjd5gchungbuk,"hjd5gsejong":hjd5gsejong,
     "dagyo5gseoul":dagyo5gseoul,"dagyo5gincheon":dagyo5gincheon,"dagyo5gulsan":dagyo5gulsan,"dagyo5gdaegu":dagyo5gdaegu,"dagyo5ggwangju":dagyo5ggwangju,"dagyo5gdaejun":dagyo5gdaejun,"dagyo5ggyunggi":dagyo5ggyunggi,"dagyo5ggyungbuk":dagyo5ggyungbuk,"dagyo5gjunnam":dagyo5gjunnam,"dagyo5gjunbuk":dagyo5gjunbuk,"dagyo5gchungnam":dagyo5gchungnam,"dagyo5gchungbuk":dagyo5gchungbuk,"dagyo5gsejong":dagyo5gsejong,"dagyo5gsudo":dagyo5gsudo,
+    'bigcityLTEseoul':bigcityLTEseoul,'bigcityLTEincheon':bigcityLTEincheon,'bigcityLTEulsan':bigcityLTEulsan,'bigcityLTEdaegu':bigcityLTEdaegu,'bigcityLTEgwangju':bigcityLTEgwangju,'bigcityLTEdaejun':bigcityLTEdaejun,'bigcityLTEgyunggi':bigcityLTEgyunggi,'bigcityLTEgyungbuk':bigcityLTEgyungbuk,'bigcityLTEjunnam':bigcityLTEjunnam,'bigcityLTEjunbuk':bigcityLTEjunbuk,'bigcityLTEchungnam':bigcityLTEchungnam,'bigcityLTEchungbuk':bigcityLTEchungbuk,'bigcityLTEsejong':bigcityLTEsejong,'bigcityLTEsudo':bigcityLTEsudo,'smallcityLTEseoul':smallcityLTEseoul,'smallcityLTEincheon':smallcityLTEincheon,'smallcityLTEulsan':smallcityLTEulsan,'smallcityLTEdaegu':smallcityLTEdaegu,'smallcityLTEgwangju':smallcityLTEgwangju,'smallcityLTEdaejun':smallcityLTEdaejun,'smallcityLTEgyunggi':smallcityLTEgyunggi,'smallcityLTEgyungbuk':smallcityLTEgyungbuk,'smallcityLTEjunnam':smallcityLTEjunnam,'smallcityLTEjunbuk':smallcityLTEjunbuk,'smallcityLTEchungnam':smallcityLTEchungnam,'smallcityLTEchungbuk':smallcityLTEchungbuk,'smallcityLTEsejong':smallcityLTEsejong,'smallcityLTEsudo':smallcityLTEsudo,'nongLTEseoul':nongLTEseoul,'nongLTEincheon':nongLTEincheon,'nongLTEulsan':nongLTEulsan,'nongLTEdaegu':nongLTEdaegu,'nongLTEgwangju':nongLTEgwangju,'nongLTEdaejun':nongLTEdaejun,'nongLTEgyunggi':nongLTEgyunggi,'nongLTEgyungbuk':nongLTEgyungbuk,'nongLTEjunnam':nongLTEjunnam,'nongLTEjunbuk':nongLTEjunbuk,'nongLTEchungnam':nongLTEchungnam,'nongLTEchungbuk':nongLTEchungbuk,'nongLTEsejong':nongLTEsejong,'nongLTEsudo':nongLTEsudo,'inbuildingLTEcdys':inbuildingLTEcdys,'inbuildingLTEdhbw':inbuildingLTEdhbw,'inbuildingLTEbhj':inbuildingLTEbhj,'inbuildingLTEtmn':inbuildingLTEtmn,'inbuildingLTEgh':inbuildingLTEgh,'inbuildingLTEdhjp':inbuildingLTEdhjp,'inbuildingLTEjsj':inbuildingLTEjsj,'inbuildingLTEjhcys':inbuildingLTEjhcys,'themeLTEjunnam':themeLTEjunnam,'themeLTEjunbuk':themeLTEjunbuk,'themeLTEchungnam':themeLTEchungnam,'themeLTEchungbuk':themeLTEchungbuk,'themeLTEsejong':themeLTEsejong,'sangWiFiseoul':sangWiFiseoul,'sangWiFiincheon':sangWiFiincheon,'sangWiFiulsan':sangWiFiulsan,'sangWiFidaegu':sangWiFidaegu,'sangWiFigwangju':sangWiFigwangju,'sangWiFidaejun':sangWiFidaejun,'sangWiFigyunggi':sangWiFigyunggi,'sangWiFigyungbuk':sangWiFigyungbuk,'sangWiFijunnam':sangWiFijunnam,'sangWiFijunbuk':sangWiFijunbuk,'sangWiFichungnam':sangWiFichungnam,'sangWiFichungbuk':sangWiFichungbuk,'sangWiFisejong':sangWiFisejong,'sangWiFisudo':sangWiFisudo,'gaeWiFiseoul':gaeWiFiseoul,'gaeWiFiincheon':gaeWiFiincheon,'gaeWiFiulsan':gaeWiFiulsan,'gaeWiFidaegu':gaeWiFidaegu,'gaeWiFigwangju':gaeWiFigwangju,'gaeWiFidaejun':gaeWiFidaejun,'gaeWiFigyunggi':gaeWiFigyunggi,'gaeWiFigyungbuk':gaeWiFigyungbuk,'gaeWiFijunnam':gaeWiFijunnam,'gaeWiFijunbuk':gaeWiFijunbuk,'gaeWiFichungnam':gaeWiFichungnam,'gaeWiFichungbuk':gaeWiFichungbuk,'gaeWiFisejong':gaeWiFisejong,'gaeWiFisudo':gaeWiFisudo,'weakseoul':weakseoul,'weakincheon':weakincheon,'weakulsan':weakulsan,'weakdaegu':weakdaegu,'weakgwangju':weakgwangju,'weakdaejun':weakdaejun,'weakgyunggi':weakgyunggi,'weakgyungbuk':weakgyungbuk,'weakjunnam':weakjunnam,'weakjunbuk':weakjunbuk,'weakchungnam':weakchungnam,'weakchungbuk':weakchungbuk,'weaksejong':weaksejong,'weaksudo':weaksudo,
 
     }
    
