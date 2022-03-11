@@ -2,6 +2,7 @@ import json
 import requests
 import folium
 import pandas as pd
+from haversine import haversine # 이동거리
 
 ###################################################################################################
 # 좌표(위도,경도) 및 주소 변환 모듈
@@ -156,6 +157,8 @@ class KakaoLocalAPI:
 # 2022.03.07 - 측정위치 팝업 항목 표시 순서 변경(PCI, Cell ID, DL, UL, RSRP, SINR)
 #            - 팝업 항목 및 값 가운데 정렬, 측정 데이터가 10개 이상일 때만 지도 자동확대 적용함
 #              측정 데이터가 너무 적을 때 자동확대 하면 지도가 너무 크게 확대되는 현상이 있음
+# 2022.03.12 - 생성된 지도맵 저장 파일명을 기존 측정일자(measdate)에서 측정일시(meastime)로 변경함
+#              좁은 지역을 측정하는 경우 측정위치를 나태내는 원(Circle)이 너무 크게 확대되는 현상이 있어 조치함
 #######################################################################################################
 # RSRP 값에 따라 색상코드를 결정한다. 
 def rsrp2color(x):
@@ -229,12 +232,16 @@ def make_map_locations(mdata):
         # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
         # 2022.03.07 - 측정 데이터가 10개 이상일 때만 지도를 자동확대 하도록 한다. 
         #              측정 데이터가 몇개 안될때 지도를 자동확대 하면 측정위치가 너무 크게 확대되는 현상이 있음
-        if len(locations) >= 10:
+        start_loc = tuple(locations[0])
+        current_loc = (mdata.latitude, mdata.longitude)
+        distance = haversine(start_loc, current_loc)  # 킬로(km)
+        # if len(locations) >= 10:
+        if distance > 1:
             sw = pd.DataFrame(locations).min().values.tolist()
             ne = pd.DataFrame(locations).max().values.tolist()
             map.fit_bounds([sw, ne])
 
-    filename = f'{mdata.phone.measdate}-{mdata.ispId}-{mdata.phone_no}.html'
+    filename = f'{mdata.meastime}-{mdata.ispId}-{mdata.phone_no}.html'
     map.save("monitor/templates/maps/" + filename)
 
     return filename

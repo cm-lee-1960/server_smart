@@ -14,6 +14,8 @@ from management.models import Morphology, MorphologyMap
 # 측정 단말기 그룹정보
 # 2022.02.25 - 해당지역에 단말이 첫번째 측정을 시작했을 때 측정시작(START) 메시지를 한번 전송한다.
 # 2022.03.06 - 측정 데이터에 통신사(ispId)가 널(NULL)인 값이 들어와서 동일하게 모델의 해당 항목에 널을 허용함
+# 2022.03.11 - 단말그룹에 묶여 있는 측정 단말기들이 당일 이전에 측정이 있었는지 확인하고 있었다면 그때 단말그룹 측정조 값을
+#              가져와서 업데이트 하는 모듈 추가
 ###################################################################################################
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
@@ -44,6 +46,20 @@ class PhoneGroup(models.Model):
 
     def __str__(self):
         return f"{self.measdate}"
+
+    # 해당 단말그룹의 측정조를 업데이트 한다.
+    def update_initial_data(self):
+        phone_list = [ p.phone_no for p in self.phone_set.all()]
+        qs = Phone.objects.filter(measdate=self.measdate, phone_no__in=phone_list).exclude(phoneGroup=self)
+        if qs.exists():
+            measuringTeam = None
+            for p in qs:
+                print(p, p.phoneGroup.id, p.phoneGroup.measuringTeam)
+                if p.phoneGroup.measuringTeam and p.phoneGroup.measuringTeam != None:
+                    measuringTeam = p.phoneGroup.measuringTeam
+                    break
+            self.measuringTeam = measuringTeam
+            self.save()
 
 
 ###################################################################################################
@@ -196,10 +212,9 @@ class Phone(models.Model):
         # 단말기의 상태를 업데이트 한다.
         # 상태 - 'POWERON', 'START_F', 'START_M', 'MEASURING', 'END'
         # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
-        if self.status == "START_F":
-            if mdata.currentCount == 1 and mdata.testNetworkType == 'speed':
-                self.status = "START_M" 
-        elif self.status == "START_M":
+        if self.total_count <= 1:
+            self.status = "START_M" 
+        else:
             self.status = "MEASURING"
 
         # 최종 위치보고시간을 업데이트 한다.

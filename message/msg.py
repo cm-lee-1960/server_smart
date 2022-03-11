@@ -18,7 +18,7 @@ from monitor.geo import make_map_locations
 # 2022.03.11 - 측정시작 메시지 분리
 #              1) 전체대상 측정시작 메시지(START_F)
 #              2) 해당지역 측정시작 메시지(START_M)
-#
+# 2022.03.12 - 측정시작 위치와 현재 측정위치의 거리가 1km 이상 떨어졌을 때 지도가 자동축소 되도록 함
 #--------------------------------------------------------------------------------------------------
 def current_count_check(mdata):
     """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
@@ -45,7 +45,7 @@ def current_count_check(mdata):
         # 2022.03.11 - 2)해당지역 측정시작 메시지(START_M)
         # 2-1) 상대편 측정 단말기가 등록되어 있는지 확인한다. 
         # 2-2) 상대편 측정 단말기에 속도 측정 데이터가 있는지 확인한다.
-        elif mdata.phone.status == 'START_M':
+        elif mdata.phone.status == 'START_M' and mdata.phone.manage == True:
             qs = mdata.phone.phoneGroup.phone_set.exclude(phone_no=mdata.phone_no)
             if qs.exists():
                 oPhone = qs[0]
