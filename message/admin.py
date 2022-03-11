@@ -19,13 +19,14 @@ class SentTelegramMessageAdmin(admin.ModelAdmin):
     def del_message_action(self, request, queryset):
       bot = TelegramBot()
       del_list = queryset.values_list('id', 'chat_id', 'chat_message_id')
-      for id in del_list:
-        result = bot.del_message(id[1], id[2])
-        if result.ok:
-          queryset.filter(id=id[0]).update(is_del=True)
-        else:
-          print("회수 실패 - 메시지 선택을 확인하여주세요.")
-          raise Exception("회수 실패 - 메시지 선택을 확인해주세요. \n 이미 회수된 메시지가 선택되어 있을 수 있습니다.")
+      try:
+        for id in del_list:
+          result = bot.del_message(id[1], id[2])
+          if result:
+            queryset.filter(id=id[0]).update(is_del=True)
+      except:
+        print("회수 실패 - 메시지 선택을 확인하여주세요.")
+        raise Exception("회수 실패 - 메시지 선택을 확인해주세요. \n 이미 회수된 메시지가 선택되어 있을 수 있습니다.")
     del_message_action.short_description = '선택한 메시지 회수'
 
     # ---------------------------------------------------------------------------------------------

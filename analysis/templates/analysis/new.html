@@ -1,379 +1,30 @@
+{% extends "analysis/base.html" %}
 {% load static %}
+{% block contents %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
 <title>일일보고 데이터 등록</title>
 
 
 <!-- 모달 기본 라이브러리 -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
-<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-<script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
-<!-- 모달 이동 드래그 설정 -->
-<script type="text/javascript" src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<script defer src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQfJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+<script type="text/javascript" defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script type="text/javascript" defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
-<!-- 모달스타일 -->
-<style>
-    #modal.modal-overlay{
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        left: 0;
-        top: 0;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index : 100;
-        
-        /* background: rgba(255, 255, 255, 0.25); */
-        /* box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        backdrop-filter: blur(1.5px);
-        -webkit-backdrop-filter: blur(1.5px);
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.18); */
-    }
-    #modal .top{
-        background: mediumaquamarine;
-        border-radius: 10px;
-        width: 397px;
-        padding: 5px;
-        /* border: 3px solid grey; */
-        margin-top: -12px;
-        margin-left: -10px;
-        
-        
-        
-    }
-    #modal .modal-window{
-        background: mintcream;
-        /* box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 ); */
-        /* backdrop-filter: blur( 13.5px ); */
-        /* -webkit-backdrop-filter: blur( 13.5px ); */
-        border-radius: 10px;
-        
-        width: 400px;
-        height: 500px;
-        position: flex;
-        top: -100px;
-        padding: 10px;
-        
-    }
-    #modal .title{
-        padding-left: 10px;
-        display: inline;
-        text-shadow: 1px 1px 2px gray;
-        color: white;
-        
-        
-    }
-    #modal .title h2{
-        display: inline;
-       
-    }
-    #modal .close-area{
-        display: inline;
-        float: right;
-        /* padding-right: 10px; */
-        cursor: pointer;
-        text-shadow: 1px 1px 2px gray;
-        color: white;
-        padding-right: 5px;
-    }
-    
-    #modal .content{
-        margin-top: 20px;
-        padding: 0px 10px;
-        text-shadow: 1px 1px 2px whitesmoke;
-        color: black;
-        
-        
-    }
-</style>
-
-<!-- 모달2스타일 -->
-<style>
-    #modal2.modal-overlay{
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        left: 0;
-        top: 0;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index : 100;
-        /* background: rgba(255, 255, 255, 0.25); */
-        /* box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        backdrop-filter: blur(1.5px);
-        -webkit-backdrop-filter: blur(1.5px);
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.18); */
-    }
-
-    #modal2 .top{
-        background: mediumaquamarine;
-        border-radius: 10px;
-        width: 397px;
-        padding: 5px;
-        
-        margin-top: -12px;
-        margin-left: -10px;
-        
-        
-        
-    }
-
-    #modal2 .modal-window{
-        background: mintcream;
-        /* box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 ); */
-        /* backdrop-filter: blur( 13.5px ); */
-        /* -webkit-backdrop-filter: blur( 13.5px ); */
-        border-radius: 10px;
-        /* border: 1px solid rgba( 255, 255, 255, 0.18 ); */
-        width: 400px;
-        height: 500px;
-        position: flex;
-        top: -100px;
-        padding: 10px;
-    }
-    #modal2 .title{
-        padding-left: 10px;
-        display: inline;
-        text-shadow: 1px 1px 2px gray;
-        color: white;
-        
-    }
-    #modal2 .title h2{
-        display: inline;
-    }
-    #modal2 .close-area{
-        display: inline;
-        float: right;
-        padding-right: 10px;
-        cursor: pointer;
-        text-shadow: 1px 1px 2px gray;
-        color: white;
-    }
-    
-    #modal2 .content{
-        margin-top: 20px;
-        padding: 0px 10px;
-        text-shadow: 1px 1px 2px whitesmoke;
-        color: black;
-        
-    }
-</style>
-
-<style>
-    *{
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: sans-serif;
-    }
-    header{
-        position : sticky;
-        top : 0;
-        z-index : 100;
-        
-    }
-    nav{
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        
-    }
-    nav a{
-        position: relative;
-        margin: 0 20px;
-        font-size:20pt;
-        top : 10pt;
-        color:white;
-        text-decoration: none;
-    }
-    nav #underline{
-        position: absolute;
-        left: 0;
-        height: 4px;
-        width: 0;
-        background: #000000;
-        bottom: -9px;
-        transition: 0.2s;
-        border-radius: 5px;
-
-    }
-
-    table {
-        width: 100%;
-        border: 1px solid #444444;
-        border-collapse: collapse;
-        font-size: 15pt;
-        text-align: center;
-    }
-    th, td {
-        border: 1px solid #444444;
-        width: 40px;
-        text-align: center;
-    }
-    p,h2 {
-        display: inline;
-    }
-
-    #title {
-        position: relative;
-        left: 25%;
-    }
-    thead {
-        background-color: lightgrey; 
-        color: black;
-    }
-
-    #show1{
-        width: 50%;
-        float:left;
-        
-        position: flex;
-    }
-    #show2{
-        width: 50%;
-        float:left;
-        
-        position: flex;
-    }
-    #bt1{
-        position: relative;
-        left: 120px;
-        top: 320px;
-    }
-    #bt2{
-        position: relative;
-        left: 120px;
-        top: 328px;
-    }
-    #bt3{
-        position: relative;
-        left: 250px;
-        top: 90px;
-    }
-    #bt4{
-        position: relative;
-        left: 250px;
-        top: 98px;
-    }
-</style>
-<script>
-	$(document).ready(function(){
-		$('a').hover(function(){
-			$(this).css('color','aquamarine');
-			},	function(){
-				$(this).css('color','white');
-			
-		});
-	});
-</script>
-
-<!-- 모달1 카테고리 변경에 따른 이벤트 -->
-<script>
-    $(document).ready(function() {
-        // $('#fst').hide();
-        $('#scd').hide();
-        $('#trd').hide();
-        $('#fth').hide();
-        $('#category').change(function() {
-        var result = $('#category').val();
-       
-        if (result == '5G') {
-            $('#fst').show();
-            $('#scd').hide();
-            $('#trd').hide();
-            $('#fth').hide();
-        } else if (result == 'LTE') {
-            $('#fst').hide();
-            $('#scd').show();
-            $('#trd').hide();
-            $('#fth').hide();
-        } else if (result == 'WiFi') {
-            $('#fst').hide();
-            $('#scd').hide();
-            $('#trd').show();
-            $('#fth').hide();
-        } else {
-            $('#fst').hide();
-            $('#scd').hide();
-            $('#trd').hide();
-            $('#fth').show();
-
-            }
-        }); 
-    }); 
-
-</script>
+<!-- CSS,JS 호출 -->
+<link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
+<script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
 
 
-<!-- 모달2 카테고리 변경에 따른 이벤트 -->
-<script>
-    $(document).ready(function() {
-        // $('#5gdr').hide();
-        $('#ltedr').hide();
-        $('#wifidr').hide();
-        $('#weakdr').hide();
-        $('#category2').change(function() {
-        var result = $('#category2').val();
-       
-        if (result == '5G') {
-            $('#5gdr').show();
-            $('#ltedr').hide();
-            $('#wifidr').hide();
-            $('#weakdr').hide();
-        } else if (result == 'LTE') {
-            $('#5gdr').hide();
-            $('#ltedr').show();
-            $('#wifidr').hide();
-            $('#weakdr').hide();
-        } else if (result == 'WiFi') {
-            $('#5gdr').hide();
-            $('#ltedr').hide();
-            $('#wifidr').show();
-            $('#weakdr').hide();
-        } else {
-            $('#5gdr').hide();
-            $('#ltedr').hide();
-            $('#wifidr').hide();
-            $('#weakdr').show();
-
-            }
-        }); 
-    }); 
-
-</script>
 </head>
-
-<!-- 헤더부분 -->
 <body style="height: 100vh;">
-    <header>
-        <div class = "title" style = "background-color: mediumaquamarine; width : 100%; height : 50pt ;">
-            <div class = "logo" style = "width:10%; float : left " >
-                <a href="http://127.0.0.1:8000/analysis/test_layout">
-                    <img src = "{% static 'images/logo2.png' %}" style = "width : 90%; height: 50pt;" /> 
-                </a>
-            </div>
-                <nav style = " float : left">
-                    <!-- <div id="underline"></div> -->
-                    <a href="http://127.0.0.1:8000/analysis/new">대상등록</a>
-                    <a href="http://127.0.0.1:8000/analysis/report">일일보고</a>
-                    <a href="#">menu3</a>
-                    <a href="#">menu4</a>
-                    <a href="#">menu5</a>
-                    <a href="#">menu6</a>
-                </nav>
-        </div>
-    </header>
+
 
     
 <!-- 모달설정 -->
@@ -398,7 +49,7 @@
                             <option value="품질취약지역"> 품질취약지역
                         </select>
                     </div>
-                    <div id = "fst" style ="width:130px;float:left;">
+                    <div id = "fst" style ="width:130px;display:flex;flex-direction: column;">
                         <div>
                             <label for = 'title'>행정동</label><br/>
                             <input type="text" name="dong" id="dong" value=0  style="width:100px; height:30px; margin-right:10px">
@@ -412,7 +63,7 @@
                             <input type="text" name="coverage5g" id="coverage5g" value=0 style="width:100px; height:30px; margin-right:10px">
                         </div>
                     </div>
-                    <div id = "scd" style ="width:130px;float:left">
+                    <div id = "scd" style ="width:130px;display:flex;flex-direction: column;">
                        
                         <div>
                             <label for = 'bigct'>대도시</label><br/>
@@ -441,7 +92,7 @@
                             <input type="text" name="coveragelte" id="coveragelte" value=0 style="width:100px; height:30px; margin-right:10px">
                         </div>
                     </div>
-                    <div id = "trd" style ="width:130px;float:left">
+                    <div id = "trd" style ="width:130px;display:flex;flex-direction: column;">
                         
                         <div>
                             <label for = 'sangyong'>상용</label><br/>
@@ -452,7 +103,7 @@
                             <input type="text" name="gaebang" id="gaebang" value=0 style="width:100px; height:30px; margin-right:10px">
                         </div>
                     </div>
-                    <div id = "fth" style ="width:130px;float:left">
+                    <div id = "fth" style ="width:130px;display:flex;flex-direction: column;">
                        
                         <div>
                             <label for = 'mountain'>등산로</label><br/>
@@ -609,10 +260,11 @@
             <span class="ui-button-text">측정완료대상등록</span>
         </button>
     </div>
+    <div  style="display:flex; flex-flow: row nowrap;">
     <div id="show1">
 
 
-    <h1>
+    <h1 style="font-size: 30px;">
     5G 등록대상
     </h1>
     <div id="output" style="text-align: center;">
@@ -658,7 +310,7 @@
     </table>
     
     </div>
-    <h1>
+    <h1 style="font-size: 30px;">
     LTE 등록대상
     </h1>
     <div id="output" style="text-align: center;">
@@ -718,11 +370,11 @@
         </table>
         
     </div>
-    <h1>
+    <h1 style="font-size: 30px;">
     WiFi 등록대상
     </h1>
     <div id="output" style="text-align: center;">
-    <table id="wifihh">
+    <table id="wifihh" >
         <thead>
             
             <tr>
@@ -759,7 +411,7 @@
         </tbody>
     </table>
     </div>
-    <h1>
+    <h1 style="font-size: 30px;">
     품질취약지역 등록대상
     </h1>
     <div id="output" style="text-align: center;">
@@ -808,10 +460,10 @@
     
     </div>
     <div id ='show2'>
-    <h1>
+    <h1 style="font-size: 30px;">
     금일확인
     </h1>
-    <div id="output" style="text-align: center;">
+    <div id="output" >
         <table id="5Ghh">
             <thead>
                 <tr>
@@ -830,115 +482,21 @@
                     <td id>{{sregi.category}}</td>
                     <td id>{{sregi.jiyok}}</td>
                     <td id>{{sregi.dongdaco}}{{sregi.bigsmallnongintheme}}{{sregi.sanggae}}{{sregi.weakjiyok}}</td>
-                </tr>
                 {% endfor %}
+                </tr>
+                
       
             </tbody>
         </table>
         
     </div>
     </div>
-    <!-- 모달1자바스크립트 -->
-    <script type="text/javascript">
-        const modal = document.getElementById("modal")
-        function modalOn() {
-            modal.style.display = "flex"
-        }
-        function isModalOn() {
-            return modal.style.display === "flex"
-        }
-        function modalOff() {
-            modal.style.display = "none"
-        }
-        const btnModal = document.getElementById("dsdr")
-        btnModal.addEventListener("click", e => {
-            modalOn()
-            modal2Off()
-        })
-        const closeBtn = modal.querySelector(".close-area")
-        closeBtn.addEventListener("click", e => {
-            modalOff()
-        })
-        modal.addEventListener("click", e => {
-            const evTarget = e.target
-            if(evTarget.classList.contains("modal-overlay")) {
-                modalOff()
-            }
-        })
-        window.addEventListener("keyup", e => {
-            if(isModalOn() && e.key === "Escape") {
-                modalOff()
-            }
-        })
-        </script>
-        
-        <!-- 모달2자바스크립트 -->
-    <script type="text/javascript">
-        const modal2 = document.getElementById("modal2")
-        function modal2On() {
-            modal2.style.display = "flex"
-        }
-        function isModal2On() {
-            return modal2.style.display === "flex"
-        }
-        function modal2Off() {
-            modal2.style.display = "none"
-        }
-        const btnModal2 = document.getElementById("wrdr")
-        btnModal2.addEventListener("click", e => {
-            modal2On()
-            modalOff()
-        })
-        const closeBtn2 = modal2.querySelector(".close-area")
-        closeBtn2.addEventListener("click", e => {
-            modal2Off()
-        })
-        modal2.addEventListener("click", e => {
-            const evTarget2 = e.target
-            if(evTarget2.classList.contains("modal-overlay")) {
-                modal2Off()
-            }
-        })
-        window.addEventListener("keyup", e => {
-            if(isModal2On() && e.key === "Escape") {
-                modal2Off()
-            }
-        })
-        </script>
-
-
-        <!-- 모달 이동 드래그 설정 -->
-        <script type="text/javascript" src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
-        <script>
-        $(function(){
-    
-            $('.modal-overlay').draggable({
-                handle: ".top"
-            });
-
-            });
-        // 드래그 가능 불가능 설정
-        // $(function(){
-    
-        //     $('#pop_stop_info_detial').draggable({'cancel':'.tbl'});
-    
-        // });
-        // 화면밖으로 나가는것 방지
-        // $(function(){
-    
-        //     $('#modal-overlay').draggable({'cancel':'.tbl', containment:'parent', scroll:false});
-    
-        // });
-        </script>
+</div>
+   
         
         
  
 </body>
-<!-- 모달 기본 라이브러리 -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
-<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-<script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
-<!-- 모달 이동 드래그 설정 -->
-<script type="text/javascript" src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+
 </html>
+{% endblock %}
