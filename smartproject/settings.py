@@ -70,7 +70,8 @@ INSTALLED_APPS = [
     'monitor',
     'analysis',
     'message',
-    'management'
+    'management',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -186,7 +187,10 @@ CRONJOBS = [
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,"static")
 ]
-
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 # 로깅
 # logger.debug()

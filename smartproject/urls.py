@@ -25,6 +25,7 @@ urlpatterns = [
     path("monitor/", include("monitor.urls")),
     path("analysis/", include("analysis.urls")),
     path("message/", include("message.urls")),
+    path("accounts/", include("accounts.urls")),
     
 ]
 # 어드민 페이지 변경
