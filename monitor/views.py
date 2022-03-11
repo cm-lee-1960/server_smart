@@ -48,6 +48,12 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
 # 2022.03.06 - 간략한 시스템 다이어그램 작성
 # 2022.03.07 - 관리대상(행정동, 테마, 인빌딩) 데이터에 대해서만 메시지 및 이벤트 발생여부를 확인한다.
 #              (기존 이벤트 발생여부는 모든 데이터에 대해서 체크함)
+# 2022.03.10 - 단말그룹이 자동으로 생성된 후 측정조를 지정하면 이후 해당 단말기에 대한 새로운 단말그룹이 생겼을 때 
+#              기존 측정조를 갖와서 업데이트 한다.
+#            - 하나의 단말그룹은 하루에 약 3개 정도 지역을 측정하게 된다.
+# 2022.03.11 - 측정시작 메시지 분리
+#              1) 전체대상 측정시작 메시지(START_F)
+#              2) 해당지역 측정시작 메시지(START_M)
 #
 ####################################################################################################################################
 @csrf_exempt
@@ -88,6 +94,7 @@ def receive_json(request):
                             userInfo1=data['userInfo1'],
                             ispId=data['ispId'],
                             active=True)
+            
     except Exception as e:
         # 오류코드 리턴 필요
         print("그룹조회:",str(e))
@@ -117,6 +124,7 @@ def receive_json(request):
                 networkId = data['networkId']
 
             # 측정 단말기를 생성한다.
+            # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
             meastime_s = str(data['meastime']) # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             phone = Phone.objects.create(
                         phoneGroup = phoneGroup,
@@ -131,7 +139,7 @@ def receive_json(request):
                         avg_uploadBandwidth=0.0,
                         dl_count=0,
                         ul_count=0,
-                        status='START',
+                        status='START_F',
                         currentCount=data['currentCount'],
                         total_count=data['currentCount'],
                         addressDetail=data['addressDetail'],
@@ -196,8 +204,18 @@ def receive_json(request):
         # 측정시작 메시지
         # 2022.02.27 - 측정시작 메시지 분리
         #            - 통신사 및 기타 조건에 상관없이 해당일자 측정이 시작하면 측정시작 메시지를 전송하도록 한다.
+        # 2022.03.10 - 측정시작 메시지를 2개로 분리
+        #              1) 측정시작 메시지(전체대상)
+        #              2) 해당지역 측정시작 메시지
         if data['currentCount'] == 1: 
-            make_message(mdata)
+            # 1) 측정시작 메시지(전체대상)
+            if mdata.phone.status == 'START_F': make_message(mdata)
+
+            # 2) 해당지역 측정시작 메시지
+            # 측정시작 메시지를 하나 더 만들어야 하다 보니 속도측정 데이터 중에서 현재 콜카운트가 1인 데이터를 한번더 메시지를 작성하도록 함
+            # (조건: KT 속도측정 데이터에 대해서만 적용)
+            if mdata.phone.status == 'START_M' and mdata.ispId == '45008' and mdata.testNetworkType == 'speed': 
+                make_message(mdata)
 
         # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
         elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':

@@ -75,7 +75,8 @@ class Phone(models.Model):
     }
     STATUS_CHOICES = {
         ("POWERON", "PowerOn"),
-        ("START", "측정시작"),
+        ("START_F", "측정시작"),
+        ("START_M", "측정시작"),    
         ("MEASURING", "측정중"),
         ("END", "측정종료"),
     }
@@ -190,8 +191,13 @@ class Phone(models.Model):
         self.total_count = self.dl_count + self.ul_count  # 전체 콜건수
         
         # 단말기의 상태를 업데이트 한다.
-        # 상태 - 'POWERON', 'START', 'MEASURING', 'END'
-        self.status = "START" if self.total_count == 1 else "MEASURING"
+        # 상태 - 'POWERON', 'START_F', 'START_M', 'MEASURING', 'END'
+        # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
+        if self.status == "START_F":
+            if mdata.currentCount == 1 and mdata.testNetworkType == 'speed':
+                self.status = "START_M" 
+        elif self.status == "START_M":
+            self.status = "MEASURING"
 
         # 최종 위치보고시간을 업데이트 한다.
         self.last_updated = mdata.meastime

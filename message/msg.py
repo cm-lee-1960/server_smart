@@ -15,6 +15,9 @@ from monitor.geo import make_map_locations
 #            *** [해결해야할 잠재이슈] 단말 하나로 측정을 하는 경우 주기적인 메시지 전송 판단처리 고민 필요
 # 2022.03.04 - 측정 보고주기를 데이터베이스에 등록하여 관리하도록 코드를 수정함 (측정 보고주기 확인 : ReportCycle)
 # 2022.03.10 - 측정 보고주기 판단기준을 현재 콜카운트에서 측정 단말기의 측정 데이터 건수(total_count)로 변경
+# 2022.03.11 - 측정시작 메시지 분리
+#              1) 전체대상 측정시작 메시지(START_F)
+#              2) 해당지역 측정시작 메시지(START_M)
 #--------------------------------------------------------------------------------------------------
 def current_count_check(mdata):
     """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
@@ -31,11 +34,24 @@ def current_count_check(mdata):
         # 측정시작 조건 : 현재 콜카운트가 1인 다른 측정 데이터가 있는지 확인
         # - 결과 <= 1건 : 자기 자신밖에 없으니 측정시작 메시지 전송
         # - 결과 > 1건 : 이미 측정시작 메시지를 전송했으니 메시지를 전송하지 않음
+        # 2022.03.11 - 1)전체대상 측정시작 메시지(START_F)
         meastime_from = int(str(mdata.meastime)[:8] + '000000000') # 조회시작
         meastime_to = int(str(mdata.meastime)[:8] + '235959999') # 조회종료
         qs = MeasureCallData.objects.filter(Q(meastime__gte=meastime_from) & Q(meastime__lte=meastime_to))
-        if len(qs) <= 1:
+        if mdata.phone.status == 'START_F' and len(qs) <= 1:
             result = True
+        
+        # 2022.03.11 - 2)해당지역 측정시작 메시지(START_M)
+        # 2-1) 상대편 측정 단말기가 등록되어 있는지 확인한다. 
+        # 2-2) 상대편 측정 단말기에 속도 측정 데이터가 있는지 확인한다.
+        elif mdata.phone.status == 'START_M':
+            qs = mdata.phone.phoneGroup.phone_set.exclude(phone_no=mdata.phone_no)
+            if qs.exists():
+                oPhone = qs[0]
+                qs = oPhone.measurecalldata_set.filter(currentCount=1, testNetworkType='speed')
+                if not qs.exists():
+                    result = True
+
     # elif mdata.currentCount in [3, 10, 27, 37, 57,]:
     # 2022.03.10 currentCount -> phone.total_count로 변경 적용
     elif phone.total_count in [ int(x) for x in ReportCycle.objects.all()[0].reportCycle.split(',')]:
@@ -80,7 +96,7 @@ def make_message(mdata):
     channelId = settings.CHANNEL_ID
 
     phone = mdata.phone
-    status = ["POWERON", "START", "MEASURING", "END"]
+    status = ["POWERON", "START_F", "START_M", "MEASURING", "END"]
     # 측정 진행 메시지는 DL/UP 측정 단말기의 현재 콜 카운트가 같고, 3, 10, 27, 37, 57 콜 단위로 보고함
     if phone.status in status and current_count_check(mdata):
         # 측정 단말기의 DL/UP 평균값들을 가져온다.
@@ -88,7 +104,7 @@ def make_message(mdata):
         dl_nr_count, ul_nr_count = 0, 0 # 5G->LTE 전환콜수(DL, UL)ß
         avg_downloadBandwidth = 0  # 다운로드 평균속도
         avg_uploadBandwidth = 0  # 업로드 평균속도
-        nr_count = 0 # 5G->NR 전환 콜수
+        # nr_count = 0 # 5G->NR 전환 콜수
    
 
         # 2022.02.26 - 데이터가 맞지 않아 재작성 함
@@ -164,45 +180,48 @@ def make_message(mdata):
         POWERON_MSG = f"{mdata.userInfo1}에서 단말이 켜졌습니다."
         # [측정시작 메시지] -----------------------------------------------------------------------------------
         # 당일 측정조 메시지 내용을 가져온다.
-        measuringteam_msg = ''
-        if phone.status == 'START':
+        
+        if phone.status == 'START_F':
+            measuringteam_msg = '' # 당일 측정조 (데이터베이스에서 가져와야 함)
             meastime_str = str(mdata.meastime)
             measdate = datetime.strptime(meastime_str[:8], "%Y%m%d")
             qs = MeasureingTeam.objects.filter(measdate=measdate)
             if qs.exists(): 
                 measuringteam_msg = qs[0].message
-        START_MSG = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}에서 시작되었습니다.\n" + \
-                     f"{measuringteam_msg}\n" + \
-                      "\n평가에 만전을 기하여 주시기 바랍니다. "
+            messages = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.get_address()}에서 시작되었습니다.\n" + \
+                       f"{measuringteam_msg}\n" + \
+                        "\n평가에 만전을 기하여 주시기 바랍니다. "
+        elif phone.status == 'START_M':
+            messages = f"S-CXI {mdata.phone.morphology} {mdata.get_address()} 측정시작({mdata.get_time()}~)"
+
         # [측정진행 메시지] -----------------------------------------------------------------------------------
-        if phone.networkId == 'WiFi':
-            MEASURING_MSG = f"<code>{mdata.get_address()} 현재 콜카운트 {phone.total_count}번째 측정중입니다.\n" + \
+        elif phone.status == 'MEASURING':
+            # WiFi 측정 데이터의 경우
+            if phone.networkId == 'WiFi':
+                messages = f"<code>{mdata.get_address()} 현재 콜카운트 {phone.total_count}번째 측정중입니다.\n" + \
                             "속도(DL/UL, Mbps)\n" + \
                             f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
-        elif phone.networkId == '5G':
-            MEASURING_MSG = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
+            # 5G 측정 데이터의 경우
+            elif phone.networkId == '5G':
+                messages = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
                             f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
                             f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
-        else:
-            MEASURING_MSG = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
+            # 기타(LTE, 3G) 측정데이터의 경우
+            else:
+                messages = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
                             f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
+        
         # [측정종료 메시지] -----------------------------------------------------------------------------------
-        END_MSG = f"<code>금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
-                   "(DL/UL/시도호/성공률)\n" + \
-                            f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-</code>"
-        messages = {
-            "POWERON": POWERON_MSG,
-            "START": START_MSG,
-            "MEASURING": MEASURING_MSG,
-            "END": END_MSG,
-        }
+        # 2022-03-11 - 측정종료 메시지는 수기로 해당지역 측정종료 및 당일 측정종료를 실행할 때 생성되기 때문에 여기에 있는 코드를 사용하지 않음
+        elif phone.status == 'END':
+            messages = f"<code>금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
+                        "(DL/UL/시도호/성공률)\n" + \
+                        f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-</code>"
 
-        # 작성된 메시지 내용을 가져온다.
-        messageContent = messages[phone.status]
 
         # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
         filename = make_map_locations(mdata)
-        messageContent += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
+        messages += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
 
         # 전송 메시지를 생성한다.
         Message.objects.create(
@@ -215,7 +234,7 @@ def make_message(mdata):
             downloadBandwidth=avg_downloadBandwidth,
             uploadBandwidth=avg_uploadBandwidth,
             messageType='SMS',
-            message=messageContent,
+            message=messages,
             channelId=channelId,
             sended=True
         )
