@@ -2,6 +2,10 @@ from django.db import models
 import datetime
 
 # Create your models here.
+# 측정계획 (MeasPlan)
+# 년도, 지역, 네트워크유형, 모폴로지(레벨0, 레벨1, 레벨2)
+# year, area, networkId, morph_level0, morph_level1, morph_level2, meas_count 
+# create("SELECT .....")
 class Register(models.Model):
     category = models.CharField(max_length=10, null=True, blank=True)
     dong = models.IntegerField(null=True, default=0)
