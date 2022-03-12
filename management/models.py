@@ -131,3 +131,10 @@ class ReportCycle(models.Model):
     class Meta:
         verbose_name = "측정 보고주기"
         verbose_name_plural = "측정 보고주기"
+
+###################################################################################################
+# 행정동 데이터 클래스
+###################################################################################################
+class AddressRegion(models.Model):
+    addressDetail = models.CharField(max_length=100)  # 주소상세
+    json_data = models.JSONField(default='{}')

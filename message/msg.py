@@ -181,7 +181,7 @@ def make_message(mdata):
         POWERON_MSG = f"{mdata.userInfo1}에서 단말이 켜졌습니다."
         # [측정시작 메시지] -----------------------------------------------------------------------------------
         # 당일 측정조 메시지 내용을 가져온다.
-        
+
         if phone.status == 'START_F':
             measuringteam_msg = '' # 당일 측정조 (데이터베이스에서 가져와야 함)
             meastime_str = str(mdata.meastime)
@@ -219,7 +219,6 @@ def make_message(mdata):
                         "(DL/UL/시도호/성공률)\n" + \
                         f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-</code>"
 
-
         # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
         filename = make_map_locations(mdata)
         messages += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
@@ -239,7 +238,5 @@ def make_message(mdata):
             channelId=channelId,
             sended=True
         )
-
-
 
 
