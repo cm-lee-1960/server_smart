@@ -241,15 +241,15 @@ def make_map_locations(mdata):
             current_loc = (mdata.latitude, mdata.longitude)
             distance = haversine(start_loc, current_loc)  # 킬로(km)
             # if len(locations) >= 10:
-            if distance > 1:
+            if distance > 3:
                 sw = pd.DataFrame(locations).min().values.tolist()
                 ne = pd.DataFrame(locations).max().values.tolist()
                 map.fit_bounds([sw, ne])
 
     # 지도상에 행정동 경계구역을 표시한다.
     # 동일한 필드명으로 조건을 두번 쓸수 없고, 필터를 두번 걸어야 함
-    guGun = mdata.guGun  if mdata.guGun != None else '' # 널(Null)일 때 필터조건으로 사용할 수 없음
-    qs = AddressRegion.objects.filter( addressDetail__contains=mdata.phone.addressDetail).filter(addressDetail__contains=guGun)
+    qs = AddressRegion.objects.filter( addressDetail__contains=mdata.phone.addressDetail) \
+                            .filter(addressDetail__contains=mdata.phone.guGun)
     if qs.exists():
         json_data = qs[0].json_data
         geo = {

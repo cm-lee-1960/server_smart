@@ -82,6 +82,8 @@ class PhoneGroup(models.Model):
 # 2022.03.11 - 측정시작 메시지를 2개로 분리함에 따라서 측정시작 상태코드 분리
 #              1) START_F: 전체대상 측정시작
 #              2) START_M: 해당지역 측정시작
+# 2022.03.12 - 측정시작 위치에 대한 행정동 주소(시/도, 구/군, 읍/동/면)을 측정 단말기 정보에 가져감
+#              (5G->LTE로 전환시 위도,경도는 있지만 주소가 널(Null)인 경우가 많음)
 #
 ###################################################################################################
 class Phone(models.Model):
@@ -122,6 +124,8 @@ class Phone(models.Model):
     )
     currentCount = models.IntegerField(null=True, blank=True)
     total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
+    siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
+    guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군
     addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
     latitude = models.FloatField(null=True, blank=True)  # 위도
     longitude = models.FloatField(null=True, blank=True)  # 경도
@@ -238,11 +242,35 @@ class Phone(models.Model):
                 output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
                 result = kakao.geo_coord2regioncode(self.longitude, self.latitude, input_coord, output_coord)
+                # [ 리턴값 형식 ]
+                # print("out_measuring_range():", result)
+                # {'meta': {'total_count': 2},
+                # 'documents': [{'region_type': 'B',
+                # 'code': '4824012400',
+                # 'address_name': '경상남도 사천시 노룡동',
+                # 'region_1depth_name': '경상남도',
+                # 'region_2depth_name': '사천시',
+                # 'region_3depth_name': '노룡동', <-- 주소지 동
+                # 'region_4depth_name': '',
+                # 'x': 296184.5342265043,
+                # 'y': 165683.29710986698},
+                # {'region_type': 'H',
+                # 'code': '4824059500',
+                # 'address_name': '경상남도 사천시 남양동',
+                # 'region_1depth_name': '경상남도',
+                # 'region_2depth_name': '사천시',
+                # 'region_3depth_name': '남양동', <-- 행정구역
+                # 'region_4depth_name': '',
+                # 'x': 297008.1130364056,
+                # 'y': 164008.47612447804}]}
 
-                region_3depth_name = result['documents'][1]['region_3depth_name']
+                region_1depth_name = result['documents'][1]['region_1depth_name'] # 시/도
+                region_2depth_name = result['documents'][1]['region_2depth_name'] # 구/군
+                region_3depth_name = result['documents'][1]['region_3depth_name'] # 행정동(읍/동/면)
 
-                self.addressDetail = region_3depth_name
-
+                self.siDo = region_1depth_name # 시/도
+                self.guGun = region_2depth_name # 구/군
+                self.addressDetail = region_3depth_name # 행정동(읍/동/면)
 
             # 측정자 입력값2(userInfo2)에 따라 모폴로지와 관리대상여부를 결정한다.
             morphology = None # 모풀로지
