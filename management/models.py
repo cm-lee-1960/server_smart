@@ -138,3 +138,4 @@ class ReportCycle(models.Model):
 class AddressRegion(models.Model):
     addressDetail = models.CharField(max_length=100)  # 주소상세
     json_data = models.JSONField(default='{}')
+
