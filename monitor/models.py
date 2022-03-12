@@ -192,7 +192,9 @@ class Phone(models.Model):
         #### 방식 2 ####
         # UL/DL 평균속도 산출시 NR(5G->LTE전환) 데이터는 제외한다.
         # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다. 
-        if mdata.networkId != 'NR':
+        if mdata.networkId == 'NR':
+            self.nr_count += 1
+        else:
             # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.avg_downloadBandwidth = round(((self.avg_downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 3)
@@ -201,13 +203,10 @@ class Phone(models.Model):
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.avg_uploadBandwidth = round(((self.avg_uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
                 self.ul_count += 1
-        # 5G 측정 단말기 이고, 측정시 NR이면 5G->LTE 전환 콜수를 누적한다.
-        elif mdata.phone.networkId == '5G':
-            self.nr_count += 1
-        
+
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
         self.currentCount = mdata.currentCount # 현재 콜카운트
-        self.total_count = self.dl_count + self.ul_count  # 전체 콜건수
+        self.total_count = self.dl_count + self.ul_count + self.nr_count # 전체 콜건수
         
         # 단말기의 상태를 업데이트 한다.
         # 상태 - 'POWERON', 'START_F', 'START_M', 'MEASURING', 'END'

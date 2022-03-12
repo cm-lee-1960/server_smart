@@ -54,6 +54,9 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
 # 2022.03.11 - 측정시작 메시지 분리
 #              1) 전체대상 측정시작 메시지(START_F): 통산사, 측정유형 등에 상관없이 하루에 측정 시작시 맨처음 한번 메시지를 보냄
 #              2) 해당지역 측정시작 메시지(START_M): 해당 지역에 측정을 시작하면 한번 메시지를 보냄
+# 2022.03.12 - 메시지와 이벤트 처리 순서 변경 (이벤트발생 현황을 포함하여 메시지가 작성될 수 있도록 하기 위함)
+#              기존: 메시지 작성 -> 이벤트발생 여부 체크
+#              변경: 이벤트발생 여부 체크 -> 메시지 작성
 #
 ####################################################################################################################################
 @csrf_exempt
@@ -223,17 +226,18 @@ def receive_json(request):
         elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
             mps= Morphology.objects.filter(manage=True).values_list('morphology', flat=True)
             if mdata.phone.morphology.morphology in mps:
+                # 이벤트 발생여부를 체크한다. 
+                event_occur_check(mdata)
+
                 # 메시지를 작성한다.
                 make_message(mdata)
 
-                # 이벤트 발생여부를 체크한다. 
-                event_occur_check(mdata)
 
     except Exception as e:
         # 오류코드 리턴 필요
         print("메시지/이벤트처리:",str(e))
         return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
-    
+
     return HttpResponse("처리완료")
 
 
