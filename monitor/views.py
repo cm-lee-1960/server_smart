@@ -157,6 +157,10 @@ def receive_json(request):
             # 2) 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
             phone.update_initial_data()
 
+            # 새롭게 생성된 단말그룹에 묶여 있는 단말기가 당일 이전 측정으로 측정조가 지정되어 있는지 확인
+            # 측정조로 지정되어 있다면 그 정보를 가져와서 단말그룹에 업데이트 함
+            phoneGroup.update_initial_data()
+
     except Exception as e:
         # 오류코드 리턴 필요
         print("단말기조회:",str(e))
