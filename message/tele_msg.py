@@ -1,16 +1,20 @@
+from datetime import datetime, timedelta
+import time
 import telegram
 from telegram.ext import CommandHandler, MessageHandler
-from telegram import ParseMode
+# from telegram import ParseMode
 from django.conf import settings
 from . import tele_chatbot
 from .models import SentTelegramMessage
-import time
+
 
 #######################################################################################################
 # 텔레그램 봇 클래스
 # -----------------------------------------------------------------------------------------------------
 # 2022.03.03 - 텔레그램 봇 관련 함수를 클래스로 랩핑함 
-# 2022.03.07 - 전송된 테레그램 메시지를 회수 또는 재전송하는 함수를 추가함(del_message(...))
+# 2022.03.07 - 전송된 텔레그램 메시지를 회수 또는 재전송하는 함수를 추가함(del_message(...))
+# 2022.03.13 - 텔레그램 봇 메시지 전송 제약(분당 20건)을 회피하기 위해서 5초 동안 전송된 메시지가 2건 이상일 경우 2초 대기
+#
 #######################################################################################################
 class TelegramBot:
     ''' Telegram 인스턴스(메시지 전송, 챗봇활성화) '''
@@ -58,7 +62,15 @@ class TelegramBot:
     # [출처] https://stackoverflow.com/questions/44152519/telegram-bot-api-limitations
     # --------------------------------------------------------------------------------------------------
     def send_message_bot(self, channelId, message):
-        try: 
+        try:
+            # 메시지를 보내기 전에 5초 동안 메시지가 2건 이상 보냈으면 2초를 대기한다. 
+            # now = datetime.strptime("2022-03-11 22:30:08", "%Y-%m-%d %H:%M:%S")
+            now = datetime.now()
+            from_dt = now - timedelta(seconds=5)
+            qs = SentTelegramMessage.objects.filter(chat_date__gte=from_dt).filter(chat_date__lte=now)
+            if qs.exists() and qs.count() >= 2:
+                time.sleep(2)
+
             # 메시지를 텔레그램으로 전송한다.
             sent_msg = self.bot.sendMessage(channelId, text=self.unicode_truncate(message,self.max_length), parse_mode='HTML')
             # 전송된 메시지를 데이터베이스에 저장한다.
