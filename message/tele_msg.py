@@ -142,3 +142,4 @@ class TelegramBot:
         # webhook 종료
         elif set == 0 :
             self.updater.stop()
+    
