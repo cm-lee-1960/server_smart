@@ -1,5 +1,4 @@
-
-from datetime import datetime
+from django.utils import timezone
 from django.db import models
 
 ###################################################################################################
@@ -115,7 +114,7 @@ class LowThroughput(models.Model):
 class MeasureingTeam(models.Model):
     '''금일 측정조 클래스'''
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
-    measdate = models.DateField(default=datetime.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
+    measdate = models.DateField(default=timezone.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     message = models.TextField(verbose_name="금일 측정조")
 
     class Meta:
@@ -142,5 +141,5 @@ class ReportCycle(models.Model):
 class AddressRegion(models.Model):
     '''행정동 경계구역 클래스'''
     addressDetail = models.CharField(max_length=100)  # 주소상세
-    json_data = models.JSONField(default='{}')
+    json_data = models.JSONField(default=dict)
 

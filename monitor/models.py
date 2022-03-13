@@ -135,7 +135,7 @@ class Phone(models.Model):
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
-
+    
     class Meta:
         verbose_name = "측정 단말"
         verbose_name_plural = "측정 단말"

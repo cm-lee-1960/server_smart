@@ -1,5 +1,5 @@
+from django.utils import timezone
 from django.db import models
-import datetime
 
 # Create your models here.
 # 측정계획 (MeasPlan)
@@ -31,7 +31,7 @@ class TodayRegister(models.Model):
     name = models.CharField(max_length=30, null=True, blank=True)
     category = models.CharField(max_length=10, null=True, blank=True)
     jiyok = models.CharField(max_length=10, null=True, blank=True)
-    date = models.DateField(default=datetime.date.today(), blank = True)
+    date = models.DateField(default=timezone.now, blank = True)
     dongdaco = models.CharField(max_length=30, null=True, blank=True)
     bigsmallnongintheme = models.CharField(max_length=10, null=True, blank=True)
     sanggae =  models.CharField(max_length=10, null=True, blank=True)
