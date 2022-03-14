@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser
 from message.msg import make_message
 from management.models import Morphology
 from .events import event_occur_check
-from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
+from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology
 
 
 # 로그를 기록하기 위한 로거를 생성한다.
@@ -92,7 +92,8 @@ def receive_json(request):
     # meastime '20211101063756701'
     try: 
         measdate = str(data['meastime'])[:8]
-        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
+        morphology = get_morphology(data['userInfo2'])
+        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], morphology=morphology, \
             ispId=data['ispId'], active=True)
         if qs.exists():
             phoneGroup = qs[0]    
@@ -102,6 +103,7 @@ def receive_json(request):
                             measdate=measdate,
                             userInfo1=data['userInfo1'],
                             userInfo2=data['userInfo2'],
+                            morphology=morphology,
                             ispId=data['ispId'],
                             active=True)
             

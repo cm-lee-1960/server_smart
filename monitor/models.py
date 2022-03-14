@@ -37,6 +37,7 @@ class PhoneGroup(models.Model):
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
     userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
+    morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
         choices=sorted(MEASURINGTEAM_CHOICES,key=itemgetter(0)), verbose_name='측정조')
     ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
@@ -569,4 +570,23 @@ def send_message(sender, **kwargs):
 # 전송 메시지가 저장된 후 메시지 전송 모듈을 호출한다(SIGNAL). 
 #--------------------------------------------------------------------------------------------------
 post_save.connect(send_message, sender=Message)
+
+# -------------------------------------------------------------------------------------------------
+# 측정자 입력값2(userInfo2)로 모폴로지를 확인한다. 
+#--------------------------------------------------------------------------------------------------
+def get_morphology(userInfo2):
+    # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
+    morphology = None # 모풀로지
+    if userInfo2 and userInfo2 != None:
+        # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
+        for mp in MorphologyMap.objects.all():
+            if mp.wordsCond == '시작단어':
+                if userInfo2.startswith(mp.words):
+                    morphology = mp.morphology
+                    break
+            elif mp.wordsCond == '포함단어':
+                if userInfo2.find(mp.words) >= 0:
+                    morphology = mp.morphology
+                    break
+    return morphology
 
