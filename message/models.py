@@ -21,3 +21,11 @@ class SentTelegramMessage(models.Model):
   class Meta:
     verbose_name = "텔레그램 메시지"
     verbose_name_plural = "텔레그램 메시지"
+
+
+class SentXroshotMessage(models.Model):
+  """ 크로샷으로 보낼 SMS 메시지 """
+  message = models.TextField(null=True, blank=True, verbose_name="내용")
+  receiver = models.TextField(null=False, blank=False, verbose_name="번호")
+  send_date = models.DateTimeField(null=True, blank=True, auto_now_add=True, verbose_name='송신시간')
+  result = models.CharField(max_length=10, null=True, blank=True, verbose_name="결과")

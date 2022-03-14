@@ -1,3 +1,4 @@
+
 from operator import itemgetter
 from django.db import models
 from django.db.models.signals import post_save
@@ -14,6 +15,8 @@ from management.models import Morphology, MorphologyMap
 # 측정 단말기 그룹정보
 # 2022.02.25 - 해당지역에 단말이 첫번째 측정을 시작했을 때 측정시작(START) 메시지를 한번 전송한다.
 # 2022.03.06 - 측정 데이터에 통신사(ispId)가 널(NULL)인 값이 들어와서 동일하게 모델의 해당 항목에 널을 허용함
+# 2022.03.11 - 단말그룹에 묶여 있는 측정 단말기들이 당일 이전에 측정이 있었는지 확인하고 있었다면 그때 단말그룹 측정조 값을
+#              가져와서 업데이트 하는 모듈 추가
 ###################################################################################################
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
@@ -33,6 +36,8 @@ class PhoneGroup(models.Model):
 
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
+    userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
+    morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
         choices=sorted(MEASURINGTEAM_CHOICES,key=itemgetter(0)), verbose_name='측정조')
     ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
@@ -44,6 +49,20 @@ class PhoneGroup(models.Model):
 
     def __str__(self):
         return f"{self.measdate}"
+
+    # 해당 단말그룹의 측정조를 업데이트 한다.
+    def update_initial_data(self):
+        phone_list = [ p.phone_no for p in self.phone_set.all()]
+        qs = Phone.objects.filter(measdate=self.measdate, phone_no__in=phone_list).exclude(phoneGroup=self)
+        if qs.exists():
+            measuringTeam = None
+            for p in qs:
+                print(p, p.phoneGroup.id, p.phoneGroup.measuringTeam)
+                if p.phoneGroup.measuringTeam and p.phoneGroup.measuringTeam != None:
+                    measuringTeam = p.phoneGroup.measuringTeam
+                    break
+            self.measuringTeam = measuringTeam
+            self.save()
 
 
 ###################################################################################################
@@ -63,6 +82,11 @@ class PhoneGroup(models.Model):
 #            - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 분리함에 따라 관련 소스코드 수정함
 #              '행정동', '테마', '인빌딩, '커버리지', 취약지역 등을 소스에 하드코딩 하지 않고, 또 추가 가능하게 하기 위함
 # 2022.03.06 - 행정동 찾기 및 모폴로지 변환 모듈에 대한 예외처리 루팅 추가
+# 2022.03.11 - 측정시작 메시지를 2개로 분리함에 따라서 측정시작 상태코드 분리
+#              1) START_F: 전체대상 측정시작
+#              2) START_M: 해당지역 측정시작
+# 2022.03.12 - 측정시작 위치에 대한 행정동 주소(시/도, 구/군, 읍/동/면)을 측정 단말기 정보에 가져감
+#              (5G->LTE로 전환시 위도,경도는 있지만 주소가 널(Null)인 경우가 많음)
 #
 ###################################################################################################
 class Phone(models.Model):
@@ -75,7 +99,8 @@ class Phone(models.Model):
     }
     STATUS_CHOICES = {
         ("POWERON", "PowerOn"),
-        ("START", "측정시작"),
+        ("START_F", "측정시작"),
+        ("START_M", "측정시작"),    
         ("MEASURING", "측정중"),
         ("END", "측정종료"),
     }
@@ -102,6 +127,8 @@ class Phone(models.Model):
     )
     currentCount = models.IntegerField(null=True, blank=True)
     total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
+    siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
+    guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군
     addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
     latitude = models.FloatField(null=True, blank=True)  # 위도
     longitude = models.FloatField(null=True, blank=True)  # 경도
@@ -111,7 +138,7 @@ class Phone(models.Model):
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
-
+    
     class Meta:
         verbose_name = "측정 단말"
         verbose_name_plural = "측정 단말"
@@ -172,7 +199,9 @@ class Phone(models.Model):
         #### 방식 2 ####
         # UL/DL 평균속도 산출시 NR(5G->LTE전환) 데이터는 제외한다.
         # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다. 
-        if mdata.networkId != 'NR':
+        if mdata.networkId == 'NR':
+            self.nr_count += 1
+        else:
             # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.avg_downloadBandwidth = round(((self.avg_downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 3)
@@ -181,17 +210,18 @@ class Phone(models.Model):
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.avg_uploadBandwidth = round(((self.avg_uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
                 self.ul_count += 1
-        # 5G 측정 단말기 이고, 측정시 NR이면 5G->LTE 전환 콜수를 누적한다.
-        elif mdata.phone.networkId == '5G':
-            self.nr_count += 1
-        
+
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
         self.currentCount = mdata.currentCount # 현재 콜카운트
-        self.total_count = self.dl_count + self.ul_count  # 전체 콜건수
+        self.total_count = self.dl_count + self.ul_count + self.nr_count # 전체 콜건수
         
         # 단말기의 상태를 업데이트 한다.
-        # 상태 - 'POWERON', 'START', 'MEASURING', 'END'
-        self.status = "START" if self.total_count == 1 else "MEASURING"
+        # 상태 - 'POWERON', 'START_F', 'START_M', 'MEASURING', 'END'
+        # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
+        if self.total_count <= 1:
+            self.status = "START_M" 
+        else:
+            self.status = "MEASURING"
 
         # 최종 위치보고시간을 업데이트 한다.
         self.last_updated = mdata.meastime
@@ -215,11 +245,35 @@ class Phone(models.Model):
                 output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
                 result = kakao.geo_coord2regioncode(self.longitude, self.latitude, input_coord, output_coord)
+                # [ 리턴값 형식 ]
+                # print("out_measuring_range():", result)
+                # {'meta': {'total_count': 2},
+                # 'documents': [{'region_type': 'B',
+                # 'code': '4824012400',
+                # 'address_name': '경상남도 사천시 노룡동',
+                # 'region_1depth_name': '경상남도',
+                # 'region_2depth_name': '사천시',
+                # 'region_3depth_name': '노룡동', <-- 주소지 동
+                # 'region_4depth_name': '',
+                # 'x': 296184.5342265043,
+                # 'y': 165683.29710986698},
+                # {'region_type': 'H',
+                # 'code': '4824059500',
+                # 'address_name': '경상남도 사천시 남양동',
+                # 'region_1depth_name': '경상남도',
+                # 'region_2depth_name': '사천시',
+                # 'region_3depth_name': '남양동', <-- 행정구역
+                # 'region_4depth_name': '',
+                # 'x': 297008.1130364056,
+                # 'y': 164008.47612447804}]}
 
-                region_3depth_name = result['documents'][1]['region_3depth_name']
+                region_1depth_name = result['documents'][1]['region_1depth_name'] # 시/도
+                region_2depth_name = result['documents'][1]['region_2depth_name'] # 구/군
+                region_3depth_name = result['documents'][1]['region_3depth_name'] # 행정동(읍/동/면)
 
-                self.addressDetail = region_3depth_name
-
+                self.siDo = region_1depth_name # 시/도
+                self.guGun = region_2depth_name # 구/군
+                self.addressDetail = region_3depth_name # 행정동(읍/동/면)
 
             # 측정자 입력값2(userInfo2)에 따라 모폴로지와 관리대상여부를 결정한다.
             morphology = None # 모풀로지
@@ -517,7 +571,22 @@ def send_message(sender, **kwargs):
 #--------------------------------------------------------------------------------------------------
 post_save.connect(send_message, sender=Message)
 
-
-
-
+# -------------------------------------------------------------------------------------------------
+# 측정자 입력값2(userInfo2)로 모폴로지를 확인한다. 
+#--------------------------------------------------------------------------------------------------
+def get_morphology(userInfo2):
+    # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
+    morphology = None # 모풀로지
+    if userInfo2 and userInfo2 != None:
+        # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
+        for mp in MorphologyMap.objects.all():
+            if mp.wordsCond == '시작단어':
+                if userInfo2.startswith(mp.words):
+                    morphology = mp.morphology
+                    break
+            elif mp.wordsCond == '포함단어':
+                if userInfo2.find(mp.words) >= 0:
+                    morphology = mp.morphology
+                    break
+    return morphology
 

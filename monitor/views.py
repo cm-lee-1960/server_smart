@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser
 from message.msg import make_message
 from management.models import Morphology
 from .events import event_occur_check
-from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
+from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology
 
 
 # 로그를 기록하기 위한 로거를 생성한다.
@@ -48,6 +48,21 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
 # 2022.03.06 - 간략한 시스템 다이어그램 작성
 # 2022.03.07 - 관리대상(행정동, 테마, 인빌딩) 데이터에 대해서만 메시지 및 이벤트 발생여부를 확인한다.
 #              (기존 이벤트 발생여부는 모든 데이터에 대해서 체크함)
+# 2022.03.10 - 단말그룹이 자동으로 생성된 후 측정조를 지정하면 이후 해당 단말기에 대한 새로운 단말그룹이 생겼을 때 
+#              기존 측정조를 갖와서 업데이트 한다.
+#            - 하나의 단말그룹은 하루에 약 3개 정도 지역을 측정하게 된다.
+# 2022.03.11 - 측정시작 메시지 분리
+#              1) 전체대상 측정시작 메시지(START_F): 통산사, 측정유형 등에 상관없이 하루에 측정 시작시 맨처음 한번 메시지를 보냄
+#              2) 해당지역 측정시작 메시지(START_M): 해당 지역에 측정을 시작하면 한번 메시지를 보냄
+# 2022.03.12 - 메시지와 이벤트 처리 순서 변경 (이벤트발생 현황을 포함하여 메시지가 작성될 수 있도록 하기 위함)
+#              기존: 메시지 작성 -> 이벤트발생 여부 체크
+#              변경: 이벤트발생 여부 체크 -> 메시지 작성
+# 2022.03.14 - 단말그룹에 대한 측정조 자동조회 설정
+#              단말그룹에 속한 단말기들에 대한 기존 측정 데이터가 있고, 측정조가 편성되어 있다면 가져와서 자동 업데이트
+#            - 당일 동일지억에 대해 모폴러지가 달라도 하나의 그룹으로 묶이는 현상 조치
+#              예)행정동+커버리지, 테마+커버리지
+#              * 현재 그룹생성 기준: 측정일자(YYYYMMDD) + 측정자 입력값1(userInfo1) + 통신사(ispId)
+#              * 변경 그룹생성 기준: 측정일자(YYYYMMDD) + 측정자 입력값1(userInfo1) + 측정자 입력값2(userInfo2) + 통신사(ispId)
 #
 ####################################################################################################################################
 @csrf_exempt
@@ -77,8 +92,9 @@ def receive_json(request):
     # meastime '20211101063756701'
     try: 
         measdate = str(data['meastime'])[:8]
-        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], ispId=data['ispId'], \
-            active=True)
+        morphology = get_morphology(data['userInfo2'])
+        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], morphology=morphology, \
+            ispId=data['ispId'], active=True)
         if qs.exists():
             phoneGroup = qs[0]    
         else:
@@ -86,8 +102,11 @@ def receive_json(request):
             phoneGroup = PhoneGroup.objects.create(
                             measdate=measdate,
                             userInfo1=data['userInfo1'],
+                            userInfo2=data['userInfo2'],
+                            morphology=morphology,
                             ispId=data['ispId'],
                             active=True)
+            
     except Exception as e:
         # 오류코드 리턴 필요
         print("그룹조회:",str(e))
@@ -117,6 +136,7 @@ def receive_json(request):
                 networkId = data['networkId']
 
             # 측정 단말기를 생성한다.
+            # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
             meastime_s = str(data['meastime']) # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             phone = Phone.objects.create(
                         phoneGroup = phoneGroup,
@@ -131,7 +151,7 @@ def receive_json(request):
                         avg_uploadBandwidth=0.0,
                         dl_count=0,
                         ul_count=0,
-                        status='START',
+                        status='START_F',
                         currentCount=data['currentCount'],
                         total_count=data['currentCount'],
                         addressDetail=data['addressDetail'],
@@ -145,6 +165,10 @@ def receive_json(request):
             # 1) 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 저장한다.
             # 2) 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
             phone.update_initial_data()
+
+            # 새롭게 생성된 단말그룹에 묶여 있는 단말기가 당일 이전 측정으로 측정조가 지정되어 있는지 확인
+            # 측정조로 지정되어 있다면 그 정보를 가져와서 단말그룹에 업데이트 함
+            phoneGroup.update_initial_data()
 
     except Exception as e:
         # 오류코드 리턴 필요
@@ -196,24 +220,37 @@ def receive_json(request):
         # 측정시작 메시지
         # 2022.02.27 - 측정시작 메시지 분리
         #            - 통신사 및 기타 조건에 상관없이 해당일자 측정이 시작하면 측정시작 메시지를 전송하도록 한다.
+        # 2022.03.10 - 측정시작 메시지를 2개로 분리
+        #              1) 측정시작 메시지(전체대상)
+        #              2) 해당지역 측정시작 메시지
         if data['currentCount'] == 1: 
-            make_message(mdata)
+            # 1) 측정시작 메시지(전체대상)
+            #    - 전체대상 측정시작 메시지는 통신사, 측정유형에 상관없이 무조건 측정을 시작하면 한번 메시지를 보낸다.
+            if mdata.phone.status == 'START_F': make_message(mdata)
+
+            # 2) 해당지역 측정시작 메시지
+            #    - 해당 지역에 대해서 측정을 시작하면 측정시작 메시지를 한번 보낸다.
+            #    - 두개의 단말기로 측정을 진행하니 메시지가 한번만 갈 수 있도록 유의히야 한다.
+            # (조건: KT 속도측정 데이터에 대해서만 적용)
+            if mdata.phone.status == 'START_M' and mdata.ispId == '45008' and mdata.testNetworkType == 'speed': 
+                make_message(mdata)
 
         # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
         elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
             mps= Morphology.objects.filter(manage=True).values_list('morphology', flat=True)
             if mdata.phone.morphology.morphology in mps:
+                # 이벤트 발생여부를 체크한다. 
+                event_occur_check(mdata)
+
                 # 메시지를 작성한다.
                 make_message(mdata)
 
-                # 이벤트 발생여부를 체크한다. 
-                event_occur_check(mdata)
 
     except Exception as e:
         # 오류코드 리턴 필요
         print("메시지/이벤트처리:",str(e))
         return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
-    
+
     return HttpResponse("처리완료")
 
 

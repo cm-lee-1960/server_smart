@@ -233,8 +233,8 @@ def out_measuring_range(mdata):
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
             # 메시지를 작성한다.
             message = f"{mdata.get_address()}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
-                    "(단말번호/행정동/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-                    f"{mdata.get_phone_no_sht()} / {mdata.phone.addressDetail} / {mdata.get_time()} / {mdata.currentCount} / " + \
+                    "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+                    f"{mdata.get_phone_no_sht()} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.get_time()} / {mdata.currentCount} / " + \
                     f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
 
     except Exception as e:

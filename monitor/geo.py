@@ -2,6 +2,8 @@ import json
 import requests
 import folium
 import pandas as pd
+from haversine import haversine # 이동거리
+from management.models import AddressRegion
 
 ###################################################################################################
 # 좌표(위도,경도) 및 주소 변환 모듈
@@ -152,10 +154,15 @@ class KakaoLocalAPI:
 
 #######################################################################################################
 # 측정 위치에 대한 지도맵 그리기
+# -----------------------------------------------------------------------------------------------------
 # 2022.03.02 - 파일명에 통신사업자 코드를 넣음(파일명으로 어느 통신사 측정단말인지 알기 위해)
 # 2022.03.07 - 측정위치 팝업 항목 표시 순서 변경(PCI, Cell ID, DL, UL, RSRP, SINR)
 #            - 팝업 항목 및 값 가운데 정렬, 측정 데이터가 10개 이상일 때만 지도 자동확대 적용함
 #              측정 데이터가 너무 적을 때 자동확대 하면 지도가 너무 크게 확대되는 현상이 있음
+# 2022.03.12 - 생성된 지도맵 저장 파일명을 기존 측정일자(measdate)에서 측정일시(meastime)로 변경함
+#              좁은 지역을 측정하는 경우 측정위치를 나태내는 원(Circle)이 너무 크게 확대되는 현상이 있어 조치함
+#            - 지도상에 행정동 경계구역을 표시함 (경계구역을 모든 지도맵에 표시했는데, 차후 행정동만 표기할 것인지 검토 필요)
+#
 #######################################################################################################
 # RSRP 값에 따라 색상코드를 결정한다. 
 def rsrp2color(x):
@@ -229,12 +236,33 @@ def make_map_locations(mdata):
         # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
         # 2022.03.07 - 측정 데이터가 10개 이상일 때만 지도를 자동확대 하도록 한다. 
         #              측정 데이터가 몇개 안될때 지도를 자동확대 하면 측정위치가 너무 크게 확대되는 현상이 있음
-        if len(locations) >= 10:
-            sw = pd.DataFrame(locations).min().values.tolist()
-            ne = pd.DataFrame(locations).max().values.tolist()
-            map.fit_bounds([sw, ne])
+        if len(locations) > 1:
+            start_loc = tuple(locations[0])
+            current_loc = (mdata.latitude, mdata.longitude)
+            distance = haversine(start_loc, current_loc)  # 킬로(km)
+            # if len(locations) >= 10:
+            if distance > 3:
+                sw = pd.DataFrame(locations).min().values.tolist()
+                ne = pd.DataFrame(locations).max().values.tolist()
+                map.fit_bounds([sw, ne])
 
-    filename = f'{mdata.phone.measdate}-{mdata.ispId}-{mdata.phone_no}.html'
+    # 지도상에 행정동 경계구역을 표시한다.
+    # 동일한 필드명으로 조건을 두번 쓸수 없고, 필터를 두번 걸어야 함
+    qs = AddressRegion.objects.filter( addressDetail__contains=mdata.phone.addressDetail) \
+                            .filter(addressDetail__contains=mdata.phone.guGun)
+    if qs.exists():
+        json_data = qs[0].json_data
+        geo = {
+            "type": "FeatureCollection",
+            "name": "HangJeongDong_ver20220309",
+            "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+            "bbox": [ 124.609681415304, 33.1118678527544, 131.871294250487, 38.616952080675 ],                                                 
+            "features": [ json_data
+        ]}
+        folium.GeoJson(geo, name='seoul_municipalities').add_to(map)
+
+    # 작성된 지도맵을 저장하고, 파일명을 반환한다.
+    filename = f'{mdata.meastime}-{mdata.ispId}-{mdata.phone_no}.html'
     map.save("monitor/templates/maps/" + filename)
 
     return filename

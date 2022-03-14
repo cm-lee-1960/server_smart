@@ -3,6 +3,9 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import telegram
 from .tele_msg import TelegramBot
+from .models import SentXroshotMessage
+from .forms import SentXroshotMessageForm
+from .xmcs_msg import send_sms
 
 # Create your views here.
 
@@ -21,3 +24,23 @@ def set_cb(request):
 def stop_cb(request):
     bot.set_chatbot(0)
     return HttpResponse("Chatbot 종료 완료")
+
+
+# 크로샷 메시지 작성 페이지 (임시)  // (3.13)
+def xroshot_index(request):
+    return render(request, 'message/xroshot_page.html')
+
+# 작성한 메시지를 바탕으로 메시지 전송  //  (3.13)
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
+def xroshot_send(request):
+    if request.method=='POST':
+        form = SentXroshotMessageForm(request.POST)
+        if form.is_valid():
+            form.save()
+            result = send_sms()
+            print(result)
+        return HttpResponse("메시지 전송 완료")
+    else:
+        print("잘못된 요청입니다.")
+    return HttpResponse("Error occured. Please check your message or phone-number.")

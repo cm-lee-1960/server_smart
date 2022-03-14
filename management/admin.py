@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib import auth
+from django.conf import settings
 from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam, ReportCycle, MorphologyMap
 
 ###################################################################################################
@@ -13,6 +14,7 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 #  - 금일 측정조(MeasureingTeam): 당일 측정을 수행하는 측정조 현황을 입력 관리(측정 시작메시지에 포함됨)
 #  - 측정 보고주기(ReportCycle): 측정 보고주기를 DB화 함(3, 10, 27, 37, 57)
 # -------------------------------------------------------------------------------------------------
+# 2022.03.13 - 관리자 페이지 앱들과 특정 앱의 모델들을 재정렬 한다.
 #
 ###################################################################################################
 
@@ -108,19 +110,13 @@ admin.site.unregister(auth.models.Group)
 def get_app_list(self, request):
     """환경설정 관리 모델 클래스를 정렬하는 함수"""
     app_dict = self._build_app_dict(request)
-    app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
-
+    # 관리자 페이지 앱들을 재정렬한다.
+    ordering = settings.APPS_ORDERING
+    app_list = sorted(app_dict.values(), key=lambda x: ordering[x['name']])
     for app in app_list:
+        # 관리자 페이지 운영환경 관리의 모델들을 재정렬 한다. 
         if app['app_label'] == 'management':
-            ordering = {
-                "금일 측정조": 1,
-                "모풀로지 맵": 2,
-                "속도저하 기준": 3,
-                "전송실패 기준": 4,
-                "측정 보고주기": 5, 
-                "모풀로지": 6,
-                "센터정보": 7,           
-            }
+            ordering = settings.MANAGEMENT_MODELS_ORDERING
             app['models'].sort(key=lambda x: ordering[x['name']])
 
     return app_list

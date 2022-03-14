@@ -1,5 +1,4 @@
-
-from datetime import datetime
+from django.utils import timezone
 from django.db import models
 
 ###################################################################################################
@@ -12,10 +11,13 @@ from django.db import models
 #  - 속도저하 기준(LowThroughput): 상황에 따라 변경되는 속도저하 기준 정보를 관리함 
 #  - 금일 측정조(MeasureingTeam): 당일 측정을 수행하는 측정조 현황을 입력 관리(측정 시작메시지에 포함됨)
 #  - 측정 보고주기(ReportCycle): 측정 보고주기를 DB화 함(3, 10, 27, 37, 57)
+#  - 행정동 경계구역(AddressRegion): 지도맵에 현재 측정하고 있는 행정동 경계구역을 표시하기 위한 폴리건 데이터(JSON)
 # -------------------------------------------------------------------------------------------------
 # 2022.03.05 - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 클래스를 분리함
 #              즉, 기존에 하드코딩 되어 있는 '행정동', '테마', '인빌딩', '커버리지' 등을 DB로 등로관리 할 수 있도록 함
 #            - 측정 보고주기를 하드코딩에서 DB화 함
+# 2022.03.12 - 지도맵에 현재 측정하고 있는 행정동 경계구역을 표시하기 위한 폴리건 데이터 모델(JSON) 추가
+#
 ###################################################################################################
 
 # -------------------------------------------------------------------------------------------------
@@ -112,7 +114,7 @@ class LowThroughput(models.Model):
 class MeasureingTeam(models.Model):
     '''금일 측정조 클래스'''
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
-    measdate = models.DateField(default=datetime.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
+    measdate = models.DateField(default=timezone.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     message = models.TextField(verbose_name="금일 측정조")
 
     class Meta:
@@ -131,3 +133,13 @@ class ReportCycle(models.Model):
     class Meta:
         verbose_name = "측정 보고주기"
         verbose_name_plural = "측정 보고주기"
+
+
+# -------------------------------------------------------------------------------------------------
+# 행정동 데이터 클래스
+# -------------------------------------------------------------------------------------------------
+class AddressRegion(models.Model):
+    '''행정동 경계구역 클래스'''
+    addressDetail = models.CharField(max_length=100)  # 주소상세
+    json_data = models.JSONField(default=dict)
+

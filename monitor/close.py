@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 from django.conf import settings
 from .models import Phone, PhoneGroup, Message
 from django.conf import settings
 
+=======
+>>>>>>> 0f277551f46bb7d33cd5d5a5e6c3cfaf6273b726
 ###################################################################################################
 # 측정종료 및 측정마감 모듈
 # 1) 측정종료 - 해당지역에 대한 측정을 종료처리
@@ -10,16 +13,21 @@ from django.conf import settings
 # 2022-03-11 - ???????
 ###################################################################################################
 
+<<<<<<< HEAD
 def measuring_end(phonegroup,measdate):
 
     channelId = settings.CHANNEL_ID
     ##tele 채널아이디
     
+=======
+def measuring_end():
+>>>>>>> 0f277551f46bb7d33cd5d5a5e6c3cfaf6273b726
     '''해당지역 측정을 종효하는 함수'''
     # 1) 단말그룹: 상태변경
     # 2) 측정단말: 상태변경
     # 3) 해당지역 측정종료 메시지 생성 (유형: 텔레그램(TELE))
     # * 별도누적 테이블(모델) 필요 없음 - 검증을 위해 필요한 경우 메시지 모델에 항목 추가
+<<<<<<< HEAD
     ## phonegroup == 폰그룹아이디, measdate == 측정날짜
     ## 메인페이지의 종료 에어리어의 폰그룹 버튼을 눌럿을때는 
     ## Phonegroup의 id값을 가지고 있어야된다.
@@ -98,6 +106,10 @@ def measuring_end(phonegroup,measdate):
         sended=True
     )
     
+=======
+    pass
+
+>>>>>>> 0f277551f46bb7d33cd5d5a5e6c3cfaf6273b726
 def measuing_day_close():
     '''당일측정을 마감하는 함수'''
     # 1) 단말그룹: 상태변경 - 혹시 남아 있는 상태(True)
