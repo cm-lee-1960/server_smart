@@ -57,6 +57,12 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData
 # 2022.03.12 - 메시지와 이벤트 처리 순서 변경 (이벤트발생 현황을 포함하여 메시지가 작성될 수 있도록 하기 위함)
 #              기존: 메시지 작성 -> 이벤트발생 여부 체크
 #              변경: 이벤트발생 여부 체크 -> 메시지 작성
+# 2022.03.14 - 단말그룹에 대한 측정조 자동조회 설정
+#              단말그룹에 속한 단말기들에 대한 기존 측정 데이터가 있고, 측정조가 편성되어 있다면 가져와서 자동 업데이트
+#            - 당일 동일지억에 대해 모폴러지가 달라도 하나의 그룹으로 묶이는 현상 조치
+#              예)행정동+커버리지, 테마+커버리지
+#              * 현재 그룹생성 기준: 측정일자(YYYYMMDD) + 측정자 입력값1(userInfo1) + 통신사(ispId)
+#              * 변경 그룹생성 기준: 측정일자(YYYYMMDD) + 측정자 입력값1(userInfo1) + 측정자 입력값2(userInfo2) + 통신사(ispId)
 #
 ####################################################################################################################################
 @csrf_exempt
@@ -86,8 +92,8 @@ def receive_json(request):
     # meastime '20211101063756701'
     try: 
         measdate = str(data['meastime'])[:8]
-        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], ispId=data['ispId'], \
-            active=True)
+        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
+            ispId=data['ispId'], active=True)
         if qs.exists():
             phoneGroup = qs[0]    
         else:
@@ -95,6 +101,7 @@ def receive_json(request):
             phoneGroup = PhoneGroup.objects.create(
                             measdate=measdate,
                             userInfo1=data['userInfo1'],
+                            userInfo2=data['userInfo2'],
                             ispId=data['ispId'],
                             active=True)
             

@@ -1,3 +1,4 @@
+
 from operator import itemgetter
 from django.db import models
 from django.db.models.signals import post_save
@@ -35,6 +36,7 @@ class PhoneGroup(models.Model):
 
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
+    userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
         choices=sorted(MEASURINGTEAM_CHOICES,key=itemgetter(0)), verbose_name='측정조')
     ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
