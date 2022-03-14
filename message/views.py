@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import telegram
 from .tele_msg import TelegramBot
 from .models import SentXroshotMessage
 from .forms import SentXroshotMessageForm
 from .xmcs_msg import send_sms
+from monitor.models import Message
 
 # Create your views here.
 
@@ -37,10 +37,15 @@ def xroshot_send(request):
     if request.method=='POST':
         form = SentXroshotMessageForm(request.POST)
         if form.is_valid():
+            #messages = form.save(commit=False)
             form.save()
             result = send_sms()
-            print(result)
-        return HttpResponse("메시지 전송 완료")
+            if 'Result: 10000' in result:
+                return HttpResponse(result+'\nSuccess!')
+            else:
+                return HttpResponse(result+'\nFailed..')
+        else:
+            return HttpResponse("Error occured. Please check your message or phone-number.")
     else:
         print("잘못된 요청입니다.")
-    return HttpResponse("Error occured. Please check your message or phone-number.")
+        return HttpResponse("Bad Request..")

@@ -31,7 +31,6 @@ connection.connect(function(err){
     }
 });
 connection.query('SELECT * from smart.message_sentxroshotmessage ORDER BY ID DESC LIMIT 1', function(err, rows, fields) {
-    connection.end();
     if (!err){
         let message_body = rows[0].message;   /// Message 내용
         var message_number = rows[0].receiver.replace(/\s+/g, '').split(',');
@@ -68,10 +67,15 @@ connection.query('SELECT * from smart.message_sentxroshotmessage ORDER BY ID DES
         //////// 메시지 전송
         sms_api.sendSMS(endpoint, apiKey, hashKey, requestBody, function(error, response, body) {
             console.log(body);
-        });
-        
+        }); 
 	}
 });
+
+connection.query('delete from smart.message_sentxroshotmessage', function(err, result) {
+    if (err) throw err;
+    console.log('sended message will be deleted')
+});
+connection.end();
 
 
 
