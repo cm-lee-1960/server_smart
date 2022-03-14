@@ -6,8 +6,6 @@ from django.db import models
 # 년도, 지역, 네트워크유형, 모폴로지(레벨0, 레벨1, 레벨2)
 # year, area, networkId, morph_level0, morph_level1, morph_level2, meas_count 
 # create("SELECT .....")
-<<<<<<< HEAD
-=======
 class MeasPlan(models.Model):
    
     networkId_CHOICES = {
@@ -49,7 +47,6 @@ class MeasPlan(models.Model):
 
 
 
->>>>>>> 0f277551f46bb7d33cd5d5a5e6c3cfaf6273b726
 class Register(models.Model):
     category = models.CharField(max_length=10, null=True, blank=True)
     dong = models.IntegerField(null=True, default=0)
