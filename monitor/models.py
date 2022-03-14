@@ -64,6 +64,25 @@ class PhoneGroup(models.Model):
             self.measuringTeam = measuringTeam
             self.save()
 
+# -------------------------------------------------------------------------------------------------
+# 측정자 입력값2(userInfo2)로 모폴로지를 확인한다. 
+#--------------------------------------------------------------------------------------------------
+def get_morphology(userInfo2):
+    # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
+    morphology = None # 모풀로지
+    if userInfo2 and userInfo2 != None:
+        # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
+        for mp in MorphologyMap.objects.all():
+            if mp.wordsCond == '시작단어':
+                if userInfo2.startswith(mp.words):
+                    morphology = mp.morphology
+                    break
+            elif mp.wordsCond == '포함단어':
+                if userInfo2.find(mp.words) >= 0:
+                    morphology = mp.morphology
+                    break
+    return morphology
+
 
 ###################################################################################################
 # 측정 단말기 정보
@@ -276,24 +295,26 @@ class Phone(models.Model):
                 self.addressDetail = region_3depth_name # 행정동(읍/동/면)
 
             # 측정자 입력값2(userInfo2)에 따라 모폴로지와 관리대상여부를 결정한다.
-            morphology = None # 모풀로지
-            manage = False # 관리대상 여부
-            if self.userInfo2:
-                # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 재지정한다. 
-                for mp in MorphologyMap.objects.all():
-                    if mp.wordsCond == '시작단어':
-                        if self.userInfo2.startswith(mp.words):
-                            morphology = mp.morphology
-                            manage = mp.manage
-                            break
-                    elif mp.wordsCond == '포함단어':
-                        if self.userInfo2.find(mp.words) >= 0:
-                            morphology = mp.morphology
-                            manage = mp.manage
-                            break
-
+            # 2022.03.14 - 다른 모듈에서도 사용할 수 있도록 클래스 밖으로 별도 함수로 선언함
+            #
+            # morphology = None # 모풀로지
+            # manage = False # 관리대상 여부
+            # if self.userInfo2:
+            #     # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 재지정한다. 
+            #     for mp in MorphologyMap.objects.all():
+            #         if mp.wordsCond == '시작단어':
+            #             if self.userInfo2.startswith(mp.words):
+            #                 morphology = mp.morphology
+            #                 manage = mp.manage
+            #                 break
+            #         elif mp.wordsCond == '포함단어':
+            #             if self.userInfo2.find(mp.words) >= 0:
+            #                 morphology = mp.morphology
+            #                 manage = mp.manage
+            #                 break
+            morphology = get_morphology(self.userInfo2)
             self.morphology = morphology
-            self.manage = manage
+            self.manage = morphology.manage
 
             # 측정 단말기 정보를 저장한다.
             self.save()
@@ -571,22 +592,4 @@ def send_message(sender, **kwargs):
 #--------------------------------------------------------------------------------------------------
 post_save.connect(send_message, sender=Message)
 
-# -------------------------------------------------------------------------------------------------
-# 측정자 입력값2(userInfo2)로 모폴로지를 확인한다. 
-#--------------------------------------------------------------------------------------------------
-def get_morphology(userInfo2):
-    # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
-    morphology = None # 모풀로지
-    if userInfo2 and userInfo2 != None:
-        # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
-        for mp in MorphologyMap.objects.all():
-            if mp.wordsCond == '시작단어':
-                if userInfo2.startswith(mp.words):
-                    morphology = mp.morphology
-                    break
-            elif mp.wordsCond == '포함단어':
-                if userInfo2.find(mp.words) >= 0:
-                    morphology = mp.morphology
-                    break
-    return morphology
 
