@@ -1,37 +1,41 @@
 // 일일보고 수정
-	function printName() {
-		const name = document.getElementById('name').value;
-		document.getElementById("result").innerText = name;
-	}
 	function printName1() {
-		const name = document.getElementById('name1').value;
-		document.getElementById("result1").innerText = name;
+		const textmod = document.getElementById('textmod1').value;
+		document.getElementById("result1").innerText = textmod;
 	}
 	function printName2() {
-		const name = document.getElementById('name2').value;
-		document.getElementById("result2").innerText = name;
+		const textmod = document.getElementById('textmod2').value;
+		document.getElementById("result2").innerText = textmod;
 	}
-
+	function printName3() {
+		const textmod = document.getElementById('textmod3').value;
+		document.getElementById("result3").innerText = textmod;
+	}
+	function printName4() {
+		const textmod = document.getElementById('textmod4').value;
+		document.getElementById("result4").innerText = textmod;
+	}
 
 
 // 수정 완료 이벤트
-		$("#name").hide();
-		$("#name1").hide();
-		$("#name2").hide();
+		$("#textmod1").hide();
+		$("#textmod2").hide();
+		$("#textmod3").hide();
+		$("#textmod4").hide();
 
 		$('#modify').click(function() {
 
-			$("#name").show();
-			$("#name1").show();
-			$("#name2").show();
-
+			$("#textmod1").show();
+			$("#textmod2").show();
+			$("#textmod3").show();
+			$("#textmod4").show();
 		});
 		$('#complete').click(function() {
 
-			$("#name").hide();
-			$("#name1").hide();
-			$("#name2").hide();
-
+			$("#textmod1").hide();
+			$("#textmod2").hide();
+			$("#textmod3").hide();
+			$("#textmod4").hide();
 		});
 	
 
