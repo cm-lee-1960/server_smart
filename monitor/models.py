@@ -70,7 +70,7 @@ class PhoneGroup(models.Model):
 #--------------------------------------------------------------------------------------------------
 def get_morphology(userInfo2):
     # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
-    morphology = Morphology.objects.filter(morphology='행정동') # 초기값 설정
+    morphology = Morphology.objects.filter(morphology='행정동')[0] # 초기값 설정
     if userInfo2 and userInfo2 != None:
         # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
         for mp in MorphologyMap.objects.all():
@@ -107,6 +107,8 @@ def get_morphology(userInfo2):
 #              2) START_M: 해당지역 측정시작
 # 2022.03.12 - 측정시작 위치에 대한 행정동 주소(시/도, 구/군, 읍/동/면)을 측정 단말기 정보에 가져감
 #              (5G->LTE로 전환시 위도,경도는 있지만 주소가 널(Null)인 경우가 많음)
+# 2022.03.16 - 중복측정 이벤트 발생여부를 확인하기 위해서 측정 단말기에 현재 측정유형 항목을 가져감(DL, UL)
+#              그룹으로 묶여 있는 단말기의 측정유형이 2개가 모두 동일할 때 이벤트 발생(DL/DL, UL/UL)
 #
 ###################################################################################################
 class Phone(models.Model):
@@ -124,11 +126,16 @@ class Phone(models.Model):
         ("MEASURING", "측정중"),
         ("END", "측정종료"),
     }
+    MEASTYPE_CHOICES = {
+        ("DL", "DL"),
+        ("UL", "UL")
+    }
 
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     starttime = models.CharField(max_length=10, verbose_name="측정시작시간")  # 측정시작시간
     phone_no = models.BigIntegerField(verbose_name="측정단말")
+    meastype = models.CharField(max_length=10, null=True, blank=True, choices=MEASTYPE_CHOICES, verbose_name="측정유형")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
     userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
     networkId = models.CharField(
@@ -225,10 +232,12 @@ class Phone(models.Model):
             # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.avg_downloadBandwidth = round(((self.avg_downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 3)
+                self.meastype = 'DL'
                 self.dl_count += 1
             # UP 평균속도 계산
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.avg_uploadBandwidth = round(((self.avg_uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
+                self.meastype = 'UL'
                 self.ul_count += 1
 
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.

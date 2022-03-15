@@ -4,7 +4,7 @@ from haversine import haversine # 이동거리
 # import requests
 from management.models import SendFailure, LowThroughput
 from .geo import KakaoLocalAPI, make_map_locations
-from .models import Message
+from .models import Phone, Message
 
 ###################################################################################################
 # 이벤트 발생여부를 체크하는 모듈
@@ -25,6 +25,7 @@ from .models import Message
 # 2022.03.04 - 하드코딩 되어 있는 조건문 => DB 관리기준 조회 조건문으로 변환 (보통지역, 최약지역 구분)
 # 2022.03.10 - 모델에서 다른 항목조건 및 연산을 해서 가져와야 하는 중복코드들을 모두 모델 함수로 이동(get함수)
 # 2022.03.15 - 여러개의 이벤트 발생시 하나의 메시지로 통합해서 보내기
+#            - 두 개의 단말이 중복측정하고 있는지 확인하는 이벤트 모듈 추가
 #  
 ###################################################################################################  
 def event_occur_check(mdata):
@@ -53,6 +54,10 @@ def event_occur_check(mdata):
 
     # 6)측정콜이 한곳에 머무는 경우
     message = call_staying_check(mdata)
+    if message and message != None : events_list.append(message)
+
+    # 7)측정단말이 중복측 정하는 경우(예: DL/DL, UL/UL)
+    message = duplicated_measuring(mdata)
     if message and message != None : events_list.append(message)
 
     # 이벤트가 여러 건 발생한 경우 이벤트 메시지를 하나의 메시지로 통합한다.
@@ -303,6 +308,38 @@ def call_staying_check(mdata):
                         f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
                         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
 
+    return message
+
+# -------------------------------------------------------------------------------------------------
+# 중복측정이 발생했는지 확인
+# 2022.03.16 - 단말그룹으로 묶여 있는 2개의 단말이 동일한 유형의 측정을 수행하고 있은 때 이벤트 발생(DL/DL, UL/UL)
+#--------------------------------------------------------------------------------------------------
+def duplicated_measuring(mdata):
+    ''' 두개의 단말이 중복측정하고 있는지 확인
+        - 단말그룹으로 묶여 있는 2개의 단말이 동일한 유형의 측정을 수행하고 있은 때 이벤트 발생(DL/DL, UL/UL)
+        - return message
+    '''
+    message = None
+    duplicated = False
+    # 두개의 단말이 서로 측정유형을 바꾸는 동안 지연시간을 갖는다(2개 콜)
+    # 즉, DL -> UL, UL -> DL
+    if mdata.currentCount >= 3:
+        # 다운로드를 중복측정하고 있는지 확인한다.
+        qs = Phone.objects.filter(phoneGroup=mdata.phone.phoneGroup, meastype='DL')
+        if qs.exists() and qs.count() > 1:
+            duplicated = True
+
+        # 업로드를 중복측정하고 있는지 확인한다.
+        qs = Phone.objects.filter(phoneGroup=mdata.phone.phoneGroup, meastype='UL')
+        if qs.exists() and qs.count() > 1:
+            duplicated = True
+        
+        if duplicated:
+            # 메시지 내용을 작성한다.
+            message = f"{mdata.get_address()}에서 중복측정({mdata.phone.meastype})을 하고 있습니다.\n" + \
+                        "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+                        f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
+                        f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
     return message
 
 # -------------------------------------------------------------------------------------------------
