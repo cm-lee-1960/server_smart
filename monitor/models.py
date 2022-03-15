@@ -339,6 +339,7 @@ class Phone(models.Model):
 # 실시간 측정 데이터(콜 단위)
 # -------------------------------------------------------------------------------------------------
 # 2022.03.10 - 다른 항목 조건을 고려하거나 연산을 해서 가져오는 속성값을 가져오기 위한 함수들 정의(get)
+# 2022.03.15 - 주소 반환시 시/도와 구/군이 동일한 경우 한번만 주소값에 반환하도록 수정함
 ###################################################################################################
 class MeasureCallData(models.Model):
     """실시간 측정 데이터(콜 단위)"""
@@ -454,7 +455,11 @@ class MeasureCallData(models.Model):
     # 측정위치(예: 경상남도 사천시 노룡동)
     def get_address(self):
         if self.addressDetail and self.addressDetail != None:
-            return f"{self.siDo} {self.guGun} {self.addressDetail.split(' ')[0]}"
+            if self.siDo in self.guGun:
+                address = f"{self.guGun} {self.addressDetail.split(' ')[0]}"
+            else:
+                address = f"{self.siDo} {self.guGun} {self.addressDetail.split(' ')[0]}"
+            return address
         else:
             # 2022.03.10 - NR인 경우 주소정보(siDo, guGun, addressDetail)가 널(Null)임
             # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.

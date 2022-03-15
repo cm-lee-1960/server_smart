@@ -342,6 +342,18 @@ def duplicated_measuring(mdata):
                         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
     return message
 
+
+# --------------------------------------------------------------------------------------------------
+# 메시지 내용(문자열)이 특정 크기 이상은 잘라낸다
+# 2022.02.27 - 메시지 내용 중에서 디버깅을 위해 관련정보를 붙이다 보니 512 bytes가 초과되어 텔레그램 전송시 오류 발생
+#            - 오류메시지 (Flood control exceeded. Retry in 11.0 seconds)
+#            - https://stackoverflow.com/questions/51423139/python-telegram-bot-flood-control-exceeded
+# --------------------------------------------------------------------------------------------------
+def unicode_truncate(s, length, encoding='utf-8'):
+    encoded = s.encode(encoding)[:length]
+    return encoded.decode(encoding, 'ignore')
+
+
 # -------------------------------------------------------------------------------------------------
 # 이벤트 메시지 작성 함수
 # 2022.02.27 - 메시지 포맷 정의 (이벤트 발생 관련 정보 표시)
@@ -354,6 +366,7 @@ def make_event_message(mdata, message):
 
     # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
     filename = make_map_locations(mdata)
+    message = unicode_truncate(message, 512 - 64)
     message += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
 
     # 전송 메시지를 생성한다.
