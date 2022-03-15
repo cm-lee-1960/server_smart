@@ -40,70 +40,100 @@
             <div class="content">
                 <form action="{% url 'make_register' %}" method="POST">{% csrf_token %}
                 <div id="register1">
-                    <div>
-                        <label for = 'planYear'>대상년도</label><br/>
-                        <input type="text" name="planYear" id="planYear" value=''>
+                    
+                    <div> 
+                        <select id="category" name="category" style ="width:130px;display:flex;flex-direction: column;">
+                            <option value="5G" selected> 5G 
+                            <option value="LTE"> LTE
+                            <option value="WiFi"> WiFi
+                            <option value="품질취약지역"> 품질취약지역
+                        </select>
+                    </div>
+                    <div id = "fst" style ="width:130px;display:flex;flex-direction: column;">
+                        <div>
+                            <label for = 'title'>행정동</label><br/>
+                            <input type="text" name="dong" id="dong" value=0  style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'dagyo'>다중이용시설/<br/>교통인프라</label><br/>
+                            <input type="text" name="dagyo" id="dagyo" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'coverage5g'>커버리지</label><br/>
+                            <input type="text" name="coverage5g" id="coverage5g" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                    </div>
+                    <div id = "scd" style ="width:130px;display:flex;flex-direction: column;">
+                       
+                        <div>
+                            <label for = 'bigct'>대도시</label><br/>
+                            <input type="text" name="bigct" id="bigct" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'smallct'>중소도시</label><br/>
+                            <input type="text" name="smallct" id="smallct" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'nong'>농어촌</label><br/>
+                            <input type="text" name="nong" id="nong" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'inbuiling'>인빌딩</label><br/>
+                            <input type="text" name="inbuiling" id="inbuiling" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
                         
-                        <label>5G</label><br/>
-                        <label for = 'area1'>행정동</label><br/>
-                        <input type="text" name="area1" id="area1" value=''>
+                        <div>
+                            <label for = 'theme'>테마</label><br/>
+                            <input type="text" name="theme" id="theme" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
                         
-                        <label for = 'area2'>다중이용시설/교통인프라</label><br/>
-                        <input type="text" name="area2" id="area2" value=''>
+                        <div>
+                            <label for = 'coveragelte'>커버리지</label><br/>
+                            <input type="text" name="coveragelte" id="coveragelte" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                    </div>
+                    <div id = "trd" style ="width:130px;display:flex;flex-direction: column;">
                         
-                        <label for = 'area3'>커버리지</label><br/>
-                        <input type="text" name="area3" id="area3" value=''>
-                        
-                        <label>LTE</label><br/>
-                        <label for = 'area4'>행정동(대도시)</label><br/>
-                        <input type="text" name="area4" id="area4" value=''>
-
-                        <label for = 'area5'>행정동(중소도시)</label><br/>
-                        <input type="text" name="area5" id="area5" value=''>
-
-                        <label for = 'area6'>행정동(농어촌)</label><br/>
-                        <input type="text" name="area6" id="area6" value=''>
-
-                        <label for = 'area7'>다중이용시설/교통인프라(인빌딩)</label><br/>
-                        <input type="text" name="area7" id="area7" value=''>
-
-                        <label for = 'area8'>다중이용시설/교통인프라(테마)</label><br/>
-                        <input type="text" name="area8" id="area8" value=''>
-
-                        <label for = 'area9'>커버리지</label><br/>
-                        <input type="text" name="area9" id="area9" value=''>
-
-                        <label>WiFi</label><br/>
-                        <label for = 'area10'>상용</label><br/>
-                        <input type="text" name="area10" id="area10" value=''>
-
-                        <label for = 'area11'>개방</label><br/>
-                        <input type="text" name="area11" id="area11" value=''>
-
-                        <label>품질취약지역</label><br/>
-                        <label for = 'area12'>등산로</label><br/>
-                        <input type="text" name="area12" id="area12" value=''>
-                        
-                        <label for = 'area13'>여객항로</label><br/>
-                        <input type="text" name="area13" id="area13" value=''>
-                        
-                        <label for = 'area14'>유인도서</label><br/>
-                        <input type="text" name="area14" id="area14" value=''>
-                        
-                        <label for = 'area15'>해안도로</label><br/>
-                        <input type="text" name="area15" id="area15" value=''>
+                        <div>
+                            <label for = 'sangyong'>상용</label><br/>
+                            <input type="text" name="sangyong" id="sangyong" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'gaebang'>개방</label><br/>
+                            <input type="text" name="gaebang" id="gaebang" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                    </div>
+                    <div id = "fth" style ="width:130px;display:flex;flex-direction: column;">
+                       
+                        <div>
+                            <label for = 'mountain'>등산로</label><br/>
+                            <input type="text" name="mountain" id="mountain" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'ship'>여객항로</label><br/>
+                            <input type="text" name="ship" id="ship" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'yooin'>유인도서</label><br/>
+                            <input type="text" name="yooin" id="yooin" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
+                        <div>
+                            <label for = 'searoad'>해안도로</label><br/>
+                            <input type="text" name="searoad" id="searoad" value=0 style="width:100px; height:30px; margin-right:10px">
+                        </div>
                     </div>
                     <br/>
                     <input type="submit" id = 'bt1' value="등록대상생성" value=0 >
-                </form>
-                <form action="{% url 'delete_register' %}" method="POST">{% csrf_token %}
-                    <input type="submit" id = 'bt2' value="데이터초기화" value=0 > 
-                </form>
+            
+            </form>
+            <form action="{% url 'delete_register' %}" method="POST">{% csrf_token %}
+                <input type="submit" id = 'bt2' value="데이터초기화" value=0 > 
+            </form>
                 </div>
             
-            </div>
-
         </div>
+
+    </div>
     </div>
 
 
@@ -242,23 +272,23 @@
     <table id="5Ghh">
         <thead>
             <tr>
-                <th>구분</th>
-                <th>계</th>
-                <th>행정동</th>
-                <th>다중이용시설/<br>교통인프라</th>
-                <th>커버리지</th>
+                <th >구분</th>
+                <th >계</th>
+                <th >행정동</th>
+                <th >다중이용시설/<br>교통인프라</th>
+                <th >커버리지</th>
             </tr>
         </thead>
         <tbody>
             
              <tr>
                 <td >대상</td>
-                {% for measplan in measplan %}
-                <td>{{measplan.total5G}}</td>
-                <td>{{measplan.area1}}</td>
-                <td id>{{measplan.area2}}</td>
-                <td id>{{measplan.area3}}</td>
-                {% endfor %}
+                {% for regi5G in regi5G %}
+                <td id>{{regi5G.total}}</td>
+                <td id>{{regi5G.dong}}</td>
+                <td id>{{regi5G.dagyo}}</td>
+                <td id>{{regi5G.coverage5g}}</td>
+                {% endfor %}	
             </tr>
           
             <tr>
@@ -306,14 +336,14 @@
                 
                  <tr>
                     <td >대상</td>
-                    {% for measplan in measplan %}
-                    <td >{{measplan.totalLTE}}</td>
-                    <td >{{measplan.area4}}</td>
-                    <td >{{measplan.area5}}</td>
-                    <td >{{measplan.area6}}</td>
-                    <td >{{measplan.area7}}</td>
-                    <td >{{measplan.area8}}</td>
-                    <td >{{measplan.area9}}</td>
+                    {% for regiLTE in regiLTE %}
+                    <td >{{regiLTE.total}}</td>
+                    <td >{{regiLTE.bigct}}</td>
+                    <td >{{regiLTE.smallct}}</td>
+                    <td >{{regiLTE.nong}}</td>
+                    <td >{{regiLTE.inbuiling}}</td>
+                    <td >{{regiLTE.theme}}</td>
+                    <td >{{regiLTE.coveragelte}}</td>
                     {% endfor %}
                 </tr>
                
@@ -360,10 +390,10 @@
             
              <tr>
                 <td >대상</td>
-                {% for measplan in measplan %}
-                <td >{{measplan.totalWiFi}}</td>
-                <td >{{measplan.area10}}</td>
-                <td >{{measplan.area11}}</td>
+                {% for regiWiFi in regiWiFi %}
+                <td >{{regiWiFi.total}}</td>
+                <td >{{regiWiFi.sangyong}}</td>
+                <td >{{regiWiFi.gaebang}}</td>
                 {% endfor %}
             </tr>
            
@@ -401,12 +431,12 @@
             
              <tr>
                 <td >대상</td>
-                {% for measplan in measplan %}
-                <td >{{measplan.totalWeakArea}}</td>
-                <td >{{measplan.area12}}</td>
-                <td >{{measplan.area13}}</td>
-                <td >{{measplan.area14}}</td>
-                <td >{{measplan.area15}}</td>
+                {% for regiweak in regiweak %}
+                <td >{{regiweak.total}}</td>
+                <td >{{regiweak.mountain}}</td>
+                <td >{{regiweak.ship}}</td>
+                <td >{{regiweak.yooin}}</td>
+                <td >{{regiweak.searoad}}</td>
                 {% endfor %}
             </tr>
             <tr>

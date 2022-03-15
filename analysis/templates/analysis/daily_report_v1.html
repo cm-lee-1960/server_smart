@@ -1,0 +1,114 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% block contents %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일일보고 테스트</title>
+
+<!-- 모달 기본 라이브러리 -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
+<script defer src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+<script type="text/javascript" defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script type="text/javascript" defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<!-- 폰트 호출 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+<!-- CSS,JS 호출 -->
+<!-- <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
+<script type="text/javascript" defer src="{% static "js/header.js" %}"></script>
+<script type="text/javascript" defer src="{% static "js/reportbtn.js" %}"></script>
+<script type="text/javascript" defer src="{% static "js/reportdata.js" %}"></script>
+<script type="text/javascript" defer src="{% static "js/modal.js" %}"></script> -->
+
+
+
+</head>
+
+<body>
+	<div>
+			<table>	
+				<tr>
+				<td>구분</td><td>계</td><td>행정동</td><td>다중이용시설</td><td>커버리지</td>	
+				</tr>
+				<tr>
+				<td>5G</td>	
+				<td>{{measplan_5G_total}}</td>	
+				{% for measplan_5G in measplan_5G %}
+				<td>{{measplan_5G.meas_count}}</td>
+				{% endfor %}
+				</tr>	
+			</table>
+			<br>
+			<table>
+
+					<tr>
+						<td  rowspan = "2">구분</td>
+						<td  rowspan = "2">계</td>
+						<td  colspan = "3">행정동</td>
+						<td  colspan = "2">다중이용시설/<br>교통인프라</td>
+						<td  rowspan = "2">커버리지</td>
+					</tr>
+					<tr>
+						<td>대도시</td>
+						<td>중소도시</td>
+						<td>농어촌</td>
+						<td>인빌딩</td>
+						<td>테마</td>
+					</tr>
+					<tr>						
+						<td>LTE</td>	
+						<td>{{measplan_LTE_total}}</td>	
+						{% for measplan_LTE in measplan_LTE %}
+						<td>{{measplan_LTE.meas_count}}</td>
+						{% endfor %}
+					</tr>
+			</table>
+			<br>
+			<table>
+					<tr>
+						<td>구분</td>
+						<td>계</td>
+						<td>상용</td>
+						<td>개방</td>
+					</tr>
+					<tr>
+						<td>WiFi</td>	
+						<td>{{measplan_WiFi_total}}</td>	
+						{% for measplan_WiFi in measplan_WiFi %}
+						<td>{{measplan_WiFi.meas_count}}</td>
+						{% endfor %}
+					</tr>
+			</table>
+			<br>
+			<table>
+				<tr>
+					<td>구분</td>
+					<td>계</td>
+					<td>등산로</td>
+					<td>여객항로</td>
+					<td>유인도서</td>
+					<td>해안도로</td>
+				</tr>
+				<tr>
+					<td>품질취약지역</td>	
+					<td>{{measplan_weakarea_total}}</td>	
+					{% for measplan_weakarea in measplan_weakarea %}
+					<td>{{measplan_weakarea.meas_count}}</td>
+					{% endfor %}
+				</tr>
+			</table>
+	
+	</div>
+	{{measresult}}
+    {% for measresult_5G in measresult_5G %}
+	{{measresult_5G}} 
+	{% endfor %}
+</body>
+</html>
+{% endblock %}
