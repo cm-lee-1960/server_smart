@@ -40,10 +40,9 @@ class MeasPlan(models.Model):
     area = models.CharField(max_length=30, null=True, blank=True, choices=area_CHOICES)
     molph_level0 = models.CharField(max_length=30, null=True, blank=True, choices=molph_CHOICES)
     meas_count = models.IntegerField(null=True, default=0)
-
-
-
-
+    class Meta:
+        verbose_name = "측정대상 계획등록"
+        verbose_name_plural = "측정대상 계획등록"
 
 
 
