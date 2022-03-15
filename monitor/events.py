@@ -24,33 +24,40 @@ from .models import Message
 # 2022.03.01 - 전송실패 기준 관리 모듈 추가 및 이벤트 모듈에 반영(기존 소스코드 체크 -> DB 모델에서 불러와 체크)
 # 2022.03.04 - 하드코딩 되어 있는 조건문 => DB 관리기준 조회 조건문으로 변환 (보통지역, 최약지역 구분)
 # 2022.03.10 - 모델에서 다른 항목조건 및 연산을 해서 가져와야 하는 중복코드들을 모두 모델 함수로 이동(get함수)
+# 2022.03.15 - 여러개의 이벤트 발생시 하나의 메시지로 통합해서 보내기
 #  
 ###################################################################################################  
 def event_occur_check(mdata):
     '''이벤트 발생여부를 체크한다.'''
+
+    events_list = []
     # 1)전송실패(Send Failure)
     message = send_failure_check(mdata)
-    if message : make_event_message(mdata, message)
+    if message and message != None : events_list.append(message)
 
     # 2)속도저하(low throughput)
     message = low_throughput_check(mdata)
-    if message: make_event_message(mdata, message)
+    if message and message != None : events_list.append(message)
     
     # 3)음성 콜 드랍
     message = voice_call_drop_check(mdata)
-    if message: make_event_message(mdata, message)
+    if message and message != None : events_list.append(message)
 
     # 4)5G -> LTE 전환
     message = fivgtolte_trans_check(mdata)
-    if message: make_event_message(mdata, message)
+    if message and message != None : events_list.append(message)
 
     # 4)측정범위를 벗어나는 경우
     message = out_measuring_range(mdata)
-    if message: make_event_message(mdata, message)
+    if message and message != None : events_list.append(message)
 
     # 6)측정콜이 한곳에 머무는 경우
     message = call_staying_check(mdata)
-    if message: make_event_message(mdata, message)
+    if message and message != None : events_list.append(message)
+
+    # 이벤트가 여러 건 발생한 경우 이벤트 메시지를 하나의 메시지로 통합한다.
+    message = '\n\n'.join(events_list)
+    if len(events_list) > 0: make_event_message(mdata, message)
 
 
 # -------------------------------------------------------------------------------------------------
