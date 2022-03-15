@@ -61,8 +61,7 @@ def event_occur_check(mdata):
     if message and message != None : events_list.append(message)
 
     # 이벤트가 여러 건 발생한 경우 이벤트 메시지를 하나의 메시지로 통합한다.
-    message = '\n\n'.join(events_list)
-    if len(events_list) > 0: make_event_message(mdata, message)
+    if len(events_list) > 0: make_event_message(mdata, events_list)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -92,11 +91,12 @@ def send_failure_check(mdata):
             qs = SendFailure.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
                 if bandwidth < qs[0].bandwidth:
-                    # 메시지 내용을 작성한다.
-                    message = f"{mdata.get_address()}에서 전송실패가 발생하였습니다.\n" + \
-                            "(단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
-                            f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / {mdata.get_pci} / {mdata.cellId} / " + \
-                            f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+                    # # 메시지 내용을 작성한다.
+                    # message = f"{mdata.get_address()}에서 전송실패가 발생하였습니다.\n" + \
+                    #         "(단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
+                    #         f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / {mdata.get_pci} / {mdata.cellId} / " + \
+                    #         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+                    message = '전송실패'
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
@@ -132,11 +132,12 @@ def low_throughput_check(mdata):
             qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
                 if bandwidth < qs[0].bandwidth:
-                    # 메시지 내용을 작성한다.
-                    message = f"{mdata.get_address()}에서 속도저하가 발생했습니다.\n" + \
-                            "(시간/단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
-                            f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / {mdata.get_pci()} / {mdata.cellId} / " + \
-                            f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+                    # # 메시지 내용을 작성한다.
+                    # message = f"{mdata.get_address()}에서 속도저하가 발생했습니다.\n" + \
+                    #         "(시간/단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
+                    #         f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / {mdata.get_pci()} / {mdata.cellId} / " + \
+                    #         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+                    message = '속도저하'
                     # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
@@ -170,10 +171,11 @@ def fivgtolte_trans_check(mdata):
     # 2022.02.21 - 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
     # 2022.02.27 - 메시지 내용을 작성한다.
     if mdata.phone.networkId == '5G' and mdata.networkId == 'NR':
-        message = f"{mdata.get_address()}에서 5G->LTE로 전환되었습니다.\n" + \
-                    "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-                    f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-                    f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+        # message = f"{mdata.get_address()}에서 5G->LTE로 전환되었습니다.\n" + \
+        #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+        #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
+        #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+        message = '5G->LTE전환'
 
     return message
 
@@ -243,11 +245,12 @@ def out_measuring_range(mdata):
     try: 
         region_3depth_name = result['documents'][1]['region_3depth_name']
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
-            # 메시지를 작성한다.
-            message = f"{mdata.get_address()}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
-                    "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-                    f"{mdata.get_phone_no_sht()} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.get_time()} / {mdata.currentCount} / " + \
-                    f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            # # 메시지를 작성한다.
+            # message = f"{mdata.get_address()}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
+            #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+            #         f"{mdata.get_phone_no_sht()} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.get_time()} / {mdata.currentCount} / " + \
+            #         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            message = f'측정범위 벗어남({region_3depth_name})'
 
     except Exception as e:
         print("out_measuring_range():", str(e))
@@ -302,11 +305,12 @@ def call_staying_check(mdata):
             callstay = False
 
         if callstay:
-            # 메시지 내용을 작성한다.
-            message = f"{mdata.get_address()}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
-                       "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-                        f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-                        f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            # # 메시지 내용을 작성한다.
+            # message = f"{mdata.get_address()}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
+            #            "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+            #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
+            #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            message = '측정단말 한곳에 머뭄'
 
     return message
 
@@ -335,23 +339,24 @@ def duplicated_measuring(mdata):
             duplicated = True
         
         if duplicated:
-            # 메시지 내용을 작성한다.
-            message = f"{mdata.get_address()}에서 중복측정({mdata.phone.meastype})을 하고 있습니다.\n" + \
-                        "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-                        f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-                        f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            # # 메시지 내용을 작성한다.
+            # message = f"{mdata.get_address()}에서 중복측정({mdata.phone.meastype})을 하고 있습니다.\n" + \
+            #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+            #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
+            #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            message = '측정중복'
     return message
 
 
-# --------------------------------------------------------------------------------------------------
-# 메시지 내용(문자열)이 특정 크기 이상은 잘라낸다
-# 2022.02.27 - 메시지 내용 중에서 디버깅을 위해 관련정보를 붙이다 보니 512 bytes가 초과되어 텔레그램 전송시 오류 발생
-#            - 오류메시지 (Flood control exceeded. Retry in 11.0 seconds)
-#            - https://stackoverflow.com/questions/51423139/python-telegram-bot-flood-control-exceeded
-# --------------------------------------------------------------------------------------------------
-def unicode_truncate(s, length, encoding='utf-8'):
-    encoded = s.encode(encoding)[:length]
-    return encoded.decode(encoding, 'ignore')
+# # --------------------------------------------------------------------------------------------------
+# # 메시지 내용(문자열)이 특정 크기 이상은 잘라낸다
+# # 2022.02.27 - 메시지 내용 중에서 디버깅을 위해 관련정보를 붙이다 보니 512 bytes가 초과되어 텔레그램 전송시 오류 발생
+# #            - 오류메시지 (Flood control exceeded. Retry in 11.0 seconds)
+# #            - https://stackoverflow.com/questions/51423139/python-telegram-bot-flood-control-exceeded
+# # --------------------------------------------------------------------------------------------------
+# def unicode_truncate(s, length, encoding='utf-8'):
+#     encoded = s.encode(encoding)[:length]
+#     return encoded.decode(encoding, 'ignore')
 
 
 # -------------------------------------------------------------------------------------------------
@@ -359,14 +364,21 @@ def unicode_truncate(s, length, encoding='utf-8'):
 # 2022.02.27 - 메시지 포맷 정의 (이벤트 발생 관련 정보 표시)
 #            - 메시지 작성 코드를 각각 이벤트 확인하는 함수로 이동함(메시지 내에 관련정보 포함하기 위해)
 #--------------------------------------------------------------------------------------------------
-def make_event_message(mdata, message):
+def make_event_message(mdata, events_list):
     '''이벤트 메시지 작성한다.'''
     # 환경변수에서 채널ID를 가져온다.
     channelId = settings.CHANNEL_ID
 
     # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
+    # (단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)
     filename = make_map_locations(mdata)
-    message = unicode_truncate(message, 512 - 128)
+    # message = unicode_truncate(message, 512 - 128)
+    # 메시지를 작성한다.
+    message = f"{mdata.get_address()}에서 측정단말에 이벤트가 발생했습니다.\n" + \
+            f"* 발생 이벤트({len(events_list)}건): {', '.join(events_list)}\n" + \
+            "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+            f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
+            f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
     message += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
 
     # 전송 메시지를 생성한다.
