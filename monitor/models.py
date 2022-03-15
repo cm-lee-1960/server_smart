@@ -57,7 +57,7 @@ class PhoneGroup(models.Model):
         if qs.exists():
             measuringTeam = None
             for p in qs:
-                print(p, p.phoneGroup.id, p.phoneGroup.measuringTeam)
+                # print(p, p.phoneGroup.id, p.phoneGroup.measuringTeam)
                 if p.phoneGroup.measuringTeam and p.phoneGroup.measuringTeam != None:
                     measuringTeam = p.phoneGroup.measuringTeam
                     break
