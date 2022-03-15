@@ -323,7 +323,8 @@ def make_event_message(mdata, message):
     if message:
         # 전송 메시지를 생성한다. 
         Message.objects.create(
-            phone = mdata.phone,
+            phone=mdata.phone,
+            status=mdata.phone.status,
             measdate=str(mdata.meastime)[0:8],
             sendType = 'TELE',
             userInfo1=mdata.userInfo1,

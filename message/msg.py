@@ -19,6 +19,8 @@ from monitor.geo import make_map_locations
 #              1) 전체대상 측정시작 메시지(START_F)
 #              2) 해당지역 측정시작 메시지(START_M)
 # 2022.03.12 - 측정시작 위치와 현재 측정위치의 거리가 1km 이상 떨어졌을 때 지도가 자동축소 되도록 함
+# 2022.03.15 - 측정시작 메시지 누락 현상 조치 (전송 메시지 내에 메시지 생성 당시의 단말기의 상태정보를 가져감)
+#
 #--------------------------------------------------------------------------------------------------
 def current_count_check(mdata):
     """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
@@ -45,13 +47,20 @@ def current_count_check(mdata):
         # 2022.03.11 - 2)해당지역 측정시작 메시지(START_M)
         # 2-1) 상대편 측정 단말기가 등록되어 있는지 확인한다. 
         # 2-2) 상대편 측정 단말기에 속도 측정 데이터가 있는지 확인한다.
+        # 2022.03.15 - 측정 데이터가 첫번째 데이터인지 확인하는 사이에 상대편 단말기에 의한 측정 데이터가 생성되어 해당 지역측정 시작 메시지가 
+        #              누락되는 현상을 막기 위해 명확하게 전송 메시지 내에 단말기 상태를 가져감
+        #            - 단말그룹으로 묶여 있는 측정 단말기들로 측정시작 메시지가 전송되었는지를 확인하여 측정시작 메시지를 전송하게 함 
         elif mdata.phone.status == 'START_M' and mdata.phone.manage == True:
-            qs = mdata.phone.phoneGroup.phone_set.exclude(phone_no=mdata.phone_no)
-            if qs.exists():
-                oPhone = qs[0]
-                qs = oPhone.measurecalldata_set.filter(currentCount=1, testNetworkType='speed')
-                if not qs.exists():
-                    result = True
+        #     qs = mdata.phone.phoneGroup.phone_set.exclude(phone_no=mdata.phone_no)
+        #     if qs.exists():
+        #         oPhone = qs[0]
+        #         qs = oPhone.measurecalldata_set.filter(currentCount=1, testNetworkType='speed')
+        #         if not qs.exists():
+        #             result = True
+            phone_list = mdata.phone.phoneGroup.phone_set.all()
+            qs = Message.objects.filter(phone__in=phone_list, status='START_M')
+            if not qs.exists():
+                result = True 
 
     # elif mdata.currentCount in [3, 10, 27, 37, 57,]:
     # 2022.03.10 currentCount -> phone.total_count로 변경 적용
@@ -226,6 +235,7 @@ def make_message(mdata):
         # 전송 메시지를 생성한다.
         Message.objects.create(
             phone=phone,
+            status=phone.status,
             measdate=str(mdata.meastime)[0:8],
             sendType='TELE',
             userInfo1=mdata.userInfo1,
