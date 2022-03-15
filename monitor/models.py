@@ -66,10 +66,11 @@ class PhoneGroup(models.Model):
 
 # -------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다. 
+# 2022.03.15 - 측정자 입력값(userInfo2)가 입력오류가 자주 발생하므로 모폴로지를 찾지 못하는 경우 "행정동"으로 초기화 함
 #--------------------------------------------------------------------------------------------------
 def get_morphology(userInfo2):
     # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
-    morphology = None # 모풀로지
+    morphology = Morphology.objects.filter(morphology='행정동') # 초기값 설정
     if userInfo2 and userInfo2 != None:
         # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
         for mp in MorphologyMap.objects.all():
