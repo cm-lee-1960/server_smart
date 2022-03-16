@@ -20,6 +20,9 @@ from monitor.geo import make_map_locations
 #              2) 해당지역 측정시작 메시지(START_M)
 # 2022.03.12 - 측정시작 위치와 현재 측정위치의 거리가 1km 이상 떨어졌을 때 지도가 자동축소 되도록 함
 # 2022.03.15 - 측정시작 메시지 누락 현상 조치 (전송 메시지 내에 메시지 생성 당시의 단말기의 상태정보를 가져감)
+# 2022.03.16 - 측정진행 보고 메시지의 주기보고 시점에 대한 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트 및 
+#              LTE전환 DL/UL 콜카운트를 가져감
+#            - 주기보고 시점은 단말그룸의 콜카운트 정보를 가지고 판단하게 수정함
 #
 #--------------------------------------------------------------------------------------------------
 def current_count_check(mdata):
@@ -64,15 +67,32 @@ def current_count_check(mdata):
 
     # elif mdata.currentCount in [3, 10, 27, 37, 57,]:
     # 2022.03.10 currentCount -> phone.total_count로 변경 적용
-    elif phone.total_count in [ int(x) for x in ReportCycle.objects.all()[0].reportCycle.split(',')]:
-        # 단말기 체인지 되고 재측정시 그데이터도 더해져서 메시지가 보내질수도 있다 그때는 예외조건
-        # 단밀기 그룹으로 묶여 았는 상대편 측정 단말기를 조회한다.
-        qs = phone.phoneGroup.phone_set.exclude(phone_no=phone.phone_no)
-        if qs.exists():
-            p = qs[0]
-            # 상대편 측정 단말기의 현재 콜 카운트가 측정 단말 보다 같거나 커야 한다.
-            if p.total_count >= phone.total_count:
-                result = True
+    # elif phone.total_count in [ int(x) for x in ReportCycle.objects.all()[0].reportCycle.split(',')]:
+    else:
+        # # 단말기 체인지 되고 재측정시 그데이터도 더해져서 메시지가 보내질수도 있다 그때는 예외조건
+        # # 단밀기 그룹으로 묶여 았는 상대편 측정 단말기를 조회한다.
+        # qs = phone.phoneGroup.phone_set.exclude(phone_no=phone.phone_no)
+        # if qs.exists():
+        #     p = qs[0]
+        #     # 상대편 측정 단말기의 현재 콜 카운트가 측정 단말 보다 같거나 커야 한다.
+        #     if p.total_count >= phone.total_count:
+        #         result = True
+
+        # 2022.03.16 - 측정진행 보고 메시지의 주기보고 시점에 대한 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트 및 
+        #              LTE전환 DL/UL 콜카운트를 가져감
+        #            - 주기보고 시점은 단말그룸의 콜카운트 정보를 가지고 판단하게 수정함
+        #            - 다운로드 속도나 업로드 속도가 0 이상일 때만 메시지 전송
+        #              5G->LTE 전환시 다운로드/업로드 속도가 0인 경우가 있음
+        #              예) 경상남도-사천시-남양동 2021.11.01 010-2921-3866 23
+        reportCycle = [ int(x) for x in ReportCycle.objects.all()[0].reportCycle.split(',')]
+        dl_count = phone.phoneGroup.dl_count + phone.phoneGroup.dl_nr_count
+        ul_count = phone.phoneGroup.ul_count + phone.phoneGroup.ul_nr_count
+        if phone.meastype == 'DL':
+            if dl_count in reportCycle and ul_count >= dl_count: result = True
+        elif phone.meastype == 'UL':
+            if ul_count in reportCycle and dl_count >= ul_count: result = True
+
+
         # 2022.02.26 - 측정단말이 하나인 경우 어떻게 처리해야 할지 고민이 필요하다.
         # 2022.03.05 - 속도측정의 경우 대부분 2대의 측정 단말기를 가지고 진행을 하며, 최소한 3콜 이전에는 2대 모두의 측정 데이터가
         #              발생한다는 가정으로 진행함
@@ -90,6 +110,10 @@ def current_count_check(mdata):
             #         result = True
             # else:
             #     result = True
+
+        # # 모듈검증 코드(삭제예정)
+        # if result == True:
+        #     print(f"#### {mdata.meastime}/{mdata.phone_no}/{mdata.currentCount}/{phone.meastype}/{dl_count}/{ul_count}/{mdata.downloadBandwidth}/{mdata.uploadBandwidth}")
 
     return result
 
@@ -115,8 +139,14 @@ def make_message(mdata):
         avg_downloadBandwidth = 0  # 다운로드 평균속도
         avg_uploadBandwidth = 0  # 업로드 평균속도
         # nr_count = 0 # 5G->NR 전환 콜수
-   
 
+        # 보고주기 콜카운트를 확인한다.
+        reportCallCount = 1
+        if phone.meastype == 'DL':
+            reportCallCount = phone.phoneGroup.dl_count + phone.phoneGroup.dl_nr_count
+        elif phone.meastype == 'UL':
+            reportCallCount = phone.phoneGroup.ul_count + phone.phoneGroup.ul_nr_count
+   
         # 2022.02.26 - 데이터가 맞지 않아 재작성 함
         #            - 속도평균값을 산출할 때 고민해야 하는 사항은 몇번째 턴인지, 현재 콜카운트, 총 측정횟수 등을 고려해야 한다.
         #                       <--- tern 1 ----> <--- tern 2 --->
@@ -127,58 +157,92 @@ def make_message(mdata):
         #                     상대편 측정단말의 속도평균을 산출할때 동일한 기준을 적용해야 한다.   
         #
         # 2022.03.10 currentCount -> phone.total_count로 변경 적용
-        # 메시지를 보내려고 하는 측정 단말기
-        total_count = 0
-        for m in phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
-            if total_count >= phone.total_count: break
+        # # 메시지를 보내려고 하는 측정 단말기
+        # print("### Phone 1 ####")
+        # total_count = 0
+        # for m in phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
+        #     if total_count >= phone.total_count: break
+        #     if m.phone.networkId == '5G' and m.networkId == 'NR':
+        #         # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
+        #         if m.downloadBandwidth and m.downloadBandwidth > 0:
+        #             dl_nr_count += 1
+        #         if m.uploadBandwidth and m.uploadBandwidth > 0:
+        #             ul_nr_count += 1
+        #     else: 
+        #         # 속도 평균값을 구하기 위한 속도 합계와 콜 카운트를 누적한다. 
+        #         if m.downloadBandwidth and m.downloadBandwidth > 0:
+        #             dl_sum +=  m.downloadBandwidth
+        #             dl_count += 1
+        #         if m.uploadBandwidth and m.uploadBandwidth > 0:
+        #             ul_sum += m.uploadBandwidth
+        #             ul_count += 1
+            
+        #     # 5G->LTE 전환포함하여 콜 카운트를 산정한다.
+        #     total_count += 1
+        #     # print(f"###-1 {phone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
+        #     print(f"{phone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth}/{dl_sum}/{ul_sum}/{dl_count}/{ul_count}")
+
+        # # 상대편 측정 단말기
+        # print("### Phone 2 ####")
+        # total_count = 0
+        # qs = phone.phoneGroup.phone_set.filter(ispId='45008', manage=True).exclude(phone_no=phone.phone_no)
+        # if qs.exists():
+        #     oPhone = qs[0]
+        #     for m in oPhone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
+        #         # 2022.02.25 DL/UL 측정건수가 10건 이상 차이가 나지 않는다는 가정에서 아래 코드가 정상 동작한다.
+        #         if total_count >= phone.total_count: break
+        #         if m.phone.networkId == '5G' and m.networkId == 'NR':
+        #             # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
+        #             if m.downloadBandwidth and m.downloadBandwidth > 0:
+        #                 dl_nr_count += 1
+        #             if m.uploadBandwidth and m.uploadBandwidth > 0:
+        #                 ul_nr_count += 1
+        #         else: 
+        #             # 속도 평균값을 구하기 위한 속도 합계와 콜 카운트를 누적한다. 
+        #             if m.downloadBandwidth and m.downloadBandwidth > 0:
+        #                 dl_sum +=  m.downloadBandwidth
+        #                 dl_count += 1
+        #             if m.uploadBandwidth and m.uploadBandwidth > 0:
+        #                     ul_sum += m.uploadBandwidth
+        #                     ul_count += 1
+        #         # 5G->LTE 전환포함하여 콜 카운트를 산정한다.
+        #         total_count += 1
+        #         # print(f"###-2 {oPhone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
+        #         print(f"{oPhone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth}/{dl_sum}/{ul_sum}/{dl_count}/{ul_count}")
+        
+        # 2022.03.16 - 보고 주기별 속도 평균값이 맞지 않아 다시 작성함 
+        #              예) 보고주기 3콜이면 DL 3콜, UL 3콜 데이터를 가져와서 평균값을 계산하도록 함
+        #              5G->LTE전환은 콜 카운트에는 적용하고 평균값 산출에서는 제외함
+        total_dl_count, total_ul_count = 0, 0
+        phone_list = mdata.phone.phoneGroup.phone_set.all()
+        qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+        for m in qs:
             if m.phone.networkId == '5G' and m.networkId == 'NR':
                 # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
-                if m.downloadBandwidth and m.downloadBandwidth > 0:
+                if m.downloadBandwidth and m.downloadBandwidth > 0 and total_dl_count < reportCallCount:
                     dl_nr_count += 1
-                if m.uploadBandwidth and m.uploadBandwidth > 0:
+                if m.uploadBandwidth and m.uploadBandwidth > 0 and total_ul_count < reportCallCount:
                     ul_nr_count += 1
             else: 
                 # 속도 평균값을 구하기 위한 속도 합계와 콜 카운트를 누적한다. 
-                if m.downloadBandwidth and m.downloadBandwidth > 0:
+                if m.downloadBandwidth and m.downloadBandwidth > 0 and total_dl_count < reportCallCount:
                     dl_sum +=  m.downloadBandwidth
                     dl_count += 1
-                if m.uploadBandwidth and m.uploadBandwidth > 0:
-                        ul_sum += m.uploadBandwidth
-                        ul_count += 1
-            # 5G->LTE 전환포함하여 콜 카운트를 산정한다.
-            total_count += 1
-            # print(f"###-1 {phone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
-           
-        # 상대편 측정 단말기
-        total_count = 0
-        qs = phone.phoneGroup.phone_set.filter(ispId='45008', manage=True).exclude(phone_no=phone.phone_no)
-        if qs.exists():
-            oPhone = qs[0]
-            for m in oPhone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime"):
-                # 2022.02.25 DL/UL 측정건수가 10건 이상 차이가 나지 않는다는 가정에서 아래 코드가 정상 동작한다.
-                if total_count >= phone.total_count: break
-                if m.phone.networkId == '5G' and m.networkId == 'NR':
-                    # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
-                    if m.downloadBandwidth and m.downloadBandwidth > 0:
-                        dl_nr_count += 1
-                    if m.uploadBandwidth and m.uploadBandwidth > 0:
-                        ul_nr_count += 1
-                else: 
-                    # 속도 평균값을 구하기 위한 속도 합계와 콜 카운트를 누적한다. 
-                    if m.downloadBandwidth and m.downloadBandwidth > 0:
-                        dl_sum +=  m.downloadBandwidth
-                        dl_count += 1
-                    if m.uploadBandwidth and m.uploadBandwidth > 0:
-                            ul_sum += m.uploadBandwidth
-                            ul_count += 1
-                # 5G->LTE 전환포함하여 콜 카운트를 산정한다.
-                total_count += 1
-                # print(f"###-2 {oPhone.phone_no}/{m.currentCount}/{m.downloadBandwidth}/{m.uploadBandwidth }///", mdata.currentCount)
+                if m.uploadBandwidth and m.uploadBandwidth > 0 and total_ul_count < reportCallCount:
+                    ul_sum += m.uploadBandwidth
+                    ul_count += 1
 
-        # DL/UL 평균속도를 산출한다.         
-        if dl_count > 0 : avg_downloadBandwidth = round(dl_sum / dl_count,2)
-        if ul_count > 0 : avg_uploadBandwidth = round(ul_sum / ul_count,2)
-        # if nr_count > 0 : avg_nrRate = round(nr_count / (dl_count + ul_count) * 100,2)
+            # DL/UL 총건수를 계산한다.
+            total_dl_count = dl_count + dl_nr_count
+            total_ul_count = ul_count + ul_nr_count
+
+            if total_dl_count >= reportCallCount and total_ul_count >= reportCallCount: break
+
+
+        # 평균속도(DL/UL)를 산출한다. 
+        if reportCallCount > 0 : 
+            avg_downloadBandwidth = round(dl_sum / reportCallCount, 2) # 평균속도(DL)
+            avg_uploadBandwidth = round(ul_sum / reportCallCount, 2)   # 평균속도(UL)
 
         # 메시지를 작성한다.
         #                01234567890123456
@@ -208,17 +272,17 @@ def make_message(mdata):
         elif phone.status == 'MEASURING':
             # WiFi 측정 데이터의 경우
             if phone.networkId == 'WiFi':
-                messages = f"<code>{mdata.get_address()} 현재 콜카운트 {phone.total_count}번째 측정중입니다.\n" + \
+                messages = f"<code>{mdata.get_address()} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
                             "속도(DL/UL, Mbps)\n" + \
                             f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
             # 5G 측정 데이터의 경우
             elif phone.networkId == '5G':
-                messages = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
+                messages = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                             f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
                             f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
             # 기타(LTE, 3G) 측정데이터의 경우
             else:
-                messages = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {phone.total_count}콜 진행중)\n" + \
+                messages = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                             f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
         
         # [측정종료 메시지] -----------------------------------------------------------------------------------

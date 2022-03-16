@@ -1,4 +1,5 @@
 
+from email.utils import parseaddr
 from operator import itemgetter
 from django.db import models
 from django.db.models.signals import post_save
@@ -17,6 +18,9 @@ from management.models import Morphology, MorphologyMap
 # 2022.03.06 - 측정 데이터에 통신사(ispId)가 널(NULL)인 값이 들어와서 동일하게 모델의 해당 항목에 널을 허용함
 # 2022.03.11 - 단말그룹에 묶여 있는 측정 단말기들이 당일 이전에 측정이 있었는지 확인하고 있었다면 그때 단말그룹 측정조 값을
 #              가져와서 업데이트 하는 모듈 추가
+# 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
+#              DL콜카운트, UL콜가운트, DL LTE전환 콜카운트, UL LTE전환 콜카운트
+#
 ###################################################################################################
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
@@ -41,6 +45,10 @@ class PhoneGroup(models.Model):
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
         choices=sorted(MEASURINGTEAM_CHOICES,key=itemgetter(0)), verbose_name='측정조')
     ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
+    dl_count = models.IntegerField(null=True, default=0)  # 다운로드 콜수
+    ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
+    dl_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(DL)
+    ul_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(UL)
     active = models.BooleanField(default=True, verbose_name="상태")
 
     class Meta:
@@ -63,6 +71,27 @@ class PhoneGroup(models.Model):
                     break
             self.measuringTeam = measuringTeam
             self.save()
+
+    # 다운로드(DL) 콜카운트를 하나 증가시킨다.
+    def add_dl_count(self):
+        self.dl_count += 1
+        self.save()
+
+    # 업로드(UL) 콜카운트를 하나 증가시킨다.
+    def add_ul_count(self):
+        self.ul_count += 1
+        self.save()
+
+    # 다운로드(DL) LTE전환 콜카운트를 하나 증가시킨다.
+    def add_dl_nr_count(self):
+        self.dl_nr_count += 1
+        self.save()
+
+    # 다운로드(UL) LTE전환 콜카운트를 하나 증가시킨다.
+    def add_ul_nr_count(self):
+        self.ul_nr_count += 1
+        self.save()
+
 
 # -------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다. 
@@ -225,20 +254,28 @@ class Phone(models.Model):
 
         #### 방식 2 ####
         # UL/DL 평균속도 산출시 NR(5G->LTE전환) 데이터는 제외한다.
-        # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다. 
+        # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다.
+        # 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
+        #              측정단말 정보 업데이트 시 단말그룹의 콜카운트 관련 정보도 함께 업데이트 함 
         if mdata.networkId == 'NR':
             self.nr_count += 1
+            if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
+                self.phoneGroup.add_dl_nr_count()
+            elif mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
+                self.phoneGroup.add_ul_nr_count()
         else:
             # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.avg_downloadBandwidth = round(((self.avg_downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 3)
                 self.meastype = 'DL'
                 self.dl_count += 1
+                self.phoneGroup.add_dl_count()
             # UP 평균속도 계산
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.avg_uploadBandwidth = round(((self.avg_uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
                 self.meastype = 'UL'
                 self.ul_count += 1
+                self.phoneGroup.add_ul_count()
 
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
         self.currentCount = mdata.currentCount # 현재 콜카운트
