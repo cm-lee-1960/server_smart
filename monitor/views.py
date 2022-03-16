@@ -223,7 +223,7 @@ def receive_json(request):
         # 2022.03.10 - 측정시작 메시지를 2개로 분리
         #              1) 측정시작 메시지(전체대상)
         #              2) 해당지역 측정시작 메시지
-        if data['currentCount'] == 1: 
+        if 'START' in mdata.phone.status:
             # 1) 측정시작 메시지(전체대상)
             #    - 전체대상 측정시작 메시지는 통신사, 측정유형에 상관없이 무조건 측정을 시작하면 한번 메시지를 보낸다.
             if mdata.phone.status == 'START_F': make_message(mdata)
