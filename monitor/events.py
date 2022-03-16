@@ -175,7 +175,7 @@ def fivgtolte_trans_check(mdata):
         #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
         #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
         #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
-        message = '5G->LTE전환'
+        message = 'LTE전환'
 
     return message
 
@@ -344,19 +344,8 @@ def duplicated_measuring(mdata):
             #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
             #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
             #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
-            message = '측정중복'
+            message = '중복측정'
     return message
-
-
-# # --------------------------------------------------------------------------------------------------
-# # 메시지 내용(문자열)이 특정 크기 이상은 잘라낸다
-# # 2022.02.27 - 메시지 내용 중에서 디버깅을 위해 관련정보를 붙이다 보니 512 bytes가 초과되어 텔레그램 전송시 오류 발생
-# #            - 오류메시지 (Flood control exceeded. Retry in 11.0 seconds)
-# #            - https://stackoverflow.com/questions/51423139/python-telegram-bot-flood-control-exceeded
-# # --------------------------------------------------------------------------------------------------
-# def unicode_truncate(s, length, encoding='utf-8'):
-#     encoded = s.encode(encoding)[:length]
-#     return encoded.decode(encoding, 'ignore')
 
 
 # -------------------------------------------------------------------------------------------------
