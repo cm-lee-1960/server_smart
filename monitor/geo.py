@@ -3,6 +3,7 @@ import requests
 import folium
 import pandas as pd
 from haversine import haversine # 이동거리
+from django.conf import settings
 from management.models import AddressRegion
 
 ###################################################################################################
@@ -166,6 +167,10 @@ class KakaoLocalAPI:
 #######################################################################################################
 # RSRP 값에 따라 색상코드를 결정한다. 
 def rsrp2color(x):
+    ''' RSRP 값으로 색상코드를 반환한다. 
+        - 파라미터: RSRP(숫자)
+        - 반환값: 색상값(문자열)
+    '''
     if x > -65:
         color = 'red'
     elif -75 <= x < -65:
@@ -181,7 +186,11 @@ def rsrp2color(x):
     return color
 
 def make_map_locations(mdata):
-    '''측정위치로 지도를 작성하는 함수'''
+    ''' 측정위치로 지도를 작성하는 함수
+        - 파라미터
+          . mdata: 측정 데이터(콜단위) (MeasureCallData)
+        - 반환값: 없음
+    '''
     # if locations and len(locations) < 1: return None
     map = folium.Map(location=[mdata.phone.latitude, mdata.phone.longitude], zoom_start=15)
 

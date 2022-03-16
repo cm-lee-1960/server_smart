@@ -1,5 +1,3 @@
-# from tracemalloc import start
-# from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -67,7 +65,9 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_m
 ####################################################################################################################################
 @csrf_exempt
 def receive_json(request):
-    '''JSON 데이터를 받아서 처리한다.'''
+    ''' JSON 데이터를 받아서 처리하는 뷰 함수
+        - 측정 데이터를 JSON 형태로 받아서 처리한다.
+    '''
     # ---------------------------------------------------------------------------------------------
     # 1) 수신 받은 측정 데이터(JSON) 파싱
     # ---------------------------------------------------------------------------------------------
@@ -258,5 +258,8 @@ def receive_json(request):
 # 측정위치로 작성된 지도맵 파일 전달
 ###################################################################################################
 def maps_files(request, filename):
+    ''' 단말이 측정하고 있는 위치를 지도맵으로 보여주는 뷰 함수
+        - 현재 측정하고 있는 주소의 행정동 경계구역을 함께 지도맵에 보여준다.
+    '''
     # filename = request.GET.get('filename')
     return render(request, 'maps/' + filename)

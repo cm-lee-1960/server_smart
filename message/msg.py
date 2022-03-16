@@ -1,5 +1,4 @@
 from datetime import datetime
-from tkinter.simpledialog import SimpleDialog
 from django.conf import settings
 from django.db.models import Q
 from monitor.models import Phone, MeasureCallData, Message
@@ -25,8 +24,12 @@ from monitor.geo import make_map_locations
 #            - 주기보고 시점은 단말그룸의 콜카운트 정보를 가지고 판단하게 수정함
 #
 #--------------------------------------------------------------------------------------------------
-def current_count_check(mdata):
-    """DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다."""
+def current_count_check(mdata: MeasureCallData) -> bool:
+    ''' DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다.
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: True or False
+    '''
     result = False
     phone = mdata.phone
     # 해당지역에 단말이 첫번째로 측정을 시작했는지 확인한다.
@@ -50,12 +53,6 @@ def current_count_check(mdata):
         #              누락되는 현상을 막기 위해 명확하게 전송 메시지 내에 단말기 상태를 가져감
         #            - 단말그룹으로 묶여 있는 측정 단말기들로 측정시작 메시지가 전송되었는지를 확인하여 측정시작 메시지를 전송하게 함 
         elif mdata.phone.status == 'START_M' and mdata.phone.manage == True:
-        #     qs = mdata.phone.phoneGroup.phone_set.exclude(phone_no=mdata.phone_no)
-        #     if qs.exists():
-        #         oPhone = qs[0]
-        #         qs = oPhone.measurecalldata_set.filter(currentCount=1, testNetworkType='speed')
-        #         if not qs.exists():
-        #             result = True
             phone_list = mdata.phone.phoneGroup.phone_set.all()
             qs = Message.objects.filter(phone__in=phone_list, status='START_M')
             if not qs.exists():
@@ -88,11 +85,18 @@ def current_count_check(mdata):
 # 2022.02.27 - 측정 단말기 Power-On/Off 데이터를 별도로 추가 받아야 한다고 함
 # 2022.03.05 - 메시지 내용 중에서 숫자에 자동으로 링크가 붙는 것을 조치함 (앞뒤에 <code></code>를 붙임)
 #--------------------------------------------------------------------------------------------------
-def make_message(mdata):
-    """측정단말의 상태에 따라서 메시지를 작성한다.
-    파라미터: 
-    반환값: 
-    """
+def make_message(mdata: MeasureCallData):
+    ''' 측정단말의 상태에 따라서 메시지를 작성한다.
+        - 측정단말 상태코드
+          . POWERON: 측정단말 파워온(Power-On)
+          . START_F: 당일 측정 첫 시작
+          . START_M: 해당지역 측정 시작
+          . MEASURING: 측정중
+          . END: 측정종료
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: 없음
+    '''
 
     # 환경변수에서 채팅방 채널IF를 가져온다.
     # channelId = '-736183270'
