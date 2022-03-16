@@ -1,93 +1,79 @@
 {% load static %}
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-<title>스마트 상황실</title>
+<!doctype html>><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
 
-<!-- 모달 기본 라이브러리 -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
-<script defer src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-<script defer src="https://code.jquery.com/jquery-3.4.1.js"></script>
-<script type="text/javascript" defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-<script type="text/javascript" defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
-<!-- 폰트 호출 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Sticky Footer Navbar Template for Bootstrap</title>
 
-<!-- CSS,JS 호출 -->
-<link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
-<link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
-<link rel="stylesheet" type="text/css" href="{% static "css/nav.css" %}">
-<script type="text/javascript" defer src="{% static "js/header.js" %}"></script>
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">
 
-</head>
-
-<body>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /> -->
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="{% static "css/nav.css" %}">
     
-    <!-- header -->
+  </head>
+
+  <body>
+
     <header>
-        <div class = "title" style = "background-color: mediumaquamarine; width : 100%; height : 65px; display:flex; flex-flow:row wrap;">
-            <div class = "logo" style = "width:10%;">
-                <a href="http://127.0.0.1:8000/analysis/test_layout">
-                    <img src = "{% static 'images/logo2.png' %}" style = "width : 80%; height: 65px;" />
-                </a>
-            </div>
-            <nav style = "display:flex; width:50%; height: 50px; justify-content: flex-start ;">
-                <ul class="nav">
-                    <li>
-                        <a href="http://127.0.0.1:8000/analysis/report">일일보고</a>
-                        <div>
-                            <div class="nav-column">
-                                <ul>
-                                    <li><a href="http://127.0.0.1:8000/analysis/new" >대상등록</a></li>
-                                    <li><a href="http://127.0.0.1:8000/analysis/report" >일일보고서</a></li>
-                                    <li><a href="#"></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="#">준비중</a>
-                        <div>
-                            <div class="nav-column">
-                                <ul>
-                                    <li><a href="#" >준비중</a></li>
-                                    <li><a href="#" >준비중</a></li>
-                                    <li><a href="#"></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="#">준비중</a>
-                    </li>
-                    <li>
-                        <a href="http://127.0.0.1:8000/admin">ADMIN</a>
-                    </li>
-                </ul>   
-            </nav>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="http://127.0.0.1:8000/analysis/test_layout">KT 스마트상황실</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="http://127.0.0.1:8000/analysis/test_layout">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://127.0.0.1:8000/analysis/report">일일보고</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://127.0.0.1:8000/analysis/new">대상등록</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/admin">관리자페이지</a>
+              </li>
+          </ul>
+          <form class="form-inline mt-2 mt-md-0">
+            <!-- <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
+            <button type="button" class="btn btn-danger">
+                <a href="http://127.0.0.1:8000/accounts/logout"></a>로그아웃
+            </button>
+          </form>
         </div>
-    </header> 
-    
+      </nav>
+    </header>
+
     <!-- main -->
-    <div>
+    <main role="main" class="container-fluid">
         {% block contents %}
         {% endblock %}
-    </div>     
+    </main>     
     
     <!-- footer -->
-    <footer style="position:relative; width:100%; top:50px; bottom:0%;">
-    <div id="footer">
-        <div class="container" style="text-align: center;">
-            <p class="text-muted">
-                KT 스마트 상황실
-            </p>
-        </div>
-    </div>
-    </footer>
-</body>
 
-</html>
+    <footer class="footer">
+      <div class="container-fluid">
+        <span class="text-muted">footer 부분입니다.</span>
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.0/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.0/dist/js/bootstrap.min.js"></script>
+
+</body></html>
+
