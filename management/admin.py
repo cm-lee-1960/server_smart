@@ -73,6 +73,7 @@ class SendFailureAdmin(admin.ModelAdmin):
 # 금일 측정조 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class MeasureingTeamAdmin(admin.ModelAdmin):
+    '''어드민 페이지에 금일측정조(MeasureingTeam)을 보여주기 위한 클래스'''
     list_display = ['center', 'measdate_fmt', 'message']
     list_display_links = ['message']
     search_fields = ('message', 'message')
@@ -89,6 +90,7 @@ class MeasureingTeamAdmin(admin.ModelAdmin):
 # 측정 보고주기 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class ReportCycleAdmin(admin.ModelAdmin):
+    '''어드민 페이지에 측정진행 보고주기(ReportCycle)을 보여주기 위한 클래스'''
     list_display = ['center', 'reportCycle',]
     list_display_links = ['center', 'reportCycle']
     search_fields = ('center', 'reportCycle')

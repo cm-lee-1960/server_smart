@@ -1,4 +1,5 @@
 
+from email.utils import parseaddr
 from operator import itemgetter
 from django.db import models
 from django.db.models.signals import post_save
@@ -17,6 +18,9 @@ from management.models import Morphology, MorphologyMap
 # 2022.03.06 - 측정 데이터에 통신사(ispId)가 널(NULL)인 값이 들어와서 동일하게 모델의 해당 항목에 널을 허용함
 # 2022.03.11 - 단말그룹에 묶여 있는 측정 단말기들이 당일 이전에 측정이 있었는지 확인하고 있었다면 그때 단말그룹 측정조 값을
 #              가져와서 업데이트 하는 모듈 추가
+# 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
+#              DL콜카운트, UL콜가운트, DL LTE전환 콜카운트, UL LTE전환 콜카운트
+#
 ###################################################################################################
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
@@ -41,6 +45,10 @@ class PhoneGroup(models.Model):
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
         choices=sorted(MEASURINGTEAM_CHOICES,key=itemgetter(0)), verbose_name='측정조')
     ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
+    dl_count = models.IntegerField(null=True, default=0)  # 다운로드 콜수
+    ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
+    dl_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(DL)
+    ul_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(UL)
     active = models.BooleanField(default=True, verbose_name="상태")
 
     class Meta:
@@ -52,6 +60,9 @@ class PhoneGroup(models.Model):
 
     # 해당 단말그룹의 측정조를 업데이트 한다.
     def update_initial_data(self):
+        ''' 단말그룹이 생성될 때 한번만 업데이트를 수핸한다.
+            - 업데이트 항목: 측정조
+        '''
         phone_list = [ p.phone_no for p in self.phone_set.all()]
         qs = Phone.objects.filter(measdate=self.measdate, phone_no__in=phone_list).exclude(phoneGroup=self)
         if qs.exists():
@@ -64,11 +75,41 @@ class PhoneGroup(models.Model):
             self.measuringTeam = measuringTeam
             self.save()
 
+    # 다운로드(DL) 콜카운트를 하나 증가시킨다.
+    def add_dl_count(self):
+        '''DL 콜카운트를 증가시킨다.'''
+        self.dl_count += 1
+        self.save()
+
+    # 업로드(UL) 콜카운트를 하나 증가시킨다.
+    def add_ul_count(self):
+        '''UL 콜카운트를 증가시킨다.'''
+        self.ul_count += 1
+        self.save()
+
+    # 다운로드(DL) LTE전환 콜카운트를 하나 증가시킨다.
+    def add_dl_nr_count(self):
+        '''LTE전환 DL 콜카운트를 증가시킨다.'''
+        self.dl_nr_count += 1
+        self.save()
+
+    # 다운로드(UL) LTE전환 콜카운트를 하나 증가시킨다.
+    def add_ul_nr_count(self):
+        '''LTE전환 UL 콜카운트를 증가시킨다.'''
+        self.ul_nr_count += 1
+        self.save()
+
+
 # -------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다. 
 # 2022.03.15 - 측정자 입력값(userInfo2)가 입력오류가 자주 발생하므로 모폴로지를 찾지 못하는 경우 "행정동"으로 초기화 함
 #--------------------------------------------------------------------------------------------------
-def get_morphology(userInfo2):
+def get_morphology(userInfo2: str) -> Morphology:
+    ''' 측정자 입력값2로 모폴로지를 반환한다.
+        - 모폴로지를 찾을 수 없는 경우 기본값으로 '행정동'을 반환한다.
+        - 파리미터: 측정자 입력값2(문자열)
+        - 반환값: 모폴러지(Morphology)
+    '''
     # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
     morphology = Morphology.objects.filter(morphology='행정동')[0] # 초기값 설정
     if userInfo2 and userInfo2 != None:
@@ -112,7 +153,7 @@ def get_morphology(userInfo2):
 #
 ###################################################################################################
 class Phone(models.Model):
-    """측정 단말기 정보"""
+    '''측정 단말기 정보'''
 
     ISPID_CHOICES = {
         ("45008", "KT"),
@@ -175,6 +216,7 @@ class Phone(models.Model):
 
     # 전화번호 뒤에서 4자리를 반환한다.
     def get_phone_no_sht(self):
+        '''전화번호 끝 4자리를 반환한다.'''
         return str(self.phone_no)[-4:]
 
     # ---------------------------------------------------------------------------------------------
@@ -183,6 +225,7 @@ class Phone(models.Model):
     # * 모풀로지가 변경되는 경우 측정 단말기의 관래대상 여부를 자동으로 변경한다.
     # ---------------------------------------------------------------------------------------------
     def save(self, *args, **kwargs):
+        '''측정단말 정보를 저장한다.'''
         qs = Morphology.objects.filter(morphology=self.morphology)
         if qs.exists():
             self.manage = qs[0].manage
@@ -195,50 +238,36 @@ class Phone(models.Model):
     # - DL/UL 평균속도, 콜수, 진행상태, 최종 위치보고시간 등
     # ---------------------------------------------------------------------------------------------
     def update_phone(self, mdata):
-        """측정단말의 통계정보를 업데이트 한다."""
-        #### 방식 1 ####
-        # # DL/UL 평균속도를 업데이트 한다.
-        # # 현재 측정 데이터 모두를 가져와서 재계산하는데, 향후 개선필요한 부분임
-        # # 2022.02.25 속도 데이터 + NR(5G->LTE)제외 조건
-        # dl_sum, ul_sum, dl_count, ul_count = 0, 0, 0, 0
-        # for mdata in self.measurecalldata_set.filter(testNetworkType="speed").exclude(
-        #     networkId="NR"
-        # ):
-        #     # logger.info("콜단위 데이터" + str(mdata))
-        #     # print("콜단위 데이터" + str(mdata))
-        #     if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
-        #         dl_sum += mdata.downloadBandwidth
-        #         dl_count += 1
-        #     if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
-        #         ul_sum += mdata.uploadBandwidth
-        #         ul_count += 1
-        # if dl_count:
-        #     self.avg_downloadBandwidth = round(dl_sum / dl_count, 3)
-        # if ul_count:
-        #     self.avg_uploadBandwidth = round(ul_sum / ul_count, 3)
-
-        # # 단말기의 콜 수를 업데이트 한다.
-        # self.dl_count = dl_count  # 다운로드 콜건수
-        # self.ul_count = ul_count  # 업로드 콜건수
-        # self.currentCount = mdata.currentCount # 현재 콜카운트
-        # self.total_count = dl_count + ul_count  # 전체 콜건수
-
-        #### 방식 2 ####
+        ''' 측정단말의 통계정보를 업데이트 한다.
+            - 업데이트 항목: 평균속도, 콜 카운트, 측정단말 상태, 최종 위치보고시간
+            - NR(5G->LTE전환)인 경우 평균속도에는 반영하지 않고, 콜 카운트에는 반영한다.
+            - 파라미터
+              . mdata: 측정 데이터(콜단위) (MeasureCallData)
+            - 반환값: 없음
+        '''
         # UL/DL 평균속도 산출시 NR(5G->LTE전환) 데이터는 제외한다.
-        # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다. 
+        # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다.
+        # 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
+        #              측정단말 정보 업데이트 시 단말그룹의 콜카운트 관련 정보도 함께 업데이트 함 
         if mdata.networkId == 'NR':
             self.nr_count += 1
+            if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
+                self.phoneGroup.add_dl_nr_count()
+            elif mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
+                self.phoneGroup.add_ul_nr_count()
         else:
             # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.avg_downloadBandwidth = round(((self.avg_downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 3)
                 self.meastype = 'DL'
                 self.dl_count += 1
+                self.phoneGroup.add_dl_count()
             # UP 평균속도 계산
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.avg_uploadBandwidth = round(((self.avg_uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
                 self.meastype = 'UL'
                 self.ul_count += 1
+                self.phoneGroup.add_ul_count()
 
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
         self.currentCount = mdata.currentCount # 현재 콜카운트
@@ -264,7 +293,11 @@ class Phone(models.Model):
     # - 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
     # ---------------------------------------------------------------------------------------------
     def update_initial_data(self):
-        '''측정 단말기가 생성될 때 최초 한번만 수행한다.'''
+        ''' 측정 단말기가 생성될 때 최초 한번만 단말정보를 업데이트 한다.
+            - 업데이트 항목: 측정시작 위치에 대한 행정동, 모폴러지
+            - 파라미터: 없음
+            - 반환값: 없음
+        '''
         try: 
             # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
             if self.longitude and self.latitude:
@@ -304,24 +337,7 @@ class Phone(models.Model):
                 self.guGun = region_2depth_name # 구/군
                 self.addressDetail = region_3depth_name # 행정동(읍/동/면)
 
-            # 측정자 입력값2(userInfo2)에 따라 모폴로지와 관리대상여부를 결정한다.
-            # 2022.03.14 - 다른 모듈에서도 사용할 수 있도록 클래스 밖으로 별도 함수로 선언함
-            #
-            # morphology = None # 모풀로지
-            # manage = False # 관리대상 여부
-            # if self.userInfo2:
-            #     # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 재지정한다. 
-            #     for mp in MorphologyMap.objects.all():
-            #         if mp.wordsCond == '시작단어':
-            #             if self.userInfo2.startswith(mp.words):
-            #                 morphology = mp.morphology
-            #                 manage = mp.manage
-            #                 break
-            #         elif mp.wordsCond == '포함단어':
-            #             if self.userInfo2.find(mp.words) >= 0:
-            #                 morphology = mp.morphology
-            #                 manage = mp.manage
-            #                 break
+            # 모폴로지와 관리대상 여부를 설정한다.
             morphology = get_morphology(self.userInfo2)
             self.morphology = morphology
             self.manage = morphology.manage
@@ -342,7 +358,7 @@ class Phone(models.Model):
 # 2022.03.15 - 주소 반환시 시/도와 구/군이 동일한 경우 한번만 주소값에 반환하도록 수정함
 ###################################################################################################
 class MeasureCallData(models.Model):
-    """실시간 측정 데이터(콜 단위)"""
+    '''실시간 측정 데이터(콜 단위) 정보'''
 
     phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
     dataType = models.CharField(max_length=10)
@@ -406,10 +422,12 @@ class MeasureCallData(models.Model):
 
     # 전화번호 뒤에서 4자리
     def get_phone_no_sht(self):
+        '''전화번호 끝 4자리를 리턴한다.'''
         return str(self.phone_no)[-4:]
 
     # DL
     def get_dl(self):
+        '''DL 속도를 반환한다.'''
         if self.downloadBandwidth and self.downloadBandwidth > 0:
             return f"{self.downloadBandwidth:.1f}"
         else:
@@ -417,6 +435,7 @@ class MeasureCallData(models.Model):
 
     # UL
     def get_ul(self):
+        '''UL 속도를 반환한다.'''
         if self.uploadBandwidth and self.uploadBandwidth > 0:
             return f"{self.uploadBandwidth:.1f}"
         else:
@@ -425,6 +444,7 @@ class MeasureCallData(models.Model):
 
     # PCI
     def get_pci(self):
+        '''PCI를 반환한다.'''
         if self.networkId == '5G':
             return self.NR_PCI
         else:
@@ -432,6 +452,7 @@ class MeasureCallData(models.Model):
 
     # RSRP
     def get_rsrp(self):
+        '''RSRP 값을 반환한다.'''
         if self.networkId == '5G':
             return self.NR_RSRP
         else:
@@ -439,6 +460,7 @@ class MeasureCallData(models.Model):
 
     # SINR
     def get_sinr(self):
+        '''SINR 값을 리턴한다.'''
         if self.networkId == '5G':
             return self.NR_SINR
         else:
@@ -446,6 +468,9 @@ class MeasureCallData(models.Model):
 
     # 측정시간(예: 09:37)
     def get_time(self):
+        ''' 측정시간을 반환한다.
+            - 예) 09:30
+        '''
         if self.meastime:
             meastime_s = str(self.meastime)
             return f"{meastime_s[8:10]}:{meastime_s[10:12]}"
@@ -453,7 +478,15 @@ class MeasureCallData(models.Model):
             return ''
 
     # 측정위치(예: 경상남도 사천시 노룡동)
-    def get_address(self):
+    def get_address(self) -> str:
+        ''' 측정위치에 대한 주소를 반환한다.
+            - 시/도, 군/구가 동일한 경우 한번만 표시한다.
+              . 서울특벌시 서욽특벌시 가산동 -> 서울특별시 가산동
+            - 측정위치의 위도와 경도는 있는데, 주소가 널(Null)인 경우 주소를 찾아서 반환한다.
+            - 파라미터: 없음
+            - 반환값: 주소(문자열)
+
+        '''
         if self.addressDetail and self.addressDetail != None:
             if self.siDo in self.guGun:
                 address = f"{self.guGun} {self.addressDetail.split(' ')[0]}"
@@ -495,7 +528,7 @@ class MeasureCallData(models.Model):
             region_3depth_name = result['documents'][0]['region_3depth_name']
 
             return ' '.join([region_1depth_name, region_2depth_name, region_3depth_name])
-        
+
 
     class Meta:
         verbose_name = "측정 데이터(콜단위)"
@@ -509,7 +542,7 @@ class MeasureCallData(models.Model):
 # 실시간 측정 데이터(초 단위)
 ###################################################################################################
 class MeasureSecondData(models.Model):
-    """실시간 측정 데이터(초 단위)"""
+    '''실시간 측정 데이터(초 단위) 정보'''
 
     phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
     dataType = models.CharField(max_length=10)
@@ -567,7 +600,7 @@ class MeasureSecondData(models.Model):
 # 2022.02.27 - 메시지 유형을 메시지(SMS)와 이벤트(EVENT)로 구분할 수 있도록 항목 추가
 ###################################################################################################
 class Message(models.Model):
-    '''전송 메시지'''
+    '''전송 메시지 정보'''
     phone = models.ForeignKey(Phone, on_delete=models.DO_NOTHING)
     status = models.CharField(max_length=10, null=True) # 메시지 전송시 측정단말의 상태
     measdate = models.CharField(max_length=10)
@@ -589,7 +622,7 @@ class Message(models.Model):
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 전송하는 함수
 #--------------------------------------------------------------------------------------------------
 def send_message(sender, **kwargs):
-    '''생성된 메시지를 크로샷 또는 텔레그램으로 전송하는 함수'''
+    ''' 생성된 메시지를 크로샷 또는 텔레그램으로 전송하는 함수'''
     bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
     # 텔레그램으로 메시지를 전송한다.
     if kwargs['instance'].sendType == 'TELE':

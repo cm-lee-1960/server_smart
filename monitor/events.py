@@ -1,10 +1,8 @@
 from django.conf import settings
 from haversine import haversine # 이동거리
-# from geopy.geocoders import Nominatim # 역지오코딩(위도,경도->주소)
-# import requests
 from management.models import SendFailure, LowThroughput
 from .geo import KakaoLocalAPI, make_map_locations
-from .models import Phone, Message
+from .models import MeasureCallData, Phone, Message
 
 ###################################################################################################
 # 이벤트 발생여부를 체크하는 모듈
@@ -28,8 +26,19 @@ from .models import Phone, Message
 #            - 두 개의 단말이 중복측정하고 있는지 확인하는 이벤트 모듈 추가
 #  
 ###################################################################################################  
-def event_occur_check(mdata):
-    '''이벤트 발생여부를 체크한다.'''
+def event_occur_check(mdata: MeasureCallData):
+    '''이벤트 발생여부를 체크한다.
+        - 1)전송실패(Send Failure)
+        - 2)속도저하(low throughput)
+        - 3)음성 콜 드랍
+        - 4)5G->LTE 전환
+        - 5)측정범위를 벗어나는 경우
+        - 6)측정콜이 한곳에 머무는 경우
+        - 7)측정단말이 중복측 정하는 경우
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: '전송실패' or None
+    '''
 
     events_list = []
     # 1)전송실패(Send Failure)
@@ -48,7 +57,7 @@ def event_occur_check(mdata):
     message = fivgtolte_trans_check(mdata)
     if message and message != None : events_list.append(message)
 
-    # 4)측정범위를 벗어나는 경우
+    # 5)측정범위를 벗어나는 경우
     message = out_measuring_range(mdata)
     if message and message != None : events_list.append(message)
 
@@ -69,12 +78,14 @@ def event_occur_check(mdata):
 # 2022.02.24 - WiFi 전송실패 기준 추가 (DL: 1M, UL: 0.5M)
 # 2022.03.01 - 전송실패 기준 관리 모듈 추가 및 이벤트 모듈에 반영(기존 소스코드 체크 -> DB 모델에서 불러와 체크)
 #--------------------------------------------------------------------------------------------------
-def send_failure_check(mdata):
+def send_failure_check(mdata: MeasureCallData) -> str: 
     '''전송실패(Send Failure) 발생여부 확인
+        - 전송실패 기준 정보(SendFailure)는 데이터베이스에 관리한다.
         - 품질기준(5G DL: 12M, UL: 2M, LTE DL: 6M, UL: 1M, 3G DL: 256K, UL: 128K
         - 품질취약 LTE 1M, UL: 0.5, 3G DL: 256K, UL 128K
-        - 취약지구는 '~산로' 등 특정문구가 들어간 것으로 식별을 해야 하는데, 어려움이 있음(관리자 지정해야? -> 정보관리 대상)
-        - return message
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: '전송실패' or None
     '''
     message = None
     try: 
@@ -110,10 +121,12 @@ def send_failure_check(mdata):
 # 2022.02.24 - 속도저하 기준 별도 테이블 관리 필요 -- LowThroughput
 # 2022.03.03 - 속도저하 기준 테이블(모델) 생성 및 체크 모듈 작성 
 #--------------------------------------------------------------------------------------------------
-def low_throughput_check(mdata):
+def low_throughput_check(mdata: MeasureCallData) -> str:
     '''속도저하(Low Throughput) 발생여부 확인
-        - 속도저하 기준 별도 테이블 관리 예정
-        - return message
+        - 속도저하 기준 정보(LowThroughput)와 비교하여 이벤트 발생여부를 판단한다.
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: '속도저하' or None
     '''
     message = None
     try:
@@ -149,9 +162,12 @@ def low_throughput_check(mdata):
 # -------------------------------------------------------------------------------------------------
 # 음성 콜 드랍 발생여부 확인
 #--------------------------------------------------------------------------------------------------
-def voice_call_drop_check(mdata):
+def voice_call_drop_check(mdata: MeasureCallData) -> str:
     ''' 음성 콜 드랍 발생여부 확인
         - 품질 취약 VoLTE call drop/setup fail, 3G call drop/setup fail
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: '음성콜 드랍' or None
     '''
     message = None
     # 2022.01.17 DB가 다르기 때문에 나중에 알려 주겠음
@@ -162,10 +178,12 @@ def voice_call_drop_check(mdata):
 # -------------------------------------------------------------------------------------------------
 # 5G에서 LTE료 전환여부 확인
 #--------------------------------------------------------------------------------------------------
-def fivgtolte_trans_check(mdata):
+def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
     ''' 5G에서 LTE료 전환여부 확인
         - 5G 측정시 LTE로 데이터가 전환되는 경우
-        - return message
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: 'LTE전환' or None
     '''
     message = None
     # 2022.02.21 - 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
@@ -192,11 +210,12 @@ def fivgtolte_trans_check(mdata):
 #            - 향후 작성된 지도맵을 이미지 형태로 텔레그램 메시지에 첨부하여 보내기 위함
 # 2022.03.03 - 위,경도에 따른 행정동 검색 오류 수정 (2.27 이슈해결)
 #--------------------------------------------------------------------------------------------------
-def out_measuring_range(mdata):
+def out_measuring_range(mdata: MeasureCallData) -> str:
     ''' 단말이 측정범위를 벗어났는지 확인
         - 측정하는 행정동을 벗어나서 측정이 되는 경우
-        - (아이디어) 행정동을 벗어남이 의심된다는 메시지 + 위치 지도 이미지도 함께 전송
-        - return message
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: '측정범위 벗어남' or None
     '''
     message = None
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
@@ -267,12 +286,14 @@ def out_measuring_range(mdata):
 # 2022.03.01 - 이동거리를 강제로 500미터 이상으로 해서 한곳에 머무는지 판단하는 소스코드 검증
 #            - 행정도 측정에서 기본 이동거리는 200~300미터 정도임
 #--------------------------------------------------------------------------------------------------
-def call_staying_check(mdata):
+def call_staying_check(mdata: MeasureCallData) -> str:
     ''' 측정단말이 한곳에 머무는지 확인
         - 타사 측정단말에 문제가 발생하여 조치를 하거나 차량에 문제가 있거나 등 한곳에 오랫동안 멈는 경우가 있는데,
           이렇게 한곳에 멈춰 있는 경우 보고 대상임
         - 이동거리가 10미터 이내 연속해서 5회 이상 발생하면 한 곳에 머무는 것으로 판단
-        - return message
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: '측정단말 한곳에 머뭄' or None
     '''
     message = None
     # 측정유형이 행정동인 경우에만 측정단말이 한곳에 머무는지 확인한다.
@@ -318,10 +339,12 @@ def call_staying_check(mdata):
 # 중복측정이 발생했는지 확인
 # 2022.03.16 - 단말그룹으로 묶여 있는 2개의 단말이 동일한 유형의 측정을 수행하고 있은 때 이벤트 발생(DL/DL, UL/UL)
 #--------------------------------------------------------------------------------------------------
-def duplicated_measuring(mdata):
+def duplicated_measuring(mdata: MeasureCallData) -> str:
     ''' 두개의 단말이 중복측정하고 있는지 확인
         - 단말그룹으로 묶여 있는 2개의 단말이 동일한 유형의 측정을 수행하고 있은 때 이벤트 발생(DL/DL, UL/UL)
-        - return message
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+        - 반환값: '중복측정' or None
     '''
     message = None
     duplicated = False
@@ -353,8 +376,13 @@ def duplicated_measuring(mdata):
 # 2022.02.27 - 메시지 포맷 정의 (이벤트 발생 관련 정보 표시)
 #            - 메시지 작성 코드를 각각 이벤트 확인하는 함수로 이동함(메시지 내에 관련정보 포함하기 위해)
 #--------------------------------------------------------------------------------------------------
-def make_event_message(mdata, events_list):
-    '''이벤트 메시지 작성한다.'''
+def make_event_message(mdata: MeasureCallData, events_list: list):
+    '''이벤트 메시지 작성한다.
+        - 파라미터
+          . mdata: 측정 데이터(콜단위)
+          . event_list: 발생된 이벤트 문자열 리스트(예: ['LTE전환', '측정범위 벗어남'])
+        - 반환값: '중복측정' or None
+    '''
     # 환경변수에서 채널ID를 가져온다.
     channelId = settings.CHANNEL_ID
 

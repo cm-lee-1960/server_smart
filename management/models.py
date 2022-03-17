@@ -4,7 +4,7 @@ from django.db import models
 ###################################################################################################
 # 환경설정 관리 관련 클래스
 # [ 관리정보 리스트 ]
-#  - 센터정보(Center): 전국 14개 센터정보를 관리함
+#  - 센터정보(Center): 운용본부 및 전국 14개 센터정보를 관리함
 #  - 모풀로지(Morphology): 모폴로지를 관리함(행정동, 테마, 인빌딩, 커버리지, 취약지구 등)
 #  - 모폴로지 맵(MorphologyMap): 측정 데이터 내에 있는 부정확한 모풀로지를 수정하여 맵핑정보를 관리함
 #  - 전송실패 기준(SendFailure): 품질불량에 따른 전송실패 기준 정보를 관리함 
@@ -24,7 +24,9 @@ from django.db import models
 # 센터정보 클래스
 # -------------------------------------------------------------------------------------------------
 class Center(models.Model):
-    '''센터정보 클래스'''
+    ''' 센터 정보
+        - 운용본부 및 전국 14개 센터정보를 관리한다.
+    '''
     centerName = models.CharField(max_length=100, verbose_name="센터명")
     channelId = models.CharField(max_length=25, verbose_name="채널ID")
     permissionLevel = models.IntegerField(default=1, verbose_name="권한레벨")
@@ -42,6 +44,9 @@ class Center(models.Model):
 # MessureCallData.userinfo2 --> Morphology.morphology : 맵핑정보 관리
 # -------------------------------------------------------------------------------------------------
 class Morphology(models.Model):
+    ''' 모폴로지 정보
+        - 행정동, 테마, 인빌딩, 커버리지, 취약지구 등 모폴로지 정보를 관리한다.
+    '''
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     morphology = models.CharField(max_length=100, null=True, blank=True,verbose_name='모풀로지')
     manage = models.BooleanField(default=False, verbose_name='관리대상')  # 관리대상 여부
@@ -56,7 +61,15 @@ class Morphology(models.Model):
 # 모풀로지 맵 정보관리 클래스
 # -------------------------------------------------------------------------------------------------
 class MorphologyMap(models.Model):
-    '''모폴로지 클래스'''
+    ''' 모폴로지 맵핑 정보
+        - 측정자 입력값2(userInfo2)에 따라서 모폴로지를 맵핑하는 정보를 관리한다.
+        - 예) 행- 시작단어 -> 행정동
+             테- 시작단어 -> 테마
+             인- 시작단어 -> 인빌딩
+             커- 시작단어 -> 커버리지
+             커버리지 포함단어 -> 커버리지
+             W- 시작단어 -> 인빌딩 
+    '''
     WORDSCOND_CHOICES = {('시작단어','시작단어'), ('포함단어','포함단어')}
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
@@ -73,7 +86,11 @@ class MorphologyMap(models.Model):
 # 전송실패(Send Failure) 기준관리 클래스
 # -------------------------------------------------------------------------------------------------
 class SendFailure(models.Model):
-    '''전송실패 기준 클래스'''
+    ''' 전송실패 기준 정보
+        - 품질불량에 따른 전송실패 기준 정보를 관리한다.
+        - 품질기준(5G DL: 12M, UL: 2M, LTE DL: 6M, UL: 1M, 3G DL: 256K, UL: 128K
+        - 품질취약 LTE 1M, UL: 0.5, 3G DL: 256K, UL 128K
+    '''
     AREAIND__CHOICES = {('NORM','보통지역'), ('WEEK', '취약지역')}
     NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
     DATATYPE_CHOICES = {('DL','DL'), ('UL','UL')}
@@ -92,7 +109,9 @@ class SendFailure(models.Model):
 # 속도저하(Low Throughput) 기준관리 클래스
 # -------------------------------------------------------------------------------------------------
 class LowThroughput(models.Model):
-    '''속도저하 기준 플래스'''
+    ''' 속도저하 기준 정보 
+        - 상황에 따라 변경되는 속도저하 기준 정보를 관리한다.
+    '''
     AREAIND__CHOICES = {('NORM','보통지역'), ('WEEK', '취약지역')}
     NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
     DATATYPE_CHOICES = {('DL','DL'), ('UL','UL')}
@@ -112,7 +131,14 @@ class LowThroughput(models.Model):
 # 금일측정조 데이터
 # -------------------------------------------------------------------------------------------------
 class MeasureingTeam(models.Model):
-    '''금일 측정조 클래스'''
+    ''' 금일 측정조 정보
+        - 금일 측정조에 대한 정보를 등록 관리한다.
+        - 당일 측정시작 메시지 전송시 등록된 금일 측정조에 대한 내용을 포함하여 메시지를 전송한다.
+        - 예) ㅇ 금일측정조
+              - 5G/LTE 품질 3개조
+              - LTE/3G 취약지역 품질 1개조
+              - WiFi 품질 1개조
+    '''
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     measdate = models.DateField(default=timezone.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     message = models.TextField(verbose_name="금일 측정조")
@@ -126,7 +152,11 @@ class MeasureingTeam(models.Model):
 # 금일측정조 데이터
 # -------------------------------------------------------------------------------------------------
 class ReportCycle(models.Model):
-    '''측정 보고주기 클래스'''
+    ''' 측정 보고주기 정보
+        - 측정진행 메시지의 보고주기를 등록 관리한다. 
+        - 콤마(,)로 분리하여 등록한다
+        - 예) 3, 10, 27, 37, 57
+    '''
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     reportCycle = models.CharField(max_length=100, verbose_name="보고주기")
 
@@ -139,7 +169,10 @@ class ReportCycle(models.Model):
 # 행정동 데이터 클래스
 # -------------------------------------------------------------------------------------------------
 class AddressRegion(models.Model):
-    '''행정동 경계구역 클래스'''
+    ''' 행정동 경계구역 정보 
+        - 각각 행정구역에 대한 폴리건 정보를 관리한다.
+        - 예) '서울특별시 종로구 이화동' - JSON 데이터
+    '''
     addressDetail = models.CharField(max_length=100)  # 주소상세
     #json_data = models.JSONField(default=dict)
 
