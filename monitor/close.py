@@ -2,6 +2,9 @@ from email import message
 from django.conf import settings
 from .models import Phone, PhoneGroup, Message
 from django.conf import settings
+import mysql.connector
+import requests, json
+import time
 
 ###################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -110,11 +113,63 @@ def measuring_end(phonegroup,measdate):
         sended=True
     )
     
-def measuing_day_close():
+def measuing_day_close(measdate):
     '''당일측정을 마감하는 함수'''
     # 1) 단말그룹: 상태변경 - 혹시 남아 있는 상태(True)
     # 2) 측정단말: 상태변경 - 혹시 남아 있는 상태(Tre)
     # 3) 당일 측정마감 데이터 생성 --> 일일 상황보고 자료 활용 가능
     #    - 대상 데이터: 초단위 데이터
     # 4) 당일 측정종료 메시지 생성 (유형: 단문메시지(XMCS))
+    
+    try:
+        pg_check_day = PhoneGroup.objects.filter(measdate=measdate)
+        #해당일자 폰그룹 쿼리셋 모두 검출
+        pg_check_day.update(active=0)
+        ## 모든 폰그룹 active 0으로 변경
+        for pg_num in pg_check_day:
+            p_check_day = pg_num.phone_set.all()
+            p_check_day.update(active=0)
+            
+        ## 폰그룹의 하위 폰 active 0으로 변경
+        
+    except Exception as e:     
+        print("해당일자 폰그룹 혹은 폰 존재안함:",str(e))
+    
+    ##센터별 DL,UL 처리 SQL USERINFO 데이터 신뢰 저하로 폰번호화 측정시간으로 처리하고 
+    ##addressdetail로 센터 매핑
+    
+    #sql = 
+    
+    ## 초단위 데이터 가져오기 및 DB 생성
+    #s_data_search(measdate, sql)
+    
+    ###############################################
+    ## 1. 초단위 데이터로 일일 보고 데이터 생성
+    ## 2. 센터별 분리 
+    ## 3. 센터별 메세지 생성
+    ## 4. 일괄 메세지 생성
+    ## 5. 초단위 로우데이터 DB 삭제
+    ###############################################
     pass
+
+def s_data_search(measdate, sql):
+
+    ## db  커넥터
+    mydb = mysql.connector.connect(
+        host="127.0.0.1",
+        user="smartnqi",
+        passwd="nwai1234!",
+        database="smart"
+    )
+    ##커서 생성
+    cur = mydb.cursor()
+    ##조회sql 생성    
+    sql = '''select * from tb_ndm_data_measure'''
+    
+    cur.execute(sql)
+    row_headers=[x[0] for x in cur.description]
+    res = cur.fetchall()
+    
+    ## 초단위 데이터 DB 생성
+    ## create 모델    
+    return 0

@@ -141,5 +141,5 @@ class ReportCycle(models.Model):
 class AddressRegion(models.Model):
     '''행정동 경계구역 클래스'''
     addressDetail = models.CharField(max_length=100)  # 주소상세
-    json_data = models.JSONField(default=dict)
+    #json_data = models.JSONField(default=dict)
 
