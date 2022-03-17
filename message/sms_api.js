@@ -69,7 +69,8 @@
  
      switch (msgType) {
          case 'sendSMS' :
-             options.url = endpoint + 'send/sms';
+             //options.url = endpoint + 'send/sms';
+             options.url = endpoint + 'send/mms';  // 22.03.17) MMS 전송을 위해 임시로 변경
              break;
  
          case 'sendVMS' :

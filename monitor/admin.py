@@ -3,6 +3,9 @@ from django.forms import TextInput, Textarea
 from django.db import models
 from django import forms
 from .models import PhoneGroup, Phone, MeasureCallData
+from analysis.models import EndMessage
+from .close import monitor_close
+import requests
 
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
@@ -30,6 +33,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     list_display_links = ['phone_list', ]
     search_fields = ('measdate', 'userInfo1', 'phone_list', 'measuringTeam')
     list_filter = ['measdate', 'measuringTeam']
+    actions = ['get_end_message_action']
 
     # 해당 단말그룹에 묶여 있는 단말기 번호를 가져온다.
     def phone_list(self, phoneGroup):
@@ -57,6 +61,26 @@ class PhoneGroupAdmin(admin.ModelAdmin):
 #     def clean(self):
 #         cleaned_data = self.cleaned_data
 #         print(cleaned_data)
+
+    # ---------------------------------------------------------------------------------------------
+    # 종료 메시지 만드는 함수(단말룹 관리자 페이지에서 액션)  // 테스트용 임시 함수
+    # ---------------------------------------------------------------------------------------------
+    def get_end_message_action(self, request, queryset):
+        id_list = queryset.values_list('id')
+        try:
+            for id in id_list:
+                ids = {'id' : id[0]}
+                result = monitor_close(ids).make_message()
+                queryset.filter(id=ids['id']).update(active=False)
+                # from message.xmcs_msg import send_sms
+                # from message.models import SentTelegramMessage
+                from django.shortcuts import render
+                request_data = {'receiver' : '01094440029', 'message' : result['text']}
+                requests.post(url='http://127.0.0.1:8000/message/xroshot_send/', data=request_data)
+        except:
+            print("종료 실패...")
+            raise Exception("종료 처리에 문제가 발생하였습니다....")
+    get_end_message_action.short_description = '선택한 그룹 측정 종료 처리'
 
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정

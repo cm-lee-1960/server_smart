@@ -3,6 +3,7 @@ from django.conf import settings
 from .models import Phone, PhoneGroup, Message
 from django.conf import settings
 from django.db.models import Max, Min, Avg, Count, Q
+from analysis.models import EndMessage
 
 ###################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -121,44 +122,58 @@ def measuing_day_close():
     pass
 
 
+## 종료 메시지 만드는 함수
 class monitor_close:
   def __init__(self, request):
-    self.data_group = PhoneGroup.objects.get(id=request['id'])
-    self.data_phone = self.data_group.phone_set.all()
-    self.data_calldata = self.data_phone[0].measurecalldata_set.all() | self.data_phone[1].measurecalldata_set.all()
-    self.total_count = min(self.data_group.dl_count, self.data_group.ul_count)
+    self.data_group = PhoneGroup.objects.get(id=request['id'])  # 전달 받은 ID로 PhoneGroup 데이터 할당
+    self.data_phone = self.data_group.phone_set.all()   # 해당 그룹의 개별 Phone 데이터 할당
+    self.data_calldata = self.data_phone[0].measurecalldata_set.all() | self.data_phone[1].measurecalldata_set.all()   # 해당하는 콜단위 데이터 할당
+    self.total_count = min(self.data_group.dl_count, self.data_group.ul_count)  # 총 콜수 (DL 및 UL 카운트 중 최소값)
   
+  # 5G -> LTE 전환율 계산 함수
   def make_fivgtolte_trans_percent(self):
     dl_nr_percent = self.data_group.dl_nr_count / self.data_group.dl_count
     ul_nr_percent = self.data_group.ul_nr_count / self.data_group.ul_count
     self.fivgtolte_trans_percent = [dl_nr_percent, ul_nr_percent]
-    return self.fivgtolte_trans_percent
+    return self.fivgtolte_trans_percent  # DL/UL 별 값을 List로 반환
 
+  # 평균 속도 계산 함수
   def make_avg_bandwidth(self):
     self.dl_avg = self.data_calldata.exclude(Q(networkId='NR')|Q(downloadBandwidth__isnull=True)|Q(downloadBandwidth=0)).aggregate(Avg('downloadBandwidth'))
     self.ul_avg = self.data_calldata.exclude(Q(networkId='NR')|Q(uploadBandwidth__isnull=True)|Q(uploadBandwidth=0)).aggregate(Avg('uploadBandwidth'))
     self.bandwidth_avg = [round(self.dl_avg['downloadBandwidth__avg']), round(self.ul_avg['uploadBandwidth__avg'])]
-    return self.bandwidth_avg
+    return self.bandwidth_avg  # DL/UL 별 값을 List로 반환
 
+  # 측정 시간 계산 함수
   def make_meas_time(self):
     self.meas_time_all = self.data_calldata.aggregate(Max('meastime'), Min('meastime'))
     self.start_meas_time = str(self.meas_time_all['meastime__min'])[8:10] + ':' + str(self.meas_time_all['meastime__min'])[10:12]
     self.end_meas_time = str(self.meas_time_all['meastime__max'])[8:10] + ':' + str(self.meas_time_all['meastime__max'])[10:12]
     self.meas_time = [self.start_meas_time, self.end_meas_time]
-    return self.meas_time
+    return self.meas_time  # 시작시간/종료시간 값을 List로 변환
   
+  # 종료 메시지 생성 함수
   def make_message(self):
     meas_time = self.make_meas_time()
     avg_bandwidth = self.make_avg_bandwidth()
-    if self.data_group.networkId == '5G':
+    if self.data_group.networkId == '5G':  # 측정 타입 5G일 경우 LTE 전환율 계산
       fivgtolte_trans_percent = self.make_fivgtolte_trans_percent()
-      messages = f"<code>ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1} \
+      message_text = f"ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1} \
               측정종료({meas_time[0]}~{meas_time[1]}, {self.total_count}콜)\n" + \
-              f"- LTE 전환율(DL/UL, %): {fivgtolte_trans_percent[0]}/{fivgtolte_trans_percent[1]}\n" + \
-              f"- 속도(DL/UL, Mbps): {avg_bandwidth[0]}/{avg_bandwidth[1]}</code>"
-    else:
-      messages = f"<code>ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1} \
-        측정종료({meas_time[0]}~{meas_time[1]}, {self.total_count}콜)\n" + \
-        f"- 속도(DL/UL, Mbps): {avg_bandwidth[0]}/{avg_bandwidth[1]}</code>"
-
+              f"- LTE 전환율(DL/UL, %): {fivgtolte_trans_percent[0]} / {fivgtolte_trans_percent[1]}\n" + \
+              f"- 속도(DL/UL, Mbps): {avg_bandwidth[0]} / {avg_bandwidth[1]}"
+    else:  # 5G가 아닌 경우 LTE 전환율 제외
+      message_text = f"ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1} \
+              측정종료({meas_time[0]}~{meas_time[1]}, {self.total_count}콜)\n" + \
+              f"- 속도(DL/UL, Mbps): {avg_bandwidth[0]} / {avg_bandwidth[1]}"
+    save_message = EndMessage.objects.create(
+      measuringTeam=self.data_group.measuringTeam,
+      networkId=self.data_group.networkId,
+      measdate=self.data_group.measdate,
+      userInfo1=self.data_group.userInfo1,
+      message=message_text,
+    ) # EndMessage(analysis app) 모델에 DB 저장
+    message_id = save_message.id  # 저장된 ID값 할당 (추후 메시지 전송을 위함)
+    messages = {'id': message_id, 'text': message_text}  # id 및 내용을 Dictionary에 할당하여 반환
+    
     return messages

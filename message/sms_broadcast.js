@@ -43,7 +43,7 @@ connection.query('SELECT * from smart.message_sentxroshotmessage ORDER BY ID DES
 
         /////// 메시지 전송을 위한 Body 생성
         var requestBody = {
-            MessageType 		: 1,					// 메시지 유형 (1:SMS, 2:VMS, 3:FMS, 4:MMS)
+            MessageType 		: 4,					// 메시지 유형 (1:SMS, 2:VMS, 3:FMS, 4:MMS)
             MessageSubType 		: 1,					// MessageType에 따른 메시지 세부 유형 (1:일반텍스트(SMS,VMS,FMS,MMS), 2:url(SMS,VMS,FMS))
             CallbackNumber 		: '01044700193',		// 회신번호   /// 등록된 번호만 사용 가능 (현재 김종현 차장님 번호)
         
