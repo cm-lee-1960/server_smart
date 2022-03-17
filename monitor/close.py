@@ -12,7 +12,7 @@ from django.db.models import Max, Min, Avg, Count, Q
 # 2022-03-11 - ???????
 ###################################################################################################
 
-def measuring_end(phonegroup,measdate):
+def measuring_end2(phonegroup,measdate):
 
     channelId = settings.CHANNEL_ID
     ##tele 채널아이디
@@ -186,29 +186,31 @@ class monitor_close:
 # -------------------------------------------------------------------------------------------------
 # 해당지역의 측정을 종료한다.
 # -------------------------------------------------------------------------------------------------
-def measuring_end_2(phoneGroup):
+def measuring_end(phoneGroup):
     ''' 해당지역의 측정을 종료하는 함수
       - 파라미터
         . phoneGroup: 단말그룹(PhoneGroup)
-      - 반환값: 미정
+      - 반환값: dict
+        . message_id: 메시지ID
+        . message: 메시지 내용
     '''
     # 해당 단말그룹에 묶여 있는 단말기들을 가져온다.
     phone_list = phoneGroup.phone_set.all()
     qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
     # DL 평균속도
-    avg_downloadBandwidth = qs.exclude( Q(networkId='NR') | \
-                                        Q(downloadBandwidth__isnull=True) | \
-                                        Q(downloadBandwidth=0) \
-                                        ).aggregate(Avg('downloadBandwidth'))
+    avg_downloadBandwidth = round(qs.exclude( Q(networkId='NR') | \
+                                              Q(downloadBandwidth__isnull=True) | \
+                                              Q(downloadBandwidth=0) \
+                                              ).aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'],1)
     # UL 평균속도
-    avg_uploadBandwidth = qs.exclude( Q(networkId='NR') | \
-                                      Q(uploadBandwidth__isnull=True) | \
-                                      Q(uploadBandwidth=0)
-                                      ).aggregate(Avg('uploadBandwidth'))
-   
+    avg_uploadBandwidth = round(qs.exclude( Q(networkId='NR') | \
+                                            Q(uploadBandwidth__isnull=True) | \
+                                            Q(uploadBandwidth=0)
+                                            ).aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'],1)
+
     # DL/UL 5G->LTE전환율   
-    dl_nr_percent = phoneGroup.dl_nr_count / phoneGroup.dl_count
-    ul_nr_percent = phoneGroup.ul_nr_count / phoneGroup.ul_count
+    dl_nr_percent = round(phoneGroup.dl_nr_count / phoneGroup.dl_count * 100)
+    ul_nr_percent = round(phoneGroup.ul_nr_count / phoneGroup.ul_count * 100)
 
     # 총 콜카운트를 가져온다.
     total_count = min(phoneGroup.dl_count, phoneGroup.ul_count) 
@@ -229,18 +231,21 @@ def measuring_end_2(phoneGroup):
 
     # 메시지를 저장한다.
     result = Message.objects.create(
-          phone='****',
-          status='END',
-          currentCount=total_count,
-          downloadBandwidth=avg_downloadBandwidth,
-          uploadBandwidth=avg_uploadBandwidth,
-          measdate=phoneGroup.measdate,
-          userInfo1=phoneGroup.userInfo1,
-          messageType='SMS',
-          message=message,
+            phone=None,
+            status='END',
+            measdate=phoneGroup.measdate,
+            sendType = 'XMCS',
+            userInfo1=phoneGroup.userInfo1,
+            phone_no=None,
+            downloadBandwidth=avg_downloadBandwidth,
+            uploadBandwidth=avg_uploadBandwidth,
+            messageType='SMS',
+            message = message,
+            channelId = '',
+            sended=True
         )
 
     # 반환값에 대해서는 향후 고민 필요
-    return_value = {'id': result.id, 'text': message}
+    return_value = {'message_id': result.id, 'message': message}
 
     return return_value

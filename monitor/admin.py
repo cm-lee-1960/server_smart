@@ -3,7 +3,7 @@ from django.forms import TextInput, Textarea
 from django.db import models
 from django import forms
 from .models import PhoneGroup, Phone, MeasureCallData
-from .close import monitor_close
+from .close import measuring_end
 import requests
 
 ###################################################################################################
@@ -20,6 +20,7 @@ import requests
 #              (필터조건: 예, 아니요, 모두)
 #            - 측정단말의 전화번호 끝 4자리만 표기, 측정단말 관리자 상세화면에서 필드 항목의 사이즈 조정
 # 2022.03.10 - 단말그룹 관리자 페이지 추가 (단말그룹에 측정조를 입력할 수 있도록 함)
+# 2022.03.17 - 단말그룹 관리자 페이지에서 선택된 단말그룹에 대해 측정종료 처리 함수를 추가함
 #
 ###################################################################################################
 
@@ -28,11 +29,11 @@ import requests
 # -------------------------------------------------------------------------------------------------
 class PhoneGroupAdmin(admin.ModelAdmin):
     '''어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스'''
-    list_display = ['measdate', 'phone_list', 'measuringTeam', 'userInfo1',]
+    list_display = ['measdate', 'phone_list', 'measuringTeam', 'userInfo1', 'active']
     list_display_links = ['phone_list', ]
     search_fields = ('measdate', 'userInfo1', 'phone_list', 'measuringTeam')
-    list_filter = ['measdate', 'measuringTeam']
-    actions = ['get_end_message_action']
+    list_filter = ['measdate', 'measuringTeam', 'active']
+    actions = ['get_measuring_end_action']
 
     # 해당 단말그룹에 묶여 있는 단말기 번호를 가져온다.
     def phone_list(self, phoneGroup):
@@ -56,27 +57,32 @@ class PhoneGroupAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-# class PhoneForm(forms.ModelForm):
-#     def clean(self):
-#         cleaned_data = self.cleaned_data
-#         print(cleaned_data)
+    # ---------------------------------------------------------------------------------------------
+    # 측정단말 관리자 페이지에서 선택된 단말그룹에 대해 종료처리하는 액션 함수
+    # ---------------------------------------------------------------------------------------------
+    def get_measuring_end_action(self, request, queryset):
+        ''' 해당지역 측정을 종료하는 함수
+            - 파라미터
+              . queryset : 선택된 단말그룹에 대한 쿼리셋
+            - 반환값: 없음
+        '''
+        if queryset.exists():
+            try: 
+                # 관리자 페이지에서 넘겨 받은 쿼리셋에서 선택된 단말그룹을 하나씩 가져와서 측정종료 처리를 한다.
+                for phoneGroup in queryset:
+                    result = measuring_end(phoneGroup)
+                    send_data = {'receiver' : '01044700193', 'message' : result['message']}
+                    requests.post(url='http://127.0.0.1:8000/message/xroshot_send/', data=send_data)
 
-    # ---------------------------------------------------------------------------------------------
-    # 종료 메시지 만드는 함수(단말룹 관리자 페이지에서 액션)  // 테스트용 임시 함수
-    # ---------------------------------------------------------------------------------------------
-    def get_end_message_action(self, request, queryset):
-        id_list = queryset.values_list('id')
-        try:
-            for id in id_list:
-                ids = {'id' : id[0]}
-                result = monitor_close(ids).make_message()
-                queryset.filter(id=ids['id']).update(active=False)
-                request_data = {'receiver' : '01094440029', 'message' : result['text']}
-                requests.post(url='http://127.0.0.1:8000/message/xroshot_send/', data=request_data)
-        except:
-            print("종료 실패...")
-            raise Exception("종료 처리에 문제가 발생하였습니다....")
-    get_end_message_action.short_description = '선택한 그룹 측정 종료 처리'
+                    # 측정종료 처리가 완료된 단말그룹에 대해서 상태를 비활성화 시킨다.
+                    phoneGroup.active = False
+                    phoneGroup.save()
+
+            except Exception as e:
+                print("get_measuring_end_action():", str(e))
+                raise Exception("get_measuring_end_action(): %s" % e) 
+
+    get_measuring_end_action.short_description = '선택한 측정그룹 종료처리'
 
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정
