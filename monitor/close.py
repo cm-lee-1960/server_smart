@@ -90,13 +90,20 @@ def measuring_end(phonegroup,measdate):
         
     mdata = f_phone_0.measurecalldata_set.filter(phone_id=f_phone_0.id).order_by('-meastime')[0] 
     ##측정시간 기준으로 내림차순정렬의 첫번째 calldata를가져온다 즉 가장 최근측정 콜데이터
-    
     ## 폰아이디로 measurecalldata 추출 
     
+    ## 폰이 networkid가 5G면 전환율 메세지 생성
+    if f_phone_0.networkid == '5G':
+        net_change = f"-LTE 전환율(DL/UL, %):"+ str(pg_check.dl_nr_count/t_dl_count) \
+        + "/" + str(pg_check.dl_ul_count/t_ul_count)
+    else:
+        net_change =''
+        
     avg_downloadBandwidth = avg_downloadBandwidth / t_dl_count
     avg_uploadBandwidth = avg_uploadBandwidth / t_ul_count
-    
-    messageContent = f"종료메세지== dl:" + str(avg_downloadBandwidth) +"ul:" +str(avg_uploadBandwidth)   ## 수정
+
+    messageContent = str(pg_check.measuringTeam) + str(f_phone_0.networkid) \
+                     + f"종료메세지== dl:" + str(avg_downloadBandwidth) +"ul:" +str(avg_uploadBandwidth)   ## 수정
                 
     Message.objects.create(
         phone=phone[0],  ## 폰그룹에서 첫번째 단말기 정보 기입
@@ -112,6 +119,14 @@ def measuring_end(phonegroup,measdate):
         channelId=channelId,
         sended=True
     )
+# def area_make_message(pg_check,f_phone_0,net_change):
+
+#      messageContent = str(pg_check.measuringTeam) + str(f_phone_0.networkid) \
+#                      + str(f_phone_0.siDo) + str(f_phone_0.guGun) + str(f_phone_0.addressDetail) \
+#                      + f"측정ㅈ" 
+                     
+                     
+#                      f"종료메세지== dl:" + str(avg_downloadBandwidth) +"ul:" +str(avg_uploadBandwidth)   ## 수정
     
 def measuing_day_close(measdate):
     '''당일측정을 마감하는 함수'''
@@ -152,24 +167,24 @@ def measuing_day_close(measdate):
     ###############################################
     pass
 
-def s_data_search(measdate, sql):
+# def s_data_search(measdate, sql):
 
-    ## db  커넥터
-    mydb = mysql.connector.connect(
-        host="127.0.0.1",
-        user="smartnqi",
-        passwd="nwai1234!",
-        database="smart"
-    )
-    ##커서 생성
-    cur = mydb.cursor()
-    ##조회sql 생성    
-    sql = '''select * from tb_ndm_data_measure'''
+#     ## db  커넥터
+#     mydb = mysql.connector.connect(
+#         host="127.0.0.1",
+#         user="smartnqi",
+#         passwd="nwai1234!",
+#         database="smart"
+#     )
+#     ##커서 생성
+#     cur = mydb.cursor()
+#     ##조회sql 생성    
+#     sql = '''select * from tb_ndm_data_measure'''
     
-    cur.execute(sql)
-    row_headers=[x[0] for x in cur.description]
-    res = cur.fetchall()
+#     cur.execute(sql)
+#     row_headers=[x[0] for x in cur.description]
+#     res = cur.fetchall()
     
-    ## 초단위 데이터 DB 생성
-    ## create 모델    
-    return 0
+#     ## 초단위 데이터 DB 생성
+#     ## create 모델    
+#     return 0

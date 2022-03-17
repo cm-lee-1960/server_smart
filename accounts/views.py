@@ -12,7 +12,7 @@ def login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             auth.login(request, user)
-            return redirect('home')
+            return redirect('http://localhost:8000/analysis/test_layout')
         else:  
             return render(request, 'login_boot.html', {'error': 'username or password is incorrect.'})
     else:
