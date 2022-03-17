@@ -2,9 +2,7 @@ from email import message
 from django.conf import settings
 from .models import Phone, PhoneGroup, Message
 from django.conf import settings
-import mysql.connector
-import requests, json
-import time
+from django.db.models import Max, Min, Avg, Count, Q
 
 ###################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -90,20 +88,13 @@ def measuring_end(phonegroup,measdate):
         
     mdata = f_phone_0.measurecalldata_set.filter(phone_id=f_phone_0.id).order_by('-meastime')[0] 
     ##측정시간 기준으로 내림차순정렬의 첫번째 calldata를가져온다 즉 가장 최근측정 콜데이터
+    
     ## 폰아이디로 measurecalldata 추출 
     
-    ## 폰이 networkid가 5G면 전환율 메세지 생성
-    if f_phone_0.networkid == '5G':
-        net_change = f"-LTE 전환율(DL/UL, %):"+ str(pg_check.dl_nr_count/t_dl_count) \
-        + "/" + str(pg_check.dl_ul_count/t_ul_count)
-    else:
-        net_change =''
-        
     avg_downloadBandwidth = avg_downloadBandwidth / t_dl_count
     avg_uploadBandwidth = avg_uploadBandwidth / t_ul_count
-
-    messageContent = str(pg_check.measuringTeam) + str(f_phone_0.networkid) \
-                     + f"종료메세지== dl:" + str(avg_downloadBandwidth) +"ul:" +str(avg_uploadBandwidth)   ## 수정
+    
+    messageContent = f"종료메세지== dl:" + str(avg_downloadBandwidth) +"ul:" +str(avg_uploadBandwidth)   ## 수정
                 
     Message.objects.create(
         phone=phone[0],  ## 폰그룹에서 첫번째 단말기 정보 기입
@@ -119,72 +110,55 @@ def measuring_end(phonegroup,measdate):
         channelId=channelId,
         sended=True
     )
-# def area_make_message(pg_check,f_phone_0,net_change):
-
-#      messageContent = str(pg_check.measuringTeam) + str(f_phone_0.networkid) \
-#                      + str(f_phone_0.siDo) + str(f_phone_0.guGun) + str(f_phone_0.addressDetail) \
-#                      + f"측정ㅈ" 
-                     
-                     
-#                      f"종료메세지== dl:" + str(avg_downloadBandwidth) +"ul:" +str(avg_uploadBandwidth)   ## 수정
     
-def measuing_day_close(measdate):
+def measuing_day_close():
     '''당일측정을 마감하는 함수'''
     # 1) 단말그룹: 상태변경 - 혹시 남아 있는 상태(True)
     # 2) 측정단말: 상태변경 - 혹시 남아 있는 상태(Tre)
     # 3) 당일 측정마감 데이터 생성 --> 일일 상황보고 자료 활용 가능
     #    - 대상 데이터: 초단위 데이터
     # 4) 당일 측정종료 메시지 생성 (유형: 단문메시지(XMCS))
-    
-    try:
-        pg_check_day = PhoneGroup.objects.filter(measdate=measdate)
-        #해당일자 폰그룹 쿼리셋 모두 검출
-        pg_check_day.update(active=0)
-        ## 모든 폰그룹 active 0으로 변경
-        for pg_num in pg_check_day:
-            p_check_day = pg_num.phone_set.all()
-            p_check_day.update(active=0)
-            
-        ## 폰그룹의 하위 폰 active 0으로 변경
-        
-    except Exception as e:     
-        print("해당일자 폰그룹 혹은 폰 존재안함:",str(e))
-    
-    ##센터별 DL,UL 처리 SQL USERINFO 데이터 신뢰 저하로 폰번호화 측정시간으로 처리하고 
-    ##addressdetail로 센터 매핑
-    
-    #sql = 
-    
-    ## 초단위 데이터 가져오기 및 DB 생성
-    #s_data_search(measdate, sql)
-    
-    ###############################################
-    ## 1. 초단위 데이터로 일일 보고 데이터 생성
-    ## 2. 센터별 분리 
-    ## 3. 센터별 메세지 생성
-    ## 4. 일괄 메세지 생성
-    ## 5. 초단위 로우데이터 DB 삭제
-    ###############################################
     pass
 
-# def s_data_search(measdate, sql):
 
-#     ## db  커넥터
-#     mydb = mysql.connector.connect(
-#         host="127.0.0.1",
-#         user="smartnqi",
-#         passwd="nwai1234!",
-#         database="smart"
-#     )
-#     ##커서 생성
-#     cur = mydb.cursor()
-#     ##조회sql 생성    
-#     sql = '''select * from tb_ndm_data_measure'''
-    
-#     cur.execute(sql)
-#     row_headers=[x[0] for x in cur.description]
-#     res = cur.fetchall()
-    
-#     ## 초단위 데이터 DB 생성
-#     ## create 모델    
-#     return 0
+class monitor_close:
+  def __init__(self, request):
+    self.data_group = PhoneGroup.objects.get(id=request['id'])
+    self.data_phone = self.data_group.phone_set.all()
+    self.data_calldata = self.data_phone[0].measurecalldata_set.all() | self.data_phone[1].measurecalldata_set.all()
+    self.total_count = min(self.data_group.dl_count, self.data_group.ul_count)
+  
+  def make_fivgtolte_trans_percent(self):
+    dl_nr_percent = self.data_group.dl_nr_count / self.data_group.dl_count
+    ul_nr_percent = self.data_group.ul_nr_count / self.data_group.ul_count
+    self.fivgtolte_trans_percent = [dl_nr_percent, ul_nr_percent]
+    return self.fivgtolte_trans_percent
+
+  def make_avg_bandwidth(self):
+    self.dl_avg = self.data_calldata.exclude(Q(networkId='NR')|Q(downloadBandwidth__isnull=True)|Q(downloadBandwidth=0)).aggregate(Avg('downloadBandwidth'))
+    self.ul_avg = self.data_calldata.exclude(Q(networkId='NR')|Q(uploadBandwidth__isnull=True)|Q(uploadBandwidth=0)).aggregate(Avg('uploadBandwidth'))
+    self.bandwidth_avg = [round(self.dl_avg['downloadBandwidth__avg']), round(self.ul_avg['uploadBandwidth__avg'])]
+    return self.bandwidth_avg
+
+  def make_meas_time(self):
+    self.meas_time_all = self.data_calldata.aggregate(Max('meastime'), Min('meastime'))
+    self.start_meas_time = str(self.meas_time_all['meastime__min'])[8:10] + ':' + str(self.meas_time_all['meastime__min'])[10:12]
+    self.end_meas_time = str(self.meas_time_all['meastime__max'])[8:10] + ':' + str(self.meas_time_all['meastime__max'])[10:12]
+    self.meas_time = [self.start_meas_time, self.end_meas_time]
+    return self.meas_time
+  
+  def make_message(self):
+    meas_time = self.make_meas_time()
+    avg_bandwidth = self.make_avg_bandwidth()
+    if self.data_group.networkId == '5G':
+      fivgtolte_trans_percent = self.make_fivgtolte_trans_percent()
+      messages = f"<code>ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1} \
+              측정종료({meas_time[0]}~{meas_time[1]}, {self.total_count}콜)\n" + \
+              f"- LTE 전환율(DL/UL, %): {fivgtolte_trans_percent[0]}/{fivgtolte_trans_percent[1]}\n" + \
+              f"- 속도(DL/UL, Mbps): {avg_bandwidth[0]}/{avg_bandwidth[1]}</code>"
+    else:
+      messages = f"<code>ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1} \
+        측정종료({meas_time[0]}~{meas_time[1]}, {self.total_count}콜)\n" + \
+        f"- 속도(DL/UL, Mbps): {avg_bandwidth[0]}/{avg_bandwidth[1]}</code>"
+
+    return messages
