@@ -388,15 +388,18 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
 
     # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
     # (단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)
-    filename = make_map_locations(mdata)
-    # message = unicode_truncate(message, 512 - 128)
+    # 2022.03.17 - 보안이슈로 지도맵 제공기능 취소함
+    # filename = make_map_locations(mdata)
+
     # 메시지를 작성한다.
     message = f"{mdata.get_address()}에서 측정단말에 이벤트가 발생했습니다.\n" + \
             f"* 발생 이벤트({len(events_list)}건): {', '.join(events_list)}\n" + \
             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
-    message += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
+
+    # 2022.03.17 - 보안이슈로 지도맵 제공기능 취소함
+    # message += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
 
     # 전송 메시지를 생성한다.
     if message:

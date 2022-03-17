@@ -206,6 +206,7 @@ def make_message(mdata: MeasureCallData):
                         "(DL/UL/시도호/성공률)\n" + \
                         f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count+ul_count}/-</code>"
 
+        # 2022.03.17 - 보안이슈로 지도맵 기능제공 취소함
         # # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
         # filename = make_map_locations(mdata)
         # messages += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
