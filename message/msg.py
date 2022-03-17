@@ -125,6 +125,7 @@ def make_message(mdata: MeasureCallData):
         total_dl_count, total_ul_count = 0, 0
         phone_list = mdata.phone.phoneGroup.phone_set.all()
         qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+        # print("######")
         for m in qs:
             if m.phone.networkId == '5G' and m.networkId == 'NR':
                 # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다. 
@@ -137,9 +138,11 @@ def make_message(mdata: MeasureCallData):
                 if m.downloadBandwidth and m.downloadBandwidth > 0 and total_dl_count < reportCallCount:
                     dl_sum +=  m.downloadBandwidth
                     dl_count += 1
+                    # print(f"DL/{m.currentCount}/{m.downloadBandwidth}/-")
                 if m.uploadBandwidth and m.uploadBandwidth > 0 and total_ul_count < reportCallCount:
                     ul_sum += m.uploadBandwidth
                     ul_count += 1
+                    # print(f"UL/{m.currentCount}/-/{m.uploadBandwidth}")
 
             # DL/UL 총건수를 계산한다.
             total_dl_count = dl_count + dl_nr_count
@@ -148,9 +151,12 @@ def make_message(mdata: MeasureCallData):
             if total_dl_count >= reportCallCount and total_ul_count >= reportCallCount: break
 
         # 평균속도(DL/UL)를 산출한다. 
-        if reportCallCount > 0 : 
-            avg_downloadBandwidth = round(dl_sum / reportCallCount, 2) # 평균속도(DL)
-            avg_uploadBandwidth = round(ul_sum / reportCallCount, 2)   # 평균속도(UL)
+        if dl_count > 0: 
+            avg_downloadBandwidth = round(dl_sum / dl_count, 2) # 평균속도(DL)
+        if ul_count > 0:
+            avg_uploadBandwidth = round(ul_sum / ul_count, 2)   # 평균속도(UL)
+
+        # print(f"##### {avg_downloadBandwidth}/{dl_count}/{avg_uploadBandwidth}/{ul_count}")
 
         # 메시지를 작성한다.
         #                01234567890123456
