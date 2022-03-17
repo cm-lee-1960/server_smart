@@ -1,6 +1,6 @@
 from email import message
 from django.conf import settings
-from .models import Phone, PhoneGroup, Message
+from .models import Phone, PhoneGroup, MeasureCallData, Message
 from django.conf import settings
 from django.db.models import Max, Min, Avg, Count, Q
 
@@ -180,3 +180,67 @@ class monitor_close:
     messages = {'id': message_id, 'text': message_text}  # id 및 내용을 Dictionary에 할당하여 반환
     
     return messages
+
+
+
+# -------------------------------------------------------------------------------------------------
+# 해당지역의 측정을 종료한다.
+# -------------------------------------------------------------------------------------------------
+def measuring_end_2(phoneGroup):
+    ''' 해당지역의 측정을 종료하는 함수
+      - 파라미터
+        . phoneGroup: 단말그룹(PhoneGroup)
+      - 반환값: 미정
+    '''
+    # 해당 단말그룹에 묶여 있는 단말기들을 가져온다.
+    phone_list = phoneGroup.phone_set.all()
+    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+    # DL 평균속도
+    avg_downloadBandwidth = qs.exclude( Q(networkId='NR') | \
+                                        Q(downloadBandwidth__isnull=True) | \
+                                        Q(downloadBandwidth=0) \
+                                        ).aggregate(Avg('downloadBandwidth'))
+    # UL 평균속도
+    avg_uploadBandwidth = qs.exclude( Q(networkId='NR') | \
+                                      Q(uploadBandwidth__isnull=True) | \
+                                      Q(uploadBandwidth=0)
+                                      ).aggregate(Avg('uploadBandwidth'))
+   
+    # DL/UL 5G->LTE전환율   
+    dl_nr_percent = phoneGroup.dl_nr_count / phoneGroup.dl_count
+    ul_nr_percent = phoneGroup.ul_nr_count / phoneGroup.ul_count
+
+    # 총 콜카운트를 가져온다.
+    total_count = min(phoneGroup.dl_count, phoneGroup.ul_count) 
+   
+    # 측정시작 시간가 측정종료 시간을 확인한다.
+    meastime_max_min = qs.aggregate(Max('meastime'), Min('meastime'))
+    globals().update(meastime_max_min)
+    start_meastime = str(meastime__min)[8:10] + ':' + str(meastime__min)[10:12]
+    end_meastime = str(meastime__max)[8:10] + ':' + str(meastime__max)[10:12]
+
+    # 메시지를 작성한다.
+    message = f"ㅇS-CXI {phoneGroup.measuringTeam} {phoneGroup.networkId} {phoneGroup.userInfo1}" + \
+            f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n"
+    # 5G의 경우 메시지 내용에 LTE전환율 포함한다.
+    if phoneGroup.networkId == '5G':  
+        message += f"- LTE 전환율(DL/UL, %): {dl_nr_percent} / {ul_nr_percent}\n" 
+    message += f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth} / {avg_uploadBandwidth}"
+
+    # 메시지를 저장한다.
+    result = Message.objects.create(
+          phone='****',
+          status='END',
+          currentCount=total_count,
+          downloadBandwidth=avg_downloadBandwidth,
+          uploadBandwidth=avg_uploadBandwidth,
+          measdate=phoneGroup.measdate,
+          userInfo1=phoneGroup.userInfo1,
+          messageType='SMS',
+          message=message,
+        )
+
+    # 반환값에 대해서는 향후 고민 필요
+    return_value = {'id': result.id, 'text': message}
+
+    return return_value
