@@ -152,12 +152,3 @@ class TodayRegister(models.Model):
         return self.name
     class Meta:
         ordering = ['-date']
-
-
-
-class EndMessage(models.Model):
-    measuringTeam = models.CharField(max_length=20, null=True, blank=True, verbose_name="측정조")
-    networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="유형")
-    measdate = models.CharField(max_length=10, verbose_name="측정일자")
-    userInfo1 = models.CharField(max_length=100, verbose_name="주소(측정자 입력)")
-    message = models.TextField(default=False, verbose_name="메시지 내용")

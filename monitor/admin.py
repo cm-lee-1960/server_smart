@@ -3,7 +3,6 @@ from django.forms import TextInput, Textarea
 from django.db import models
 from django import forms
 from .models import PhoneGroup, Phone, MeasureCallData
-from analysis.models import EndMessage
 from .close import monitor_close
 import requests
 
@@ -72,9 +71,6 @@ class PhoneGroupAdmin(admin.ModelAdmin):
                 ids = {'id' : id[0]}
                 result = monitor_close(ids).make_message()
                 queryset.filter(id=ids['id']).update(active=False)
-                # from message.xmcs_msg import send_sms
-                # from message.models import SentTelegramMessage
-                from django.shortcuts import render
                 request_data = {'receiver' : '01094440029', 'message' : result['text']}
                 requests.post(url='http://127.0.0.1:8000/message/xroshot_send/', data=request_data)
         except:

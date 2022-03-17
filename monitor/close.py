@@ -3,7 +3,6 @@ from django.conf import settings
 from .models import Phone, PhoneGroup, Message
 from django.conf import settings
 from django.db.models import Max, Min, Avg, Count, Q
-from analysis.models import EndMessage
 
 ###################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -134,7 +133,7 @@ class monitor_close:
   def make_fivgtolte_trans_percent(self):
     dl_nr_percent = self.data_group.dl_nr_count / self.data_group.dl_count
     ul_nr_percent = self.data_group.ul_nr_count / self.data_group.ul_count
-    self.fivgtolte_trans_percent = [dl_nr_percent, ul_nr_percent]
+    self.fivgtolte_trans_percent = [round(dl_nr_percent,2), round(ul_nr_percent,2)]
     return self.fivgtolte_trans_percent  # DL/UL 별 값을 List로 반환
 
   # 평균 속도 계산 함수
@@ -158,19 +157,23 @@ class monitor_close:
     avg_bandwidth = self.make_avg_bandwidth()
     if self.data_group.networkId == '5G':  # 측정 타입 5G일 경우 LTE 전환율 계산
       fivgtolte_trans_percent = self.make_fivgtolte_trans_percent()
-      message_text = f"ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1} \
-              측정종료({meas_time[0]}~{meas_time[1]}, {self.total_count}콜)\n" + \
+      message_text = f"ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1}" + \
+              f"측정종료({meas_time[0]}~{meas_time[1]}, {self.total_count}콜)\n" + \
               f"- LTE 전환율(DL/UL, %): {fivgtolte_trans_percent[0]} / {fivgtolte_trans_percent[1]}\n" + \
               f"- 속도(DL/UL, Mbps): {avg_bandwidth[0]} / {avg_bandwidth[1]}"
     else:  # 5G가 아닌 경우 LTE 전환율 제외
       message_text = f"ㅇS-CXI {self.data_group.measuringTeam} {self.data_group.networkId} {self.data_group.userInfo1} \
               측정종료({meas_time[0]}~{meas_time[1]}, {self.total_count}콜)\n" + \
               f"- 속도(DL/UL, Mbps): {avg_bandwidth[0]} / {avg_bandwidth[1]}"
-    save_message = EndMessage.objects.create(
-      measuringTeam=self.data_group.measuringTeam,
-      networkId=self.data_group.networkId,
+    save_message = Message.objects.create(
+      phone=self.data_phone[0],
+      status='END',
+      currentCount=self.total_count,
+      downloadBandwidth=avg_bandwidth[0],
+      uploadBandwidth=avg_bandwidth[1],
       measdate=self.data_group.measdate,
       userInfo1=self.data_group.userInfo1,
+      messageType='SMS',
       message=message_text,
     ) # EndMessage(analysis app) 모델에 DB 저장
     message_id = save_message.id  # 저장된 ID값 할당 (추후 메시지 전송을 위함)
