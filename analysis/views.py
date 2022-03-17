@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect
+from django.contrib.auth.decorators import login_required
 from monitor.models import Phone
 from .models import MeasPlan, MeasResult, Register, TodayRegister
 import pandas as pd
@@ -528,10 +529,8 @@ def delete_todayregister(request):
     if(request.method== "POST") :
        
        TodayRegister.objects.all().delete()
-       
-       
-
     return redirect("new")
-def test_layout(request):
 
-    return render(request, "analysis/test_layout.html")
+@login_required
+def dashboard(request):
+        return render(request, "analysis/dashboard_form.html")

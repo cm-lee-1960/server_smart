@@ -256,3 +256,5 @@ MANAGEMENT_MODELS_ORDERING = {
     "모풀로지": 6,
     "센터정보": 7,   
 }
+
+LOGIN_REDIRECT_URL = 'accounts/home/'
