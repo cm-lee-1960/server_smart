@@ -20,11 +20,11 @@ from management.models import Morphology, MorphologyMap
 #              가져와서 업데이트 하는 모듈 추가
 # 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
 #              DL콜카운트, UL콜가운트, DL LTE전환 콜카운트, UL LTE전환 콜카운트
+# 2022.03.17 - 측정종료 및 측정마감 시 코드 복잡성을 낮추기 위해서 단말그룰에 측정유형(networkId)을 가져감
 #
 ###################################################################################################
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
-
     MEASURINGTEAM_CHOICES = {
         ("1조", "1조"),
         ("2조", "2조"),
@@ -41,6 +41,9 @@ class PhoneGroup(models.Model):
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
     userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
+    networkId = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name="유형"
+    )  # 네트워크ID(5G, LTE, 3G, WiFi)
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
         choices=sorted(MEASURINGTEAM_CHOICES,key=itemgetter(0)), verbose_name='측정조')
@@ -73,7 +76,16 @@ class PhoneGroup(models.Model):
                     measuringTeam = p.phoneGroup.measuringTeam
                     break
             self.measuringTeam = measuringTeam
-            self.save()
+    
+        # 2022.03.17 - 측정종료 및 측정마감 시 코드 복잡성을 낮추기 위해 측정유형(networkId)을 가져감
+        #            - 단말그룹에 묶여 있는 측정 단말의 측정유형을 가져와서 업데이트 한다.
+        qs = self.phone_set.all()
+        if qs.exists():
+            networkId = qs[0].networkId
+            self.networkId = networkId
+
+        # 단말그룹 정보를 업데이트 한다.
+        self.save()
 
     # 다운로드(DL) 콜카운트를 하나 증가시킨다.
     def add_dl_count(self):
