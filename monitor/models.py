@@ -654,3 +654,30 @@ def send_message(sender, **kwargs):
 post_save.connect(send_message, sender=Message)
 
 
+###################################################################################################
+# 측정마감 클래스
+###################################################################################################
+class MeasuingDayClose(models.Model):
+    '''측정마감 클래스'''
+    measdate = models.CharField(max_length=10, verbose_name='측정일자') # 측정일자(예: 20211101)
+    phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING, verbose_name='단말그룹') # 단말그룹
+    downloadBandwidth = models.FloatField(null=True, blank=True, verbose_name='DL')  # DL속도
+    uploadBandwidth = models.FloatField(null=True, blank=True, verbose_name='UL')  # UP속도
+    dl_count = models.IntegerField(null=True, default=0, verbose_name='DL콜카운트')  # 다운로드 콜수
+    ul_count = models.IntegerField(null=True, default=0, verbose_name='UL콜카운트')  # 업로드 콜수
+    dl_nr_count = models.IntegerField(null=True, default=0, verbose_name='DL NR 콜카운트')  # 5G->NR 전환 콜수
+    ul_nr_count = models.IntegerField(null=True, default=0, verbose_name='UL NR 콜카운트')  # 5G->NR 전환 콜수
+    lte_transRate = models.FloatField(null=True, default=0.0, verbose_name='LTE전환율')  # 5G->NR 전환 전환율
+    udpJitter = models.FloatField(null=True, default=0.0, verbose_name='지연시간')  # 지연시간
+    total_count = models.IntegerField(null=True, default=0, verbose_name='시도호수')  # 시도호수
+    success_rate = models.FloatField(null=True, default=0.0, verbose_name='전송성공율')  # 전송성공율
+    ##### 디버깅 항목 ########
+    ca1_count = models.IntegerField(null=True, default=0, verbose_name='CA1 카운트')  # CA1 카운트
+    ca2_count = models.IntegerField(null=True, default=0, verbose_name='CA2 카운트')  # CA2 카운트
+    ca3_count = models.IntegerField(null=True, default=0, verbose_name='CA3 카운트')  # CA3 카운트
+    ca4_count = models.IntegerField(null=True, default=0, verbose_name='CA4 카운트')  # CA4 카운트
+    #######################
+    ca1_rate = models.FloatField(null=True, default=0, verbose_name='CA1 비율')  # CA1 비율
+    ca2_rate = models.FloatField(null=True, default=0, verbose_name='CA2 비율')  # CA2 비율
+    ca3_rate = models.FloatField(null=True, default=0, verbose_name='CA3 비율')  # CA3 비율
+    ca4_rate = models.FloatField(null=True, default=0, verbose_name='CA4 비율')  # CA4 비율
