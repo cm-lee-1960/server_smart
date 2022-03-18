@@ -10,3 +10,8 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page=settings.LOGIN_URL), name='logout'),
     path('home/', views.home, name='home')
 ]
+
+# from django.contrib import admin
+
+# admin.site.index_template = 'admin/custom_index.html'
+# admin.autodiscover()
