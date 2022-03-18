@@ -208,9 +208,13 @@ def measuring_end(phoneGroup):
                                             Q(uploadBandwidth=0)
                                             ).aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'],1)
 
-    # DL/UL 5G->LTE전환율   
-    dl_nr_percent = round(phoneGroup.dl_nr_count / phoneGroup.dl_count * 100)
-    ul_nr_percent = round(phoneGroup.ul_nr_count / phoneGroup.ul_count * 100)
+    # DL/UL 5G->LTE전환율
+    try:
+      dl_nr_percent = round(phoneGroup.dl_nr_count / phoneGroup.dl_count * 100)
+      ul_nr_percent = round(phoneGroup.ul_nr_count / phoneGroup.ul_count * 100)
+    except Exception as e:
+      print("5G->LTE 전환율 계산 오류:", str(e))
+      raise Exception("measuring_end(): %s" % e) 
 
     # 총 콜카운트를 가져온다.
     total_count = min(phoneGroup.dl_count, phoneGroup.ul_count) 

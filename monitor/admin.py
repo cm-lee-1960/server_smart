@@ -68,19 +68,20 @@ class PhoneGroupAdmin(admin.ModelAdmin):
         '''
         if queryset.exists():
             try: 
+                result_list = []  # 여러개 그룹을 종료 시킬 수 있으므로 결과값을 리스트 선언
                 # 관리자 페이지에서 넘겨 받은 쿼리셋에서 선택된 단말그룹을 하나씩 가져와서 측정종료 처리를 한다.
                 for phoneGroup in queryset:
                     result = measuring_end(phoneGroup)
-                    send_data = {'receiver' : '01044700193', 'message' : result['message']}
-                    requests.post(url='http://127.0.0.1:8000/message/xroshot_send/', data=send_data)
-
+                    result_list.append(result)  # 결과 리스트 append
                     # 측정종료 처리가 완료된 단말그룹에 대해서 상태를 비활성화 시킨다.
                     phoneGroup.active = False
                     phoneGroup.save()
-
             except Exception as e:
                 print("get_measuring_end_action():", str(e))
-                raise Exception("get_measuring_end_action(): %s" % e) 
+                raise Exception("get_measuring_end_action(): %s" % e)
+            #결과 메시지를 크로샷 전송 테스트 페이지로 넘긴다. (임시, 중복 종료 처리할 경우 결과 리스트의 첫 번째 메시지를 넘김)
+            from django.shortcuts import render
+            return render(request, 'message/xroshot_page.html', {'message' : result_list[0]['message']})
 
     get_measuring_end_action.short_description = '선택한 측정그룹 종료처리'
 
