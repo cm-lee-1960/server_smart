@@ -15,14 +15,15 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
 
 <!-- CSS호출 -->
-<!-- <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}"> -->
+<link rel="stylesheet" type="text/css" href="{% static "css/new.css" %}">
 <link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
 <script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
 <!-- <script type="text/javascript" defer src="{% static "js/modalex.js" %}"></script> -->
 
 </head>
 <body style="height: 100vh;">
-    <!-- 측정등록 -->
+    
+    <!-- 등록버튼 -->
     <div style="text-align:right;">
         <!-- <button role="button" id="dsdr" class ="btn btn-primary">
             <span class="ui-button-text">측정대상등록</span>
@@ -30,13 +31,23 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#regi_measplan">
             측정대상등록
         </button>
-        <button role="button" id="wrdr" class ="btn btn-primary">
-            <span class="ui-button-text">측정완료대상등록</span>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#regi_measresult">
+            측정완료대상등록
         </button>
-        
-       
-        
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#regi_message">
+            추가기입사항등록
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#regi_measlastyear5G">
+            작년결과등록(5G)
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#regi_measlastyearLTE">
+            작년결과등록(LTE)
+        </button>
+        <!-- <button role="button" id="wrdr" class ="btn btn-primary">
+            <span class="ui-button-text">측정완료대상등록</span>
+        </button> -->
     </div>
+
     <!-- 측정대상등록 모달 -->
     <div class="modal fade" id="regi_measplan" tabindex="-1" role="dialog" aria-labelledby="regi_measplanLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -46,91 +57,91 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form action="{% url 'make_register' %}" method="POST">{% csrf_token %}
+              <form action="{% url 'analysis:make_register' %}" method="POST">{% csrf_token %}
                 <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
-                <div class="col-md-2" style="text-align:center">
-                    <label for="PlanYear" class="col-form-label">대상년도</label>
-                    <input type="text" class="form-control" id="planYear" name="planYear">
-                </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="PlanYear" class="col-form-label">대상년도</label>
+                        <input type="text" class="form-control" id="planYear" name="planYear" value= {{measplan.planYear}}>
+                    </div>
                 </div></br>
-            <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
-                <label style="font-weight: bold;">5G</label><br/>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area1" class="col-form-label"></br>행정동</br></label>
-                    <input type="text" class="form-control" id="area1" name="area1">
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">5G</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1" class="col-form-label"></br>행정동</br></label>
+                        <input type="text" class="form-control" id="area1" name="area1" value= {{measplan.area1}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2" class="col-form-label">다중이용시설/</br>교통인프라</label>
+                        <input type="text" class="form-control" id="area2" name="area2" value= {{measplan.area2}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3" class="col-form-label"></br>커버리지</br></label>
+                        <input type="text" class="form-control" id="area3" name="area3" value= {{measplan.area3}}>
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">LTE</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4" class="col-form-label"></br>행정동(대도시)</br></label>
+                        <input type="text" class="form-control" id="area4" name="area4" value= {{measplan.area4}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5" class="col-form-label"></br>행정동(중소도시)</br></label>
+                        <input type="text" class="form-control" id="area5" name="area5" value= {{measplan.area5}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6" class="col-form-label"></br>행정동(농어촌)</br></label>
+                        <input type="text" class="form-control" id="area6" name="area6" value= {{measplan.area6}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area7" class="col-form-label">다중이용시설/</br>교통인프라(인빌딩)</label>
+                        <input type="text" class="form-control" id="area7" name="area7" value= {{measplan.area7}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area8" class="col-form-label">다중이용시설/</br>교통인프라(테마)</label>
+                        <input type="text" class="form-control" id="area8" name="area8" value= {{measplan.area8}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area9" class="col-form-label"></br>커버리지</label>
+                        <input type="text" class="form-control" id="area9" name="area9" value= {{measplan.area9}}>
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">WiFi</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area10" class="col-form-label"></br>상용</label>
+                        <input type="text" class="form-control" id="area10" name="area10" value= {{measplan.area10}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area11" class="col-form-label"></br>개방</label>
+                        <input type="text" class="form-control" id="area11" name="area11" value= {{measplan.area11}}>
+                    </div>
+                </div></br>
+                <div class="row" style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">품질취약지역</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area12" class="col-form-label"></br>등산로</br></label>
+                        <input type="text" class="form-control" id="area12" name="area12" value= {{measplan.area12}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area13" class="col-form-label"></br>여객항로</label>
+                        <input type="text" class="form-control" id="area13" name="area13" value= {{measplan.area13}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area14" class="col-form-label"></br>유인도서</label>
+                        <input type="text" class="form-control" id="area14" name="area14" value= {{measplan.area14}}>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area15" class="col-form-label"></br>해안도로</label>
+                        <input type="text" class="form-control" id="area15" name="area15" value= {{measplan.area15}}>
+                    </div>
                 </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area2" class="col-form-label">다중이용시설/</br>교통인프라</label>
-                    <input type="text" class="form-control" id="area2" name="area2">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area3" class="col-form-label"></br>커버리지</br></label>
-                    <input type="text" class="form-control" id="area3" name="area3">
-                </div>
-            </div></br>
-            <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
-                <label style="font-weight: bold;">LTE</label><br/>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area4" class="col-form-label"></br>행정동(대도시)</br></label>
-                    <input type="text" class="form-control" id="area4" name="area4">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area5" class="col-form-label"></br>행정동(중소도시)</br></label>
-                    <input type="text" class="form-control" id="area5" name="area5">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area6" class="col-form-label"></br>행정동(농어촌)</br></label>
-                    <input type="text" class="form-control" id="area6" name="area6">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area7" class="col-form-label">다중이용시설/</br>교통인프라(인빌딩)</label>
-                    <input type="text" class="form-control" id="area7" name="area7">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area8" class="col-form-label">다중이용시설/</br>교통인프라(테마)</label>
-                    <input type="text" class="form-control" id="area8" name="area8">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area9" class="col-form-label"></br>커버리지</label>
-                    <input type="text" class="form-control" id="area9" name="area9">
-                </div>
-            </div></br>
-            <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
-                <label style="font-weight: bold;">WiFi</label><br/>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area10" class="col-form-label"></br>상용</label>
-                    <input type="text" class="form-control" id="area10" name="area10">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area11" class="col-form-label"></br>개방</label>
-                    <input type="text" class="form-control" id="area11" name="area11">
-                </div>
-            </div></br>
-            <div class="row" style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
-                <label style="font-weight: bold;">품질취약지역</label><br/>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area12" class="col-form-label"></br>등산로</br></label>
-                    <input type="text" class="form-control" id="area12" name="area12">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area13" class="col-form-label"></br>여객항로</label>
-                    <input type="text" class="form-control" id="area13" name="area13">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area14" class="col-form-label"></br>유인도서</label>
-                    <input type="text" class="form-control" id="area14" name="area14">
-                </div>
-                <div class="col-md-2" style="text-align:center">
-                    <label for="area15" class="col-form-label"></br>해안도로</label>
-                    <input type="text" class="form-control" id="area15" name="area15">
-                </div>
-            </div>
-            
+                
             </div>
             <div class="modal-footer">
                 <button type="submit" class="btn btn-primary" >등록대상생성</button>
             </form>
-            <form action="{% url 'delete_register' %}" method="POST">{% csrf_token %}
+            <form action="{% url 'analysis:delete_register' %}" method="POST">{% csrf_token %}
                 <button type="submit" class="btn btn-primary">데이터초기화</button>
             </form>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
@@ -138,133 +149,512 @@
           </div>
         </div>
     </div>
-  
-<!-- 모달2설정 -->
-
-    <div id="modal2" class="modal-overlay">
-        <div class="modal-window"style="border: 1px solid mediumaquamarine;">
-            <div class="top">
-                <div class="title">
-                    <h2 style="font-size:18px;">측정완료등록</h2>
-                </div>
-                <div class="close-area"><h2 style="font-size:18px;">X</h2></div>
-            </div>  
-            <div class="content">
-            
-            <form action="{% url 'make_todayregister' %}" method="POST">{% csrf_token %}
-                <div id="register2">
-                    <div> 
-                        <select id="category2" name="category">
-                            <option value="5G" selected> 5G 
-                            <option value="LTE"> LTE
-                            <option value="WiFi"> WiFi
-                            <option value="품질취약지역"> 품질취약지역
-                        </select>
-                    </div>
-                    <div>
-                        <label for = 'name'>측정명</label><br/>
-                        <input type="text" name="name" id="name" value=''>
-                    </div>
-                    <div>
-                        <label for = 'date'>날짜</label><br/>
-                        <input type="date" name="date" id="date"value = "today">
-                    </div>
-                    
-                    <div> 
-                        <label for = 'jiyok'>지역</label><br/>
-                        <select name="jiyok">
-                            <option value="서울" selected> 서울 
-                            <option value="수도권"> 수도권
-                            <option value="인천"> 인천
-                            <option value="울산"> 울산
-                            <option value="대구"> 대구
-                            <option value="광주"> 광주
-                            <option value="대전"> 대전
-                            <option value="경기"> 경기
-                            <option value="경북"> 경북
-                            <option value="전남"> 전남
-                            <option value="전북"> 전북
-                            <option value="충남"> 충남
-                            <option value="충북"> 충북
-                            <option value="세종"> 세종
-                            <option value="철도역사"> 철도역사
-                            <option value="대형병원"> 대형병원
-                            <option value="백화점"> 백화점
-                            <option value="터미널"> 터미널
-                            <option value="공항"> 공항
-                            <option value="대형점포"> 대형점포
-                            <option value="전시장"> 전시장
-                            <option value="지하철역사"> 지하철역사
-                            <option value="대학교"> 대학교
-                            <option value="놀이공원"> 놀이공원
-                            <option value="주요거리"> 주요거리
-                            <option value="전통시장"> 전통시장
-                            <option value="지하철노선"> 지하철노선
-                                            
-                        </select>
-                    </div>
-                    
-                    <div id="5gdr" style="width:180px;">
-                        <label for = 'dongdaco'>측정분류</label><br/>
-                        <select name="dongdaco">
-                            <option value="행정동"> 행정동
-                            <option value="다중이용시설/교통인프라"> 다중이용시설/교통인프라
-                            <option value="커버리지"> 커버리지
-                            <option value="" selected> 선택
-                        </select>
-                    </div>
-                    <div id="ltedr"style="width:180px;">
-                        <label for = 'bigsmallnongintheme'>측정분류</label><br/>
-                        <select name="bigsmallnongintheme">
-                            <option value="대도시"> 대도시
-                            <option value="중소도시"> 중소도시
-                            <option value="농어촌"> 농어촌
-                            <option value="인빌딩" > 인빌딩
-                            <option value="테마"> 테마
-                            <option value="" selected> 선택
-                        </select>
-                    </div>
-                    
-                    <div id="wifidr"style="width:180px;">
-                        <label for = 'sanggae'>측정분류</label><br/>
-                        <select name="sanggae">
-                            <option value="상용"> 상용
-                            <option value="개방"> 개방
-                            <option value="" selected> 선택    
-                        </select>
-                    </div>
-                    <div id="weakdr"style="width:180px;">
-                        <label for = 'weakjiyok'>측정분류</label><br/>
-                        <select name="weakjiyok">
-                            <option value="등산로"> 등산로
-                            <option value="여객항로"> 여객항로
-                            <option value="유인도서"> 유인도서
-                            <option value="해안도로"> 해안도로
-                            <option value="" selected> 선택
-                        </select>
-                    </div>
-                    <br/>
-                    
-                    <input type="submit" id= "bt3" value="등록대상생성" value=0>
-                
-                </form>
-                <form action="{% url 'delete_todayregister' %}" method="POST">{% csrf_token %}
-                    <input type="submit" id = "bt4" value="데이터초기화" value=0>
-                </form>
-                </div>
+    
+    <!-- 측정완료대상등록 모달 -->
+    <div class="modal fade" id="regi_measresult" tabindex="-1" role="dialog" aria-labelledby="regi_measresultLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:400px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="regi_measresultLabel" style="font-weight: bold;">측정대상등록</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body">
+                <form action="{% url 'analysis:make_todayregister' %}" method="POST">{% csrf_token %}
+                
+                    <div class="col-md-9" style="text-align:center">
+                        <label for = 'date' class="col-form-label">날짜</label>
+                        <input type="date" class="form-control" name="date" id="date" value = today>
+                    </div>
+                    <div class="col-md-9" style="text-align:center">
+                        <label for="measinfo" class="col-form-label">측정정보</label>
+                        <input type="text" class="form-control" id="measinfo" name="measinfo">
+                    </div>
+                    <div class="col-md-9" style="text-align:center">
+                        <select class="form-select" aria-label="Default select example" name="networkId">
+                            <option  value="" selected >네트워크구분</option>
+                            <option value="5G">5G</option>
+                            <option value="LTE">LTE</option>
+                            <option value="WiFi">WiFi</option>
+                            <option value="품질취약지역">품질취약지역</option>
+                        </select>
+                    </div>
+                    <div class="col-md-9" style="text-align:center">
+                        <select class="form-select" aria-label="Default select example" name="district">
+                            <option value="" selected >지역구분</option>
+                            <option value="서울">서울</option> 
+                            <option value="수도권">수도권</option>
+                            <option value="인천">인천</option>
+                            <option value="울산">울산</option>
+                            <option value="대구">대구</option>
+                            <option value="광주">광주</option>
+                            <option value="대전">대전</option>
+                            <option value="경기">경기</option>
+                            <option value="경북">경북</option>
+                            <option value="전남">전남</option>
+                            <option value="전북">전북</option>
+                            <option value="충남">충남</option>
+                            <option value="충북">충북</option>
+                            <option value="세종">세종</option>
+                        </select>
+                    </div>
+                    <div class="col-md-9" style="text-align:center">
+                        <select class="form-select" aria-label="Default select example" name="area">
+                            <option value="" selected>측정위치구분</option>
+                            <option value="행정동">행정동</option> 
+                            <option value="다중이용시설/교통인프라">다중이용시설/교통인프라</option>
+                            <option value="커버리지">커버리지</option>
+                            <option value="상용">상용(WiFi)</option>
+                            <option value="개방">개방(WiFi)</option>
+                            <option value="등산로">등산로(품질취약지역)</option>
+                            <option value="여객항로">여객항로(품질취약지역)</option>
+                            <option value="유인도서">유인도서(품질취약지역)</option>
+                            <option value="해안도로">해안도로(품질취약지역)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-9" style="text-align:center">
+                        <select class="form-select" aria-label="Default select example" name="molph_level0">
+                            <option value="" selected>측정위치상세구분</option>
+                            <option value="대도시">대도시</option> 
+                            <option value="중소도시">중소도시</option>
+                            <option value="농어촌">농어촌</option>
+                            <option value="인빌딩">인빌딩</option>
+                            <option value="테마">테마</option>
+                            <option value="지하철">지하철(WiFi)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-9" style="text-align:center">
+                        <select class="form-select" aria-label="Default select example" name="molph_level1">
+                            <option value="" selected>측정위치상세구분2</option>
+                            <option value="철도역사">철도역사(인빌딩)</option> 
+                            <option value="대형병원">대형병원(인빌딩)</option>
+                            <option value="백화점">백화점(인빌딩)</option>
+                            <option value="터미널">터미널(인빌딩)</option>
+                            <option value="공항">공항(인빌딩)</option>
+                            <option value="대형점포">대형점포(인빌딩)</option>
+                            <option value="전시장">전시장(인빌딩)</option>
+                            <option value="지하철역사">지하철역사(인빌딩)</option>
+                            <option value="대학교">대학교(테마)</option>
+                            <option value="놀이공원">놀이공원(테마)</option>
+                            <option value="주요거리">주요거리(테마)</option>
+                            <option value="전통시장">전통시장(테마)</option>
+                            <option value="지하철노선">지하철노선(테마)</option>
+                        </select>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" >등록대상생성</button>
+            </form>
+            <form action="{% url 'analysis:delete_todayregister' %}" method="POST">{% csrf_token %}
+                <button type="submit" class="btn btn-primary">데이터초기화</button>
+            </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+          </div>
         </div>
     </div>
+
+    <!-- 추가기입사항등록 모달 -->
+    <div class="modal fade" id="regi_message" tabindex="-1" role="dialog" aria-labelledby="regi_messageLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="regi_messageLabel" style="font-weight: bold;">추가기입사항등록</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="{% url 'analysis:make_reportmsg' %}" method="POST">{% csrf_token %}
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <div class="col-md-9" style="text-align:center">
+                        <label for="msg1" class="col-form-label">5G 현황</label>
+                        <input type="text" class="form-control" id="msg1" name="msg1" value={{reportmsg.msg1}}>
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <div class="col-md-9" style="text-align:center">
+                        <label for="msg2" class="col-form-label">LTE 현황</label>
+                        <input type="text" class="form-control" id="msg2" name="msg2" value={{reportmsg.msg2}}>
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <div class="col-md-9" style="text-align:center">
+                        <label for="msg3" class="col-form-label">WiFi 현황</label>
+                        <input type="text" class="form-control" id="msg3" name="msg3" value={{reportmsg.msg3}}>
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <div class="col-md-9" style="text-align:center">
+                        <label for="msg4" class="col-form-label">품질취약지역 현황</label>
+                        <input type="text" class="form-control" id="msg4" name="msg4" value={{reportmsg.msg4}}>
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <div class="col-md-9" style="text-align:center">
+                        <label for="msg5" class="col-form-label">5G 사후측정</label>
+                        <input type="text" class="form-control" id="msg5" name="msg5" value={{reportmsg.msg5}}>
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <div class="col-md-9" style="text-align:center">
+                        <label for="msg6" class="col-form-label">LTE 사후측정</label>
+                        <input type="text" class="form-control" id="msg6" name="msg6" value={{reportmsg.msg6}}>
+                    </div>
+                </div></br>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" >등록</button>
+            </form>
+            <form action="{% url 'analysis:delete_reportmsg' %}" method="POST">{% csrf_token %}
+                <button type="submit" class="btn btn-primary">데이터초기화</button>
+            </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
    
+    
+       <!-- 작년결과등록모달(5G) -->
+       <div class="modal fade" id="regi_measlastyear5G" tabindex="-1" role="dialog" aria-labelledby="regi_measlastyear5GLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="regi_measlastyear5GLabel" style="font-weight: bold;">작년결과등록(5G)</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="{% url 'analysis:make_measlastyear5G' %}" method="POST">{% csrf_token %}
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">행정동-대도시</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area1DL" name="area1DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area1UL" name="area1UL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1LTE" class="col-form-label">LTE전환율(%)</label>
+                        <input type="text" class="form-control" id="area1LTE" name="area1LTE">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area1succ" name="area1succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area1delay" name="area1delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">행정동-중소도시</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area2DL" name="area2DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area2UL" name="area2UL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2LTE" class="col-form-label">LTE전환율(%)</label>
+                        <input type="text" class="form-control" id="area2LTE" name="area2LTE">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area2succ" name="area2succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area2delay" name="area2delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">행정동-계</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area3DL" name="area3DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area3UL" name="area3UL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3LTE" class="col-form-label">LTE전환율(%)</label>
+                        <input type="text" class="form-control" id="area3LTE" name="area3LTE">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area3succ" name="area3succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area3delay" name="area3delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">다중이용시설</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area4DL" name="area4DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area4UL" name="area4UL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4LTE" class="col-form-label">LTE전환율(%)</label>
+                        <input type="text" class="form-control" id="area4LTE" name="area4LTE">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area4succ" name="area4succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area4delay" name="area4delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">아파트</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area5DL" name="area5DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area5UL" name="area5UL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5LTE" class="col-form-label">LTE전환율(%)</label>
+                        <input type="text" class="form-control" id="area5LTE" name="area5LTE">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area5succ" name="area5succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area5delay" name="area5delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">대학교</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area6DL" name="area6DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area6UL" name="area6UL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6LTE" class="col-form-label">LTE전환율(%)</label>
+                        <input type="text" class="form-control" id="area6LTE" name="area6LTE">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area6succ" name="area6succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area6delay" name="area6delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">교통인프라</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area7DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area7DL" name="area7DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area7UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area7UL" name="area7UL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area7LTE" class="col-form-label">LTE전환율(%)</label>
+                        <input type="text" class="form-control" id="area7LTE" name="area7LTE">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area7succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area7succ" name="area7succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area7delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area7delay" name="area7delay">
+                    </div>
+                </div></br>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" >등록</button>
+            </form>
+            <form action="{% url 'analysis:delete_measlastyear5G' %}" method="POST">{% csrf_token %}
+                <button type="submit" class="btn btn-primary">데이터초기화</button>
+            </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+     <!-- 작년결과등록모달(LTE) -->
+     <div class="modal fade" id="regi_measlastyearLTE" tabindex="-1" role="dialog" aria-labelledby="regi_measlastyearLTELabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="regi_measlastyearLTELabel" style="font-weight: bold;">작년결과등록(5G)</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="{% url 'analysis:make_measlastyearLTE' %}" method="POST">{% csrf_token %}
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">행정동-대도시</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area1DL" name="area1DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area1UL" name="area1UL">
+                    </div>
+                    
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area1succ" name="area1succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area1delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area1delay" name="area1delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">행정동-중소도시</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area2DL" name="area2DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area2UL" name="area2UL">
+                    </div>
+                    
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area2succ" name="area2succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area2delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area2delay" name="area2delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">행정동-농어촌</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area3DL" name="area3DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area3UL" name="area3UL">
+                    </div>
+                    
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area3succ" name="area3succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area3delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area3delay" name="area3delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">행정동-계</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area4DL" name="area4DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area4UL" name="area4UL">
+                    </div>
+                    
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area4succ" name="area4succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area4delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area4delay" name="area4delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">인빌딩</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area5DL" name="area5DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area5UL" name="area5UL">
+                    </div>
+                    
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area5succ" name="area5succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area5delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area5delay" name="area5delay">
+                    </div>
+                </div></br>
+                <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
+                    <label style="font-weight: bold;">테마</label><br/>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6DL" class="col-form-label">DL(Mbps)</label>
+                        <input type="text" class="form-control" id="area6DL" name="area6DL">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6UL" class="col-form-label">UL(Mbps)</label>
+                        <input type="text" class="form-control" id="area6UL" name="area6UL">
+                    </div>
+                    
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6succ" class="col-form-label">전송성공률(%)</label>
+                        <input type="text" class="form-control" id="area6succ" name="area6succ">
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
+                        <label for="area6delay" class="col-form-label">접속/지연(ms)</label>
+                        <input type="text" class="form-control" id="area6delay" name="area6delay">
+                    </div>
+                </div></br>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" >등록</button>
+            </form>
+            <form action="{% url 'analysis:delete_measlastyearLTE' %}" method="POST">{% csrf_token %}
+                <button type="submit" class="btn btn-primary">데이터초기화</button>
+            </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+
+<!-- 메인화면 -->
     <div  style="display:flex; flex-flow: row nowrap;">
-    <div id="show1">
+    <div id="show1" style="margin:20px;border: 1px solid rgb(228, 223, 223); padding: 10px;">
 
-
-    <h1 style="font-size: 30px;">
+    <h1>
     5G 등록대상
     </h1>
     <div id="output" style="text-align: center;">
-    <table id="5Ghh" class="table table-striped">
+    <table id="5Ghh" class="table table-hover">
         <thead>
             <tr>
                 <th>구분</th>
@@ -306,11 +696,11 @@
     </table>
     
     </div>
-    <h1 style="font-size: 30px;">
+    <h1>
     LTE 등록대상
     </h1>
     <div id="output" style="text-align: center;">
-        <table id="ltehh" class="table table-striped">
+        <table id="ltehh" class="table table-hover">
             <thead>
                 <tr>
                     <th  rowspan = "2">구분</th>
@@ -366,11 +756,11 @@
         </table>
         
     </div>
-    <h1 style="font-size: 30px;">
+    <h1>
     WiFi 등록대상
     </h1>
     <div id="output" style="text-align: center;">
-    <table id="wifihh" class="table table-striped">
+    <table id="wifihh" class="table table-hover">
         <thead>
             
             <tr>
@@ -407,11 +797,11 @@
         </tbody>
     </table>
     </div>
-    <h1 style="font-size: 30px;">
+    <h1>
     품질취약지역 등록대상
     </h1>
     <div id="output" style="text-align: center;">
-    <table id="pjhh" class="table table-striped">
+    <table id="pjhh" class="table table-hover">
         <thead>
             <tr>
                 <th >구분</th>
@@ -455,17 +845,17 @@
     </div>
     
     </div>
-    <div id ='show2'>
-    <h1 style="font-size: 30px;">
+    <div id ='show2' style="margin:20px;border: 1px solid rgb(228, 223, 223); padding: 10px;">
+    <h1>
     금일확인
     </h1>
     <div id="output" >
-        <table id="5Ghh" class="table table-striped">
+        <table id="5Ghh" class="table table-hover">
             <thead>
                 <tr>
                     <th >날짜</th>
-                    <th >측정명</th>
-                    <th >구분</th>
+                    <th >측정정보</th>
+                    <th >네트워크구분</th>
                     <th >지역</th>
                     <th >측정분류</th>
                 </tr>
@@ -474,10 +864,10 @@
                 {% for sregi in sregi %}
                  <tr>
                     <td id>{{sregi.date}}</td>
-                    <td id>{{sregi.name}}</td>
-                    <td id>{{sregi.category}}</td>
-                    <td id>{{sregi.jiyok}}</td>
-                    <td id>{{sregi.dongdaco}}{{sregi.bigsmallnongintheme}}{{sregi.sanggae}}{{sregi.weakjiyok}}</td>
+                    <td id>{{sregi.measinfo}}</td>
+                    <td id>{{sregi.networkId}}</td>
+                    <td id>{{sregi.district}}</td>
+                    <td id>{{sregi.area}}{{sregi.molph_level0}}{{sregi.molph_level1}}</td>
                 {% endfor %}
                 </tr>
                 
@@ -486,6 +876,265 @@
         </table>
         
     </div>
+    </div>
+    <div id ='show3' style="margin:20px;border: 1px solid rgb(228, 223, 223); padding: 10px;">
+        <h1>
+        일일보고 메세지확인
+        </h1>
+        <div id="output">
+            <table id="5Ghh" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>메세지구분</th>
+                        <th>메세지내용</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>5G 현황</td>
+                        {% for reportmsg in reportmsg %}
+                        <td >{{reportmsg.msg1}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>LTE 현황</td>
+                        {% for reportmsg in reportmsg %}
+                        <td >{{reportmsg.msg2}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>WiFi 현황</td>
+                        {% for reportmsg in reportmsg %}
+                        <td >{{reportmsg.msg3}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>품질취약지역 현황</td>
+                        {% for reportmsg in reportmsg %}
+                        <td >{{reportmsg.msg4}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>5G 사후측정</td>
+                        {% for reportmsg in reportmsg %}
+                        <td >{{reportmsg.msg5}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>LTE 사후측정</td>
+                        {% for reportmsg in reportmsg %}
+                        <td >{{reportmsg.msg6}}</td>
+                        {% endfor %}
+                    </tr>
+                    
+          
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+
+    <div id ='show4' style="margin:20px;border: 1px solid rgb(228, 223, 223); padding: 10px;">
+        <h1>
+        작년결과(5G)
+        </h1>
+        <div id="output">
+            <table id="5Ghh" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th rowspan="2" colspan="2">구분<br/>('20년 결과)</th>
+                        <th colspan="2">전송속도(Mbps)</th>
+                        <th rowspan="2">LTE전환율<br/>(%)</th>
+                        <th rowspan="2">전송성공률<br/>(%)</th>
+                        <th rowspan="2">지연시간<br/>(ms)</th>
+                    </tr>
+                    <tr>
+                        <th>DL</th>
+                        <th>UL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="3">행정동</td>
+                        <td>대도시</td>
+                       {% for measlastyear5G in measlastyear5G %}
+                        <td >{{measlastyear5G.area1DL}}</td>
+                        <td >{{measlastyear5G.area1UL}}</td>
+                        <td >{{measlastyear5G.area1LTE}}</td>
+                        <td >{{measlastyear5G.area1succ}}</td>
+                        <td >{{measlastyear5G.area1delay}}</td>
+                       {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>중소도시</td>
+                            {% for measlastyear5G in measlastyear5G %}
+                             <td >{{measlastyear5G.area2DL}}</td>
+                             <td >{{measlastyear5G.area2UL}}</td>
+                             <td >{{measlastyear5G.area2LTE}}</td>
+                             <td >{{measlastyear5G.area2succ}}</td>
+                             <td >{{measlastyear5G.area2delay}}</td>
+                            {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>계</td>                           
+                        {% for measlastyear5G in measlastyear5G %}   
+                        <td >{{measlastyear5G.area3DL}}</td>
+                        <td >{{measlastyear5G.area3UL}}</td>                        
+                        <td >{{measlastyear5G.area3LTE}}</td>                       
+                        <td >{{measlastyear5G.area3succ}}</td>                       
+                        <td >{{measlastyear5G.area3delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="2">다중이용시설</td>
+                        {% for measlastyear5G in measlastyear5G %}   
+                        <td >{{measlastyear5G.area4DL}}</td>
+                        <td >{{measlastyear5G.area4UL}}</td>                        
+                        <td >{{measlastyear5G.area4LTE}}</td>                       
+                        <td >{{measlastyear5G.area4succ}}</td>                       
+                        <td >{{measlastyear5G.area4delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="2">아파트</td>
+                        {% for measlastyear5G in measlastyear5G %}   
+                        <td >{{measlastyear5G.area5DL}}</td>
+                        <td >{{measlastyear5G.area5UL}}</td>                        
+                        <td >{{measlastyear5G.area5LTE}}</td>                       
+                        <td >{{measlastyear5G.area5succ}}</td>                       
+                        <td >{{measlastyear5G.area5delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="2">대학교</td>
+                        {% for measlastyear5G in measlastyear5G %}   
+                        <td >{{measlastyear5G.area6DL}}</td>
+                        <td >{{measlastyear5G.area6UL}}</td>                        
+                        <td >{{measlastyear5G.area6LTE}}</td>                       
+                        <td >{{measlastyear5G.area6succ}}</td>                       
+                        <td >{{measlastyear5G.area6delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="2">교통인프라</td>
+                        {% for measlastyear5G in measlastyear5G %}   
+                        <td >{{measlastyear5G.area6DL}}</td>
+                        <td >{{measlastyear5G.area6UL}}</td>                        
+                        <td >{{measlastyear5G.area6LTE}}</td>                       
+                        <td >{{measlastyear5G.area6succ}}</td>                       
+                        <td >{{measlastyear5G.area6delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="2">종합</td>
+                        {% for measlastyear5G in measlastyear5G %}   
+                        <td >{{measlastyear5G.areatotalDL}}</td>
+                        <td >{{measlastyear5G.areatotalUL}}</td>                        
+                        <td >{{measlastyear5G.areatotalLTE}}</td>                       
+                        <td >{{measlastyear5G.areatotalsucc}}</td>                       
+                        <td >{{measlastyear5G.areatotaldelay}}</td>
+                        {% endfor %}
+                    </tr>
+          
+                </tbody>
+            </table>
+            
+        </div>
+    
+    <h1>
+        작년결과(LTE)
+        </h1>
+        <div id="output">
+            <table id="5Ghh" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th rowspan="2" colspan="2">구분<br/>('20년 결과)</th>
+                        <th colspan="2">전송속도(Mbps)</th>
+                        <th rowspan="2">전송성공률<br/>(%)</th>
+                        <th rowspan="2">지연시간<br/>(ms)</th>
+                    </tr>
+                    <tr>
+                        <th>DL</th>
+                        <th>UL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="4">행정동</td>
+                        <td>대도시</td>
+                       {% for measlastyearLTE in measlastyearLTE %}
+                        <td >{{measlastyearLTE.area1DL}}</td>
+                        <td >{{measlastyearLTE.area1UL}}</td>
+                        
+                        <td >{{measlastyearLTE.area1succ}}</td>
+                        <td >{{measlastyearLTE.area1delay}}</td>
+                       {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>중소도시</td>
+                            {% for measlastyearLTE in measlastyearLTE %}
+                             <td >{{measlastyearLTE.area2DL}}</td>
+                             <td >{{measlastyearLTE.area2UL}}</td>
+                            
+                             <td >{{measlastyearLTE.area2succ}}</td>
+                             <td >{{measlastyearLTE.area2delay}}</td>
+                            {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>농어촌</td>                           
+                        {% for measlastyearLTE in measlastyearLTE %}   
+                        <td >{{measlastyearLTE.area3DL}}</td>
+                        <td >{{measlastyearLTE.area3UL}}</td>                        
+                                              
+                        <td >{{measlastyearLTE.area3succ}}</td>                       
+                        <td >{{measlastyearLTE.area3delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>계</td>
+                        {% for measlastyearLTE in measlastyearLTE %}   
+                        <td >{{measlastyearLTE.area4DL}}</td>
+                        <td >{{measlastyearLTE.area4UL}}</td>                        
+                                             
+                        <td >{{measlastyearLTE.area4succ}}</td>                       
+                        <td >{{measlastyearLTE.area4delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="2">인빌딩</td>
+                        {% for measlastyearLTE in measlastyearLTE %}   
+                        <td >{{measlastyearLTE.area5DL}}</td>
+                        <td >{{measlastyearLTE.area5UL}}</td>                        
+                                              
+                        <td >{{measlastyearLTE.area5succ}}</td>                       
+                        <td >{{measlastyearLTE.area5delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="2">테마</td>
+                        {% for measlastyearLTE in measlastyearLTE %}   
+                        <td >{{measlastyearLTE.area6DL}}</td>
+                        <td >{{measlastyearLTE.area6UL}}</td>                        
+                                              
+                        <td >{{measlastyearLTE.area6succ}}</td>                       
+                        <td >{{measlastyearLTE.area6delay}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="2">종합</td>
+                        {% for measlastyearLTE in measlastyearLTE %}   
+                        <td >{{measlastyearLTE.areatotalDL}}</td>
+                        <td >{{measlastyearLTE.areatotalUL}}</td>                        
+                                               
+                        <td >{{measlastyearLTE.areatotalsucc}}</td>                       
+                        <td >{{measlastyearLTE.areatotaldelay}}</td>
+                        {% endfor %}
+                    </tr>
+          
+                </tbody>
+            </table>
+            
+        </div>
     </div>
 </div>
    

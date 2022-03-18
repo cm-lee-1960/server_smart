@@ -1,0 +1,35 @@
+    h1{
+        font-size: 20px;
+        font-weight: bold;
+    }
+    h2{
+        font-size: 17px;
+        font-weight: bold;
+    }
+    h3{
+        font-size: 15px;
+    }
+    p{
+        font-size: 8px;
+    }
+    table {
+        width: 100%;
+        border: 1px solid #444444;
+        border-collapse: collapse;
+        font-size: 12px;
+        text-align: center;
+    }
+    th, td {
+        border: 1px solid #444444;
+        width: 40px;
+        text-align: center;
+    }
+    p,h1,h2,h3 {
+        display: inline;
+    }
+    thead {
+        background-color: lightgrey; 
+        color: black;
+    }
+
+

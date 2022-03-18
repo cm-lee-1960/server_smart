@@ -14,7 +14,7 @@
 <meta name="Keywords" content="">
 <meta name="Description" content="">
 <title>Document</title>
-<style>
+<!-- <style>
 	body {
 		margin: 0;
 		padding: 0;
@@ -54,51 +54,49 @@
 			page-break-after: always;
 		}
 	}
-</style>
+</style> -->
 
 <!-- 모달 기본 라이브러리 -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
+<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
 <script defer src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
 <script type="text/javascript" defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script type="text/javascript" defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
-<!-- 폰트 호출 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script> -->
+
 <!-- CSS,JS 호출 -->
-<!-- <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}"> -->
-<link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
-<script type="text/javascript" defer src="{% static "js/header.js" %}"></script>
-<script type="text/javascript" defer src="{% static "js/reportbtn.js" %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static "css/A4.css" %}">
 <script type="text/javascript" defer src="{% static "js/reportdata.js" %}"></script>
-<script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
+<!-- 기본 라이브러리 -->
+<link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">
+<link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
 
-
+<!-- CSS호출 -->
+<link rel="stylesheet" type="text/css" href="{% static "css/report.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
+<!-- <script type="text/javascript" defer src="{% static "js/modal.js" %}"></script> -->
+<!-- <script type="text/javascript" defer src="{% static "js/modalex.js" %}"></script> -->
 
 </head>
 
 <body>
 	
-	<button role="button" id="modify"
-		class="add ui-button ui-button ui-state-default ui-button-text-only">
-		<span class="ui-button-text">수정</span>
-	</button>
-	<button role="button" id="complete"
-		class="add ui-button ui-button ui-state-default ui-button-text-only">
-		<span class="ui-button-text">완료</span>
-	</button>
+	<div style="text-align:right">
 	<div style="display: inline" id="editor"></div>
-	<button id="cmd">PDF 다운</button>
-<div class="page">
-	<div id='content' style = "position: relative; left: 7%;">
-		<div id='title'>
-			<h1 style="display: inline; font-size: 20px;">S-CXI 상황실 일일 보고</h1>
-			<h3 style="display: inline; font-size: 15px;">(</h3>
-			<h3 style="display: inline; font-size: 15px;" id="current_date"></h3>
-			<h3 style="display: inline; font-size: 15px;">)</h3>
+	<button type="button" class="btn btn-primary" id="cmd">
+		PDF 다운
+	</button>
+	</div>
+	<div class="page">
+	<div id='content' style = "position: relative;">
+		<div id='title' style="text-align:center;">
+			<h1>S-CXI 상황실 일일 보고</h1>
+			<h3 >(</h3>
+			<h3  id="current_date"></h3>
+			<h3>)</h3>
 		</div>
-		<hr class="one" align="left" style="width: 83%;">
+		<hr class="one" align="left">
 		<br> <br>
 		<div>
 			<h2>□ 측정 현황 </h2><h3 style="display: inline" id = 'firstdate'>{{firstdate.date}}</h3><h3 style="display: inline" id='lastdate'>{{lastdate.date}}</h3>
@@ -107,11 +105,15 @@
 		<br> 
 		<div>
 			<h2>&nbsp;&nbsp;○ 5G : 전국 </h2><h2 id="tt1"></h2><h2>{{sregi5G}}개 완료</h2><h2 id = pc1></h2>
-			<h2 style="color: blue;" id='result1'></h2><input id='textmod1' onchange='printName1()' autocomplete="off" />
+			<h2 style="color: blue;" id='result1'>
+				{% for reportmsg in reportmsg %}
+				{{reportmsg.msg1}}
+				{% endfor %}
+			</h2>
 		</div>
 		<br>
 	
-		<div id="output" style="text-align: center; width: 83%;">
+		<div id="output">
 			<table id="5Ghh">
 				<thead>
 					<tr>
@@ -126,18 +128,18 @@
 					
 					<tr>
 						<td >대상</td>
-						{% for regi5G in regi5G %}
-						<td id="5tt">{{regi5G.total}}</td>
-						<td id>{{regi5G.dong}}</td>
-						<td id>{{regi5G.dagyo}}</td>
-						<td id>{{regi5G.coverage5g}}</td>
+						{% for regi in regi %}
+						<td id="5tt">{{regi.total5G}}</td>
+						<td id="planarea1">{{regi.area1}}</td>
+						<td id="planarea2">{{regi.area2}}</td>
+						<td id="planarea3">{{regi.area3}}</td>
 					   	{% endfor %}
 					<tr>
 				 		<td >누적</td>
 						 <td id ="5nj">{{sregi5G}}</td>
-						 <td id>{{sregi5G1}}</td>
-						 <td id>{{sregi5G2}}</td>
-						 <td id>{{sregi5G3}}</td>
+						 <td id="resultarea1">{{sregi5G1}}</td>
+						 <td id="resultarea2">{{sregi5G2}}</td>
+						 <td id="resultarea3">{{sregi5G3}}</td>
 					<tr>
 	
 				 		<td >금일</td>
@@ -159,18 +161,22 @@
 		
 		<div>
 			<h2>&nbsp;&nbsp;○ LTE : 전국 </h2><h2 id = "tt2"></h2><h2> {{sregiLTE}}개 완료</h2><h2 id = pc2></h2>
-			<h2 style="color: blue;" id='result2'></h2><input id='textmod2' onchange='printName2()' autocomplete="off" />
+			<h2 style="color: blue;" id='result1'>
+				{% for reportmsg in reportmsg %}
+				{{reportmsg.msg2}}
+				{% endfor %}
+			</h2>
 		</div>
 		<br>
-		<div id="output" style="text-align: center; width: 83%;">
+		<div id="output">
 			<table id="ltehh">
 				<thead>
 					<tr>
-						<th  rowspan = "2">구분</th>
-						<th  rowspan = "2">계</th>
-						<th  colspan = "3">행정동</th>
-						<th  colspan = "2">다중이용시설/<br>교통인프라</th>
-						<th  rowspan = "2">커버리지</th>
+						<th rowspan = "2">구분</th>
+						<th rowspan = "2">계</th>
+						<th colspan = "3">행정동</th>
+						<th colspan = "2">다중이용시설/<br>교통인프라</th>
+						<th rowspan = "2">커버리지</th>
 					</tr>
 					<tr>
 						<th >대도시</th>
@@ -184,26 +190,26 @@
 					
 					<tr>
 						<td >대상</td>
-						{% for regiLTE in regiLTE %}
-						<td id = "ltt">{{regiLTE.total}}</td>
-						<td >{{regiLTE.bigct}}</td>
-						<td >{{regiLTE.smallct}}</td>
-						<td >{{regiLTE.nong}}</td>
-						<td >{{regiLTE.inbuiling}}</td>
-						<td >{{regiLTE.theme}}</td>
-						<td >{{regiLTE.coveragelte}}</td>
+						{% for regi in regi %}
+						<td id = "ltt">{{regi.totalLTE}}</td>
+						<td id="planarea4">{{regi.area4}}</td>
+						<td id="planarea5">{{regi.area5}}</td>
+						<td id="planarea6">{{regi.area6}}</td>
+						<td id="planarea7">{{regi.area7}}</td>
+						<td id="planarea8">{{regi.area8}}</td>
+						<td id="planarea9">{{regi.area9}}</td>
 						{% endfor %}
 				   </tr>
 				   
 					<tr>
 				 		<td >누적</td>
 						<td id = lnj>{{sregiLTE}}</td>
-						<td >{{sregiLTE1}}</td>
-						<td >{{sregiLTE2}}</td>
-						<td >{{sregiLTE3}}</td>
-						<td >{{sregiLTE4}}</td>
-						<td >{{sregiLTE5}}</td>
-						<td >{{sregiLTE6}}</td>
+						<td id="resultarea4">{{sregiLTE1}}</td>
+						<td id="resultarea5">{{sregiLTE2}}</td>
+						<td id="resultarea6">{{sregiLTE3}}</td>
+						<td id="resultarea7">{{sregiLTE4}}</td>
+						<td id="resultarea8">{{sregiLTE5}}</td>
+						<td id="resultarea9">{{sregiLTE6}}</td>
 					</tr>
 					<tr>
 				 		<td >금일</td>
@@ -230,10 +236,14 @@
 		<br>
 		<div>
 			<h2>&nbsp;&nbsp;○ WiFi : 전국 </h2><h2 id="tt3"></h2><h2> {{sregiWiFi}}국소 완료</h2><h2 id = pc3></h2>
-			<h2 style="color: blue;" id='result3'></h2><input id='textmod3' onchange='printName3()' autocomplete="off" />
+			<h2 style="color: blue;" id='result1'>
+				{% for reportmsg in reportmsg %}
+				{{reportmsg.msg3}}
+				{% endfor %}
+			</h2>
 		</div>
 		<br>
-		<div id="output" style="text-align: center; width: 83%;">
+		<div id="output">
 			<table id="wifihh">
 				<thead>
 					<tr>
@@ -247,18 +257,18 @@
 					
 					<tr>
 						<td >대상</td>
-						{% for regiWiFi in regiWiFi %}
-					   <td id = "witt">{{regiWiFi.total}}</td>
-					   <td >{{regiWiFi.sangyong}}</td>
-					   <td >{{regiWiFi.gaebang}}</td>
+						{% for regi in regi %}
+					   <td id = "witt">{{regi.totalWiFi}}</td>
+					   <td id="planarea10">{{regi.area10}}</td>
+					   <td id="planarea11">{{regi.area11}}</td>
 					   {% endfor %}
 				   </tr>
 				  
 					<tr>
 				 		<td >누적</td>
 						<td id = winj>{{sregiWiFi}}</td>
-						<td >{{sregiWiFi1}}</td>
-						<td >{{sregiWiFi2}}</td>
+						<td id="resultarea10">{{sregiWiFi1}}</td>
+						<td id="resultarea11">{{sregiWiFi2}}</td>
 					</tr>
 					<tr>
 				 		<td >금일</td>
@@ -270,22 +280,28 @@
 			</table>
 		</div>
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p>※ 행정동 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
-			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
-			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p><br>
-			<p>※ 다중이용시설/교통인프라 : 서울</p><p> 0</p><p>, 인천<p> 0</p><p>, 울산</p><p> 0</p><p>, 대구</p><p> 0</p><p>, 광주</p>
-			<p> 0</p><p>, 경기</p><p> 0</p><p>, 수도권</p><p> 0</p><p>, 대전</p><p> 0</p><p>, 충남</p><p> 0</p><p>, 충북</p><p> 0</p><p>, 경북</p><p> 0</p>
-			<p>, 전남</p><p> 0</p><p>, 전북</p><p> 0</p>
+			<p>※ 상용 :</p><p id="sangWiFiseoul">{{sangWiFiseoul}}</p><p id="sangWiFiincheon">{{sangWiFiincheon}}<p id="sangWiFiulsan">{{sangWiFiulsan}}</p><p id=sangWiFidaegu>{{sangWiFidaegu}}</p><p id="sangWiFigwangju">{{sangWiFigwangju}}</p><p id="sangWiFidaejun">{{sangWiFidaejun}}</p><p id="sangWiFigyunggi">{{sangWiFigyunggi}}</p><p id="sangWiFigyungbuk">{{sangWiFigyungbuk}}</p>
+			<p id="sangWiFijunnam">{{sangWiFijunnam}}</p><p id="sangWiFijunbuk">{{sangWiFijunbuk}}</p><p id="sangWiFichungnam">{{sangWiFichungnam}}</p><p id="sangWiFichungbuk">{{sangWiFichungbuk}}</p><p id="sangWiFisejong">{{sangWiFisejong}}</p><p id="sangWiFisudo">{{sangWiFisudo}}</p>
+			<p id="trainWiFisangtotal"></p><p>(</p><p id="trainsangWiFiseoul">{{trainsangWiFiseoul}}</p><p id="trainsangWiFiincheon">{{trainsangWiFiincheon}}<p id="trainsangWiFiulsan">{{trainsangWiFiulsan}}</p><p id=trainsangWiFidaegu>{{trainsangWiFidaegu}}</p><p id="trainsangWiFigwangju">{{trainsangWiFigwangju}}</p><p id="trainsangWiFidaejun">{{trainsangWiFidaejun}}</p><p id="trainsangWiFigyunggi">{{trainsangWiFigyunggi}}</p><p id="trainsangWiFigyungbuk">{{trainsangWiFigyungbuk}}</p>
+			<p id="trainsangWiFijunnam">{{trainsangWiFijunnam}}</p><p id="trainsangWiFijunbuk">{{trainsangWiFijunbuk}}</p><p id="trainsangWiFichungnam">{{trainsangWiFichungnam}}</p><p id="trainsangWiFichungbuk">{{trainsangWiFichungbuk}}</p><p id="trainsangWiFisejong">{{trainsangWiFisejong}}</p><p id="trainsangWiFisudo">{{trainsangWiFisudo}}</p><p>)</p>
+			<br/><p>※ 개방 :</p><p id="gaeWiFiseoul">{{gaeWiFiseoul}}</p><p id="gaeWiFiincheon">{{gaeWiFiincheon}}<p id="gaeWiFiulsan">{{gaeWiFiulsan}}</p><p id=gaeWiFidaegu>{{gaeWiFidaegu}}</p><p id="gaeWiFigwangju">{{gaeWiFigwangju}}</p><p id="gaeWiFidaejun">{{gaeWiFidaejun}}</p><p id="gaeWiFigyunggi">{{gaeWiFigyunggi}}</p><p id="gaeWiFigyungbuk">{{gaeWiFigyungbuk}}</p>
+			<p id="gaeWiFijunnam">{{gaeWiFijunnam}}</p><p id="gaeWiFijunbuk">{{gaeWiFijunbuk}}</p><p id="gaeWiFichungnam">{{gaeWiFichungnam}}</p><p id="gaeWiFichungbuk">{{gaeWiFichungbuk}}</p><p id="gaeWiFisejong">{{gaeWiFisejong}}</p><p id="gaeWiFisudo">{{gaeWiFisudo}}</p>
+			<p id="trainWiFigaetotal"></p><p>(</p><p id="traingaeWiFiseoul">{{traingaeWiFiseoul}}</p><p id="traingaeWiFiincheon">{{traingaeWiFiincheon}}<p id="traingaeWiFiulsan">{{traingaeWiFiulsan}}</p><p id=traingaeWiFidaegu>{{traingaeWiFidaegu}}</p><p id="traingaeWiFigwangju">{{traingaeWiFigwangju}}</p><p id="traingaeWiFidaejun">{{traingaeWiFidaejun}}</p><p id="traingaeWiFigyunggi">{{traingaeWiFigyunggi}}</p><p id="traingaeWiFigyungbuk">{{traingaeWiFigyungbuk}}</p>
+			<p id="traingaeWiFijunnam">{{traingaeWiFijunnam}}</p><p id="traingaeWiFijunbuk">{{traingaeWiFijunbuk}}</p><p id="traingaeWiFichungnam">{{traingaeWiFichungnam}}</p><p id="traingaeWiFichungbuk">{{traingaeWiFichungbuk}}</p><p id="traingaeWiFisejong">{{traingaeWiFisejong}}</p><p id="traingaeWiFisudo">{{traingaeWiFisudo}}</p><p>)</p>
 			</div>
 		<br>
 		<br>
 		
 		<div>
 			<h2>&nbsp;&nbsp;○ 품질취약지역 : 전국 </h2><h2 id="tt4"></h2><h2> {{sregiweak}}개 완료</h2><h2 id = pc4></h2>
-			<h2 style="color: blue;" id='result4'></h2><input id='textmod4' onchange='printName4()' autocomplete="off" />
+			<h2 style="color: blue;" id='result1'>
+				{% for reportmsg in reportmsg %}
+				{{reportmsg.msg4}}
+				{% endfor %}
+			</h2>
 		</div>
 		<br>
-		<div id="output" style="text-align: center; width: 83%;">
+		<div id="output">
 			<table id="pjhh">
 				<thead>
 					<tr>
@@ -301,20 +317,20 @@
 					
 					<tr>
 						<td >대상</td>
-						{% for regiweak in regiweak %}
-					   <td id = 'wtt' >{{regiweak.total}}</td>
-					   <td >{{regiweak.mountain}}</td>
-					   <td >{{regiweak.ship}}</td>
-					   <td >{{regiweak.yooin}}</td>
-					   <td >{{regiweak.searoad}}</td>
+						{% for regi in regi %}
+					   <td id = 'wtt' >{{regi.totalWeakArea}}</td>
+					   <td id="planarea12">{{regi.area12}}</td>
+					   <td id="planarea13">{{regi.area13}}</td>
+					   <td id="planarea14">{{regi.area14}}</td>
+					   <td id="planarea15">{{regi.area15}}</td>
 					   {% endfor %}
 					<tr>
 				 		<td >누적</td>
 						<td id="wnj">{{sregiweak}}</td>
-						<td >{{sregiweak1}}</td>
-						<td >{{sregiweak2}}</td>
-						<td >{{sregiweak3}}</td>
-						<td >{{sregiweak4}}</td>
+						<td id="resultarea12">{{sregiweak1}}</td>
+						<td id="resultarea13">{{sregiweak2}}</td>
+						<td id="resultarea14">{{sregiweak3}}</td>
+						<td id="resultarea15">{{sregiweak4}}</td>
 					</tr>
 					<tr>
 				 		<td >금일</td>
@@ -327,10 +343,7 @@
 				</tbody>
 			</table>
 		</div>
-		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p>※ 행정동 : </p>
-			
-		</div>
+		
 
 		<br>
 		<br>
@@ -348,7 +361,7 @@
 			<h2 id='target3'></h2>
 			<h2>%)</h2>
 		</div>
-		<br><div id="output1" style="text-align: center; width: 83%;">
+		<br><div id="output1">
 			<table id="5Ggg">
 				<thead>
 					<tr>
@@ -433,8 +446,7 @@
 			</table>
 		</div>
 		<p style="font-size: 10pt;">※서비스 가용률:</p>
-		<p style="font-size: 10pt;" id='result2'></p>
-		<input id='name2' onchange='printName2()' autocomplete="off" />
+		
 	
 	
 	<br>
@@ -442,10 +454,9 @@
 	
 		<div>
 			<h2>&nbsp;&nbsp;※ 5G 사후 측정(DL 속도):</h2>
-			<h2 style="color: blue;" id='result'></h2>
-			<input id='name' onchange='printName()' autocomplete="off" />
+			
 		</div>
-		<br><div id="output1" style="text-align: center; width: 83%;">
+		<br><div id="output1">
 			<table id="5Gsh" style="border: solid 1px black;" >
 				<thead>
 					<tr>
@@ -744,18 +755,16 @@
 				</tbody>
 			</table>
 		</div>
-		<p style="font-size: 10pt;">※서비스 가용률:</p>
-		<p style="font-size: 10pt;" id='result2'></p>
-		<input id='name2' onchange='printName2()' autocomplete="off" />
-</div>
+		
+		
 </div>	
 	
-	
-
-
-
-
-
+<!-- 자바스크립트 호출 -->
+<script defer src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>        
+<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>	
 
 
 </body>
