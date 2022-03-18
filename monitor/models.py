@@ -21,6 +21,7 @@ from management.models import Morphology, MorphologyMap
 # 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
 #              DL콜카운트, UL콜가운트, DL LTE전환 콜카운트, UL LTE전환 콜카운트
 # 2022.03.17 - 측정종료 및 측정마감 시 코드 복잡성을 낮추기 위해서 단말그룰에 측정유형(networkId)을 가져감
+# 2022.03.18 - 측정마감 모델(MeasuingDayClose)  추가
 #
 ###################################################################################################
 class PhoneGroup(models.Model):
