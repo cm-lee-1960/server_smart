@@ -254,7 +254,8 @@ MANAGEMENT_MODELS_ORDERING = {
     "전송실패 기준": 4,
     "측정 보고주기": 5, 
     "모풀로지": 6,
-    "센터정보": 7,   
+    "센터정보": 7,
+    "센터별 관할구역": 8,
 }
 
 LOGIN_REDIRECT_URL = 'accounts/home/'

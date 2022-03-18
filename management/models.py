@@ -12,11 +12,13 @@ from django.db import models
 #  - 금일 측정조(MeasureingTeam): 당일 측정을 수행하는 측정조 현황을 입력 관리(측정 시작메시지에 포함됨)
 #  - 측정 보고주기(ReportCycle): 측정 보고주기를 DB화 함(3, 10, 27, 37, 57)
 #  - 행정동 경계구역(AddressRegion): 지도맵에 현재 측정하고 있는 행정동 경계구역을 표시하기 위한 폴리건 데이터(JSON)
+#  - 센터별 관할지역(CenterManageArea): 지역센터별 관리대상 주소 정보
 # -------------------------------------------------------------------------------------------------
 # 2022.03.05 - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 클래스를 분리함
 #              즉, 기존에 하드코딩 되어 있는 '행정동', '테마', '인빌딩', '커버리지' 등을 DB로 등로관리 할 수 있도록 함
 #            - 측정 보고주기를 하드코딩에서 DB화 함
 # 2022.03.12 - 지도맵에 현재 측정하고 있는 행정동 경계구역을 표시하기 위한 폴리건 데이터 모델(JSON) 추가
+# 2022.03.18 - 센터별 관할지역(CenterManageArea) 맵핑 정보 추가
 #
 ###################################################################################################
 
@@ -176,3 +178,21 @@ class AddressRegion(models.Model):
     addressDetail = models.CharField(max_length=100)  # 주소상세
     #json_data = models.JSONField(default=dict)
 
+# -------------------------------------------------------------------------------------------------
+# 행정동 데이터 클래스
+# -------------------------------------------------------------------------------------------------
+class CenterManageArea(models.Model):
+    '''센터별 관할지역(CenterManageArea) 맵핑 정보'''
+    siDo = models.CharField(max_length=100, null=True, blank=True, verbose_name='시,도')  # 시도
+    guGun = models.CharField(max_length=100, null=True, blank=True, verbose_name='구,군')  # 구,군
+    eupDong = models.CharField(max_length=100, null=True, blank=True, verbose_name='읍,면,동')  # 읍,동
+    address = models.CharField(max_length=100, null=True, blank=True, verbose_name="주소상세")  # 주소상세
+    addrType = models.CharField(max_length=50, null=True, blank=True, verbose_name='도시유형')  # 도시유형
+    bonbu = models.CharField(max_length=50, null=True, blank=True, verbose_name='본부')  # 본부
+    opCenter = models.CharField(max_length=50, null=True, blank=True, verbose_name='운용센터')  # 운용센터
+    team = models.CharField(max_length=50, null=True, blank=True, verbose_name='부서')  # 도시유형
+    center = center = models.ForeignKey(Center, null=True, on_delete=models.DO_NOTHING, verbose_name="센터")
+    
+    class Meta:
+        verbose_name = "센터별 관할구역"
+        verbose_name_plural = "센터별 관할구역"
