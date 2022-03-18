@@ -249,7 +249,42 @@ def measuring_end(phoneGroup):
             sended=True
         )
 
-    # 반환값에 대해서는 향후 고민 필요
+    # 측정종료 처리가 완료된 단말그룹에 대해서 상태를 비활성화 시킨다.
+    phoneGroup.active = False
+    phoneGroup.save()
+
+    # 마지막 지역의 종료일 경우 추가 메시지 생성
+    if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, active=True).count() == 0:
+      # 측정 지역 개수 추출
+      daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
+      daily_area_total_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate).count()
+      daily_area_fivg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='5G').count()
+      daily_area_lte_thrg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='LTE').count() + \
+                                  PhoneGroup.objects.filter(measdate=PhoneGroup.measdate, networkId='3G').count()
+      daily_area_wifi_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='WiFi').count() 
+      message_final = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
+                      f"{phoneGroup.userInfo1}({phoneGroup.networkId}{phoneGroup.morphology})을 마지막으로 종료 되었습니다." + \
+                      f"ㅇ 측정지역({daily_area_total_count})\n" + \
+                      f" - 5G품질({daily_area_fivg_count})\n" + "  .\n" + \
+                      f" - LTE/3G 취약지역 품질({daily_area_lte_thrg_count})\n" + "  .\n" + \
+                      f" - WiFi 품질({daily_area_wifi_count})\n" + "  .\n" + \
+                      "수고 많으셨습니다."
+      Message.objects.create(
+            phone=None,
+            status='END',
+            measdate=phoneGroup.measdate,
+            sendType = 'XMCS',
+            userInfo1=phoneGroup.userInfo1,
+            phone_no=None,
+            downloadBandwidth=None,
+            uploadBandwidth=None,
+            messageType='SMS',
+            message = message_final,
+            channelId = '',
+            sended=True
+      )
+
+    # 반환값에 대해서는 향후 고민 필요  //  일단 마지막 측정 종료된 지역에 대한 id 와 message 내용 반환
     return_value = {'message_id': result.id, 'message': message}
 
     return return_value

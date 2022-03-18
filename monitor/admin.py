@@ -73,9 +73,6 @@ class PhoneGroupAdmin(admin.ModelAdmin):
                 for phoneGroup in queryset:
                     result = measuring_end(phoneGroup)
                     result_list.append(result)  # 결과 리스트 append
-                    # 측정종료 처리가 완료된 단말그룹에 대해서 상태를 비활성화 시킨다.
-                    phoneGroup.active = False
-                    phoneGroup.save()
             except Exception as e:
                 print("get_measuring_end_action():", str(e))
                 raise Exception("get_measuring_end_action(): %s" % e)
