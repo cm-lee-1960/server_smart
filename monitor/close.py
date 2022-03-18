@@ -226,7 +226,7 @@ def measuring_end(phoneGroup):
     end_meastime = str(meastime__max)[8:10] + ':' + str(meastime__max)[10:12]
 
     # 메시지를 작성한다.
-    message = f"ㅇS-CXI {phoneGroup.measuringTeam} {phoneGroup.networkId} {phoneGroup.userInfo1}" + \
+    message = f"ㅇS-CXI {phoneGroup.measuringTeam} {phoneGroup.networkId} {phoneGroup.userInfo1} " + \
             f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n"
     # 5G의 경우 메시지 내용에 LTE전환율 포함한다.
     if phoneGroup.networkId == '5G':  
