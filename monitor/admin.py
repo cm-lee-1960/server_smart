@@ -1,10 +1,7 @@
+from django.shortcuts import render
 from django.contrib import admin, sites
-from django.forms import TextInput, Textarea
-from django.db import models
-from django import forms
 from .models import PhoneGroup, Phone, MeasureCallData
 from .close import measuring_end
-import requests
 
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
@@ -28,7 +25,7 @@ import requests
 # 단말 그룹 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class PhoneGroupAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스'''
+    """어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스"""
     list_display = ['measdate', 'phone_list', 'measuringTeam', 'userInfo1', 'active']
     list_display_links = ['phone_list', ]
     search_fields = ('measdate', 'userInfo1', 'phone_list', 'measuringTeam')
@@ -61,11 +58,11 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     # 측정단말 관리자 페이지에서 선택된 단말그룹에 대해 종료처리하는 액션 함수
     # ---------------------------------------------------------------------------------------------
     def get_measuring_end_action(self, request, queryset):
-        ''' 해당지역 측정을 종료하는 함수
+        """ 해당지역 측정을 종료하는 함수
             - 파라미터
               . queryset : 선택된 단말그룹에 대한 쿼리셋
             - 반환값: 없음
-        '''
+        """
         if queryset.exists():
             try: 
                 result_list = []  # 여러개 그룹을 종료 시킬 수 있으므로 결과값을 리스트 선언
@@ -74,10 +71,11 @@ class PhoneGroupAdmin(admin.ModelAdmin):
                     result = measuring_end(phoneGroup)
                     result_list.append(result)  # 결과 리스트 append
             except Exception as e:
+                # 오류 코드 및 내용을 반환한다.
                 print("get_measuring_end_action():", str(e))
                 raise Exception("get_measuring_end_action(): %s" % e)
+
             #결과 메시지를 크로샷 전송 테스트 페이지로 넘긴다. (임시, 중복 종료 처리할 경우 결과 리스트의 첫 번째 메시지를 넘김)
-            from django.shortcuts import render
             return render(request, 'message/xroshot_page.html', {'message' : result_list[0]['message']})
 
     get_measuring_end_action.short_description = '선택한 측정그룹 종료처리'
@@ -89,7 +87,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
 
 class ManageFilter(SimpleListFilter):
-    '''측정 단말기 관리자 페이지에서 필터 기본값을 지정하기 위한 클래스'''
+    """측정 단말기 관리자 페이지에서 필터 기본값을 지정하기 위한 클래스"""
     # 2022.03.06 - 하고 싶은 것은 측정단말을 조회했을 때, 관리대상 측정단말 리스트만 보여지게 하고 싶음
     #              즉, 측정단말 관리자 페이지를 처음 들어갔을 때는 관리대상만 보여지고, 필터를 통해 조회할 때는
     #              각각 필터조건에 맞게 조회하고 싶음
@@ -132,18 +130,14 @@ class ManageFilter(SimpleListFilter):
         value = super(ManageFilter, self).value()
         if value is None:
             if self.default_value is None:
-                # If there is at least one Species, return the first by name. Otherwise, None.
-                # first_species = Species.objects.order_by('name').first()
-                value = None #if first_species is None else first_species.id
+                value = None
                 self.default_value = value
             else:
                 value = self.default_value
         return str(value) 
 
 class PhoneAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스'''
-
-
+    """어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스"""
     # form = PhoneForm
     list_display = ['measdate', 'userInfo1', 'userInfo2', 'morphology', 'phone_no_abbr', 'networkId', 
                     'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', 'status', 'total_count', 
@@ -167,9 +161,6 @@ class PhoneAdmin(admin.ModelAdmin):
     avg_uploadBandwidth_fmt.short_description = 'UL'
 
     # 2022.03.06 - 측정 단말기의 상세화면에서 특정 항목의 길이를 조정한다.
-    # formfield_overrides = {
-    #     models.CharField: {'widget': TextInput(attrs={'size':'25'})},
-    # }
     def get_form(self, request, obj=None, **kwargs):
         form = super(PhoneAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['userInfo1'].widget.attrs['style'] = 'width: 15em;'
@@ -214,20 +205,12 @@ class PhoneAdmin(admin.ModelAdmin):
 
     last_updated_at.short_description = '최종 위치보고시간'
 
-    # 측정 단말기 중에서 KT 단말만 보여지게 한다. --- 최종확인 후 주석풀기 
+    # 측정 단말기 중에서 KT 단말만 보여지게 한다.
     def get_queryset(self, request):
         query = super(PhoneAdmin, self).get_queryset(request)
         # filtered_query = query.filter(ispId='45008', manage=True)
         filtered_query = query.filter(ispId='45008')
         return filtered_query
-
-    # def changelist_view(self, request, extra_context=None):
-    #     if not request.GET.has_key('manage'):
-    #         q = request.GET.copy()
-    #         q['manage'] = 1
-    #         request.GET = q
-    #         request.META['QUERY_STRING'] = request.GET.urlencode()
-    #     return super(PhoneAdmin,self).changelist_view(request, extra_context=extra_context)
 
     # 저장 버튼을 제외한 나머지 버튼들을 화면에서 보이지 않게 한다.
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
@@ -251,7 +234,7 @@ class PhoneAdmin(admin.ModelAdmin):
 # 측정 데이터(콜단위) 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class MeasureCallDataAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 측정단말 데이터 건 by 건 보여주기 위한 클래스'''
+    """어드민 페이지에 측정단말 데이터 건 by 건 보여주기 위한 클래스"""
     list_display = ['userInfo1', 'phone_no', 'currentCount', 'networkId', 'ispId',\
                     'downloadBandwidth', 'uploadBandwidth', 'meastime_at', 'userInfo2', 'cellId',]
     list_display_links = ['phone_no']
@@ -265,7 +248,6 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
     def meastime_at(self, mdata):
         s = str(mdata.meastime)
         # 202201172315000
-        # return s[0:4]+'-'+s[4:6]+'-'+s[6:8]+' '+s[8:10]+':'+s[10:12]+':'+s[12:14]
         return s[8:10]+':'+s[10:12]+':'+s[12:14]
 
     meastime_at.short_description = '측정시간'
