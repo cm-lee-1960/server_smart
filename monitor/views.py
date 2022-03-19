@@ -65,14 +65,15 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_m
 ####################################################################################################################################
 @csrf_exempt
 def receive_json(request):
-    ''' JSON 데이터를 받아서 처리하는 뷰 함수
+    """ JSON 데이터를 받아서 처리하는 뷰 함수
         - 측정 데이터를 JSON 형태로 받아서 처리한다.
-    '''
+    """
     # ---------------------------------------------------------------------------------------------
     # 1) 수신 받은 측정 데이터(JSON) 파싱
     # ---------------------------------------------------------------------------------------------
     if request.method != 'POST':
-        return HttpRespose("Error")
+        return HttpResponse("Error")
+
     data = JSONParser().parse(request)
     # print(data)
 
