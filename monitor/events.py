@@ -27,7 +27,7 @@ from .models import MeasureCallData, Phone, Message
 #  
 ###################################################################################################  
 def event_occur_check(mdata: MeasureCallData):
-    '''이벤트 발생여부를 체크한다.
+    """이벤트 발생여부를 체크한다.
         - 1)전송실패(Send Failure)
         - 2)속도저하(low throughput)
         - 3)음성 콜 드랍
@@ -38,36 +38,36 @@ def event_occur_check(mdata: MeasureCallData):
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: '전송실패' or None
-    '''
+    """
 
     events_list = []
     # 1)전송실패(Send Failure)
     message = send_failure_check(mdata)
-    if message and message != None : events_list.append(message)
+    if message and message is not None: events_list.append(message)
 
     # 2)속도저하(low throughput)
     message = low_throughput_check(mdata)
-    if message and message != None : events_list.append(message)
+    if message and message is not None: events_list.append(message)
     
     # 3)음성 콜 드랍
     message = voice_call_drop_check(mdata)
-    if message and message != None : events_list.append(message)
+    if message and message is not None: events_list.append(message)
 
     # 4)5G -> LTE 전환
     message = fivgtolte_trans_check(mdata)
-    if message and message != None : events_list.append(message)
+    if message and message is not None: events_list.append(message)
 
     # 5)측정범위를 벗어나는 경우
     message = out_measuring_range(mdata)
-    if message and message != None : events_list.append(message)
+    if message and message is not None: events_list.append(message)
 
     # 6)측정콜이 한곳에 머무는 경우
     message = call_staying_check(mdata)
-    if message and message != None : events_list.append(message)
+    if message and message is not None: events_list.append(message)
 
     # 7)측정단말이 중복측 정하는 경우(예: DL/DL, UL/UL)
     message = duplicated_measuring(mdata)
-    if message and message != None : events_list.append(message)
+    if message and message is not None: events_list.append(message)
 
     # 이벤트가 여러 건 발생한 경우 이벤트 메시지를 하나의 메시지로 통합한다.
     if len(events_list) > 0: make_event_message(mdata, events_list)
@@ -78,15 +78,15 @@ def event_occur_check(mdata: MeasureCallData):
 # 2022.02.24 - WiFi 전송실패 기준 추가 (DL: 1M, UL: 0.5M)
 # 2022.03.01 - 전송실패 기준 관리 모듈 추가 및 이벤트 모듈에 반영(기존 소스코드 체크 -> DB 모델에서 불러와 체크)
 #--------------------------------------------------------------------------------------------------
-def send_failure_check(mdata: MeasureCallData) -> str: 
-    '''전송실패(Send Failure) 발생여부 확인
+def send_failure_check(mdata: MeasureCallData) -> str:
+    """전송실패(Send Failure) 발생여부 확인
         - 전송실패 기준 정보(SendFailure)는 데이터베이스에 관리한다.
         - 품질기준(5G DL: 12M, UL: 2M, LTE DL: 6M, UL: 1M, 3G DL: 256K, UL: 128K
         - 품질취약 LTE 1M, UL: 0.5, 3G DL: 256K, UL 128K
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: '전송실패' or None
-    '''
+    """
     message = None
     try: 
         if mdata.phone.morphology.morphology and mdata.phone.morphology.morphology == '취약지역':
@@ -122,12 +122,12 @@ def send_failure_check(mdata: MeasureCallData) -> str:
 # 2022.03.03 - 속도저하 기준 테이블(모델) 생성 및 체크 모듈 작성 
 #--------------------------------------------------------------------------------------------------
 def low_throughput_check(mdata: MeasureCallData) -> str:
-    '''속도저하(Low Throughput) 발생여부 확인
+    """속도저하(Low Throughput) 발생여부 확인
         - 속도저하 기준 정보(LowThroughput)와 비교하여 이벤트 발생여부를 판단한다.
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: '속도저하' or None
-    '''
+    """
     message = None
     try:
         if mdata.phone.morphology.morphology and mdata.phone.morphology.morphology == '취약지역':
@@ -163,12 +163,12 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
 # 음성 콜 드랍 발생여부 확인
 #--------------------------------------------------------------------------------------------------
 def voice_call_drop_check(mdata: MeasureCallData) -> str:
-    ''' 음성 콜 드랍 발생여부 확인
+    """ 음성 콜 드랍 발생여부 확인
         - 품질 취약 VoLTE call drop/setup fail, 3G call drop/setup fail
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: '음성콜 드랍' or None
-    '''
+    """
     message = None
     # 2022.01.17 DB가 다르기 때문에 나중에 알려 주겠음
     # message = "음성 콜 드랍이 발생했습니다."
@@ -179,12 +179,12 @@ def voice_call_drop_check(mdata: MeasureCallData) -> str:
 # 5G에서 LTE료 전환여부 확인
 #--------------------------------------------------------------------------------------------------
 def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
-    ''' 5G에서 LTE료 전환여부 확인
+    """ 5G에서 LTE료 전환여부 확인
         - 5G 측정시 LTE로 데이터가 전환되는 경우
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: 'LTE전환' or None
-    '''
+    """
     message = None
     # 2022.02.21 - 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
     # 2022.02.27 - 메시지 내용을 작성한다.
@@ -211,22 +211,16 @@ def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
 # 2022.03.03 - 위,경도에 따른 행정동 검색 오류 수정 (2.27 이슈해결)
 #--------------------------------------------------------------------------------------------------
 def out_measuring_range(mdata: MeasureCallData) -> str:
-    ''' 단말이 측정범위를 벗어났는지 확인
+    """ 단말이 측정범위를 벗어났는지 확인
         - 측정하는 행정동을 벗어나서 측정이 되는 경우
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: '측정범위 벗어남' or None
-    '''
+    """
     message = None
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
     if mdata.phone.morphology.morphology != '행정동' : return None
     if not (mdata.longitude and mdata.latitude) : return None
-
-    # 2022.02.20 - 역지오코딩 - 도로명 주소로 반환되어 카카오지도 API로 대체
-    # geolocator = Nominatim(user_agent="myGeolocator")
-    # location = geolocator.reverse(str(mdata.latitude) + ',' + str(mdata.longitude))
-    # Location(영서로, 학곡리, 춘천시, 강원도, 24408, 대한민국, (37.81069349300918, 127.7657987426381, 0.0))
-    # print("out_measuring_range():", location)
 
     # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
     rest_api_key = settings.KAKAO_REST_API_KEY
@@ -287,14 +281,14 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
 #            - 행정도 측정에서 기본 이동거리는 200~300미터 정도임
 #--------------------------------------------------------------------------------------------------
 def call_staying_check(mdata: MeasureCallData) -> str:
-    ''' 측정단말이 한곳에 머무는지 확인
+    """ 측정단말이 한곳에 머무는지 확인
         - 타사 측정단말에 문제가 발생하여 조치를 하거나 차량에 문제가 있거나 등 한곳에 오랫동안 멈는 경우가 있는데,
           이렇게 한곳에 멈춰 있는 경우 보고 대상임
         - 이동거리가 10미터 이내 연속해서 5회 이상 발생하면 한 곳에 머무는 것으로 판단
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: '측정단말 한곳에 머뭄' or None
-    '''
+    """
     message = None
     # 측정유형이 행정동인 경우에만 측정단말이 한곳에 머무는지 확인한다.
     if mdata.phone.morphology.morphology == '행정동':
@@ -306,6 +300,7 @@ def call_staying_check(mdata: MeasureCallData) -> str:
         if count >= 6:
             # for idx, md in enumerate(mdata_list[count-1::-1]):
             result = ''
+            before_loc = None
             for idx, md in enumerate(mdata_list):
                 if idx == 0:
                     before_loc = (md.latitude, md.longitude)
@@ -340,12 +335,12 @@ def call_staying_check(mdata: MeasureCallData) -> str:
 # 2022.03.16 - 단말그룹으로 묶여 있는 2개의 단말이 동일한 유형의 측정을 수행하고 있은 때 이벤트 발생(DL/DL, UL/UL)
 #--------------------------------------------------------------------------------------------------
 def duplicated_measuring(mdata: MeasureCallData) -> str:
-    ''' 두개의 단말이 중복측정하고 있는지 확인
+    """ 두개의 단말이 중복측정하고 있는지 확인
         - 단말그룹으로 묶여 있는 2개의 단말이 동일한 유형의 측정을 수행하고 있은 때 이벤트 발생(DL/DL, UL/UL)
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: '중복측정' or None
-    '''
+    """
     message = None
     duplicated = False
     # 두개의 단말이 서로 측정유형을 바꾸는 동안 지연시간을 갖는다(2개 콜)
@@ -377,12 +372,12 @@ def duplicated_measuring(mdata: MeasureCallData) -> str:
 #            - 메시지 작성 코드를 각각 이벤트 확인하는 함수로 이동함(메시지 내에 관련정보 포함하기 위해)
 #--------------------------------------------------------------------------------------------------
 def make_event_message(mdata: MeasureCallData, events_list: list):
-    '''이벤트 메시지 작성한다.
+    """이벤트 메시지 작성한다.
         - 파라미터
           . mdata: 측정 데이터(콜단위)
           . event_list: 발생된 이벤트 문자열 리스트(예: ['LTE전환', '측정범위 벗어남'])
         - 반환값: '중복측정' or None
-    '''
+    """
     # 환경변수에서 채널ID를 가져온다.
     channelId = settings.CHANNEL_ID
 
@@ -405,18 +400,18 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
     if message:
         # 전송 메시지를 생성한다. 
         Message.objects.create(
-            phone=mdata.phone,
-            status=mdata.phone.status,
-            measdate=str(mdata.meastime)[0:8],
-            sendType = 'TELE',
-            userInfo1=mdata.userInfo1,
-            currentCount=mdata.currentCount,
-            phone_no=mdata.phone_no,
-            downloadBandwidth=mdata.downloadBandwidth,
-            uploadBandwidth=mdata.uploadBandwidth,
-            messageType='EVENT',
-            message = message,
-            channelId = channelId,
-            sended=True
+            phone=mdata.phone, # 측정 단말기
+            status=mdata.phone.status, # 측정단말 상태
+            measdate=str(mdata.meastime)[0:8], # 측정일자
+            sendType = 'TELE', # 메시지 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+            userInfo1=mdata.userInfo1, # 측정자 입력값1
+            currentCount=mdata.currentCount, # 현재 콜카운트
+            phone_no=mdata.phone_no, # 측정단말 전화번호
+            downloadBandwidth=mdata.downloadBandwidth, # DL 속도
+            uploadBandwidth=mdata.uploadBandwidth, # UL 속도
+            messageType='EVENT', # 메시지 유형(SMS: 단문메시지, EVENT: 이벤트발생 메시지)
+            message = message, # 메시지 내용
+            channelId = channelId, # 채널ID
+            sended=True # 전송여부
         )
 
