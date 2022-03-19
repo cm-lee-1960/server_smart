@@ -18,11 +18,13 @@ from django.contrib import admin
 from django.urls import reverse_lazy
 from django.urls import path
 from django.contrib.auth.views import LoginView
+from accounts.views import login
 # from monitor.admin import monitor_site
 
 urlpatterns = [
-    path('', LoginView.as_view(template_name='accounts/login_boot.html',
-                                next_page=reverse_lazy('analysis:dashboard')), name='login'),
+    #path('', LoginView.as_view(template_name='accounts/login_boot.html',
+    #                            next_page=reverse_lazy('analysis:dashboard')), name='login'),
+    path('', login, name='login'),
     path('admin/', admin.site.urls),
     # path('monitoradmin/', monitor_site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
