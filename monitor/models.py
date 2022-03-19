@@ -697,3 +697,4 @@ class MeasuingDayClose(models.Model):
     ca2_rate = models.FloatField(null=True, default=0, verbose_name='CA2 비율')  # CA2 비율
     ca3_rate = models.FloatField(null=True, default=0, verbose_name='CA3 비율')  # CA3 비율
     ca4_rate = models.FloatField(null=True, default=0, verbose_name='CA4 비율')  # CA4 비율
+
