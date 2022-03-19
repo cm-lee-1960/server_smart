@@ -18,7 +18,7 @@ def login(request):
         if user is not None:
             auth.login(request, user)
             #return redirect('http://localhost:8000/analysis/dashboard_form')
-            return redirect(reverse('analysis:dashboard'))
+            return redirect(reverse('analysis:dashboard_form'))
         
         else:
             if login_form.non_field_errors():

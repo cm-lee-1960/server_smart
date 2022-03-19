@@ -258,4 +258,5 @@ MANAGEMENT_MODELS_ORDERING = {
     "센터별 관할구역": 8,
 }
 
-LOGIN_REDIRECT_URL = 'accounts/home/'
+LOGIN_REDIRECT_URL = 'http://localhost:8000/'
+LOGOUT_REDIRECT_URL = '/'
