@@ -191,7 +191,7 @@ class CenterManageArea(models.Model):
     bonbu = models.CharField(max_length=50, null=True, blank=True, verbose_name='본부')  # 본부
     opCenter = models.CharField(max_length=50, null=True, blank=True, verbose_name='운용센터')  # 운용센터
     team = models.CharField(max_length=50, null=True, blank=True, verbose_name='부서')  # 도시유형
-    center = center = models.ForeignKey(Center, null=True, on_delete=models.DO_NOTHING, verbose_name="센터")
+    center = models.ForeignKey(Center, null=True, on_delete=models.DO_NOTHING, verbose_name="센터") # 센터
     
     class Meta:
         verbose_name = "센터별 관할구역"
