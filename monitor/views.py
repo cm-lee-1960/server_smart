@@ -17,10 +17,10 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_m
 # 측정 데이터 처리모듈
 #
 # 1) 수신 받은 측정 데이터(JSON) 파싱
-# 2) 해당일자/해당지역 측정중 단말기 그룹이 있는지 확인             ┌ -----------┐
-# 3) 측정중인 단말기가 있는지 확인                     ┌------>|  msg.py    |------------------┐
-# 4) 측정 데이터를 저장하고, 통계정보 업데이트            |       └----------- ┘                  |
-# 5) 메시지 및 이벤트 처리                           |       - make_message()                |
+# 2) 해당일자/해당지역 측정중 단말기 그룹이 있는지 확인 ┌ -----------┐
+# 3) 측정중인 단말기가 있는지 확인              ┌------>|  msg.py    |------------------┐
+# 4) 측정 데이터를 저장하고, 통계정보 업데이트  |       └----------- ┘                  |
+# 5) 메시지 및 이벤트 처리                      |       - make_message()                |
 #                                               |                                       |
 # ┌ -----------┐            ┌ -----------┐      |       ┌ -----------┐                  |
 # |   url.py   |----------->|  views.py  |------┴------>| events.py  |------------------┤
@@ -28,9 +28,9 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_m
 #  - /monitor/json/         - receive_json()            - event_occur_check()           |
 #                                 |                                                     |                       ┌ --------------┐
 #                                 |                                                     |                       |      SMS      |
-#       ┌-------------------------┼------------------------┐                            |               ┌------>|     (크로샷)    |
+#       ┌-------------------------┼------------------------┐                            |               ┌------>|     (크로샷)  |
 #       |                         |                        |                            |               |       |               |
-#  (M)단말기그룹              (M)측정 단말기              (M)측정 데이터                (M)메시지                 |       └-------------- ┘
+#  (M)단말기그룹              (M)측정 단말기          (M)측정 데이터                (M)메시지           |       └-------------- ┘
 #  ┌ -----------┐           ┌ -----------┐          ┌ --------------┐           ┌ --------------┐       |       ┌ --------------┐               
 #  | PhoneGroup |┼---------<|   Phone    |┼--------<|MeasureCallData|           |   Message     |       |       | TelegramBot   |
 #  |            |           |            |          |               |           |               | ------┴------>| (tele_msg.py) |
@@ -101,16 +101,16 @@ def receive_json(request):
         else:
             # 측정 단말기 그룹을 생성한다. 
             phoneGroup = PhoneGroup.objects.create(
-                            measdate=measdate,
-                            userInfo1=data['userInfo1'],
-                            userInfo2=data['userInfo2'],
-                            morphology=morphology,
-                            ispId=data['ispId'],
-                            active=True)
+                            measdate=measdate, # 측정일자
+                            userInfo1=data['userInfo1'], # 측정자 입력값1
+                            userInfo2=data['userInfo2'], # 측정자 입력갑2
+                            morphology=morphology, # 모폴로지
+                            ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
+                            active=True) # 상태
             
     except Exception as e:
-        # 오류코드 리턴 필요
-        print("그룹조회:",str(e))
+        # 오류 코드 및 내용을 반환한다.
+        print("그룹조회:", str(e))
         return HttpResponse("그룹조회:" + str(e), status=500)
 
     # ---------------------------------------------------------------------------------------------
@@ -140,27 +140,27 @@ def receive_json(request):
             # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
             meastime_s = str(data['meastime']) # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             phone = Phone.objects.create(
-                        phoneGroup = phoneGroup,
-                        measdate=meastime_s[0:8],
-                        starttime=meastime_s[8:10]+ ':' + meastime_s[10:12],
-                        phone_no=data['phone_no'],
-                        userInfo1=data['userInfo1'],
-                        userInfo2=data['userInfo2'],
-                        networkId=networkId,
-                        ispId=data['ispId'],
-                        avg_downloadBandwidth=0.0,
-                        avg_uploadBandwidth=0.0,
-                        dl_count=0,
-                        ul_count=0,
-                        status='START_F',
-                        currentCount=data['currentCount'],
-                        total_count=data['currentCount'],
-                        addressDetail=data['addressDetail'],
-                        latitude=data['latitude'],
-                        longitude=data['longitude'],
-                        last_updated=data['meastime'],
-                        manage=False,
-                        active=True,
+                        phoneGroup = phoneGroup, # 단말그룹
+                        measdate=meastime_s[0:8], # 측정일자
+                        starttime=meastime_s[8:10]+ ':' + meastime_s[10:12], # 측정 시작시간
+                        phone_no=data['phone_no'], # 측정단말 전화번호
+                        userInfo1=data['userInfo1'], # 측정자 입력값1
+                        userInfo2=data['userInfo2'], # 측정자 입력값2
+                        networkId=networkId, # 측정유형(5G, LTE, 3G, WiFi)
+                        ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
+                        avg_downloadBandwidth=0.0, # DL 평균속도
+                        avg_uploadBandwidth=0.0, # UL 평균속도
+                        dl_count=0, # DL 콜카운트
+                        ul_count=0, # UL 콜카운드
+                        status='START_F', # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료)
+                        currentCount=data['currentCount'], # 현재 콜카운트
+                        total_count=data['currentCount'], # 총 콜카운트
+                        addressDetail=data['addressDetail'], # 행정동
+                        latitude=data['latitude'], # 위도
+                        longitude=data['longitude'], # 경도
+                        last_updated=data['meastime'], # 최종 위치보고시간
+                        manage=False, # 관리대상 여부
+                        active=True, # 상태
                     )
             # 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 내용을 담아 놓음
             # 1) 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 저장한다.
@@ -172,7 +172,7 @@ def receive_json(request):
             phoneGroup.update_initial_data()
 
     except Exception as e:
-        # 오류코드 리턴 필요
+        # 오류 코드와 내용을 반환한다.
         print("단말기조회:",str(e))
         return HttpResponse("단말기조회:" + str(e), status=500)
 
@@ -199,7 +199,7 @@ def receive_json(request):
             phone.update_phone(mdata)
 
     except Exception as e:
-        # 오류코드 리턴 필요
+        # 오류 코드와 내용을 반환한다.
         print("데이터저장:",str(e))
         return HttpResponse("데이터저장:" + str(e), status=500)
 
@@ -246,9 +246,8 @@ def receive_json(request):
                 # 메시지를 작성한다.
                 make_message(mdata)
 
-
     except Exception as e:
-        # 오류코드 리턴 필요
+        # 오류 코드와 내용을 반환한다.
         print("메시지/이벤트처리:",str(e))
         return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
 
@@ -259,8 +258,7 @@ def receive_json(request):
 # 측정위치로 작성된 지도맵 파일 전달
 ###################################################################################################
 def maps_files(request, filename):
-    ''' 단말이 측정하고 있는 위치를 지도맵으로 보여주는 뷰 함수
+    """ 단말이 측정하고 있는 위치를 지도맵으로 보여주는 뷰 함수
         - 현재 측정하고 있는 주소의 행정동 경계구역을 함께 지도맵에 보여준다.
-    '''
-    # filename = request.GET.get('filename')
+    """
     return render(request, 'maps/' + filename)
