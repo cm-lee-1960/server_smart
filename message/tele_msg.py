@@ -13,7 +13,8 @@ from .models import SentTelegramMessage
 # -----------------------------------------------------------------------------------------------------
 # 2022.03.03 - 텔레그램 봇 관련 함수를 클래스로 랩핑함 
 # 2022.03.07 - 전송된 텔레그램 메시지를 회수 또는 재전송하는 함수를 추가함(del_message(...))
-# 2022.03.13 - 텔레그램 봇 메시지 전송 제약(분당 20건)을 회피하기 위해서 5초 동안 전송된 메시지가 2건 이상일 경우 2초 대기
+# 2022.03.13 - 텔레그램 봇 메시지 전송 제약(분당 20건)을 회피하기 위해서 5초 동안 전송된 메시지가
+#              2건 이상일 경우 2초 대기
 #
 #######################################################################################################
 class TelegramBot:
@@ -34,14 +35,20 @@ class TelegramBot:
     
     # --------------------------------------------------------------------------------------------------
     # 메시지 내용(문자열)이 특정 크기 이상은 잘라낸다
-    # 2022.02.27 - 메시지 내용 중에서 디버깅을 위해 관련정보를 붙이다 보니 512 bytes가 초과되어 텔레그램 전송시 오류 발생
+    # 2022.02.27 - 메시지 내용 중에서 디버깅을 위해 관련정보를 붙이다 보니 512 bytes가 초과되어
+    #              텔레그램 전송시 오류 발생
     #            - 오류메시지 (Flood control exceeded. Retry in 11.0 seconds)
     #            - https://stackoverflow.com/questions/51423139/python-telegram-bot-flood-control-exceeded
     # --------------------------------------------------------------------------------------------------
     def unicode_truncate(self, s, length, encoding='utf-8'):
+        """ 전송할 메시지 내용을 유니코드 기반으로 특정 길이만큼 잘라 반환하는 함수
+            - 파라미터
+              . s: 문자 메시지 내용
+              . length: 최대 길이(문자를 자르고자 하는 최대 길이)
+            - 반환값: 문자열
+        """
         self.encoded = s.encode(encoding)[:length]
         return self.encoded.decode(encoding, 'ignore')
-    
 
     # 텔레그램 메시지를 전송한다.
     # 2022.02.27 - 텔레그램 봇에 메시지를 보낼때 제약사항이 있는 것으로 확인됨
@@ -62,6 +69,12 @@ class TelegramBot:
     # [출처] https://stackoverflow.com/questions/44152519/telegram-bot-api-limitations
     # --------------------------------------------------------------------------------------------------
     def send_message_bot(self, channelId, message):
+        """ 텔레그램 메시지를 전송하는 함수
+            - 파라미터
+              . channelId: 채널ID
+              . message: 메시지 내용
+            - 반환값: 없음
+        """
         try:
             # 메시지를 보내기 전에 5초 동안 메시지가 2건 이상 보냈으면 2초를 대기한다. 
             # now = datetime.strptime("2022-03-11 22:30:08", "%Y-%m-%d %H:%M:%S")
@@ -82,7 +95,8 @@ class TelegramBot:
                 chat_text = sent_msg['text'],
             )
 
-        except Exception as e:  
+        except Exception as e:
+            # 에러 코드 및 내용을 반환한다.
             print("low_throughput_check():"+str(e))
             print(message)
             raise Exception("send_message_bot(): %s" % e)
@@ -90,10 +104,12 @@ class TelegramBot:
     # --------------------------------------------------------------------------------------------------
     # 보낸 메시지 삭제 함수 - Chat_ID와 Message_ID 정보로 삭제 가능
     # 삭제하고자 하는 Message 에 필요한 정보를 DB에서 읽어와서 삭제
+    # 2022.03.19 - 전달되는 파라미터 약어명를 내용을 알 수 있도록 풀명으로 수정함
     # --------------------------------------------------------------------------------------------------
-    def del_message(self, cid, mid):
-        self.result = self.bot.deleteMessage(chat_id=cid, message_id=mid)
-        return self.result
+    def delete_message(self, chat_id, message_id):
+        """전송된 메시지를 삭제하는 함수"""
+        result = self.bot.deleteMessage(chat_id=chat_id, message_id=message_id)
+        return result
 
     # --------------------------------------------------------------------------------------------------
     # Telegram Limit Check 함수
