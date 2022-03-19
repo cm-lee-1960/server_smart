@@ -22,7 +22,7 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 # 센터 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class CenterAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 센터 정보를 보여주기 위한 클래스'''
+    """어드민 페이지에 센터 정보를 보여주기 위한 클래스"""
     # # form = PhoneForm
     list_display = ['centerName', 'centerName', 'permissionLevel', 'active', ]
     list_display_links = ['centerName',  ]
@@ -32,7 +32,7 @@ class CenterAdmin(admin.ModelAdmin):
 # 모풀로지 기준 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class MorphologyAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 모풀로지 정보를 보여주기 위한 클래스'''
+    """어드민 페이지에 모풀로지 정보를 보여주기 위한 클래스"""
     # # form = PhoneForm
     list_display = ['center', 'morphology', 'manage',]
     list_display_links = ['center', 'morphology', ]
@@ -42,7 +42,7 @@ class MorphologyAdmin(admin.ModelAdmin):
 # 모풀로지 기준 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class MorphologyMapAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 모풀로지 맵 정보를 보여주기 위한 클래스'''
+    """어드민 페이지에 모풀로지 맵 정보를 보여주기 위한 클래스"""
     # # form = PhoneForm
     list_display = ['center', 'words', 'wordsCond', 'morphology', 'manage',]
     list_display_links = ['center', 'morphology', ]
@@ -62,7 +62,7 @@ class LowThroughputAdmin(admin.ModelAdmin):
 # 전송실패 기준 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class SendFailureAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 전송실패(Send Failure) 기준을 보여주기 위한 클래스'''
+    """어드민 페이지에 전송실패(Send Failure) 기준을 보여주기 위한 클래스"""
     # # form = PhoneForm
     list_display = ['center', 'areaInd', 'networkId', 'dataType', 'bandwidth',]
     list_display_links = ['networkId',]
@@ -73,7 +73,7 @@ class SendFailureAdmin(admin.ModelAdmin):
 # 금일 측정조 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class MeasureingTeamAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 금일측정조(MeasureingTeam)을 보여주기 위한 클래스'''
+    """어드민 페이지에 금일측정조(MeasureingTeam)을 보여주기 위한 클래스"""
     list_display = ['center', 'measdate_fmt', 'message']
     list_display_links = ['message']
     search_fields = ('message', 'message')
@@ -90,7 +90,7 @@ class MeasureingTeamAdmin(admin.ModelAdmin):
 # 측정 보고주기 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class ReportCycleAdmin(admin.ModelAdmin):
-    '''어드민 페이지에 측정진행 보고주기(ReportCycle)을 보여주기 위한 클래스'''
+    """어드민 페이지에 측정 보고주기(ReportCycle)를 보여주기 위한 클래스"""
     list_display = ['center', 'reportCycle',]
     list_display_links = ['center', 'reportCycle']
     search_fields = ('center', 'reportCycle')
@@ -101,6 +101,7 @@ class ReportCycleAdmin(admin.ModelAdmin):
 # 센터별 관리구역
 # -------------------------------------------------------------------------------------------------
 class CenterManageAreaAdmin(admin.ModelAdmin):
+    """어드민 페이지에 센터별 관할구역(CenterManageArea)를 보여주기 위한 클래스"""
     list_display = ['siDo', 'guGun', 'eupDong', 'address', 'addrType', 'bonbu', 'opCenter', 'center']
     list_display_links = ['address']
     search_fields = ('siDo', 'guGun', 'eupDong', 'address')

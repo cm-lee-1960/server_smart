@@ -25,11 +25,11 @@ from monitor.geo import make_map_locations
 #
 #--------------------------------------------------------------------------------------------------
 def current_count_check(mdata: MeasureCallData) -> bool:
-    ''' DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다.
+    """ DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다.
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: True or False
-    '''
+    """
     result = False
     phone = mdata.phone
     # 해당지역에 단말이 첫번째로 측정을 시작했는지 확인한다.
@@ -86,7 +86,7 @@ def current_count_check(mdata: MeasureCallData) -> bool:
 # 2022.03.05 - 메시지 내용 중에서 숫자에 자동으로 링크가 붙는 것을 조치함 (앞뒤에 <code></code>를 붙임)
 #--------------------------------------------------------------------------------------------------
 def make_message(mdata: MeasureCallData):
-    ''' 측정단말의 상태에 따라서 메시지를 작성한다.
+    """ 측정단말의 상태에 따라서 메시지를 작성한다.
         - 측정단말 상태코드
           . POWERON: 측정단말 파워온(Power-On)
           . START_F: 당일 측정 첫 시작
@@ -96,7 +96,7 @@ def make_message(mdata: MeasureCallData):
         - 파라미터
           . mdata: 측정 데이터(콜단위)
         - 반환값: 없음
-    '''
+    """
 
     # 환경변수에서 채팅방 채널IF를 가져온다.
     # channelId = '-736183270'
@@ -213,19 +213,19 @@ def make_message(mdata: MeasureCallData):
 
         # 전송 메시지를 생성한다.
         Message.objects.create(
-            phone=phone,
-            status=phone.status,
-            measdate=str(mdata.meastime)[0:8],
-            sendType='TELE',
-            userInfo1=mdata.userInfo1,
-            currentCount=mdata.currentCount,
-            phone_no=mdata.phone_no,
-            downloadBandwidth=avg_downloadBandwidth,
-            uploadBandwidth=avg_uploadBandwidth,
-            messageType='SMS',
-            message=messages,
-            channelId=channelId,
-            sended=True
+            phone=phone, # 측정단말
+            status=phone.status, # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료)
+            measdate=str(mdata.meastime)[0:8], # 측정일자
+            sendType='TELE', # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+            userInfo1=mdata.userInfo1, # 측정자 입력값1
+            currentCount=mdata.currentCount, # 현재 콜카운트
+            phone_no=mdata.phone_no, # 측정단말 전화번호
+            downloadBandwidth=avg_downloadBandwidth, # DL 평균속도
+            uploadBandwidth=avg_uploadBandwidth, # UL 평균속도
+            messageType='SMS', # 메시지 유형(SMS: 측정 메시지, EVENT: 이벤트발생 메시지)
+            message=messages, # 메시지 내용
+            channelId=channelId, # 채널ID
+            sended=True # 전송여부
         )
 
 
