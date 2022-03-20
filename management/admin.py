@@ -13,8 +13,10 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 #  - 속도저하 기준(LowThroughput): 상황에 따라 변경되는 속도저하 기준 정보를 관리함 
 #  - 금일 측정조(MeasureingTeam): 당일 측정을 수행하는 측정조 현황을 입력 관리(측정 시작메시지에 포함됨)
 #  - 측정 보고주기(ReportCycle): 측정 보고주기를 DB화 함(3, 10, 27, 37, 57)
+#  - 센터별 관할지역(CenterManageArea): 지역센터별 관리대상 주소 정보
 # -------------------------------------------------------------------------------------------------
 # 2022.03.13 - 관리자 페이지 앱들과 특정 앱의 모델들을 재정렬 한다.
+# 2022.03.19 = 센터별 관할구역 관리자 페이지 추가
 #
 ###################################################################################################
 
@@ -24,7 +26,7 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 class CenterAdmin(admin.ModelAdmin):
     """어드민 페이지에 센터 정보를 보여주기 위한 클래스"""
     # # form = PhoneForm
-    list_display = ['centerName', 'centerName', 'permissionLevel', 'active', ]
+    list_display = ['centerName', 'permissionLevel', 'active', ]
     list_display_links = ['centerName',  ]
     search_fields = ('centerName', 'centerName',)
 
@@ -105,8 +107,8 @@ class CenterManageAreaAdmin(admin.ModelAdmin):
     list_display = ['siDo', 'guGun', 'eupDong', 'address', 'addrType', 'bonbu', 'opCenter', 'center']
     list_display_links = ['address']
     search_fields = ('siDo', 'guGun', 'eupDong', 'address')
-    list_filter = ['siDo',]
-    # ordering = ('-measdate', )
+    list_filter = ['center',]
+    ordering = ('center', )
 
 
 admin.site.register(Morphology, MorphologyAdmin) # 모풀로지 등록
