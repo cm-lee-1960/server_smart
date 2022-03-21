@@ -4,7 +4,7 @@ import folium
 import pandas as pd
 from haversine import haversine # 이동거리
 from django.conf import settings
-from management.models import AddressRegion
+# from management.models import AddressRegion
 
 ###################################################################################################
 # 좌표(위도,경도) 및 주소 변환 모듈
@@ -255,20 +255,20 @@ def make_map_locations(mdata):
                 ne = pd.DataFrame(locations).max().values.tolist()
                 map.fit_bounds([sw, ne])
 
-    # 지도상에 행정동 경계구역을 표시한다.
-    # 동일한 필드명으로 조건을 두번 쓸수 없고, 필터를 두번 걸어야 함
-    qs = AddressRegion.objects.filter( addressDetail__contains=mdata.phone.addressDetail) \
-                            .filter(addressDetail__contains=mdata.phone.guGun)
-    if qs.exists():
-        json_data = qs[0].json_data
-        geo = {
-            "type": "FeatureCollection",
-            "name": "HangJeongDong_ver20220309",
-            "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-            "bbox": [ 124.609681415304, 33.1118678527544, 131.871294250487, 38.616952080675 ],                                                 
-            "features": [ json_data
-        ]}
-        folium.GeoJson(geo, name='seoul_municipalities').add_to(map)
+    # # 지도상에 행정동 경계구역을 표시한다.
+    # # 동일한 필드명으로 조건을 두번 쓸수 없고, 필터를 두번 걸어야 함
+    # qs = AddressRegion.objects.filter( addressDetail__contains=mdata.phone.addressDetail) \
+    #                         .filter(addressDetail__contains=mdata.phone.guGun)
+    # if qs.exists():
+    #     json_data = qs[0].json_data
+    #     geo = {
+    #         "type": "FeatureCollection",
+    #         "name": "HangJeongDong_ver20220309",
+    #         "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+    #         "bbox": [ 124.609681415304, 33.1118678527544, 131.871294250487, 38.616952080675 ],
+    #         "features": [ json_data
+    #     ]}
+    #     folium.GeoJson(geo, name='seoul_municipalities').add_to(map)
 
     # 작성된 지도맵을 저장하고, 파일명을 반환한다.
     filename = f'{mdata.meastime}-{mdata.ispId}-{mdata.phone_no}.html'
