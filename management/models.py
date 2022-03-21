@@ -37,6 +37,7 @@ class Center(models.Model):
         verbose_name = ('센터정보')
         verbose_name_plural = ('센터정보')
 
+    # 인스턴스 정보를 출력한다.
     def __str__(self):
         return self.centerName
 
@@ -56,6 +57,7 @@ class Morphology(models.Model):
         verbose_name = ('모풀로지')
         verbose_name_plural = ('모풀로지')
 
+    # 인스턴스 정보를 출력한다.
     def __str__(self):
         return self.morphology
 
@@ -83,6 +85,10 @@ class MorphologyMap(models.Model):
         verbose_name = ('모풀로지 맵')
         verbose_name_plural = ('모풀로지 맵')
 
+    # 인스턴스 정보를 출력한다.
+    def __str__(self):
+        return f"{self.center.centerName} / {self.words} / {self.wordsCond} / {self.morphology.morphology}"
+
 
 # -------------------------------------------------------------------------------------------------
 # 전송실패(Send Failure) 기준관리 클래스
@@ -107,6 +113,10 @@ class SendFailure(models.Model):
         verbose_name = ('전송실패 기준')
         verbose_name_plural = ('전송실패 기준')
 
+    # 인스턴스 정보를 출력한다.
+    def __str__(self):
+        return f"{self.center.centerName} / {self.areaInd} / {self.networkId} / {self.dataType} / {self.bandwidth}"
+
 # -------------------------------------------------------------------------------------------------
 # 속도저하(Low Throughput) 기준관리 클래스
 # -------------------------------------------------------------------------------------------------
@@ -128,6 +138,9 @@ class LowThroughput(models.Model):
         verbose_name = ('속도저하 기준')
         verbose_name_plural = ('속도저하 기준')
 
+    # 인스턴스 정보를 출력한다.
+    def __str__(self):
+        return f"{self.center.centerName} / {self.areaInd} / {self.networkId} / {self.dataType} / {self.bandwidth}"
 
 # -------------------------------------------------------------------------------------------------
 # 금일측정조 데이터
@@ -166,17 +179,22 @@ class ReportCycle(models.Model):
         verbose_name = "측정 보고주기"
         verbose_name_plural = "측정 보고주기"
 
+    # 인스턴스 정보를 출력한다.
+    def __str__(self):
+        return f"{self.center.centerName} / {self.reportCycle}"
 
-# -------------------------------------------------------------------------------------------------
-# 행정동 데이터 클래스
-# -------------------------------------------------------------------------------------------------
-class AddressRegion(models.Model):
-    """ 행정동 경계구역 정보
-        - 각각 행정구역에 대한 폴리건 정보를 관리한다.
-        - 예) '서울특별시 종로구 이화동' - JSON 데이터
-    """
-    addressDetail = models.CharField(max_length=100)  # 주소상세
-    #json_data = models.JSONField(default=dict)
+
+# # -------------------------------------------------------------------------------------------------
+# # 행정동 데이터 클래스
+# # 2022.03.16 - 측정위치 지도맵 제공 기능 취소 (주간보고)
+# # -------------------------------------------------------------------------------------------------
+# class AddressRegion(models.Model):
+#     """ 행정동 경계구역 정보
+#         - 각각 행정구역에 대한 폴리건 정보를 관리한다.
+#         - 예) '서울특별시 종로구 이화동' - JSON 데이터
+#     """
+#     addressDetail = models.CharField(max_length=100)  # 주소상세
+#     json_data = models.JSONField(default=dict)
 
 # -------------------------------------------------------------------------------------------------
 # 행정동 데이터 클래스
@@ -196,3 +214,7 @@ class CenterManageArea(models.Model):
     class Meta:
         verbose_name = "센터별 관할구역"
         verbose_name_plural = "센터별 관할구역"
+
+    # 인스턴스 정보를 출력한다.
+    def __str__(self):
+        return f"{self.address} / {self.center.centerName}"
