@@ -419,10 +419,9 @@ class MeasureCallData(models.Model):
         return str(self.phone_no)[-4:]
 
     # DL 속도를 반환한다.
-    @property
     def get_dl(self):
         """DL 속도를 반환한다."""
-        if self.downloadBandwidth and self.downloadBandwidth > 0:
+        if self.downloadBandwidth and self.downloadBandwidth > 0 and self.downloadBandwidth is not None:
             return f"{self.downloadBandwidth:.1f}"
         else:
             return '-'
@@ -430,7 +429,7 @@ class MeasureCallData(models.Model):
     # UL 속도를 반환한다.
     def get_ul(self):
         """UL 속도를 반환한다."""
-        if self.uploadBandwidth and self.uploadBandwidth > 0:
+        if self.uploadBandwidth and self.uploadBandwidth > 0 and self.uploadBandwidth is not None:
             return f"{self.uploadBandwidth:.1f}"
         else:
             return '-'
@@ -446,7 +445,7 @@ class MeasureCallData(models.Model):
     # RSRP를 반환한다.
     def get_rsrp(self):
         """RSRP 값을 반환한다."""
-        if self.networkId == '5G':
+        if self.networkId and self.networkId == '5G':
             return self.NR_RSRP
         else:
             return self.p_rsrp
@@ -454,7 +453,7 @@ class MeasureCallData(models.Model):
     # SINR를 반환한다.
     def get_sinr(self):
         """SINR 값을 리턴한다."""
-        if self.networkId == '5G':
+        if self.networkId and self.networkId == '5G':
             return self.NR_SINR
         else:
             return self.p_SINR
