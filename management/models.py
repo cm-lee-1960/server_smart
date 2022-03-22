@@ -74,7 +74,7 @@ class MorphologyMap(models.Model):
              커버리지 포함단어 -> 커버리지
              W- 시작단어 -> 인빌딩
     """
-    WORDSCOND_CHOICES = {('시작단어','시작단어'), ('포함단어','포함단어')}
+    WORDSCOND_CHOICES = (('시작단어','시작단어'), ('포함단어','포함단어'))
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     words = models.CharField(max_length=200, null=True, blank=True, verbose_name="단어") # 모폴로지 판단 컬럼2 : 특정 단어 포함
@@ -99,9 +99,9 @@ class SendFailure(models.Model):
         - 품질기준(5G DL: 12M, UL: 2M, LTE DL: 6M, UL: 1M, 3G DL: 256K, UL: 128K
         - 품질취약 LTE 1M, UL: 0.5, 3G DL: 256K, UL 128K
     """
-    AREAIND__CHOICES = {('NORM','보통지역'), ('WEEK', '취약지역')}
-    NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
-    DATATYPE_CHOICES = {('DL','DL'), ('UL','UL')}
+    AREAIND__CHOICES = (('NORM','보통지역'), ('WEEK', '취약지역'))
+    NETWORKID_CHOICES = (('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi'))
+    DATATYPE_CHOICES = (('DL','DL'), ('UL','UL'))
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     areaInd = models.CharField(max_length=10, choices=AREAIND__CHOICES, verbose_name='지역구분')
@@ -124,9 +124,9 @@ class LowThroughput(models.Model):
     """ 속도저하 기준 정보
         - 상황에 따라 변경되는 속도저하 기준 정보를 관리한다.
     """
-    AREAIND__CHOICES = {('NORM','보통지역'), ('WEEK', '취약지역')}
-    NETWORKID_CHOICES = {('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi')}
-    DATATYPE_CHOICES = {('DL','DL'), ('UL','UL')}
+    AREAIND__CHOICES = (('NORM','보통지역'), ('WEEK', '취약지역'))
+    NETWORKID_CHOICES = (('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi'))
+    DATATYPE_CHOICES = (('DL','DL'), ('UL','UL'))
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     areaInd = models.CharField(max_length=10, choices=AREAIND__CHOICES, verbose_name='지역구분')

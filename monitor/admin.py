@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.contrib import admin, sites
 from django.urls import path
 from django.http import HttpResponseRedirect
+# from django.forms import TextInput, Textarea
+# from django.db import models
+from django import forms
 from .models import PhoneGroup, Phone, MeasureCallData
 from .close import measuring_end, measuring_day_close
 
@@ -29,11 +32,17 @@ from .close import measuring_end, measuring_day_close
 # -------------------------------------------------------------------------------------------------
 class PhoneGroupAdmin(admin.ModelAdmin):
     """어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스"""
-    list_display = ['measdate', 'phone_list', 'measuringTeam', 'userInfo1', 'active']
+    list_display = ['measdate', 'phone_list', 'measuringTeam', 'userInfo1', 'morphology', 'active']
     list_display_links = ['phone_list', ]
     search_fields = ('measdate', 'userInfo1', 'phone_list', 'measuringTeam')
     list_filter = ['measdate', 'measuringTeam', 'active']
     actions = ['get_measuring_end_action']
+
+    # DetailView에서 적용하는 내용임
+    # formfield_overrides = {
+    #     models.CharField: {'widget': TextInput(attrs={'size':'20'})},
+    #     models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':40})},
+    # }
 
     # 해당 단말그룹에 묶여 있는 단말기 번호를 가져온다.
     def phone_list(self, phoneGroup):

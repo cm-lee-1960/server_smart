@@ -26,18 +26,18 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 ###################################################################################################
 class PhoneGroup(models.Model):
     """측정 단말기 그룹정보"""
-    MEASURINGTEAM_CHOICES = {
+    MEASURINGTEAM_CHOICES = (
         ("1조", "1조"),
         ("2조", "2조"),
         ("3조", "3조"),
         ("4조", "4조"),
         ("5조", "5조"),
-    }
-    ISPID_CHOICES = {
+    )
+    ISPID_CHOICES = (
         ("45008", "KT"),
         ("45005", "SKT"),
         ("45006", "LGU+"),
-    }
+    )
 
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
@@ -171,22 +171,22 @@ def get_morphology(userInfo2: str) -> Morphology:
 class Phone(models.Model):
     """측정 단말기 정보"""
 
-    ISPID_CHOICES = {
+    ISPID_CHOICES = (
         ("45008", "KT"),
         ("45005", "SKT"),
         ("45006", "LGU+"),
-    }
-    STATUS_CHOICES = {
+    )
+    STATUS_CHOICES = (
         ("POWERON", "PowerOn"),
         ("START_F", "측정시작"),
         ("START_M", "측정시작"),
         ("MEASURING", "측정중"),
         ("END", "측정종료"),
-    }
-    MEASTYPE_CHOICES = {
+    )
+    MEASTYPE_CHOICES = (
         ("DL", "DL"),
         ("UL", "UL")
-    }
+    )
 
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
