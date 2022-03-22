@@ -421,7 +421,7 @@ class MeasureCallData(models.Model):
     # DL 속도를 반환한다.
     def get_dl(self):
         """DL 속도를 반환한다."""
-        if self.downloadBandwidth and self.downloadBandwidth > 0 and self.downloadBandwidth is not None:
+        if self.downloadBandwidth is not None and self.downloadBandwidth > 0:
             return f"{self.downloadBandwidth:.1f}"
         else:
             return '-'
@@ -429,7 +429,7 @@ class MeasureCallData(models.Model):
     # UL 속도를 반환한다.
     def get_ul(self):
         """UL 속도를 반환한다."""
-        if self.uploadBandwidth and self.uploadBandwidth > 0 and self.uploadBandwidth is not None:
+        if self.uploadBandwidth is not None and self.uploadBandwidth > 0:
             return f"{self.uploadBandwidth:.1f}"
         else:
             return '-'
@@ -445,7 +445,7 @@ class MeasureCallData(models.Model):
     # RSRP를 반환한다.
     def get_rsrp(self):
         """RSRP 값을 반환한다."""
-        if self.networkId and self.networkId == '5G':
+        if self.networkId is not None and self.networkId == '5G':
             return self.NR_RSRP
         else:
             return self.p_rsrp
@@ -453,7 +453,7 @@ class MeasureCallData(models.Model):
     # SINR를 반환한다.
     def get_sinr(self):
         """SINR 값을 리턴한다."""
-        if self.networkId and self.networkId == '5G':
+        if self.networkId is not None and self.networkId == '5G':
             return self.NR_SINR
         else:
             return self.p_SINR
@@ -479,7 +479,7 @@ class MeasureCallData(models.Model):
             - 반환값: 주소(문자열)
 
         """
-        if self.addressDetail and self.addressDetail != None:
+        if self.addressDetail is not None:
             if self.siDo in self.guGun:
                 address = f"{self.guGun} {self.addressDetail.split(' ')[0]}"
             else:
@@ -583,19 +583,19 @@ class Message(models.Model):
     """전송 메시지 정보"""
     phone = models.ForeignKey(Phone, null=True, on_delete=models.DO_NOTHING)
     status = models.CharField(max_length=10, null=True)  # 메시지 전송시 측정단말의 상태
-    measdate = models.CharField(max_length=10)
+    measdate = models.CharField(max_length=10) # 측정일자(예: 20211101)
     sendType = models.CharField(max_length=10)  # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
     #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정) ###########
-    userInfo1 = models.CharField(max_length=100, null=True, blank=True)
-    currentCount = models.IntegerField(null=True, blank=True)
-    phone_no = models.BigIntegerField(null=True, blank=True)
+    userInfo1 = models.CharField(max_length=100, null=True, blank=True) # 측정자 입력값1
+    currentCount = models.IntegerField(null=True, blank=True) # 현재 콜카운트
+    phone_no = models.BigIntegerField(null=True, blank=True) # 측정단말 전화번호
     downloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
     uploadBandwidth = models.FloatField(null=True, blank=True)  # UP속도
     ###################################################
     messageType = models.CharField(max_length=10)  # 메시지유형(SMS: 메시지, EVENT: 이벤트)
-    message = models.TextField(default=False)
-    channelId = models.CharField(max_length=25)
-    sended = models.BooleanField(default=True)
+    message = models.TextField(default=False) # 메시지 내용
+    channelId = models.CharField(max_length=25) # 채널ID
+    sended = models.BooleanField(default=True) # 전송여부
 
 
 # -------------------------------------------------------------------------------------------------

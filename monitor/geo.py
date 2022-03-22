@@ -9,12 +9,13 @@ from django.conf import settings
 ###################################################################################################
 # 좌표(위도,경도) 및 주소 변환 모듈
 # - 카카오 개발문서 : https://developers.kakao.com/docs/latest/ko/local/dev-guide
-#
+# --------------------------------------------------------------------------------------------------
+# 2022.03.22 - 코딩 및 주석 작성 룰에 벗어나는 내용 수정
 #################################################################################################### 
 class KakaoLocalAPI:
-    '''Kakao Local API 컨트롤러'''
+    """Kakao Local API 컨트롤러"""
     def __init__(self, rest_api_key):
-        '''Rest API키 초기화 및 기능 별 URL 설정'''
+        """Rest API키 초기화 및 기능 별 URL 설정"""
         # REST API 키 설정
         self.rest_api_key = rest_api_key
         self.headers = {"Authorization": "KakaoAK {}".format(rest_api_key)}
@@ -31,16 +32,16 @@ class KakaoLocalAPI:
     # 01 주소 검색
     #--------------------------------------------------------------------------------------------------
     def search_address(self, query, analyze_type=None, page=None, size=None):
-        '''01 주소 검색'''
+        """01 주소 검색"""
         params = {"query": f"{query}"}
 
-        if analyze_type != None:
+        if analyze_type is not None:
             params["analyze_type"] = f"{analyze_type}"
 
-        if page != None:
+        if page is not None:
             params['page'] = f"{page}"
 
-        if size != None:
+        if size is not None:
             params['size'] = f"{size}"
 
         res = requests.get(self.URL_01, headers=self.headers, params=params)
@@ -50,14 +51,14 @@ class KakaoLocalAPI:
     # 02 좌표-행정구역정보 변환
     #--------------------------------------------------------------------------------------------------
     def geo_coord2regioncode(self, x, y, input_coord=None, output_coord=None):
-        '''02 좌표-행정구역정보 변환'''
+        """02 좌표-행정구역정보 변환"""
         params = {"x": f"{x}",
                   "y": f"{y}"}
         
-        if input_coord != None:
+        if input_coord is not None:
             params['input_coord'] = f"{input_coord}"
         
-        if output_coord != None:
+        if output_coord is not None:
             params['output_coord'] = f"{output_coord}"
             
         res = requests.get(self.URL_02, headers=self.headers, params=params)
@@ -69,11 +70,11 @@ class KakaoLocalAPI:
     # 03 좌표-주소 변환
     #--------------------------------------------------------------------------------------------------    
     def geo_coord2address(self, x, y, input_coord=None):
-        '''03 좌표-주소 변환'''
+        """03 좌표-주소 변환"""
         params = {"x": f"{x}",
                   "y": f"{y}"}
         
-        if input_coord != None:
+        if input_coord is not None:
             params['input_coord'] = f"{input_coord}"
             
         res = requests.get(self.URL_03, headers=self.headers, params=params)
@@ -85,12 +86,12 @@ class KakaoLocalAPI:
     # 04 좌표계 변환
     #--------------------------------------------------------------------------------------------------  
     def geo_transcoord(self, x, y, output_coord, input_coord=None):
-        '''04 좌표계 변환'''
+        """04 좌표계 변환"""
         params = {"x": f"{x}",
                   "y": f"{y}",
                   "output_coord": f"{output_coord}"}
         
-        if input_coord != None:
+        if input_coord is not None:
             params['input_coord'] = f"{input_coord}"
         
         res = requests.get(self.URL_04, headers=self.headers, params=params)
@@ -102,24 +103,24 @@ class KakaoLocalAPI:
     # 05 키워드 검색
     #--------------------------------------------------------------------------------------------------     
     def search_keyword(self,query,category_group_code=None,x=None,y=None,radius=None,rect=None,page=None,size=None,sort=None):
-        '''05 키워드 검색'''
+        """05 키워드 검색"""
         params = {"query": f"{query}"}
         
-        if category_group_code != None:
+        if category_group_code is not None:
             params['category_group_code'] = f"{category_group_code}"
-        if x != None:
+        if x is not None:
             params['x'] = f"{x}"
-        if y != None:
+        if y is not None:
             params['y'] = f"{y}"
-        if radius != None:
+        if radius is not None:
             params['radius'] = f"{radius}"
-        if rect != None:
+        if rect is not None:
             params['rect'] = f"{rect}"
-        if page != None:
+        if page is not None:
             params['page'] = f"{page}"
-        if size != None:
+        if size is not None:
             params['size'] = f"{params}"
-        if sort != None:
+        if sort is not None:
             params['sort'] = f"{sort}"
         
         res = requests.get(self.URL_05, headers=self.headers, params=params)
@@ -131,20 +132,20 @@ class KakaoLocalAPI:
     # 06 카테고리 검색
     #--------------------------------------------------------------------------------------------------       
     def search_category(self, category_group_code, x, y, radius=None, rect=None, page=None, size=None, sort=None):
-        '''06 카테고리 검색'''
+        """06 카테고리 검색"""
         params = {'category_group_code': f"{category_group_code}",
                   'x': f"{x}",
                   'y': f"{y}"}
         
-        if radius != None:
+        if radius is not None:
             params['radius'] = f"{radius}"
-        if rect != None:
+        if rect is not None:
             params['rect'] = f"{rect}"
-        if page != None:
+        if page is not None:
             params['page'] = f"{page}"
-        if size != None:
+        if size is not None:
             params['size'] = f"{size}"
-        if sort != None:
+        if sort is not None:
             params['sort'] = f"{sort}"
             
         res = requests.get(self.URL_06, headers=self.headers, params=params)
@@ -167,10 +168,10 @@ class KakaoLocalAPI:
 #######################################################################################################
 # RSRP 값에 따라 색상코드를 결정한다. 
 def rsrp2color(x):
-    ''' RSRP 값으로 색상코드를 반환한다. 
+    """ RSRP 값으로 색상코드를 반환한다.
         - 파라미터: RSRP(숫자)
         - 반환값: 색상값(문자열)
-    '''
+    """
     if x > -65:
         color = 'red'
     elif -75 <= x < -65:
@@ -186,11 +187,11 @@ def rsrp2color(x):
     return color
 
 def make_map_locations(mdata):
-    ''' 측정위치로 지도를 작성하는 함수
+    """ 측정위치로 지도를 작성하는 함수
         - 파라미터
           . mdata: 측정 데이터(콜단위) (MeasureCallData)
         - 반환값: 없음
-    '''
+    """
     # if locations and len(locations) < 1: return None
     map = folium.Map(location=[mdata.phone.latitude, mdata.phone.longitude], zoom_start=15)
 
