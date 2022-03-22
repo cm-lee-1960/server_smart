@@ -61,6 +61,7 @@ from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_m
 #              예)행정동+커버리지, 테마+커버리지
 #              * 현재 그룹생성 기준: 측정일자(YYYYMMDD) + 측정자 입력값1(userInfo1) + 통신사(ispId)
 #              * 변경 그룹생성 기준: 측정일자(YYYYMMDD) + 측정자 입력값1(userInfo1) + 측정자 입력값2(userInfo2) + 통신사(ispId)
+# 2022.03.22 - 단말그룹 관리대상 여부 항목 추가
 #
 ####################################################################################################################################
 @csrf_exempt
@@ -106,6 +107,7 @@ def receive_json(request):
                             userInfo2=data['userInfo2'], # 측정자 입력갑2
                             morphology=morphology, # 모폴로지
                             ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
+                            manage=morphology.manage, # 관리대상 여부
                             active=True) # 상태
             
     except Exception as e:

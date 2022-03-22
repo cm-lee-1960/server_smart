@@ -21,6 +21,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # 2022.03.17 - 측정종료 및 측정마감 시 코드 복잡성을 낮추기 위해서 단말그룰에 측정유형(networkId)을 가져감
 # 2022.03.18 - 측정마감 모델(MeasuingDayClose)  추가
 # 2022.03.19 - 관할센터(Center) 외래키 항목 추가
+# 2022.03.22 - 단말그룹에 관리대상 여부 항목 추가
 #
 ###################################################################################################
 class PhoneGroup(models.Model):
@@ -52,6 +53,7 @@ class PhoneGroup(models.Model):
     ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
     dl_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(DL)
     ul_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(UL)
+    manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
 
     class Meta:
@@ -59,7 +61,7 @@ class PhoneGroup(models.Model):
         verbose_name_plural = "단말 그룹"
 
     def __str__(self):
-        return f"{self.measdate}"
+        return f"{self.measdate} / {self.userInfo1} / {self.morphology}"
 
     # 해당 단말그룹의 측정조를 업데이트 한다.
     def update_initial_data(self):
@@ -125,7 +127,7 @@ def get_morphology(userInfo2: str) -> Morphology:
     """
     # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
     morphology = Morphology.objects.filter(morphology='행정동')[0]  # 초기값 설정
-    if userInfo2 and userInfo2 != None:
+    if userInfo2 and userInfo2 is not None:
         # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
         for mp in MorphologyMap.objects.all():
             if mp.wordsCond == '시작단어':

@@ -20,6 +20,7 @@ from .close import measuring_end, measuring_day_close
 #            - 측정단말의 전화번호 끝 4자리만 표기, 측정단말 관리자 상세화면에서 필드 항목의 사이즈 조정
 # 2022.03.10 - 단말그룹 관리자 페이지 추가 (단말그룹에 측정조를 입력할 수 있도록 함)
 # 2022.03.17 - 단말그룹 관리자 페이지에서 선택된 단말그룹에 대해 측정종료 처리 함수를 추가함
+# 2022.03.22 - 단말그룹에 관리대상 여부를 추가하고 관리대상 자료만 관리자 화면에 조회도록 수정함
 #
 ###################################################################################################
 
@@ -46,7 +47,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     # 단말그룹 중에서 KT 자료만 보여지게 한다.
     def get_queryset(self, request):
         query = super(PhoneGroupAdmin, self).get_queryset(request)
-        filtered_query = query.filter(ispId='45008')
+        filtered_query = query.filter(ispId='45008', manage=True)
         return filtered_query
 
     # 선택된 ROW를 삭제하는 액션을 삭제한다("선택된 측정 단말 을/를 삭제합니다.").
