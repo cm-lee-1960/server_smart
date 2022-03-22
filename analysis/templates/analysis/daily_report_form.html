@@ -107,7 +107,7 @@
 			<h2>&nbsp;&nbsp;○ 5G : 전국 </h2><h2 id="tt1"></h2><h2>{{sregi5G}}개 완료</h2><h2 id = pc1></h2>
 			<h2 style="color: blue;" id='result1'>
 				{% for reportmsg in reportmsg %}
-				{{reportmsg.msg1}}
+				{{reportmsg.msg5G}}
 				{% endfor %}
 			</h2>
 		</div>
@@ -130,9 +130,9 @@
 						<td >대상</td>
 						{% for regi in regi %}
 						<td id="5tt">{{regi.total5G}}</td>
-						<td id="planarea1">{{regi.area1}}</td>
-						<td id="planarea2">{{regi.area2}}</td>
-						<td id="planarea3">{{regi.area3}}</td>
+						<td id="planarea1">{{regi.hjd5G}}</td>
+						<td id="planarea2">{{regi.dg5G}}</td>
+						<td id="planarea3">{{regi.cv5G}}</td>
 					   	{% endfor %}
 					<tr>
 				 		<td >누적</td>
@@ -163,7 +163,7 @@
 			<h2>&nbsp;&nbsp;○ LTE : 전국 </h2><h2 id = "tt2"></h2><h2> {{sregiLTE}}개 완료</h2><h2 id = pc2></h2>
 			<h2 style="color: blue;" id='result1'>
 				{% for reportmsg in reportmsg %}
-				{{reportmsg.msg2}}
+				{{reportmsg.msgLTE}}
 				{% endfor %}
 			</h2>
 		</div>
@@ -192,12 +192,12 @@
 						<td >대상</td>
 						{% for regi in regi %}
 						<td id = "ltt">{{regi.totalLTE}}</td>
-						<td id="planarea4">{{regi.area4}}</td>
-						<td id="planarea5">{{regi.area5}}</td>
-						<td id="planarea6">{{regi.area6}}</td>
-						<td id="planarea7">{{regi.area7}}</td>
-						<td id="planarea8">{{regi.area8}}</td>
-						<td id="planarea9">{{regi.area9}}</td>
+						<td id="planarea4">{{regi.bctLTE}}</td>
+						<td id="planarea5">{{regi.mctLTE}}</td>
+						<td id="planarea6">{{regi.sctLTE}}</td>
+						<td id="planarea7">{{regi.ibLTE}}</td>
+						<td id="planarea8">{{regi.tmLTE}}</td>
+						<td id="planarea9">{{regi.cvLTE}}</td>
 						{% endfor %}
 				   </tr>
 				   
@@ -238,7 +238,7 @@
 			<h2>&nbsp;&nbsp;○ WiFi : 전국 </h2><h2 id="tt3"></h2><h2> {{sregiWiFi}}국소 완료</h2><h2 id = pc3></h2>
 			<h2 style="color: blue;" id='result1'>
 				{% for reportmsg in reportmsg %}
-				{{reportmsg.msg3}}
+				{{reportmsg.msgWiFi}}
 				{% endfor %}
 			</h2>
 		</div>
@@ -259,8 +259,8 @@
 						<td >대상</td>
 						{% for regi in regi %}
 					   <td id = "witt">{{regi.totalWiFi}}</td>
-					   <td id="planarea10">{{regi.area10}}</td>
-					   <td id="planarea11">{{regi.area11}}</td>
+					   <td id="planarea10">{{regi.syWiFi}}</td>
+					   <td id="planarea11">{{regi.gbWiFi}}</td>
 					   {% endfor %}
 				   </tr>
 				  
@@ -296,7 +296,7 @@
 			<h2>&nbsp;&nbsp;○ 품질취약지역 : 전국 </h2><h2 id="tt4"></h2><h2> {{sregiweak}}개 완료</h2><h2 id = pc4></h2>
 			<h2 style="color: blue;" id='result1'>
 				{% for reportmsg in reportmsg %}
-				{{reportmsg.msg4}}
+				{{reportmsg.msgWeak}}
 				{% endfor %}
 			</h2>
 		</div>
@@ -319,10 +319,10 @@
 						<td >대상</td>
 						{% for regi in regi %}
 					   <td id = 'wtt' >{{regi.totalWeakArea}}</td>
-					   <td id="planarea12">{{regi.area12}}</td>
-					   <td id="planarea13">{{regi.area13}}</td>
-					   <td id="planarea14">{{regi.area14}}</td>
-					   <td id="planarea15">{{regi.area15}}</td>
+					   <td id="planarea12">{{regi.dsrWeak}}</td>
+					   <td id="planarea13">{{regi.yghrWeak}}</td>
+					   <td id="planarea14">{{regi.yidsWeak}}</td>
+					   <td id="planarea15">{{regi.hadrWeak}}</td>
 					   {% endfor %}
 					<tr>
 				 		<td >누적</td>

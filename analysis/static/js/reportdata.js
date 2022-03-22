@@ -30,21 +30,21 @@ var resultarea13 = parseInt(document.getElementById("resultarea13").outerText);
 var resultarea14 = parseInt(document.getElementById("resultarea14").outerText);
 var resultarea15 = parseInt(document.getElementById("resultarea15").outerText);
 
-document.getElementById("resultarea1").innerHTML = resultarea1+"("+(resultarea1/planarea1).toFixed(0)+"%)";
-document.getElementById("resultarea2").innerHTML = resultarea2+"("+(resultarea2/planarea2).toFixed(0)+"%)";
-document.getElementById("resultarea3").innerHTML = resultarea3+"("+(resultarea3/planarea3).toFixed(0)+"%)";
-document.getElementById("resultarea4").innerHTML = resultarea4+"("+(resultarea4/planarea4).toFixed(0)+"%)";
-document.getElementById("resultarea5").innerHTML = resultarea5+"("+(resultarea5/planarea5).toFixed(0)+"%)";
-document.getElementById("resultarea6").innerHTML = resultarea6+"("+(resultarea6/planarea6).toFixed(0)+"%)";
-document.getElementById("resultarea7").innerHTML = resultarea7+"("+(resultarea7/planarea7).toFixed(0)+"%)";
-document.getElementById("resultarea8").innerHTML = resultarea8+"("+(resultarea8/planarea8).toFixed(0)+"%)";
-document.getElementById("resultarea9").innerHTML = resultarea9+"("+(resultarea9/planarea9).toFixed(0)+"%)";
-document.getElementById("resultarea10").innerHTML = resultarea10+"("+(resultarea10/planarea10).toFixed(0)+"%)";
-document.getElementById("resultarea11").innerHTML = resultarea11+"("+(resultarea11/planarea11).toFixed(0)+"%)";
-document.getElementById("resultarea12").innerHTML = resultarea12+"("+(resultarea12/planarea12).toFixed(0)+"%)";
-document.getElementById("resultarea13").innerHTML = resultarea13+"("+(resultarea13/planarea13).toFixed(0)+"%)";
-document.getElementById("resultarea14").innerHTML = resultarea14+"("+(resultarea14/planarea14).toFixed(0)+"%)";
-document.getElementById("resultarea15").innerHTML = resultarea15+"("+(resultarea15/planarea15).toFixed(0)+"%)";
+document.getElementById("resultarea1").innerHTML = resultarea1+"("+((resultarea1/planarea1)*100).toFixed(0)+"%)";
+document.getElementById("resultarea2").innerHTML = resultarea2+"("+((resultarea2/planarea2)*100).toFixed(0)+"%)";
+document.getElementById("resultarea3").innerHTML = resultarea3+"("+((resultarea3/planarea3)*100).toFixed(0)+"%)";
+document.getElementById("resultarea4").innerHTML = resultarea4+"("+((resultarea4/planarea4)*100).toFixed(0)+"%)";
+document.getElementById("resultarea5").innerHTML = resultarea5+"("+((resultarea5/planarea5)*100).toFixed(0)+"%)";
+document.getElementById("resultarea6").innerHTML = resultarea6+"("+((resultarea6/planarea6)*100).toFixed(0)+"%)";
+document.getElementById("resultarea7").innerHTML = resultarea7+"("+((resultarea7/planarea7)*100).toFixed(0)+"%)";
+document.getElementById("resultarea8").innerHTML = resultarea8+"("+((resultarea8/planarea8)*100).toFixed(0)+"%)";
+document.getElementById("resultarea9").innerHTML = resultarea9+"("+((resultarea9/planarea9)*100).toFixed(0)+"%)";
+document.getElementById("resultarea10").innerHTML = resultarea10+"("+((resultarea10/planarea10)*100).toFixed(0)+"%)";
+document.getElementById("resultarea11").innerHTML = resultarea11+"("+((resultarea11/planarea11)*100).toFixed(0)+"%)";
+document.getElementById("resultarea12").innerHTML = resultarea12+"("+((resultarea12/planarea12)*100).toFixed(0)+"%)";
+document.getElementById("resultarea13").innerHTML = resultarea13+"("+((resultarea13/planarea13)*100).toFixed(0)+"%)";
+document.getElementById("resultarea14").innerHTML = resultarea14+"("+((resultarea14/planarea14)*100).toFixed(0)+"%)";
+document.getElementById("resultarea15").innerHTML = resultarea15+"("+((resultarea15/planarea15)*100).toFixed(0)+"%)";
 
 
 
