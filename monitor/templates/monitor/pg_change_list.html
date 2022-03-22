@@ -4,7 +4,24 @@
     <div>
         <form action="close/" method="POST">
             {% csrf_token %}
-                <button type="submit">측정마감</button>
+            <style>
+                .closebutton {
+                    background-color: white;
+                    border-radius: 10px;
+                    border: 1px solid skyblue;
+                    color: rgb(93, 93, 93);
+                    padding: 6px 14px;
+                    font-weight: 600;
+                }
+                .closebutton:hover{
+                    color:white;
+                    background-color: skyblue;
+                }
+            </style>
+
+            <button class="closebutton" type="submit" style="cursor:pointer">
+                측정마감
+            </button>
         </form>
     </div>
     <br />
