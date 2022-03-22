@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.contrib import admin, sites
+from django.urls import path
+from django.http import HttpResponseRedirect
 from .models import PhoneGroup, Phone, MeasureCallData
-from .close import measuring_end
+from .close import measuring_end, measuring_day_close
 
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
@@ -79,6 +81,24 @@ class PhoneGroupAdmin(admin.ModelAdmin):
             return render(request, 'message/xroshot_page.html', {'message' : result_list[0]['message']})
 
     get_measuring_end_action.short_description = '선택한 측정그룹 종료처리'
+
+    # 당일측정 마감 버튼을 추가한다.
+    change_list_template = "entities/heroes_changelist.html"
+    # overriding get_urls -> 당일측정 마감 path 추가
+    def get_urls(self):
+        urls = super().get_urls()
+        day_close_urls = [
+            path('close/', self.day_close),
+        ]
+        return day_close_urls + urls
+    # 버튼 클릭 시의 당일측정 마감 함수 실행  //  마감할 건이 없을 경우 예외처리 필요?
+    def day_close(self, request):
+        phoneGroup_list = self.model.objects.filter(active=True)  # 현재 Active 상태 단말그룹 리스트 추출
+        measuring_day_close(phoneGroup_list)  # 당일 측정 마감 함수 실행
+        self.message_user(request, "당일 측정이 마감되었습니다.")  # 실행 후 알람 메시지 생성
+        return HttpResponseRedirect("../")
+
+    change_list_template = "monitor/pg_change_list.html"
 
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정

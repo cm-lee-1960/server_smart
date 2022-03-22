@@ -214,7 +214,7 @@ def make_message(mdata: MeasureCallData):
         # 전송 메시지를 생성한다.
         Message.objects.create(
             phone=phone, # 측정단말
-            status=phone.status, # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료)
+            status=phone.status, # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료,END_LAST:마지막지역측정종료,REPORT:일일보고용,REPORT_ALL:일일보고용전체)
             measdate=str(mdata.meastime)[0:8], # 측정일자
             sendType='TELE', # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
             userInfo1=mdata.userInfo1, # 측정자 입력값1

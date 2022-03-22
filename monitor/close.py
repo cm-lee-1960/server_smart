@@ -3,6 +3,7 @@ from django.conf import settings
 from .models import Phone, PhoneGroup, MeasureCallData, Message
 from django.conf import settings
 from django.db.models import Max, Min, Avg, Count, Q
+from datetime import datetime
 
 ###################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -75,12 +76,58 @@ def measuring_end(phoneGroup):
         messageType='SMS',
         message=message,
         channelId='',
-        sended=True
+        sended=False
     )
 
     # 측정종료 처리가 완료된 단말그룹에 대해서 상태를 비활성화 시킨다.
     phoneGroup.active = False
     phoneGroup.save()
+    #phoneGroup.update(active=False)
+    # 해당 그룹의 폰들도 비활성화 시킨다.
+    phone_list.update(active=False)   # 종료 시켰는데 해당 폰이 다른 곳 추가 측정 중이면?
+
+
+    # 측정종료 후 일일보고용 메시지를 별도 생성한다. (3.21/ 지속 업데이트 예정)
+    # 일단 콜데이터로 갈음, 추후 초단위 데이터 계산식으로 변환 예정
+     # 평균 지연시간 계산  :  !!!!!!!!! 추후 정확한 계산식으로 대체 필요 !!!!!!!!!
+    avg_udpJitter = round(qs.exclude( Q(networkId='NR') | \
+                                      Q(downloadBandwidth=0) | \
+                                      Q(uploadBandwidth=0)
+                                      ).aggregate(Avg('udpJitter'))['udpJitter__avg'],1)
+    # 전송 성공률 계산 : 전체 콜수에서 "전송실패" 이벤트 발생 건수 비율로 계산 (추후 정확한 계산식 대체 필요)
+    success_rate = 1 - (Message.objects.filter(phone__in=phone_list, message__contains='전송실패').count() / total_count)
+    # 메시지 생성 : 측정타입(5G/LTE/3G/WiFi/음성)에 따라 메시지 포맷이 달라진다.
+    message_report = f"ㅇ {phoneGroup.userInfo1}({phoneGroup.morphology})\n"
+    if phoneGroup.networkId != 'WiFi':
+      message_report += f" - (DL/UL/시도호/전송성공률)\n" + \
+                        f"  .{phoneGroup.networkId} \"{avg_downloadBandwidth}/{avg_uploadBandwidth}/{total_count}/{success_rate}\"\n"
+      # 5G일 경우 LTE전환율 계산 - 접속시간은 추후 정확한 계산식 확인 후 업데이트
+      if phoneGroup.networkId == '5G':
+        message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
+                          f"  .{dl_nr_percent}/{ul_nr_percent}%,접속시간계산(업데이트예정)/{avg_udpJitter}ms"
+      # LTE일 경우 CA비율 계산 - CA비율은 추후 정확한 계산식 확인 후 업데이트
+      elif phoneGroup.networkId == 'LTE':
+        message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
+                          f"  .CA비율계산값들(업데이트예정)"
+    # WiFi일 경우 및 음성호일 경우 : 계사식 확인 후 업데이트 예정
+    elif phoneGroup.networkId == "WiFi":
+      pass
+    # 생성한 메시지를 저장한다.  
+    Message.objects.create(
+        phone=None,
+        status='REPORT',  # REPORT : 일일보고용 메시지
+        measdate=phoneGroup.measdate,
+        sendType='XMCS',
+        userInfo1=phoneGroup.userInfo1,
+        phone_no=None,
+        downloadBandwidth=avg_downloadBandwidth,
+        uploadBandwidth=avg_uploadBandwidth,
+        messageType='SMS',
+        message=message_report,
+        channelId='',
+        sended=False
+    )
+    
 
     # 마지막 지역의 종료일 경우 추가 메시지 생성
     if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, active=True).count() == 0:
@@ -100,7 +147,7 @@ def measuring_end(phoneGroup):
                         "수고 많으셨습니다."
         Message.objects.create(
             phone=None,
-            status='END',
+            status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
             measdate=phoneGroup.measdate,
             sendType='XMCS',
             userInfo1=phoneGroup.userInfo1,
@@ -110,7 +157,7 @@ def measuring_end(phoneGroup):
             messageType='SMS',
             message=message_final,
             channelId='',
-            sended=True
+            sended=False
         )
 
     # 반환값에 대해서는 향후 고민 필요  //  일단 마지막 측정 종료된 지역에 대한 id 와 message 내용 반환
@@ -121,14 +168,48 @@ def measuring_end(phoneGroup):
 # -------------------------------------------------------------------------------------------------
 # 당일 측정을 마감한다.
 # -------------------------------------------------------------------------------------------------
-def measuing_day_close():
-    """당일측정을 마감하는 함수"""
+def measuring_day_close(phoneGroup_list):
+    """당일측정을 마감하는 함수
+      - 파라미터
+        . phoneGroup_list: active=True인 단말그룹(PhoneGroup) 리스트
+      - 반환값: string
+        . message_report: 일일보고용 메시지 내용
+    """
     # 1) 단말그룹: 상태변경 - 혹시 남아 있는 상태(True)
     # 2) 측정단말: 상태변경 - 혹시 남아 있는 상태(Tre)
     # 3) 당일 측정마감 데이터 생성 --> 일일 상황보고 자료 활용 가능
     #    - 대상 데이터: 초단위 데이터
     # 4) 당일 측정종료 메시지 생성 (유형: 단문메시지(XMCS))
-    pass
+    
+    # Close한 그룹들에 대해 종료 메시지 생성 - PhoneGroup 과 Phone 의 상태는 종료 메시지 생성 함수에서 변경됨
+    for phoneGroup in phoneGroup_list:
+      measuring_end(phoneGroup)
+    
+    # !!--- 초데이터 기반, 데이터 가공 및 저장은 추후 데이터 확정 시 진행 예정 -- !!
+
+    # 일일보고용 메시지를 수합하여 하나로 작성한다
+    messages = Message.objects.filter(status='REPORT').values_list('message')
+    message_report = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.\n'
+    for i in range(len(messages)):
+      message_report += messages[i][0]
+    # 메시지를 저장한다.  //  메시지 저장 여부는 검토 중
+    Message.objects.create(
+            phone=None,
+            status='REPORT_ALL',  # REPORT_ALL : 일일보고용 메시지 전체 수합
+            measdate=datetime.today().strftime("%Y%m%d"),
+            sendType='XMCS',
+            userInfo1=None,
+            phone_no=None,
+            downloadBandwidth=None,
+            uploadBandwidth=None,
+            messageType='SMS',
+            message=message_report,
+            channelId='',
+            sended=False
+    )
+
+   # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
+    return message_report
 
 
 
