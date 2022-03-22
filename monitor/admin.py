@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.contrib import admin, sites
+from django.contrib import admin, sites, messages
 from django.urls import path
 from django.http import HttpResponseRedirect
 # from django.forms import TextInput, Textarea
@@ -104,7 +104,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     # 버튼 클릭 시의 당일측정 마감 함수 실행  //  마감할 건이 없을 경우 예외처리 필요?
     def day_close(self, request):
         if self.model.objects.filter(active=False).count() == 0:
-            self.message_user(request, "현재 측정 중인 지역이 없습니다.")
+            self.message_user(request, "현재 측정 중인 지역이 없습니다.", level=messages.ERROR)
         else:
             phoneGroup_list = self.model.objects.filter(active=True)  # 현재 Active 상태 단말그룹 리스트 추출
             measuring_day_close(phoneGroup_list)  # 당일 측정 마감 함수 실행
