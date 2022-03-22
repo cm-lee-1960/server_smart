@@ -632,13 +632,19 @@ class MeasuingDayClose(models.Model):
     """측정마감 클래스"""
     measdate = models.CharField(max_length=10, verbose_name='측정일자')  # 측정일자(예: 20211101)
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING, verbose_name='단말그룹')  # 단말그룹
-    downloadBandwidth = models.FloatField(null=True, blank=True, verbose_name='DL')  # DL속도
-    uploadBandwidth = models.FloatField(null=True, blank=True, verbose_name='UL')  # UP속도
+    userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
+    networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="유형")  # 네트워크ID(5G, LTE, 3G, WiFi)
+    center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="센터")
+    morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
+    downloadBandwidth = models.FloatField(null=True, blank=True, verbose_name='DL')  # DL속도 (초단위 데이터 평균)
+    uploadBandwidth = models.FloatField(null=True, blank=True, verbose_name='UL')  # UP속도 (초단위 데이터 평균)
     dl_count = models.IntegerField(null=True, default=0, verbose_name='DL콜카운트')  # 다운로드 콜수
     ul_count = models.IntegerField(null=True, default=0, verbose_name='UL콜카운트')  # 업로드 콜수
     dl_nr_count = models.IntegerField(null=True, default=0, verbose_name='DL NR 콜카운트')  # 5G->NR 전환 콜수
     ul_nr_count = models.IntegerField(null=True, default=0, verbose_name='UL NR 콜카운트')  # 5G->NR 전환 콜수
-    lte_transRate = models.FloatField(null=True, default=0.0, verbose_name='LTE전환율')  # 5G->NR 전환 전환율
+    dl_lte_transRate = models.FloatField(null=True, default=0.0, verbose_name='DL LTE전환율')  # 5G->NR 전환 전환율(dl)
+    ul_lte_transRate = models.FloatField(null=True, default=0.0, verbose_name='UL LTE전환율')  # 5G->NR 전환 전환율(ul)
+    connect_time = models.FloatField(null=True, default=0.0, verbose_name='접속시간')  # 접속시간
     udpJitter = models.FloatField(null=True, default=0.0, verbose_name='지연시간')  # 지연시간
     total_count = models.IntegerField(null=True, default=0, verbose_name='시도호수')  # 시도호수
     success_rate = models.FloatField(null=True, default=0.0, verbose_name='전송성공율')  # 전송성공율
