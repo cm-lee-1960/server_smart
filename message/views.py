@@ -28,7 +28,14 @@ def stop_cb(request):
 
 # 크로샷 메시지 작성 페이지 (임시)  // (3.13)
 def xroshot_index(request):
-    return render(request, 'message/xroshot_page.html')
+    if request.method=='POST':
+        print(request.POST)
+        message = {'message_all':Message.objects.all(), 'message':request.POST['selected_message']}
+        return render(request, 'message/xroshot_page.html', message)
+    else:
+        message = {'message_all':Message.objects.all()}
+        return render(request, 'message/xroshot_page.html', message)
+
 
 # 작성한 메시지를 바탕으로 메시지 전송  //  (3.13)
 from django.views.decorators.csrf import csrf_exempt

@@ -1,3 +1,6 @@
+<head>
+    <meta charset="UTF-8">
+</head>
 
 <form action="http://127.0.0.1:8000/message/xroshot_send/" method="post">
     {% csrf_token %}
@@ -13,3 +16,26 @@
         </p>
     </form>
 </form>
+
+
+
+<h3> 생성된 메시지 선택하기 </h3>
+<table border="1">
+    <th>ID</th>
+    <th>Date</th>
+    <th name="abcd">Message</th>
+    <th>Select</th>
+    {% for message in message_all %}
+    <tr>
+        <td>{{message.id}}</td>
+        <td>{{message.measdate}}</td>
+        <form action="http://127.0.0.1:8000/message/xroshot/" method="post">
+            {% csrf_token %}
+            <td><input type="hidden" name="selected_message" value="{{message.message}}">{{message.message}}</td>
+            <td><input type="submit" value="선택"></td>
+        </form>
+        </tr>
+    {% endfor %}
+</table>
+
+
