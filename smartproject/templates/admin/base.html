@@ -20,13 +20,18 @@
 {% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
 
-<link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">
+
 
   <!-- Bootstrap core CSS -->
   <link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
   <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /> -->
   <!-- Custom styles for this template -->
-  <link rel="stylesheet" type="text/css" href="{% static "css/nav.css" %}">
+<style>
+  caption { 
+    caption-side: top;
+    
+}
+</style>
 </head>
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
@@ -35,9 +40,9 @@
 <!-- Container -->
 <div id="container">
 
-   
+  {% if not is_popup %}
     <!-- Header -->
-  
+    {% block header %}
     <div id="header">
         <!-- Fixed navbar -->
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -76,7 +81,7 @@
   </header>
 
     </div>
-  
+  {% endblock %}
     <!-- END Header -->
     {% block breadcrumbs %}
     <div class="breadcrumbs">
@@ -84,7 +89,7 @@
     {% if title %} &rsaquo; {{ title }}{% endif %}
     </div>
     {% endblock %}
-    
+    {% endif %}
 
     <div class="main" id="main"style="padding:40px">
       {% if not is_popup and is_nav_sidebar_enabled %}
