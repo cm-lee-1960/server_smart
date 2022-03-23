@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 # from django.forms import TextInput, Textarea
 # from django.db import models
 from django import forms
-from .models import PhoneGroup, Phone, MeasureCallData
+from .models import PhoneGroup, Phone, MeasureCallData, Message
 from .close import measuring_end, measuring_day_close
 
 ###################################################################################################
@@ -103,15 +103,22 @@ class PhoneGroupAdmin(admin.ModelAdmin):
         return day_close_urls + urls
     # 버튼 클릭 시의 당일측정 마감 함수 실행  //  마감할 건이 없을 경우 예외처리 필요?
     def day_close(self, request):
-        if self.model.objects.filter(ispId=45008, active=True).count() == 0:
-            self.message_user(request, "현재 측정 중인 지역이 없습니다.", level=messages.ERROR)
+        date = request.POST['date'].replace('-','')
+        # 측정 이력이 없는 날짜일 경우 : 측정 중인 지역 없다는 메시지 노출
+        if self.model.objects.filter(measdate=date, ispId=45008).count() == 0:
+            self.message_user(request, "측정 중인 지역이 없습니다.", level=messages.ERROR)
+        # 이미 마감한 날짜를 재마감할 경우 : 이미 마감한 지역 메시지 노출
+        elif (self.model.objects.filter(measdate=date, ispId=45008, active=True).count() == 0) & \
+             (Message.objects.filter(measdate=date, status='REPORT_ALL').count!=0):   # 해당 날짜에 Active 폰그룹이 없 and 마감 메시지 없으면
+            self.message_user(request, "이미 마감한 날짜입니다.", level=messages.ERROR)
+        # 나머지 경우 마감 진행
         else:
-            phoneGroup_list = self.model.objects.filter(ispId=45008, active=True)  # 현재 Active 상태 단말그룹 리스트 추출
-            measuring_day_close(phoneGroup_list)  # 당일 측정 마감 함수 실행
-            self.message_user(request, "당일 측정이 마감되었습니다.")  # 실행 후 알람 메시지 생성
+            phoneGroup_list = self.model.objects.filter(measdate=date, ispId=45008, active=True)  # 현재 Active 상태 단말그룹 리스트 추출
+            measuring_day_close(phoneGroup_list, date)  # 당일 측정 마감 함수 실행
+            self.message_user(request, "해당일 측정 마감처리 되었습니다.")  # 실행 후 알람 메시지 생성
         return HttpResponseRedirect("../")
 
-    change_list_template = "monitor/pg_change_list.html"
+    change_list_template = "analysis/day_close_btn.html"
 
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정

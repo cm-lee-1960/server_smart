@@ -1,9 +1,8 @@
 from email import message
 from django.conf import settings
-from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuingDayClose
-from django.conf import settings
+from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q
-from datetime import datetime
+from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuingDayClose
 
 ###################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -107,7 +106,7 @@ def measuring_end(phoneGroup):
     if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008, active=True).count() == 0:
         # 측정 지역 개수 추출
         daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
-        daily_area_total_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate).count()
+        daily_area_total_count  = PhoneGroup.objects.filter(measdate=phoneGroup.measdate).count()
         daily_area_fivg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='5G').count()
         daily_area_lte_thrg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='LTE').count() + \
                                     PhoneGroup.objects.filter(measdate=PhoneGroup.measdate, networkId='3G').count()
@@ -142,15 +141,16 @@ def measuring_end(phoneGroup):
 # -------------------------------------------------------------------------------------------------
 # 당일 측정을 마감한다.
 # -------------------------------------------------------------------------------------------------
-def measuring_day_close(phoneGroup_list):
+def measuring_day_close(phoneGroup_list, measdate):
     """당일측정을 마감하는 함수
       - 파라미터
         . phoneGroup_list: active=True인 단말그룹(PhoneGroup) 리스트
+        . measdate: 마감하고자 하는 날짜
       - 반환값: string
         . message_report: 일일보고용 메시지 내용
     """
     # 1) 단말그룹: 상태변경 - 혹시 남아 있는 상태(True)
-    # 2) 측정단말: 상태변경 - 혹시 남아 있는 상태(Tre)
+    # 2) 측정단말: 상태변경 - 혹시 남아 있는 상태(True)
     # 3) 당일 측정마감 데이터 생성 --> 일일 상황보고 자료 활용 가능
     #    - 대상 데이터: 초단위 데이터
     # 4) 당일 측정종료 메시지 생성 (유형: 단문메시지(XMCS))
@@ -160,82 +160,101 @@ def measuring_day_close(phoneGroup_list):
       measuring_end(phoneGroup)
  
     # 각 단말 그룹들의 종료 데이터(MeasuingDayClose)를 보충
-    for phoneGroup in PhoneGroup.objects.filter(ispId=45008, active=False, measdate=datetime.today().strftime("%Y%m%d")):
-      print('==================================================')
-      print(datetime.today().strftime("%Y%m%d"))
-      # 날짜로 필터링 하나, 만약 00시 넘어서 종료를 한다면? --> 보완 필요 (3.22)
-      md = phoneGroup.phone_set.all()   # md : "M"easuringDayClose "D"ata
-      # !!--- 초데이터 기반, 데이터 가공 및 저장은 추후 데이터 확정 시 진행 예정 -- !!
+    for phoneGroup in PhoneGroup.objects.filter(ispId='45008', active=False, measdate=measdate):
+      try:
+        phone_list = phoneGroup.phone_set.all()
+        qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime") # 초데이터로 바꿔야함
+        md = phoneGroup.measuingdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
+    
+        # !!--- 초데이터 기반, 데이터 가공 및 저장은 추후 데이터 확정 시 진행 예정 -- !!
+        # 1) 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!!(3.22)
+        udpJitter = round(qs.exclude( Q(networkId='NR') | \
+                                      Q(downloadBandwidth=0) | \
+                                      Q(uploadBandwidth=0)
+                                      ).aggregate(Avg('udpJitter'))['udpJitter__avg'],1)
+        # 2) 전송 성공률 계산 : 전체 콜수에서 "전송실패" 이벤트 발생 건수 비율로 계산 (추후 정확한 계산식 대체 필요)
+        success_rate = round((1 - (Message.objects.filter(phone__in=phone_list, message__contains='전송실패').count() / md.total_count))*100,1)
+        # 3) 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 추후 업데이트
+        
+        # 계산한 데이터 저장  - 속도/접속시간/CA률 추후 업데이트
+        md.udpJitter, md.success_rate = udpJitter, success_rate
+        md.save()
 
-      # 1) 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!!(3.22)
-      udpJitter = round(qs.exclude( Q(networkId='NR') | \
-                                    Q(downloadBandwidth=0) | \
-                                    Q(uploadBandwidth=0)
-                                    ).aggregate(Avg('udpJitter'))['udpJitter__avg'],1)
-      # 2) 전송 성공률 계산 : 전체 콜수에서 "전송실패" 이벤트 발생 건수 비율로 계산 (추후 정확한 계산식 대체 필요)
-      success_rate = (1 - (Message.objects.filter(phone__in=phone_list, message__contains='전송실패').count() / total_count))*100
-      # 3) 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 추후 업데이트
-      print(success_rate)
-      
-      # 계산한 데이터 저장
-      md.update(udpJitter=udpJitter, success_rate=success_rate)
-
-      # 일일보고용 메시지 생성(3.22/ 지속 업데이트 예정) - 측정타입(5G/LTE/3G/WiFi/음성)에 따라 메시지 포맷이 달라진다.
-      message_report = f"ㅇ {phoneGroup.userInfo1}({phoneGroup.morphology})\n"
-      if phoneGroup.networkId != 'WiFi':
-        message_report += f" - (DL/UL/시도호/전송성공률)\n" + \
-                          f"  .{phoneGroup.networkId} \"{avg_downloadBandwidth}/{avg_uploadBandwidth}/{total_count}/{success_rate}\"\n"
-        # 5G일 경우 LTE전환율 추가 - 접속시간은 추후 정확한 계산식 확인 후 업데이트
-        if phoneGroup.networkId == '5G':
-          message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
-                            f"  .{dl_nr_percent}/{ul_nr_percent}%,접속시간계산(업데이트예정)/{avg_udpJitter}ms"
-        # LTE일 경우 CA비율 추가 - CA비율은 추후 정확한 계산식 확인 후 업데이트
-        elif phoneGroup.networkId == 'LTE':
-          message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
-                            f"  .CA비율계산값들(업데이트예정)"
-      # WiFi일 경우 및 음성호일 경우 : 계산식 확인 후 업데이트 예정
-      elif phoneGroup.networkId == "WiFi":
-        pass
-      # 생성한 메시지를 저장한다.  
-      Message.objects.create(
-          phone=None,
-          status='REPORT',  # REPORT : 일일보고용 메시지
-          measdate=phoneGroup.measdate,
-          sendType='XMCS',
-          userInfo1=phoneGroup.userInfo1,
-          phone_no=None,
-          downloadBandwidth=avg_downloadBandwidth,
-          uploadBandwidth=avg_uploadBandwidth,
-          messageType='SMS',
-          message=message_report,
-          channelId='',
-          sended=False
-      )
-
-
-    # 일일보고용 메시지를 수합하여 하나로 작성한다
-    messages = Message.objects.filter(status='REPORT').values_list('message')
-    message_report = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.\n'
-    for i in range(len(messages)):
-      message_report += messages[i][0]
-    # 메시지를 저장한다.  //  메시지 저장 여부는 검토 중
-    Message.objects.create(
+        # 일일보고용 메시지 생성(3.22/ 지속 업데이트 예정) - 측정타입(5G/LTE/3G/WiFi/음성)에 따라 메시지 포맷이 달라진다.
+        message_report = f"ㅇ {md.userInfo1}({md.morphology})\n"
+        if phoneGroup.networkId != 'WiFi':
+          message_report += f" - (DL/UL/시도호/전송성공률)\n" + \
+                            f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.total_count}/{md.success_rate}\"\n"
+          # 5G일 경우 LTE전환율 추가 - 접속시간은 추후 정확한 계산식 확인 후 업데이트
+          if phoneGroup.networkId == '5G':
+            message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
+                              f"  .{md.dl_lte_transRate}/{md.ul_lte_transRate}%,접속시간계산(업데이트예정)/{md.udpJitter}ms"
+          # LTE일 경우 CA비율 추가 - CA비율은 추후 정확한 계산식 확인 후 업데이트
+          elif phoneGroup.networkId == 'LTE':
+            message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
+                              f"  .CA비율계산값들(업데이트예정)"
+        # WiFi일 경우 및 음성호일 경우 : 계산식 확인 후 업데이트 예정
+        elif phoneGroup.networkId == "WiFi":
+          pass
+        # 생성한 메시지를 저장한다 : 기존 메시지 있는 경우 Update, 없는 경우 신규 생성
+        message_exists = Message.objects.filter(measdate=measdate, status='REPORT', userInfo1=md.userInfo1)
+        if message_exists.exsists():
+          message_exists.update(downloadBandwidth=md.downloadBandwidth, uploadBandwidth=md.uploadBandwidth, message=message_report)
+        else:
+          Message.objects.create(
             phone=None,
-            status='REPORT_ALL',  # REPORT_ALL : 일일보고용 메시지 전체 수합
-            measdate=datetime.today().strftime("%Y%m%d"),
+            status='REPORT',  # REPORT : 일일보고용 메시지
+            measdate=measdate,
             sendType='XMCS',
-            userInfo1=None,
+            userInfo1=md.userInfo1,
             phone_no=None,
-            downloadBandwidth=None,
-            uploadBandwidth=None,
+            downloadBandwidth=md.downloadBandwidth,
+            uploadBandwidth=md.uploadBandwidth,
             messageType='SMS',
             message=message_report,
             channelId='',
             sended=False
-    )
+          )
+
+      except Exception as e:
+        print("종료 데이터 계산, 일일보고 메시지 생성:", str(e))
+        return HttpResponse("measuring_day_close/measure and report:" + str(e), status=500)
+
+    # 일일보고용 메시지를 수합하여 하나로 작성한다
+    try:
+      message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.\n'
+      messages = Message.objects.filter(status='REPORT', measdate=measdate).values_list('message')
+      for i in range(len(messages)):
+         message_report_all += messages[i][0] + "\n"
+
+      # 메시지를 저장한다.  //  메시지가 이미 존재하면 Update, 없으면 신규 생성
+      message_all_exists = Message.objects.filter(status='REPORT_ALL', measdate=measdate)
+      if message_all_exists.exists():
+        message_all_exists.update(message=message_report_all)
+      else:
+        Message.objects.create(
+          phone=None,
+          status='REPORT_ALL',  # REPORT_ALL : 일일보고용 메시지 전체 수합
+          measdate=measdate,
+          sendType='XMCS',
+          userInfo1=None,
+          phone_no=None,
+          downloadBandwidth=None,
+          uploadBandwidth=None,
+          messageType='SMS',
+          message=message_report_all,
+          channelId='',
+          sended=False
+        )
+    except Exception as e:
+      print("일일보고 메시지 수합, 생성:", str(e))
+      return HttpResponse("measuring_day_close/report_all:" + str(e), status=500)
 
    # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
-    return message_report
+    return_value = {'measdate': measdate, 'message': message_report_all}
+    return return_value
+
+
 
 
 
