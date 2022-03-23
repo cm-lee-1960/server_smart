@@ -21,6 +21,7 @@ from .makereport import *
 # 분석 처리모듈
 # -------------------------------------------------------------------------------------------------
 # 2022-03-23 - 모듈 정리 및 주석 추가
+#
 ###################################################################################################
 
 # -------------------------------------------------------------------------------------------------
@@ -55,8 +56,11 @@ def register_measdata(request):
 def create_measplan(request):
     """ 측정대상 등록 및 수정 뷰"""
     # create_measplan()
-    if(request.method== "POST") :
+    if request.method == "POST" :
+        # POST 방식으로 데이터가 넘어오면 모델을 저장한다.
         updage__measplan(request)
+    else:
+        pass
 
     # return redirect("analysis:make_report")
     return redirect("analysis:make_report")
@@ -66,24 +70,49 @@ def create_measplan(request):
 # 측정대상 삭제
 # -------------------------------------------------------------------------------------------------
 def delete_measplan(request):
-    if(request.method== "POST") :
-       
+    """측정대상 등록정보를 삭제하는 뷰"""
+    if request.method== "POST":
+       # 측정대상 등록정보를 삭제한다.
        MeasPlan.objects.all().delete()
 
     return redirect("analysis:register_measdata")
 
+
 # -------------------------------------------------------------------------------------------------
 # 측정완료 등록 및 수정
+# [ 의견사항 ]
+# - 로직 검토가 필요 임의로 삭제하는 로직이 들어 가 있는데, 기존에 데이터가 있으면 보여주고,
+#   사용자가 삭제할 수 있도록 하는 것이 바람직해 보임
 # -------------------------------------------------------------------------------------------------
 def create_measresult(request):
-    create_measresult(request)
+    """ 측정완료 등록 및 수정 뷰"""
+    if request.method == "POST":
+
+        measresult = MeasResult()
+
+        measresult.date = request.POST['date']
+        measresult.networkId = request.POST['networkId']
+        measresult.measinfo = request.POST['measinfo']
+        measresult.district = request.POST['district']
+        measresult.area = request.POST['area']
+        measresult.molph_level0 = request.POST['molph_level0']
+        measresult.molph_level1 = request.POST['molph_level1']
+
+        # 기존에 등록된 측정결과 데이터가 있으면 삭제한다.
+        MeasResult.objects.filter(date=measresult.date, measinfo=measresult.measinfo).delete()
+
+        # 측정결과를 저장한다.
+        measresult.save()
+
+    return redirect("analysis:register_measdata")
+
 
 # -------------------------------------------------------------------------------------------------
 # 6) 측정완료 삭제
 # -------------------------------------------------------------------------------------------------
 def delete_measresult(request):
-    if(request.method== "POST") :
-       
+    """측정결과 등록정보를 삭제하는 뷰"""
+    if request.method== "POST":
        MeasResult.objects.all().delete()
       
     return redirect("analysis:delete_measresult")
@@ -93,15 +122,30 @@ def delete_measresult(request):
 # 추가사항 등록 및 수정
 # -------------------------------------------------------------------------------------------------
 def create_reportmsg(request):
-    create_reportmsg(request)
+    """ 추가기입사항 등록 및 수정 뷰"""
+    if request.method == "POST":
+        # 빈 객체를 생성한다.
+        reportmsg = ReportMessage()
 
+        reportmsg.msg5G = request.POST['msg5G']
+        reportmsg.msgLTE = request.POST['msgLTE']
+        reportmsg.msgWiFi = request.POST['msgWiFi']
+        reportmsg.msgWeak = request.POST['msgWeak']
+        reportmsg.msg5Gafter = request.POST['msg5Gafter']
+        reportmsg.msgLTEafter = request.POST['msgLTEafter']
+
+        ReportMessage.objects.all().delete()
+
+        reportmsg.save()
+
+    return redirect("analysis:register_measdata")
 
 # -------------------------------------------------------------------------------------------------
 # 추가사항 삭제
 # -------------------------------------------------------------------------------------------------
 def delete_reportmsg(request):
-    if(request.method== "POST") :
-       
+    """추가기입사항 등록정보를 삭제하는 뷰"""
+    if request.method== "POST":
         ReportMessage.objects.all().delete()
        
     return redirect("analysis:delete_reportmsg")
@@ -110,31 +154,43 @@ def delete_reportmsg(request):
 # 전년도 결과 등록 및 수정(5G)
 # -------------------------------------------------------------------------------------------------
 def create_measlastyear5G(request):
-    create_measlastyear5G(request)
+    """ 전년도 결과 등록 및 수정(5G) 뷰"""
+    if request.method== "POST":
+        update_measlastyear5G(request)
+    else:
+        pass
+
+    return redirect("analysis:register_measdata")
 
 # -------------------------------------------------------------------------------------------------
 # 전년도 결과 삭제(5G)
 # -------------------------------------------------------------------------------------------------
 def delete_measlastyear5G(request):
-    if(request.method== "POST") :
-       
+    """전년도 결과(5G) 등록정보를 삭제하는 뷰"""
+    if request.method== "POST":
         MeasLastyear5G.objects.all().delete()
-       
+
     return redirect("analysis:delete_measlastyear5G")
 
 # -------------------------------------------------------------------------------------------------
 # 전년도 결과 등록 및 수정(LTE)
 # -------------------------------------------------------------------------------------------------
 def create_measlastyearLTE(request):
-    create_measlastyearLTE(request)
+    """ 전년도 결과 등록 및 수정(LTE) 뷰"""
+    if request.method== "POST":
+        update_measlastyearLTE(request)
+    else:
+        pass
+
+    return redirect("analysis:register_measdata")
 
 # -------------------------------------------------------------------------------------------------
 # 전년도 결과 삭제(LTE)
 # -------------------------------------------------------------------------------------------------
 def delete_measlastyearLTE(request):
-    if(request.method== "POST") :
-       
+    """전년도 결과(LTE) 등록정보를 삭제하는 뷰"""
+    if request.method== "POST":
        MeasLastyearLTE.objects.all().delete()
-       
+
     return redirect("analysis:delete_measlastyearLTE")
 

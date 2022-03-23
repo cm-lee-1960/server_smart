@@ -368,12 +368,15 @@ def get_measresult_cntx():
 
     return context
 
-
-###############################################################################################################################################################################
-#3.16 측정대상 등록views.py(수정완료)(함수명 make_measplan으로 변경 예정)
-###############################################################################################################################################################################
+# -------------------------------------------------------------------------------------------------
+# 측정완료 등록 및 수정
+# -------------------------------------------------------------------------------------------------
 def updage__measplan(request):
-    """측정대상 계획을 저장하는 함수"""
+    """ 측정대상 계획을 저장하는 함수
+        - 파라미터
+          . request: HttpRequest
+        - 반환값: 없음
+    """
     measplan = MeasPlan() #빈 객체 생성
     measplan.planYear = request.POST['planYear']
     measplan.hjd5G = request.POST['hjd5G']
@@ -403,159 +406,125 @@ def updage__measplan(request):
 
     return
 
-###############################################################################################################################################################################
-#3.16 측정완료대상 등록views.py(수정중)(함수명 make_result로 변경 예정)
-###############################################################################################################################################################################
-def create_measresult(request):
-    if(request.method== "POST") :
-        measresult = MeasResult() #빈 객체 생성
-        measresult.date = request.POST['date']
-        measresult.networkId = request.POST['networkId']
-        measresult.measinfo = request.POST['measinfo']
-        measresult.district = request.POST['district']
-        measresult.area = request.POST['area']
-        measresult.molph_level0 = request.POST['molph_level0']
-        measresult.molph_level1 = request.POST['molph_level1']
+
+# -------------------------------------------------------------------------------------------------
+# 전년도 결과 등록 및 수정(5G)
+# -------------------------------------------------------------------------------------------------
+def update_measlastyear5G(request):
+    """ 전년도 결과 등록 및 수정하는 함수
+        - 파라미터
+          . request: HttpRequest
+        - 반환값: 없음
+    """
+    # 빈 객체를 생성한다.
+    measlastyear5G = MeasLastyear5G()
+    measlastyear5G.bctDL = request.POST['bctDL']
+    measlastyear5G.bctUL = request.POST['bctUL']
+    measlastyear5G.bctLTE = request.POST['bctLTE']
+    measlastyear5G.bctsucc = request.POST['bctsucc']
+    measlastyear5G.bctdelay = request.POST['bctdelay']
+
+    measlastyear5G.mctDL = request.POST['mctDL']
+    measlastyear5G.mctUL = request.POST['mctUL']
+    measlastyear5G.mctLTE = request.POST['mctLTE']
+    measlastyear5G.mctsucc = request.POST['mctsucc']
+    measlastyear5G.mctdelay = request.POST['mctdelay']
+
+    measlastyear5G.totalctDL = request.POST['totalctDL']
+    measlastyear5G.totalctUL = request.POST['totalctUL']
+    measlastyear5G.totalctLTE = request.POST['totalctLTE']
+    measlastyear5G.totalctsucc = request.POST['totalctsucc']
+    measlastyear5G.totalctdelay = request.POST['totalctdelay']
+
+    measlastyear5G.djDL = request.POST['djDL']
+    measlastyear5G.djUL = request.POST['djUL']
+    measlastyear5G.djLTE = request.POST['djLTE']
+    measlastyear5G.djsucc = request.POST['djsucc']
+    measlastyear5G.djdelay = request.POST['djdelay']
+
+    measlastyear5G.aptDL = request.POST['aptDL']
+    measlastyear5G.aptUL = request.POST['aptUL']
+    measlastyear5G.aptLTE = request.POST['aptLTE']
+    measlastyear5G.aptsucc = request.POST['aptsucc']
+    measlastyear5G.aptdelay = request.POST['aptdelay']
+
+    measlastyear5G.univDL = request.POST['univDL']
+    measlastyear5G.univUL = request.POST['univUL']
+    measlastyear5G.univLTE = request.POST['univLTE']
+    measlastyear5G.univsucc = request.POST['univsucc']
+    measlastyear5G.univdelay = request.POST['univdelay']
+
+    measlastyear5G.trafficDL = request.POST['trafficDL']
+    measlastyear5G.trafficUL = request.POST['trafficUL']
+    measlastyear5G.trafficLTE = request.POST['trafficLTE']
+    measlastyear5G.trafficsucc = request.POST['trafficsucc']
+    measlastyear5G.trafficdelay = request.POST['trafficdelay']
+
+    measlastyear5G.areatotalDL = round((float(measlastyear5G.bctDL)+float(measlastyear5G.mctDL)+float(measlastyear5G.djDL)+float(measlastyear5G.aptDL)+float(measlastyear5G.univDL)+float(measlastyear5G.trafficDL))/6,1)
+    measlastyear5G.areatotalUL = round((float(measlastyear5G.bctUL)+float(measlastyear5G.mctUL)+float(measlastyear5G.djUL)+float(measlastyear5G.aptUL)+float(measlastyear5G.univUL)+float(measlastyear5G.trafficUL))/6,1)
+    measlastyear5G.areatotalLTE = round((float(measlastyear5G.bctLTE)+float(measlastyear5G.mctLTE)+float(measlastyear5G.djLTE)+float(measlastyear5G.aptLTE)+float(measlastyear5G.univLTE)+float(measlastyear5G.trafficLTE))/6,1)
+    measlastyear5G.areatotalsucc = round((float(measlastyear5G.bctsucc)+float(measlastyear5G.mctsucc)+float(measlastyear5G.djsucc)+float(measlastyear5G.aptsucc)+float(measlastyear5G.univsucc)+float(measlastyear5G.trafficsucc))/6,1)
+    measlastyear5G.areatotaldelay = round((float(measlastyear5G.bctdelay)+float(measlastyear5G.mctdelay)+float(measlastyear5G.djdelay)+float(measlastyear5G.aptdelay)+float(measlastyear5G.univdelay)+float(measlastyear5G.trafficdelay))/6,1)
+
+    MeasLastyear5G.objects.all().delete()
+
+    measlastyear5G.save()
+
+    return
         
-        MeasResult.objects.filter(date = measresult.date, measinfo = measresult.measinfo).delete()
 
-        measresult.save()
+# -------------------------------------------------------------------------------------------------
+# 전년도 결과 등록 및 수정(LTE)
+# -------------------------------------------------------------------------------------------------
+def update_measlastyearLTE(request):
+
+    measlastyearLTE = MeasLastyearLTE() #빈 객체 생성
+    measlastyearLTE.bctDL = request.POST['bctDL']
+    measlastyearLTE.bctUL = request.POST['bctUL']
+
+    measlastyearLTE.bctsucc = request.POST['bctsucc']
+    measlastyearLTE.bctdelay = request.POST['bctdelay']
+
+    measlastyearLTE.mctDL = request.POST['mctDL']
+    measlastyearLTE.mctUL = request.POST['mctUL']
+
+    measlastyearLTE.mctsucc = request.POST['mctsucc']
+    measlastyearLTE.mctdelay = request.POST['mctdelay']
+
+    measlastyearLTE.sctDL = request.POST['sctDL']
+    measlastyearLTE.sctUL = request.POST['sctUL']
+
+    measlastyearLTE.sctsucc = request.POST['sctsucc']
+    measlastyearLTE.sctdelay = request.POST['sctdelay']
+
+    measlastyearLTE.totalctDL = request.POST['totalctDL']
+    measlastyearLTE.totalctUL = request.POST['totalctUL']
+
+    measlastyearLTE.totalctsucc = request.POST['totalctsucc']
+    measlastyearLTE.totalctdelay = request.POST['totalctdelay']
+
+    measlastyearLTE.ibDL = request.POST['ibDL']
+    measlastyearLTE.ibUL = request.POST['ibUL']
+
+    measlastyearLTE.ibsucc = request.POST['ibsucc']
+    measlastyearLTE.ibdelay = request.POST['ibdelay']
+
+    measlastyearLTE.tmDL = request.POST['tmDL']
+    measlastyearLTE.tmUL = request.POST['tmUL']
+
+    measlastyearLTE.tmsucc = request.POST['tmsucc']
+    measlastyearLTE.tmdelay = request.POST['tmdelay']
+
+    measlastyearLTE.areatotalDL = round((float(measlastyearLTE.bctDL)+float(measlastyearLTE.mctDL)+float(measlastyearLTE.sctDL)+float(measlastyearLTE.ibDL)+float(measlastyearLTE.tmDL))/5,1)
+    measlastyearLTE.areatotalUL = round((float(measlastyearLTE.bctUL)+float(measlastyearLTE.mctUL)+float(measlastyearLTE.sctUL)+float(measlastyearLTE.ibUL)+float(measlastyearLTE.tmUL))/5,1)
+    measlastyearLTE.areatotalsucc = round((float(measlastyearLTE.bctsucc)+float(measlastyearLTE.mctsucc)+float(measlastyearLTE.sctsucc)+float(measlastyearLTE.ibsucc)+float(measlastyearLTE.tmsucc))/5,1)
+    measlastyearLTE.areatotaldelay = round((float(measlastyearLTE.bctdelay)+float(measlastyearLTE.mctdelay)+float(measlastyearLTE.sctdelay)+float(measlastyearLTE.ibdelay)+float(measlastyearLTE.tmdelay))/5,1)
+
+    MeasLastyearLTE.objects.all().delete()
+
+    measlastyearLTE.save()
         
-    return redirect("analysis:make_report")
-
-###############################################################################################################################################################################
-#3.17 일일보고 추가 메세지 등록views.py(수정중)
-###############################################################################################################################################################################
-def create_reportmsg(request):
-    if(request.method== "POST") :
-        reportmsg = ReportMessage() #빈 객체 생성
-        reportmsg.msg5G = request.POST['msg5G']
-        reportmsg.msgLTE = request.POST['msgLTE']
-        reportmsg.msgWiFi = request.POST['msgWiFi']
-        reportmsg.msgWeak = request.POST['msgWeak']
-        reportmsg.msg5Gafter = request.POST['msg5Gafter']
-        reportmsg.msgLTEafter = request.POST['msgLTEafter']
-     
-        ReportMessage.objects.all().delete()
-
-        reportmsg.save()
-        
-    return redirect("analysis:make_report")
-
-###############################################################################################################################################################################
-#3.17 일일보고 작년결과 5G등록views.py(수정중)
-###############################################################################################################################################################################
-
-def create_measlastyear5G(request):
-    if(request.method== "POST") :
-        measlastyear5G = MeasLastyear5G() #빈 객체 생성
-        measlastyear5G.bctDL = request.POST['bctDL']
-        measlastyear5G.bctUL = request.POST['bctUL']
-        measlastyear5G.bctLTE = request.POST['bctLTE']
-        measlastyear5G.bctsucc = request.POST['bctsucc']
-        measlastyear5G.bctdelay = request.POST['bctdelay']
-        
-        measlastyear5G.mctDL = request.POST['mctDL']
-        measlastyear5G.mctUL = request.POST['mctUL']
-        measlastyear5G.mctLTE = request.POST['mctLTE']
-        measlastyear5G.mctsucc = request.POST['mctsucc']
-        measlastyear5G.mctdelay = request.POST['mctdelay']
-
-        measlastyear5G.totalctDL = request.POST['totalctDL']
-        measlastyear5G.totalctUL = request.POST['totalctUL']
-        measlastyear5G.totalctLTE = request.POST['totalctLTE']
-        measlastyear5G.totalctsucc = request.POST['totalctsucc']
-        measlastyear5G.totalctdelay = request.POST['totalctdelay']
-
-        measlastyear5G.djDL = request.POST['djDL']
-        measlastyear5G.djUL = request.POST['djUL']
-        measlastyear5G.djLTE = request.POST['djLTE']
-        measlastyear5G.djsucc = request.POST['djsucc']
-        measlastyear5G.djdelay = request.POST['djdelay']
-
-        measlastyear5G.aptDL = request.POST['aptDL']
-        measlastyear5G.aptUL = request.POST['aptUL']
-        measlastyear5G.aptLTE = request.POST['aptLTE']
-        measlastyear5G.aptsucc = request.POST['aptsucc']
-        measlastyear5G.aptdelay = request.POST['aptdelay']
-
-        measlastyear5G.univDL = request.POST['univDL']
-        measlastyear5G.univUL = request.POST['univUL']
-        measlastyear5G.univLTE = request.POST['univLTE']
-        measlastyear5G.univsucc = request.POST['univsucc']
-        measlastyear5G.univdelay = request.POST['univdelay']
-
-        measlastyear5G.trafficDL = request.POST['trafficDL']
-        measlastyear5G.trafficUL = request.POST['trafficUL']
-        measlastyear5G.trafficLTE = request.POST['trafficLTE']
-        measlastyear5G.trafficsucc = request.POST['trafficsucc']
-        measlastyear5G.trafficdelay = request.POST['trafficdelay']
-
-        measlastyear5G.areatotalDL = round((float(measlastyear5G.bctDL)+float(measlastyear5G.mctDL)+float(measlastyear5G.djDL)+float(measlastyear5G.aptDL)+float(measlastyear5G.univDL)+float(measlastyear5G.trafficDL))/6,1)
-        measlastyear5G.areatotalUL = round((float(measlastyear5G.bctUL)+float(measlastyear5G.mctUL)+float(measlastyear5G.djUL)+float(measlastyear5G.aptUL)+float(measlastyear5G.univUL)+float(measlastyear5G.trafficUL))/6,1)
-        measlastyear5G.areatotalLTE = round((float(measlastyear5G.bctLTE)+float(measlastyear5G.mctLTE)+float(measlastyear5G.djLTE)+float(measlastyear5G.aptLTE)+float(measlastyear5G.univLTE)+float(measlastyear5G.trafficLTE))/6,1)
-        measlastyear5G.areatotalsucc = round((float(measlastyear5G.bctsucc)+float(measlastyear5G.mctsucc)+float(measlastyear5G.djsucc)+float(measlastyear5G.aptsucc)+float(measlastyear5G.univsucc)+float(measlastyear5G.trafficsucc))/6,1)
-        measlastyear5G.areatotaldelay = round((float(measlastyear5G.bctdelay)+float(measlastyear5G.mctdelay)+float(measlastyear5G.djdelay)+float(measlastyear5G.aptdelay)+float(measlastyear5G.univdelay)+float(measlastyear5G.trafficdelay))/6,1)
-     
-        MeasLastyear5G.objects.all().delete()
-
-        measlastyear5G.save()
-        
-    return redirect("analysis:make_report")
-  
-###############################################################################################################################################################################
-#3.17 일일보고 작년결과 LTE등록views.py(수정중)
-###############################################################################################################################################################################
-
-def create_measlastyearLTE(request):
-    if(request.method== "POST") :
-        measlastyearLTE = MeasLastyearLTE() #빈 객체 생성
-        measlastyearLTE.bctDL = request.POST['bctDL']
-        measlastyearLTE.bctUL = request.POST['bctUL']
-        
-        measlastyearLTE.bctsucc = request.POST['bctsucc']
-        measlastyearLTE.bctdelay = request.POST['bctdelay']
-        
-        measlastyearLTE.mctDL = request.POST['mctDL']
-        measlastyearLTE.mctUL = request.POST['mctUL']
-        
-        measlastyearLTE.mctsucc = request.POST['mctsucc']
-        measlastyearLTE.mctdelay = request.POST['mctdelay']
-
-        measlastyearLTE.sctDL = request.POST['sctDL']
-        measlastyearLTE.sctUL = request.POST['sctUL']
-        
-        measlastyearLTE.sctsucc = request.POST['sctsucc']
-        measlastyearLTE.sctdelay = request.POST['sctdelay']
-
-        measlastyearLTE.totalctDL = request.POST['totalctDL']
-        measlastyearLTE.totalctUL = request.POST['totalctUL']
-        
-        measlastyearLTE.totalctsucc = request.POST['totalctsucc']
-        measlastyearLTE.totalctdelay = request.POST['totalctdelay']
-
-        measlastyearLTE.ibDL = request.POST['ibDL']
-        measlastyearLTE.ibUL = request.POST['ibUL']
-        
-        measlastyearLTE.ibsucc = request.POST['ibsucc']
-        measlastyearLTE.ibdelay = request.POST['ibdelay']
-
-        measlastyearLTE.tmDL = request.POST['tmDL']
-        measlastyearLTE.tmUL = request.POST['tmUL']
-        
-        measlastyearLTE.tmsucc = request.POST['tmsucc']
-        measlastyearLTE.tmdelay = request.POST['tmdelay']
-
-        measlastyearLTE.areatotalDL = round((float(measlastyearLTE.bctDL)+float(measlastyearLTE.mctDL)+float(measlastyearLTE.sctDL)+float(measlastyearLTE.ibDL)+float(measlastyearLTE.tmDL))/5,1)
-        measlastyearLTE.areatotalUL = round((float(measlastyearLTE.bctUL)+float(measlastyearLTE.mctUL)+float(measlastyearLTE.sctUL)+float(measlastyearLTE.ibUL)+float(measlastyearLTE.tmUL))/5,1)
-        measlastyearLTE.areatotalsucc = round((float(measlastyearLTE.bctsucc)+float(measlastyearLTE.mctsucc)+float(measlastyearLTE.sctsucc)+float(measlastyearLTE.ibsucc)+float(measlastyearLTE.tmsucc))/5,1)
-        measlastyearLTE.areatotaldelay = round((float(measlastyearLTE.bctdelay)+float(measlastyearLTE.mctdelay)+float(measlastyearLTE.sctdelay)+float(measlastyearLTE.ibdelay)+float(measlastyearLTE.tmdelay))/5,1)
-     
-        MeasLastyearLTE.objects.all().delete()
-
-        measlastyearLTE.save()
-        
-    return redirect("analysis:make_report")
+    return
   
 
 
