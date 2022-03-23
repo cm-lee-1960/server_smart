@@ -14,12 +14,26 @@ from analysis.models import MeasPlan, MeasResult, ReportMessage, MeasLastyear5G,
 import pandas as pd
 import datetime
 from django.db.models import Sum
-################################################################################################################################################
-# 일일보고 이전버전
-# 3.17 일일보고 수정중
-################################################################################################################################################
 
-def report(request):
+###################################################################################################
+# 일일보고 및 대상등록 관련 모듈
+# -------------------------------------------------------------------------------------------------
+# 2022-03-23 - 모듈 정리 및 주석 추가
+###################################################################################################
+
+# -------------------------------------------------------------------------------------------------
+# 일일보고 페이지
+# - 레포트 현황 페이지에 보여질 데이터를 가져와서 JSON으로 묶어서 반환한다.
+#
+# [ 고민해야 하는 사항 ]
+#  - JSON형태의 컨텍스트를 만드는 코드 정규화
+# -------------------------------------------------------------------------------------------------
+def get_report_cntx():
+    """ 일일보고 페이지에 보여질 데이터를 조회해서 JSON으로 반환하는 함수
+        - 파라미터:
+          . year : 해당년도
+        - 반환값: context (JSON형태)
+    """
     regi = MeasPlan.objects.filter(planYear = "2022")
     firstdate = MeasResult.objects.last()
     lastdate = MeasResult.objects.first()
@@ -276,15 +290,22 @@ def report(request):
     'traingaeWiFichungnam':traingaeWiFichungnam,'traingaeWiFichungbuk':traingaeWiFichungbuk,'traingaeWiFisejong':traingaeWiFisejong,
     'traingaeWiFisudo':traingaeWiFisudo,
     }
+
+    return context
    
-    return render(request, "analysis/daily_report_form.html", context)
+    # return render(request, "analysis/daily_report_form.html", context)
 
-
-###############################################################################################################################################################################
-#3.16 대상등록 웹페이지 (수정중)
-###############################################################################################################################################################################
-def make_report(request):
-    
+# -------------------------------------------------------------------------------------------------
+# 대상등록 페이지 - 측정대상, 측정완료, 전년도결과, 추가기입사항
+# [ 고민해야 하는 사항 ]
+#  - JSON형태의 컨텍스트를 만드는 코드 정규화
+# -------------------------------------------------------------------------------------------------
+def get_measresult_cntx():
+    """ 측정대상등록 페이지에 보여질 데이터를 조회해서 JSON으로 반환하는 함수
+        - 파라미터:
+          . year : 해당년도
+        - 반환값: context (JSON형태)
+    """
     measplan = MeasPlan.objects.filter(planYear = "2022")
     
     sregi = MeasResult.objects.all()
@@ -345,41 +366,42 @@ def make_report(request):
     'tregiweak2':tregiweak2,'tregiweak3':tregiweak3,'tregiweak4':tregiweak4,'tregiweak':tregiweak,
     }
 
-    return render(request, "analysis/make_report_form.html", context)
+    return context
+
 
 ###############################################################################################################################################################################
 #3.16 측정대상 등록views.py(수정완료)(함수명 make_measplan으로 변경 예정)
 ###############################################################################################################################################################################
-def create_measplan(request):
-    if(request.method== "POST") :
-        measplan = MeasPlan() #빈 객체 생성
-        measplan.planYear = request.POST['planYear']
-        measplan.hjd5G = request.POST['hjd5G']
-        measplan.dg5G = request.POST['dg5G']
-        measplan.cv5G = request.POST['cv5G']
-        measplan.bctLTE = request.POST['bctLTE']
-        measplan.mctLTE = request.POST['mctLTE']
-        measplan.sctLTE = request.POST['sctLTE']
-        measplan.ibLTE = request.POST['ibLTE']
-        measplan.tmLTE = request.POST['tmLTE']
-        measplan.cvLTE = request.POST['cvLTE']
-        measplan.syWiFi = request.POST['syWiFi']
-        measplan.gbWiFi = request.POST['gbWiFi']
-        measplan.dsrWeak = request.POST['dsrWeak']
-        measplan.yghrWeak = request.POST['yghrWeak']
-        measplan.yidsWeak = request.POST['yidsWeak']
-        measplan.hadrWeak = request.POST['hadrWeak']
-        measplan.total5G = int(measplan.hjd5G)+ int(measplan.dg5G)+ int(measplan.cv5G)
-        measplan.totalLTE = int(measplan.bctLTE)+ int(measplan.mctLTE)+ int(measplan.sctLTE)+ int(measplan.ibLTE)+ int(measplan.tmLTE)+ int(measplan.cvLTE)
-        measplan.totalWiFi = int(measplan.syWiFi)+ int(measplan.gbWiFi)
-        measplan.totalWeakArea = int(measplan.dsrWeak)+ int(measplan.yghrWeak)+ int(measplan.yidsWeak)+ int(measplan.hadrWeak)
-        measplan.total = measplan.total5G + measplan.totalLTE + measplan.totalWiFi + measplan.totalWeakArea
-       
-        MeasPlan.objects.filter(planYear = measplan.planYear).delete()
-        
-        measplan.save()
+def updage__measplan(request):
+    """측정대상 계획을 저장하는 함수"""
+    measplan = MeasPlan() #빈 객체 생성
+    measplan.planYear = request.POST['planYear']
+    measplan.hjd5G = request.POST['hjd5G']
+    measplan.dg5G = request.POST['dg5G']
+    measplan.cv5G = request.POST['cv5G']
+    measplan.bctLTE = request.POST['bctLTE']
+    measplan.mctLTE = request.POST['mctLTE']
+    measplan.sctLTE = request.POST['sctLTE']
+    measplan.ibLTE = request.POST['ibLTE']
+    measplan.tmLTE = request.POST['tmLTE']
+    measplan.cvLTE = request.POST['cvLTE']
+    measplan.syWiFi = request.POST['syWiFi']
+    measplan.gbWiFi = request.POST['gbWiFi']
+    measplan.dsrWeak = request.POST['dsrWeak']
+    measplan.yghrWeak = request.POST['yghrWeak']
+    measplan.yidsWeak = request.POST['yidsWeak']
+    measplan.hadrWeak = request.POST['hadrWeak']
+    measplan.total5G = int(measplan.hjd5G)+ int(measplan.dg5G)+ int(measplan.cv5G)
+    measplan.totalLTE = int(measplan.bctLTE)+ int(measplan.mctLTE)+ int(measplan.sctLTE)+ int(measplan.ibLTE)+ int(measplan.tmLTE)+ int(measplan.cvLTE)
+    measplan.totalWiFi = int(measplan.syWiFi)+ int(measplan.gbWiFi)
+    measplan.totalWeakArea = int(measplan.dsrWeak)+ int(measplan.yghrWeak)+ int(measplan.yidsWeak)+ int(measplan.hadrWeak)
+    measplan.total = measplan.total5G + measplan.totalLTE + measplan.totalWiFi + measplan.totalWeakArea
 
-    return redirect("analysis:make_report")
+    MeasPlan.objects.filter(planYear = measplan.planYear).delete()
+
+    measplan.save()
+
+    return
 
 ###############################################################################################################################################################################
 #3.16 측정완료대상 등록views.py(수정중)(함수명 make_result로 변경 예정)

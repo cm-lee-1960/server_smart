@@ -7,7 +7,7 @@ urlpatterns = [
     path('dashboard/',views.dashboard_form,name='dashboard'), # 홈 화면
     path("report/", views.report, name='report'), # 일일보고 페이지
 
-    path('report/makereport/', views.make_report, name='make_report'), # 레포트정보등록페이지(측정대상, 측정완료, 전년도결과, 추가사항)
+    path('report/makereport/', views.register_measdata, name='register_measdata'), # 레포트정보등록페이지(측정대상, 측정완료, 전년도결과, 추가사항)
     path('measplan/create/',views.create_measplan,name='create_measplan'), # 측정대상 등록 및 수정
     path('measplan/delete/',views.delete_measplan,name='delete_measplan'), # 측정대상 삭제
     path('measresult/create/',views.create_measresult,name='create_measresult'), # 측정완료 등록 및 수정
