@@ -16,6 +16,7 @@ import pandas as pd
 import datetime
 from django.db.models import Sum
 from .makereport import *
+from .forms import MeasLastyear5GForm, MeasLastyearLTEForm
 
 ###################################################################################################
 # 분석 처리모듈
@@ -152,12 +153,19 @@ def delete_reportmsg(request):
 
 # -------------------------------------------------------------------------------------------------
 # 전년도 결과 등록 및 수정(5G)
+# [ 코드수점 검토사항 ]
+# - MeaslastyearLTEDetailView로 이름 변경
+# - 해당 뷰에서 신규/저장/삭제 기능이 모두 되게 기능을 넣는다.
 # -------------------------------------------------------------------------------------------------
 def create_measlastyear5G(request):
     """ 전년도 결과 등록 및 수정(5G) 뷰"""
     if request.method== "POST":
-        update_measlastyear5G(request)
+        # update_measlastyear5G(request)
+        form = MeasLastyear5GForm(request.POST, request.FILES)
+        if form.is_valid():
+            measLastyear5G = form.save()
     else:
+        # 데이터를 조회해서 화면에 넘겨주는 코드를 작성한다.
         pass
 
     return redirect("analysis:register_measdata")
@@ -178,8 +186,12 @@ def delete_measlastyear5G(request):
 def create_measlastyearLTE(request):
     """ 전년도 결과 등록 및 수정(LTE) 뷰"""
     if request.method== "POST":
-        update_measlastyearLTE(request)
+        # update_measlastyear5G(request)
+        form = MeasLastyearLTEForm(request.POST, request.FILES)
+        if form.is_valid():
+            measLastyear5G = form.save()
     else:
+        # 데이터를 조회해서 화면에 넘겨주는 코드를 작성한다.
         pass
 
     return redirect("analysis:register_measdata")
