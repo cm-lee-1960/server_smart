@@ -1,4 +1,3 @@
-
 {% extends "analysis/base.html" %}
 {% load static %}
 {% block contents %}
@@ -16,23 +15,273 @@
 <script type="text/javascript" defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script type="text/javascript" defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
 <script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <!-- CSS,JS 호출 -->
 <!-- <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}"> -->
 <link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
 <script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
-
-
+<script type="text/javascript" defer src="{% static "js/jquery-3.4.1.min.js" %}"></script>
 </head>
+
+<!--진자로 데이터 넘기기-->
 <body>    
-    {% csrf_token %}
-<div>
-<h1 style="font-size:100px; height:500px; width:100%; border: 1px solid black">
-    첫페이지입니다.
-</h1>
+{% csrf_token %}
+    <div>
+        <!-- 메인화면 -->
+        <div  style="display:flex; flex-flow: column nowrap;">
+            <div class="w-50" style="margin-bottom:20px;border: 2px solid rgb(228, 223, 223); padding: 10px;">
+                <div style="margin-top:5px; display: flex; justify-content: space-between;">
+                    <div>
+                        <h6 style="display:inline; margin-bottom:0px"> 오늘의 측정 </h6> 
+                        <h6 id="toDay" style="display:inline; margin-bottom:0px"></h6> <!-- 금일 날짜 -->
+                    </div>
+                    <div>
+                        <h6 style="display:inline; margin-bottom:0px"> 금일 총 </h6> <!--3개조 가져와야한다. -->
+                        <h6 id="toDayGroup" style="display:inline; margin-bottom:0px"> 3개 조 </h6> <!--3개조 가져와야한다.이건 추후-->
+                    </div>
+                </div>   
+                <hr>
+                <div id="output" style="text-align: center;">
+                    <table id="5Ghh" sytle="border-spacing: 5px;">
+                        <tbody id='toDayDetail'>
+                            <tr id='toDayDetailTr'>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+            <div id="show1" class="w-100" style="margin-bottom:20px;border: 2px solid rgb(228, 223, 223); padding: 10px;">    
+                <h6> 금일 측정그룹 </h6>
+                <div id="output" style="text-align: center;">
+                    <table id="ltehh" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th >센터</th>
+                                <th >조</th>
+                                <th >단말번호</th>
+                                <th >측정지역</th>
+                                <th >모폴로지</th>
+                                <th >네트워크</th>
+                                <th >DL_콜수</th>
+                                <th >DL_속도</th>
+                                <th >UL_콜수</th>
+                                <th >UL_속도</th>
+                                <th >전환율</th>
+                                <th >CA</th>
+                                <th >이벤트</th>
+                                <th >측정시간</th>
+                                <th >상태</th>
+                                <th >종료</th>
+                            </tr>
+                        </thead>
+                        <tbody id = 'phoneGroupDetail'>
+                            <tr id='phoneGroupDetailTr'>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 
-</div>
-
-
+<!--스크립트 구문 -->
+<script>
+    //현재 날짜 확인 
+    let today = new Date();
+    let year = today.getFullYear();
+    let month = ('0' + (today.getMonth() + 1)).slice(-2);
+    let day = ('0' + today.getDate()).slice(-2);
+    let dateString = '(' + year + '-' + month  + '-' + day + ')';
+    document.getElementById("toDay").innerHTML = dateString;
     
+
+    //콘솔
+    console.log(dateString)
+    
+    ////////////////////////////
+    var area_eng = {
+        '강북' : ['gangbuk'],
+        '강남' : ['gangnam'],
+        '대구' : ['daegu'],
+        '부산' : ['busan'],
+        '충청' : ['chungcheong'],
+        '전남' : ['junnam']
+    };
+    var center_shot_name = {
+        '서울강북액세스운용센터' : ['서울강북'],
+        '서울강남액세스운용센터' : ['서울강남'],
+        '부산액세스운용센터' : ['부산'],
+        '대구액세스운용센터' : ['대구'],
+        '경기서부액세스운용센터' : ['경기서부'],
+        '전남액세스운용센터' : ['전남'],
+        '충남액세스운용센터' : ['충남'],
+        '강원액세스운용센터' : ['강원'],
+        '경기북부액세스운용센터' : ['경기북부'],
+        '경기남부액세스운용센터' : ['경기남부'],
+        '경남액세스운용센터' : ['경남'],
+        '충북액세스운용센터' : ['충북'],
+        '전북액세스운용센터' : ['전북'],
+        '경북액세스운용센터' : ['경북']
+    };
+    
+    //stratdata 부분
+    //AJAX를 먼저 시작하고 딜레이
+    //callback -> interval
+    function startInterval_startData(callback, seconds){ 
+        callback(); 
+        return setInterval(callback, seconds * 1000); 
+    }
+
+    //비동기통신
+    //2분마다 주기적 요청
+    startInterval_startData(function(){
+        $.ajax({
+        type:'POST',
+        url: "{% url 'analysis:ajax_startdata' %}",
+        dataType : 'text',
+        data : "",
+        async:false,
+        success: function(ajax_data){
+            ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
+            json_data_dump = ajax_data; //ajax_data dump
+            console.log("제이슨 덤프 처음")
+            console.log(json_data_dump)
+            
+            startData(ajax_data); //초기데이터 세팅
+            startDataCount(ajax_data); //초기데이터 값바꾸기          
+        }
+        });
+    }, 120) 
+
+    //오늘의 측정 테이블 생성
+    function startData(ajax_data){
+        $('#toDayDetailTr').remove();
+
+        //초기화
+        let measStatus = '<tr id = "toDayDetailTr">';
+            measStatus += '<th id = "measure" style="padding-right:15px">';
+            measStatus += '<span><font size="3"> 측정 중 </font></span>';
+            measStatus += '<span id = "measure_count"><font size="2"> 0 </font></span>'
+            measStatus += '</th>';
+            measStatus += '<th id = "measure_close" style="padding-right:15px">';
+            measStatus += '<span><font size="3"> 측정종료 </font></span>';
+            measStatus += '<span id = "measure_close_count"><font size="2"> 0 </font></span>';
+            measStatus += '</th>';
+        
+        //for(var meas_area of ajax_data['meas_area']){
+        for(var meas_area_name of Object.keys(ajax_data['meas_area'])){
+            console.log(meas_area_name)
+            measStatus += '<th id ="' + area_eng[meas_area_name] + '" style="padding-right:15px">';
+            measStatus += '<span><font size="3">' + meas_area_name + '</font></span>';
+            measStatus += '<span id ="' + area_eng[meas_area_name] + '_count"><font size="3"> 0 </font></span>';
+            measStatus += '</th>';
+            }
+        measStatus += '</tr>';
+
+        //console.log(measStatus)
+        $('#toDayDetail').append(measStatus);
+
+    }
+    
+    //오늘의 측정 테이블 값만 변경
+    function startDataCount(ajax_data){
+       
+        document.querySelector('#measure_count').innerHTML = ajax_data['measuing_count'];
+        document.querySelector('#measure_close_count').innerHTML = ajax_data['end_count'];
+        
+    
+        for(let [meas_area_name, meas_area_count] of Object.entries(ajax_data['meas_area'])){
+            document.querySelector('#' + area_eng[meas_area_name]+ '_count').innerHTML = meas_area_count
+        }
+    }
+    ////////////////////////////
+
+    //금일측정그룹 부분
+    //AJAX를 먼저 시작하고 딜레이
+    //callback -> interval
+
+    function startInterval_phoneGroup(callback, seconds){ 
+        callback(); 
+        return setInterval(callback, seconds * 1000); 
+    }
+
+    //비동기통신
+    //2분마다 주기적 요청
+    startInterval_phoneGroup(function(){
+        $.ajax({
+        type:'POST',
+        url: "{% url 'analysis:ajax_phoneGroupData' %}",
+        dataType : 'text',
+        data : "",
+        async:false,
+        success: function(ajax_data){
+            ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
+            json_data_dump = ajax_data; //ajax_data dump
+            console.log("제이슨 덤프 처음")
+            console.log(json_data_dump)
+            
+            phoneGroupData(ajax_data)
+            phoneGroupDataInfo(ajax_data)
+            //startData(ajax_data); //초기데이터 세팅
+            //startDataCount(ajax_data); //초기데이터 값바꾸기          
+        }
+        });
+    }, 10) 
+
+    //오늘의 측정 테이블 생성
+    function phoneGroupData(ajax_data){
+        $('#phoneGroupDetail').remove();
+
+        //초기화
+        let measStatus = '<tbody id = "phoneGroupDetail">';
+
+        //for(var meas_area of ajax_data['meas_area']){
+        /*for(var phone_group_name of Object.keys(ajax_data)){
+            console.log(phone_group_name)
+            for(var var phone_group_name_info of ajax_data[phone_group_name]){
+                measStatus += '<tr id = "phoneGroupDetail_Tr_' + phone_group_name + '">';
+                measStatus += '<td id =" phoneGroupDetail_Td_' + phone_group_name + '_' + ajax_data[phone_group_name] + '">';
+                //measStatus += '<span id ="' + area_eng[meas_area_name] + '_count"><font size="3"> 0 </font></span>';
+                measStatus += '<span>' + 
+                measStatus += '</td>';
+            }
+        }*/
+        for(var phone_group_name of Object.keys(ajax_data)){
+            console.log(phone_group_name)
+            measStatus += '<tr id = "phoneGroupDetail_Tr_' + phone_group_name + '">';
+            for(var i=0 ; i < ajax_data[phone_group_name].length + 1; i++){ //종료 버튼 넣을 td를 위해서 + 1
+                measStatus += '<td>';
+                measStatus += '<span>0';
+                measStatus += '</span>';
+                measStatus += '</td>';
+            }
+            measStatus += '</tr>';
+        }
+
+        measStatus += '</tbody>'
+
+        //console.log(measStatus)
+        $('#ltehh').append(measStatus);
+
+    }
+    
+    //오늘의 측정 테이블 값만 변경
+    function phoneGroupDataInfo(ajax_data){
+        for(var phone_group_name of Object.keys(ajax_data)){
+            var group_num = document.querySelector('#phoneGroupDetail_Tr_' + phone_group_name)
+            var tag = group_num.getElementsByTagName("span");
+            for (var i=0 ; i < tag.length-1; i++){ //종료 버튼 td를 빼기 위해서 - 1
+                if (i===0){
+                    tag[i].innerHTML = center_shot_name[Object.values(ajax_data[phone_group_name][i])[0]];
+                    //운용센터 숏네임으로 변경
+                } else {    
+                    tag[i].innerHTML = Object.values(ajax_data[phone_group_name][i]);
+                }
+            }
+        }
+    }
+
+</script>
 {% endblock %}

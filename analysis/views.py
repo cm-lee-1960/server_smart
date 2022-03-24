@@ -18,16 +18,43 @@ from django.db.models import Sum
 from .makereport import *
 from .forms import MeasLastyear5GForm, MeasLastyearLTEForm
 
+from monitor.models import *
+from management.models import *
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
+from .ajax import *
+
 ###################################################################################################
 # 분석 처리모듈
 # -------------------------------------------------------------------------------------------------
 # 2022-03-23 - 모듈 정리 및 주석 추가
-#
+# 2022-03-24 - 데이터 비동기 호출(Ajax) 함수 추가 -> ajax.py
 ###################################################################################################
 
 # -------------------------------------------------------------------------------------------------
 # 홈(Home) 페이지
 # -------------------------------------------------------------------------------------------------
+@csrf_exempt 
+def get_startdata(request):
+    """초기 데이터 호출 view"""
+    if request.method== "POST":
+        
+        start_dict = ajax_startdata() #측정 그룹 데이터 가져온다
+        json_data_call = json.dumps(start_dict)
+        
+    return HttpResponse(json_data_call, content_type="applications/json")
+
+@csrf_exempt 
+def get_phoneGroupData(request):
+    """그룹데이터 호출 뷰"""
+    if request.method== "POST":
+        
+        group_dict = ajax_phoneGroupData() #측정 그룹 데이터 가져온다
+        json_data_call = json.dumps(group_dict)
+        
+    return HttpResponse(json_data_call, content_type="applications/json")
+
 def dashboard_form(request):
     """홈(Home) 페이지 뷰"""
     return render(request, "analysis/dashboard_form.html")
