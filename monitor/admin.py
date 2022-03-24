@@ -1,12 +1,7 @@
 from django.shortcuts import render
-from django.contrib import admin, sites, messages
-from django.urls import path
-from django.http import HttpResponseRedirect
-# from django.forms import TextInput, Textarea
-# from django.db import models
-from django import forms
-from .models import PhoneGroup, Phone, MeasureCallData, Message
-from .close import measuring_end, measuring_day_close
+from django.contrib import admin
+from .models import PhoneGroup, Phone, MeasureCallData
+from .close import measuring_end
 
 ###################################################################################################
 # 어드민 페이지에서 모니터링 관련 정보를 보여주기 위한 모듈
@@ -24,11 +19,12 @@ from .close import measuring_end, measuring_day_close
 # 2022.03.10 - 단말그룹 관리자 페이지 추가 (단말그룹에 측정조를 입력할 수 있도록 함)
 # 2022.03.17 - 단말그룹 관리자 페이지에서 선택된 단말그룹에 대해 측정종료 처리 함수를 추가함
 # 2022.03.22 - 단말그룹에 관리대상 여부를 추가하고 관리대상 자료만 관리자 화면에 조회도록 수정함
+# 2022.03.24 - 측정종료 및 측정마감 모듈을 홈페이지에서 호출할 수 있도록 측정 모니터링앱(monitor) 뷰 함수로 이동
 #
 ###################################################################################################
 
 # -------------------------------------------------------------------------------------------------
-# 단말 그룹 관리자 페이지 설정
+# 단말그룹 관리자 페이지 설정
 # -------------------------------------------------------------------------------------------------
 class PhoneGroupAdmin(admin.ModelAdmin):
     """어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스"""
@@ -119,7 +115,9 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     #         self.message_user(request, "해당일 측정 마감처리 되었습니다.")  # 실행 후 알람 메시지 생성
     #     return HttpResponseRedirect("../")
 
+    # 단말그룹 관리자 페이지에서 "측정마감" 버튼을 추가한 커스터마이징한 페이지를 사용한다.
     change_list_template = "admin/change_list_close_btn.html"
+
 
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정
@@ -176,6 +174,7 @@ class ManageFilter(SimpleListFilter):
             else:
                 value = self.default_value
         return str(value) 
+
 
 class PhoneAdmin(admin.ModelAdmin):
     """어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스"""
