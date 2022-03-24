@@ -24,117 +24,142 @@ def measuring_end(phoneGroup):
         . message: 메시지 내용
     """
     # 해당 단말그룹에 묶여 있는 단말기들을 가져온다.
-    phone_list = phoneGroup.phone_set.all()
-    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
-    # DL 평균속도
-    avg_downloadBandwidth = round(qs.exclude(Q(networkId='NR') | \
-                                             Q(downloadBandwidth__isnull=True) | \
-                                             Q(downloadBandwidth=0) \
-                                             ).aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
-    # UL 평균속도
-    avg_uploadBandwidth = round(qs.exclude(Q(networkId='NR') | \
-                                           Q(uploadBandwidth__isnull=True) | \
-                                           Q(uploadBandwidth=0)
-                                           ).aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
-
-    # DL/UL 5G->LTE전환율
     try:
-        dl_nr_percent = round(phoneGroup.dl_nr_count / phoneGroup.dl_count * 100)
-        ul_nr_percent = round(phoneGroup.ul_nr_count / phoneGroup.ul_count * 100)
-    except Exception as e:
-        print("5G->LTE 전환율 계산 오류:", str(e))
-        raise Exception("measuring_end(): %s" % e)
+      phone_list = phoneGroup.phone_set.all()
+      qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+      # DL 평균속도
+      avg_downloadBandwidth = round(qs.exclude(Q(networkId='NR') | \
+                                              Q(downloadBandwidth__isnull=True) | \
+                                              Q(downloadBandwidth=0) \
+                                              ).aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
+      # UL 평균속도
+      avg_uploadBandwidth = round(qs.exclude(Q(networkId='NR') | \
+                                            Q(uploadBandwidth__isnull=True) | \
+                                            Q(uploadBandwidth=0)
+                                            ).aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
 
-        # 총 콜카운트를 가져온다.
-    total_count = min(phoneGroup.dl_count, phoneGroup.ul_count)
+      # DL/UL 5G->LTE전환율
+      dl_nr_percent = round(phoneGroup.dl_nr_count / phoneGroup.dl_count * 100)
+      ul_nr_percent = round(phoneGroup.ul_nr_count / phoneGroup.ul_count * 100)
+      # 총 콜카운트를 가져온다.
+      total_count = min(phoneGroup.dl_count, phoneGroup.ul_count)
+      # 측정시작 시간과 측정종료 시간을 확인한다.
+      meastime_max_min = qs.aggregate(Max('meastime'), Min('meastime'))
+      globals().update(meastime_max_min)
+      start_meastime = str(meastime__min)[8:10] + ':' + str(meastime__min)[10:12]
+      end_meastime = str(meastime__max)[8:10] + ':' + str(meastime__max)[10:12]
 
-    # 측정시작 시간가 측정종료 시간을 확인한다.
-    meastime_max_min = qs.aggregate(Max('meastime'), Min('meastime'))
-    globals().update(meastime_max_min)
-    start_meastime = str(meastime__min)[8:10] + ':' + str(meastime__min)[10:12]
-    end_meastime = str(meastime__max)[8:10] + ':' + str(meastime__max)[10:12]
+      # 메시지를 작성한다.
+      message = f"ㅇS-CXI {phoneGroup.measuringTeam} {phoneGroup.networkId} {phoneGroup.userInfo1} " + \
+                f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n"
+      # 5G의 경우 메시지 내용에 LTE전환율 포함한다.
+      if phoneGroup.networkId == '5G':
+          message += f"- LTE 전환율(DL/UL, %): {dl_nr_percent} / {ul_nr_percent}\n"
+      message += f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth} / {avg_uploadBandwidth}"
 
-    # 메시지를 작성한다.
-    message = f"ㅇS-CXI {phoneGroup.measuringTeam} {phoneGroup.networkId} {phoneGroup.userInfo1} " + \
-              f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n"
-    # 5G의 경우 메시지 내용에 LTE전환율 포함한다.
-    if phoneGroup.networkId == '5G':
-        message += f"- LTE 전환율(DL/UL, %): {dl_nr_percent} / {ul_nr_percent}\n"
-    message += f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth} / {avg_uploadBandwidth}"
-
-    # 메시지를 저장한다.
-    result = Message.objects.create(
-        phone=None,
-        status='END',
-        measdate=phoneGroup.measdate,
-        sendType='XMCS',
-        userInfo1=phoneGroup.userInfo1,
-        phone_no=None,
-        downloadBandwidth=avg_downloadBandwidth,
-        uploadBandwidth=avg_uploadBandwidth,
-        messageType='SMS',
-        message=message,
-        channelId='',
-        sended=False
-    )
-
-    # 측정종료 처리가 완료된 단말그룹에 대해서 상태를 비활성화 시킨다.
-    phoneGroup.active = False
-    phoneGroup.save()
-    #phoneGroup.update(active=False)
-    # 해당 그룹의 폰들도 비활성화 시킨다.
-    phone_list.update(active=False)   # 종료 시켰는데 해당 폰이 다른 곳 추가 측정 중이면?
-
-    # 해당 단말그룹에 해당하는 종료 데이터 DB(MeasuingDayClose)를 생성한다.
-    MeasuingDayClose.objects.create(
-        measdate=phoneGroup.measdate,
-        phoneGroup=phoneGroup,
-        userInfo1=phoneGroup.userInfo1,
-        networkId=phoneGroup.networkId,
-        center=phoneGroup.center,
-        morphology=phoneGroup.morphology,
-        dl_count=phoneGroup.dl_count,
-        ul_count=phoneGroup.ul_count,
-        dl_nr_count=phoneGroup.dl_nr_count,
-        ul_nr_count=phoneGroup.ul_nr_count,
-        dl_lte_transRate=dl_nr_percent,
-        ul_lte_transRate=ul_nr_percent,
-        total_count=total_count,
-    )
-   
-    # 마지막 지역의 종료일 경우 추가 메시지 생성
-    if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008, active=True).count() == 0:
-        # 측정 지역 개수 추출
-        daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
-        daily_area_total_count  = PhoneGroup.objects.filter(measdate=phoneGroup.measdate).count()
-        daily_area_fivg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='5G').count()
-        daily_area_lte_thrg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='LTE').count() + \
-                                    PhoneGroup.objects.filter(measdate=PhoneGroup.measdate, networkId='3G').count()
-        daily_area_wifi_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='WiFi').count()
-        message_final = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
-                        f"{phoneGroup.userInfo1}({phoneGroup.networkId}{phoneGroup.morphology})을 마지막으로 종료 되었습니다." + \
-                        f"ㅇ 측정지역({daily_area_total_count})\n" + \
-                        f" - 5G품질({daily_area_fivg_count})\n" + "  .\n" + \
-                        f" - LTE/3G 취약지역 품질({daily_area_lte_thrg_count})\n" + "  .\n" + \
-                        f" - WiFi 품질({daily_area_wifi_count})\n" + "  .\n" + \
-                        "수고 많으셨습니다."
+      # 메시지를 저장한다.
+      message_end = Message.objects.filter(measdate=phoneGroup.measdate, userInfo1=phoneGroup.userInfo1, status='END')
+      if message_end.exists():
+        message_end.update(downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, message=message)
+      else:
         Message.objects.create(
-            phone=None,
-            status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
-            measdate=phoneGroup.measdate,
-            sendType='XMCS',
-            userInfo1=phoneGroup.userInfo1,
-            phone_no=None,
-            downloadBandwidth=None,
-            uploadBandwidth=None,
-            messageType='SMS',
-            message=message_final,
-            channelId='',
-            sended=False
+          phone=None,
+          status='END',
+          measdate=phoneGroup.measdate,
+          sendType='XMCS',
+          userInfo1=phoneGroup.userInfo1,
+          phone_no=None,
+          downloadBandwidth=avg_downloadBandwidth,
+          uploadBandwidth=avg_uploadBandwidth,
+          messageType='SMS',
+          message=message,
+          channelId='',
+          sended=False
         )
 
-    # 반환값에 대해서는 향후 고민 필요  //  일단 마지막 측정 종료된 지역에 대한 id 와 message 내용 반환
-    return_value = {'message_id': result.id, 'message': message}
+      # 측정종료 처리가 완료된 단말그룹에 대해서 상태를 비활성화 시킨다.
+      phoneGroup.active = False
+      phoneGroup.save()
+      # 해당 그룹의 폰들도 비활성화 시킨다.
+      phone_list.update(active=False) 
+
+      # 해당 단말그룹에 해당하는 종료 데이터 DB(MeasuingDayClose) 생성 : 이미 존재하면 update, 미존재 시 신규생성
+      md = MeasuingDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
+      if md.exists():
+        md.update(userInfo1=phoneGroup.userInfo1,\
+                  networkId=phoneGroup.networkId,
+                  center=phoneGroup.center,
+                  morphology=phoneGroup.morphology,
+                  dl_count=phoneGroup.dl_count,
+                  ul_count=phoneGroup.ul_count,
+                  dl_nr_count=phoneGroup.dl_nr_count,
+                  ul_nr_count=phoneGroup.ul_nr_count,
+                  dl_lte_transRate=dl_nr_percent,
+                  ul_lte_transRate=ul_nr_percent,
+                  total_count=total_count,
+        )
+      else:
+        MeasuingDayClose.objects.create(
+          measdate=phoneGroup.measdate,
+          phoneGroup=phoneGroup,
+          userInfo1=phoneGroup.userInfo1,
+          networkId=phoneGroup.networkId,
+          center=phoneGroup.center,
+          morphology=phoneGroup.morphology,
+          dl_count=phoneGroup.dl_count,
+          ul_count=phoneGroup.ul_count,
+          dl_nr_count=phoneGroup.dl_nr_count,
+          ul_nr_count=phoneGroup.ul_nr_count,
+          dl_lte_transRate=dl_nr_percent,
+          ul_lte_transRate=ul_nr_percent,
+          total_count=total_count,
+         )
+    except Exception as e:
+      print("종료 데이터 계산, 종료 메시지 생성:", str(e))
+      return HttpResponse("measuring_end/data_calculate and message:" + str(e), status=500) 
+   
+    # 마지막 지역의 종료일 경우 추가 메시지 생성
+    try:
+      if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008, active=True).count() == 0:
+          # 측정 지역 개수 추출
+          daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
+          daily_area_total_count  = PhoneGroup.objects.filter(measdate=phoneGroup.measdate).count()
+          daily_area_fivg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='5G').count()
+          daily_area_lte_thrg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='LTE').count() + \
+                                      PhoneGroup.objects.filter(measdate=PhoneGroup.measdate, networkId='3G').count()
+          daily_area_wifi_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='WiFi').count()
+          message_end_last = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
+                          f"{phoneGroup.userInfo1}({phoneGroup.networkId}{phoneGroup.morphology})을 마지막으로 종료 되었습니다." + \
+                          f"ㅇ 측정지역({daily_area_total_count})\n" + \
+                          f" - 5G품질({daily_area_fivg_count})\n" + "  .\n" + \
+                          f" - LTE/3G 취약지역 품질({daily_area_lte_thrg_count})\n" + "  .\n" + \
+                          f" - WiFi 품질({daily_area_wifi_count})\n" + "  .\n" + \
+                          "수고 많으셨습니다."
+          # 마지막 종료 메시지가 존재하면 update, 미존재면 신규생성
+          message_last_exists = Message.objects.filter(measdate=phoneGroup.measdate, status='END_LAST')
+          if message_last_exists.exists():
+            message_last_exists.update(userInfo1=phoneGroup.userInfo1, message=message_end_last)
+          else:
+            Message.objects.create(
+              phone=None,
+              status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
+              measdate=phoneGroup.measdate,
+              sendType='XMCS',
+              userInfo1=phoneGroup.userInfo1,
+              phone_no=None,
+              downloadBandwidth=None,
+              uploadBandwidth=None,
+              messageType='SMS',
+              message=message_end_last,
+              channelId='',
+              sended=False
+            )
+    except Exception as e:
+      print("최종 종료 지역 메시지 생성:", str(e))
+      return HttpResponse("measuring_end/message_end_last:" + str(e), status=500) 
+
+    # 반환값에 대해서는 향후 고민 필요  //  일단 생성된 종료 message 내용 반환
+    return_value = {'message': message}
 
     return return_value
 
@@ -198,7 +223,7 @@ def measuring_day_close(phoneGroup_list, measdate):
           pass
         # 생성한 메시지를 저장한다 : 기존 메시지 있는 경우 Update, 없는 경우 신규 생성
         message_exists = Message.objects.filter(measdate=measdate, status='REPORT', userInfo1=md.userInfo1)
-        if message_exists.exsists():
+        if message_exists.exists():
           message_exists.update(downloadBandwidth=md.downloadBandwidth, uploadBandwidth=md.uploadBandwidth, message=message_report)
         else:
           Message.objects.create(
@@ -217,8 +242,8 @@ def measuring_day_close(phoneGroup_list, measdate):
           )
 
       except Exception as e:
-        print("종료 데이터 계산, 일일보고 메시지 생성:", str(e))
-        return HttpResponse("measuring_day_close/measure and report:" + str(e), status=500)
+        print("마감 데이터 계산, 일일보고 메시지 생성:", str(e))
+        return HttpResponse("measuring_day_close/data_calculate and message_report:" + str(e), status=500)
 
     # 일일보고용 메시지를 수합하여 하나로 작성한다
     try:
@@ -248,7 +273,7 @@ def measuring_day_close(phoneGroup_list, measdate):
         )
     except Exception as e:
       print("일일보고 메시지 수합, 생성:", str(e))
-      return HttpResponse("measuring_day_close/report_all:" + str(e), status=500)
+      return HttpResponse("measuring_day_close/message_report_all:" + str(e), status=500)
 
    # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
     return_value = {'measdate': measdate, 'message': message_report_all}
