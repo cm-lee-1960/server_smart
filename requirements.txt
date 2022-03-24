@@ -1,0 +1,40 @@
+#######################################################
+# 스마트상황실 구축 라이브러리
+# > pip install -r requirements.txt
+#######################################################
+# python==3.8.12
+
+django==4.0.2
+djangorestframework==3.13.1
+django-crontab==0.7.1
+python-telegram-bot==13.11
+django-extensions==3.1.1
+jupyter==1.0.0
+pandas==1.4.1
+haversine==2.5.1
+django-extensions==3.1.1
+folium==0.12.1.post1
+Jinja2==3.0.3
+mysqlclient==2.1.0
+Pillow==9.0.1
+requests==2.27.1
+
+#######################################################
+# Node.js 사용을 위해 설치해야 하는 모듈
+# - 아래 명령어를 사용하여 설치
+#######################################################
+# npm install request
+# npm install mysql
+
+
+#######################################################
+# MySQL 설정
+#######################################################
+# Database: smart
+# User: smartnqi
+# Password: nwai1234!
+# Port: 3306
+#
+# - MySQL 계정 설정 (문자전송을 위한 설정)
+#	- Authentication Type : Standard
+#	- Limit to Hosts Matching : localhost
