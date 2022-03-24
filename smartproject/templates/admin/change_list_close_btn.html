@@ -2,7 +2,7 @@
 
 {% block object-tools %}
     <div>
-        <form action="close/" method="POST">
+        <form action="{% url 'monitor:day_close' %}" method="POST">
             {% csrf_token %}
             <style>
                 .closebutton {

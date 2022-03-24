@@ -2,11 +2,14 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
+from django.http import HttpResponseRedirect
+from django.contrib import messages
 
 from message.msg import make_message
 from management.models import Morphology
 from .events import event_occur_check
-from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology
+from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, Message
+from .close import measuring_end, measuring_day_close
 
 
 # 로그를 기록하기 위한 로거를 생성한다.
@@ -255,6 +258,49 @@ def receive_json(request):
 
     return HttpResponse("처리완료")
 
+
+###################################################################################################
+# 해당지역 측정을 종료한다.
+###################################################################################################
+def measuring_end_view(request):
+    # 단말그룹을 전달 받아서 아래 코드가 수행될 수 있도록 처리해야 함
+    # 홈 페이지에서 어떻게 단말그룹 리스트를 보낼지 협의 후 진행해야 함
+    # if queryset.exists():
+    #     try:
+    #         result_list = []  # 여러개 그룹을 종료 시킬 수 있으므로 결과값을 리스트 선언
+    #         # 관리자 페이지에서 넘겨 받은 쿼리셋에서 선택된 단말그룹을 하나씩 가져와서 측정종료 처리를 한다.
+    #         for phoneGroup in queryset:
+    #             result = measuring_end(phoneGroup)
+    #             result_list.append(result)  # 결과 리스트 append
+    #     except Exception as e:
+    #         # 오류 코드 및 내용을 반환한다.
+    #         print("get_measuring_end_action():", str(e))
+    #         raise Exception("get_measuring_end_action(): %s" % e)
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+###################################################################################################
+# 당일 측정을 마감한다.
+###################################################################################################
+def measuring_day_close_view(request):
+    # date = request.POST['date'].replace('-','') # 기준일자
+    date = request.POST.get('date').replace('-','') # 기준일자
+    print("#####", date)
+
+    # 측정 이력이 없는 날짜일 경우 : 측정 중인 지역 없다는 메시지 노출
+    if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
+        messages.add_message(request, messages.ERROR, '측정 중인 지역이 없습니다.')
+    # 이미 마감한 날짜를 재마감할 경우 : 이미 마감한 지역 메시지 노출
+    elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
+        Message.objects.filter(status='REPORT_ALL', measdate=date).count is not 0:   # 해당 날짜에 Active 폰그룹이 없 and 마감 메시지 없으면
+        messages.add_message(request, messages.ERROR, '이미 마감한 날짜입니다.')
+    # 나머지 경우 마감 진행
+    else:
+        phoneGroup_list = PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True)  # 현재 Active 상태 단말그룹 리스트 추출
+        measuring_day_close(phoneGroup_list, date)  # 당일 측정 마감 함수 실행
+        messages.add_message(request, messages.INFO, '해당일 측정 마감처리 되었습니다.')
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ###################################################################################################
 # 측정위치로 작성된 지도맵 파일 전달
