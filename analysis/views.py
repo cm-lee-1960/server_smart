@@ -64,7 +64,7 @@ def create_measplan(request):
         pass
 
     # return redirect("analysis:make_report")
-    return redirect("analysis:make_report")
+    return redirect("analysis:register_measdata")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ def delete_measresult(request):
     if request.method== "POST":
        MeasResult.objects.all().delete()
       
-    return redirect("analysis:delete_measresult")
+    return redirect("analysis:register_measdata")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ def delete_reportmsg(request):
     if request.method== "POST":
         ReportMessage.objects.all().delete()
        
-    return redirect("analysis:delete_reportmsg")
+    return redirect("analysis:register_measdata")
 
 # -------------------------------------------------------------------------------------------------
 # 전년도 결과 등록 및 수정(5G)
@@ -178,7 +178,7 @@ def delete_measlastyear5G(request):
     if request.method== "POST":
         MeasLastyear5G.objects.all().delete()
 
-    return redirect("analysis:delete_measlastyear5G")
+    return redirect("analysis:register_measdata")
 
 # -------------------------------------------------------------------------------------------------
 # 전년도 결과 등록 및 수정(LTE)
@@ -204,5 +204,5 @@ def delete_measlastyearLTE(request):
     if request.method== "POST":
        MeasLastyearLTE.objects.all().delete()
 
-    return redirect("analysis:delete_measlastyearLTE")
+    return redirect("analysis:register_measdata")
 
