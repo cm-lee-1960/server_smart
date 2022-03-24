@@ -22,11 +22,17 @@
 <link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
 <script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
 <script type="text/javascript" defer src="{% static "js/jquery-3.4.1.min.js" %}"></script>
+<style>
+    .today_count{
+        color: red;
+    }
+</style>
 </head>
 
 <!--진자로 데이터 넘기기-->
 <body>    
 {% csrf_token %}
+{% load static %}
     <div>
         <!-- 메인화면 -->
         <div  style="display:flex; flex-flow: column nowrap;">
@@ -43,7 +49,7 @@
                 </div>   
                 <hr>
                 <div id="output" style="text-align: center;">
-                    <table id="5Ghh" sytle="border-spacing: 5px;">
+                    <table id="toDayWindow" sytle="border-spacing: 5px;">
                         <tbody id='toDayDetail'>
                             <tr id='toDayDetailTr'>
                             </tr>
@@ -54,7 +60,7 @@
             <div id="show1" class="w-100" style="margin-bottom:20px;border: 2px solid rgb(228, 223, 223); padding: 10px;">    
                 <h6> 금일 측정그룹 </h6>
                 <div id="output" style="text-align: center;">
-                    <table id="ltehh" class="table table-hover">
+                    <table id="groupWindow" class="table table-hover">
                         <thead>
                             <tr>
                                 <th >센터</th>
@@ -163,11 +169,11 @@
         let measStatus = '<tr id = "toDayDetailTr">';
             measStatus += '<th id = "measure" style="padding-right:15px">';
             measStatus += '<span><font size="3"> 측정 중 </font></span>';
-            measStatus += '<span id = "measure_count"><font size="2"> 0 </font></span>'
+            measStatus += '<span id = "measure_count" class="today_count"><font size="2"> 0 </font></span>'
             measStatus += '</th>';
             measStatus += '<th id = "measure_close" style="padding-right:15px">';
             measStatus += '<span><font size="3"> 측정종료 </font></span>';
-            measStatus += '<span id = "measure_close_count"><font size="2"> 0 </font></span>';
+            measStatus += '<span id = "measure_close_count" class="today_count"><font size="2"> 0 </font></span>';
             measStatus += '</th>';
         
         //for(var meas_area of ajax_data['meas_area']){
@@ -175,7 +181,7 @@
             console.log(meas_area_name)
             measStatus += '<th id ="' + area_eng[meas_area_name] + '" style="padding-right:15px">';
             measStatus += '<span><font size="3">' + meas_area_name + '</font></span>';
-            measStatus += '<span id ="' + area_eng[meas_area_name] + '_count"><font size="3"> 0 </font></span>';
+            measStatus += '<span id ="' + area_eng[meas_area_name] + '_count" class="today_count"><font size="3"> 0 </font></span>';
             measStatus += '</th>';
             }
         measStatus += '</tr>';
@@ -208,7 +214,7 @@
     }
 
     //비동기통신
-    //2분마다 주기적 요청
+    //10초마다 주기적 요청
     startInterval_phoneGroup(function(){
         $.ajax({
         type:'POST',
@@ -224,46 +230,35 @@
             
             phoneGroupData(ajax_data)
             phoneGroupDataInfo(ajax_data)
-            //startData(ajax_data); //초기데이터 세팅
-            //startDataCount(ajax_data); //초기데이터 값바꾸기          
         }
         });
     }, 10) 
 
-    //오늘의 측정 테이블 생성
+    //오늘의 측정그룹 테이블 생성
     function phoneGroupData(ajax_data){
         $('#phoneGroupDetail').remove();
 
         //초기화
         let measStatus = '<tbody id = "phoneGroupDetail">';
 
-        //for(var meas_area of ajax_data['meas_area']){
-        /*for(var phone_group_name of Object.keys(ajax_data)){
-            console.log(phone_group_name)
-            for(var var phone_group_name_info of ajax_data[phone_group_name]){
-                measStatus += '<tr id = "phoneGroupDetail_Tr_' + phone_group_name + '">';
-                measStatus += '<td id =" phoneGroupDetail_Td_' + phone_group_name + '_' + ajax_data[phone_group_name] + '">';
-                //measStatus += '<span id ="' + area_eng[meas_area_name] + '_count"><font size="3"> 0 </font></span>';
-                measStatus += '<span>' + 
-                measStatus += '</td>';
-            }
-        }*/
         for(var phone_group_name of Object.keys(ajax_data)){
             console.log(phone_group_name)
             measStatus += '<tr id = "phoneGroupDetail_Tr_' + phone_group_name + '">';
-            for(var i=0 ; i < ajax_data[phone_group_name].length + 1; i++){ //종료 버튼 넣을 td를 위해서 + 1
+            for(var i=0 ; i < ajax_data[phone_group_name].length; i++){ 
                 measStatus += '<td>';
                 measStatus += '<span>0';
                 measStatus += '</span>';
                 measStatus += '</td>';
             }
+            measStatus += '<td>';
+            measStatus +=  '<img id="img_group_' + phone_group_name + '" width="30" height="30" src="{% static "images/endbutton.png" %}" alt="종료">';
+            measStatus += '</td>';
             measStatus += '</tr>';
         }
 
         measStatus += '</tbody>'
 
-        //console.log(measStatus)
-        $('#ltehh').append(measStatus);
+        $('#groupWindow').append(measStatus);
 
     }
     
