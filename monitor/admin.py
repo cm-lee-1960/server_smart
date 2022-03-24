@@ -28,10 +28,10 @@ from .close import measuring_end
 # -------------------------------------------------------------------------------------------------
 class PhoneGroupAdmin(admin.ModelAdmin):
     """어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스"""
-    list_display = ['measdate', 'phone_list', 'measuringTeam', 'userInfo1', 'morphology', 'active']
+    list_display = ['measdate', 'phone_list', 'networkId', 'measuringTeam', 'userInfo1', 'morphology', 'active']
     list_display_links = ['phone_list', ]
-    search_fields = ('measdate', 'userInfo1', 'phone_list', 'measuringTeam')
-    list_filter = ['measdate', 'measuringTeam', 'active']
+    search_fields = ('measdate', 'userInfo1', 'phone_list', 'networkId', 'measuringTeam')
+    list_filter = ['measdate', 'networkId', 'measuringTeam', 'active']
     actions = ['get_measuring_end_action']
 
     # DetailView에서 적용하는 내용임
