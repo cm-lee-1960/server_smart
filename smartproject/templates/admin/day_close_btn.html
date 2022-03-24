@@ -1,0 +1,57 @@
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools %}
+    <div>
+        <form action="close/" method="POST">
+            {% csrf_token %}
+            <style>
+                .closebutton {
+                    background-color: white;
+                    border-radius: 10px;
+                    border: 1px solid skyblue;
+                    color: rgb(93, 93, 93);
+                    padding: 6px 14px;
+                    font-weight: 600;
+                    margin-bottom: 4px;
+                }
+                .closebutton:hover{
+                    color:white;
+                    background-color: skyblue;
+                }
+                .closedate{
+                    background-color: white;
+                    border-radius: 10px;
+                    border: 1px solid skyblue;
+                    color: rgb(93, 93, 93);
+                    padding: 6px 14px;
+                    font-weight: 600;
+                    margin-bottom: 4px;
+                }
+                .closebuttonarea{
+                    color:white;
+                    border-radius: 10px;
+                    border: 2px solid skyblue;
+                    color: rgb(93, 93, 93);
+                    padding: 6px 14px;
+                    font-weight: 600;
+                    margin-bottom: 4px;
+                    width: 460px;
+                    text-align: center;
+                   
+                }
+            </style>
+            <p class="closebuttonarea">
+            마감 일자 :
+            <input type="date" class="closedate" name="date", id='currentDate', style="cursor:pointer">
+            <script>
+                document.getElementById('currentDate').value = new Date().toISOString().substring(0, 10);;
+            </script>
+            <button class="closebutton" type="submit" style="cursor:pointer; height:30pt">
+                측정마감
+            </button>
+            </p>
+        </form>
+    </div>
+    <br />
+    {{ block.super }}
+{% endblock %}

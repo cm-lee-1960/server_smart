@@ -108,8 +108,8 @@ class PhoneGroupAdmin(admin.ModelAdmin):
         if self.model.objects.filter(measdate=date, ispId=45008).count() == 0:
             self.message_user(request, "측정 중인 지역이 없습니다.", level=messages.ERROR)
         # 이미 마감한 날짜를 재마감할 경우 : 이미 마감한 지역 메시지 노출
-        elif (self.model.objects.filter(measdate=date, ispId=45008, active=True).count() == 0) & \
-             (Message.objects.filter(measdate=date, status='REPORT_ALL').count!=0):   # 해당 날짜에 Active 폰그룹이 없 and 마감 메시지 없으면
+        elif (not self.model.objects.filter(measdate=date, ispId=45008, active=True).exists()) & \
+             (Message.objects.filter(measdate=date, status='REPORT_ALL').exists()):   # 해당 날짜에 Active 폰그룹이 없 and 마감 메시지 없으면
             self.message_user(request, "이미 마감한 날짜입니다.", level=messages.ERROR)
         # 나머지 경우 마감 진행
         else:
@@ -118,7 +118,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
             self.message_user(request, "해당일 측정 마감처리 되었습니다.")  # 실행 후 알람 메시지 생성
         return HttpResponseRedirect("../")
 
-    change_list_template = "admin/change_list_close_btn.html"
+    change_list_template = "admin/day_close_btn.html"
 
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정
