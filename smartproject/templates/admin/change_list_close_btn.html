@@ -24,7 +24,7 @@
                     border: 1px solid skyblue;
                     color: rgb(93, 93, 93);
                     padding: 6px 14px;
-                    font-weight: 600;
+                    font-weight: 300;
                     margin-bottom: 4px;
                 }
                 .closebuttonarea{
@@ -36,11 +36,11 @@
                     font-weight: 600;
                     margin-bottom: 4px;
                     width: 400px;
-                   
+
                 }
             </style>
             <p class="closebuttonarea">
-            마감 일자 :
+            기준일자 :
             <input type="date" class="closedate" name="date", id='currentDate', style="cursor:pointer">
             <script>
                 document.getElementById('currentDate').value = new Date().toISOString().substring(0, 10);;

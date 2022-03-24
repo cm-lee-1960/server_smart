@@ -118,7 +118,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
             self.message_user(request, "해당일 측정 마감처리 되었습니다.")  # 실행 후 알람 메시지 생성
         return HttpResponseRedirect("../")
 
-    change_list_template = "analysis/day_close_btn.html"
+    change_list_template = "admin/change_list_close_btn.html"
 
 # -------------------------------------------------------------------------------------------------
 # 측정 단말 관리자 페이지 설정
