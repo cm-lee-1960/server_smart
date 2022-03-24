@@ -6,9 +6,6 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.urls import reverse
 import json
 
-from flask import render_template
-
-
 ###################################################################################################
 # 로그인 뷰
 # -------------------------------------------------------------------------------------------------
