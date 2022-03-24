@@ -263,7 +263,12 @@ def receive_json(request):
 # 해당지역 측정을 종료한다.
 ###################################################################################################
 def measuring_end_view(request):
-    # 단말그룹을 전달 받아서 아래 코드가 수행될 수 있도록 처리해야 함
+    """ 해당일자에 대한 측정종료을 처리하는 뷰 함수
+        - 파라미터
+          . request(phoneGroup_list): 측정종료 대상 단말그룹 리스트
+        - 반환값: 없음(현재 페이지 유지)
+        """
+    # 2022.03.24 - 단말그룹을 전달 받아서 아래 코드가 수행될 수 있도록 처리해야 함
     # 홈 페이지에서 어떻게 단말그룹 리스트를 보낼지 협의 후 진행해야 함
     # if queryset.exists():
     #     try:
@@ -283,22 +288,30 @@ def measuring_end_view(request):
 # 당일 측정을 마감한다.
 ###################################################################################################
 def measuring_day_close_view(request):
-    # date = request.POST['date'].replace('-','') # 기준일자
+    """ 해당일자에 대한 측정마감을 처리하는 뷰 함수
+        - 파라미터
+          . date: 기준일자(예: 20211101)
+        - 반환값: 없음(현재 페이지 유지)
+    """
     date = request.POST.get('date').replace('-','') # 기준일자
-    print("#####", date)
 
-    # 측정 이력이 없는 날짜일 경우 : 측정 중인 지역 없다는 메시지 노출
+    # 1) 해당일자에 측정 이력이 없는 경우
     if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
-        messages.add_message(request, messages.ERROR, '측정 중인 지역이 없습니다.')
-    # 이미 마감한 날짜를 재마감할 경우 : 이미 마감한 지역 메시지 노출
+        messages.add_message(request, messages.ERROR, '해당일자에 대한 측정중인 지역이 없습니다.')
+
+    # 2) 해당일자에 측정마감이 기처리된 경우
+    #    - 측정 진행중인 단말그룹이 없고(active=True)
+    #    - 측정마감 메시지가 이미 생성되어 있는 경우(status='REPORT_ALL')
     elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
-        Message.objects.filter(status='REPORT_ALL', measdate=date).count is not 0:   # 해당 날짜에 Active 폰그룹이 없 and 마감 메시지 없으면
-        messages.add_message(request, messages.ERROR, '이미 마감한 날짜입니다.')
-    # 나머지 경우 마감 진행
+        Message.objects.filter(status='REPORT_ALL', measdate=date).count is not 0:
+        messages.add_message(request, messages.ERROR, '해당일자에 대한 측정마감이 이미 처리되었습니다.')
+
+    # 3) 해당일자에 대한 측정마감을 처리한다.
     else:
-        phoneGroup_list = PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True)  # 현재 Active 상태 단말그룹 리스트 추출
-        measuring_day_close(phoneGroup_list, date)  # 당일 측정 마감 함수 실행
-        messages.add_message(request, messages.INFO, '해당일 측정 마감처리 되었습니다.')
+        phoneGroup_list = PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True)  # 측정마감 대상 단말그룹
+        # 해당일자의 대상 단말그룹 리스트에 대해서 측정마감을 처리한다.
+        measuring_day_close(phoneGroup_list, date)
+        messages.add_message(request, messages.INFO, '해당일자에 대한 측정마감이 처리완료 되었습니다.')
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
