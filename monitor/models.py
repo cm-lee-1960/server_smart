@@ -19,7 +19,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
 #              DL콜카운트, UL콜가운트, DL LTE전환 콜카운트, UL LTE전환 콜카운트
 # 2022.03.17 - 측정종료 및 측정마감 시 코드 복잡성을 낮추기 위해서 단말그룰에 측정유형(networkId)을 가져감
-# 2022.03.18 - 측정마감 모델(MeasuingDayClose)  추가
+# 2022.03.18 - 측정마감 모델(MeasuringDayClose)  추가
 # 2022.03.19 - 관할센터(Center) 외래키 항목 추가
 # 2022.03.22 - 단말그룹에 관리대상 여부 항목 추가
 #
@@ -597,6 +597,7 @@ class Message(models.Model):
     messageType = models.CharField(max_length=10)  # 메시지유형(SMS: 메시지, EVENT: 이벤트)
     message = models.TextField(default=False) # 메시지 내용
     channelId = models.CharField(max_length=25) # 채널ID
+    # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
     sended = models.BooleanField(default=True) # 전송여부
 
 
@@ -628,7 +629,7 @@ post_save.connect(send_message, sender=Message)
 ###################################################################################################
 # 측정마감 클래스
 ###################################################################################################
-class MeasuingDayClose(models.Model):
+class MeasuringDayClose(models.Model):
     """측정마감 클래스"""
     measdate = models.CharField(max_length=10, verbose_name='측정일자')  # 측정일자(예: 20211101)
     phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING, verbose_name='단말그룹')  # 단말그룹

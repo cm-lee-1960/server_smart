@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q
 from django.db import connection
-from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuingDayClose
+from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuringDayClose
 
 ########################################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -14,9 +14,9 @@ from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuingDayClos
 # |   url.py   |----------->|  views.py  |------------>|  close.py  |----------┳---------->|  Message   |
 # └----------- ┘            └----------- ┘             └----------- ┘          |           └----------- ┘
 # - monitor/end             - measuring_end_view        - measuring_end        |          (M)측정마감
-# - monitor/close           - measuring_day_close_view  - measuring_day_close  |측정마감  ┌ -----------------┐
-#                                                                              └--------->| MeasuingDayClose |
-#                                                                                         └----------------- ┘
+# - monitor/close           - measuring_day_close_view  - measuring_day_close  |측정마감  ┌-------------------┐
+#                                                                              └--------->| MeasuringDayClose |
+#                                                                                         └------------------ ┘
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022-03-21 - 확정된 모듈과 입시 모듈의 순서 변경 및 주석 추가
 # 2022-03-25 - 측정종료 및 측정마감 흐름도 작성 및 주석 추가
@@ -98,8 +98,8 @@ def measuring_end(phoneGroup):
         # 해당 그룹의 폰들도 비활성화 시킨다.
         phone_list.update(active=False)
 
-        # 해당 단말그룹에 해당하는 종료 데이터 DB(MeasuingDayClose) 생성 : 이미 존재하면 update, 미존재 시 신규생성
-        md = MeasuingDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
+        # 해당 단말그룹에 해당하는 종료 데이터 DB(MeasuringDayClose) 생성 : 이미 존재하면 update, 미존재 시 신규생성
+        md = MeasuringDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
         if md.exists():
             md.update(userInfo1=phoneGroup.userInfo1,
                       networkId=phoneGroup.networkId,
@@ -114,7 +114,7 @@ def measuring_end(phoneGroup):
                       total_count=total_count,
                      )
         else:
-            MeasuingDayClose.objects.create(
+            MeasuringDayClose.objects.create(
                     measdate=phoneGroup.measdate,
                     phoneGroup=phoneGroup,
                     userInfo1=phoneGroup.userInfo1,
@@ -219,12 +219,12 @@ def measuring_day_close(phoneGroup_list, measdate):
     for phoneGroup in phoneGroup_list:
         measuring_end(phoneGroup)
  
-    # 각 단말 그룹들의 종료 데이터(MeasuingDayClose)를 보충
+    # 각 단말 그룹들의 종료 데이터(MeasuringDayClose)를 보충
     for phoneGroup in PhoneGroup.objects.filter(ispId='45008', active=False, measdate=measdate):
         try:
             phone_list = phoneGroup.phone_set.all()
             qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime") # 초데이터로 바꿔야함
-            md = phoneGroup.measuingdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
+            md = phoneGroup.measuringdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
     
             # !!--- 초데이터 기반, 데이터 가공 및 저장은 추후 데이터 확정 시 진행 예정 -- !!
             # 1) 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!!(3.22)
