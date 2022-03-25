@@ -2,40 +2,83 @@
     <meta charset="UTF-8">
 </head>
 
-<form action="http://127.0.0.1:8000/message/xroshot_send/" method="post">
+<div>
+<div style="float:left;">
+<form action="http://127.0.0.1:8000/message/msg_send/" method="post">
     {% csrf_token %}
     <form>
-        <p>
-            <textarea id="message" name="message" cols="50" rows="10">{{message}}</textarea>
+        [SMS]<br><br>
+            <textarea id="message" name="message" cols="50" rows="10">{% if sendType == 'XMCS' %}{{message}}
+                {% else %}메시지내용
+                {% endif %}
+            </textarea>
         </p>
         <p>
             <textarea id="receiver" name="receiver" cols="50" rows="2">수신자 번호(-제외, 쉼표(,)로 구분)</textarea>
         </p>
         <p>
+            <input type="hidden" name="sendType" value="XMCS">
             <input type="submit" value="SEND">
         </p>
     </form>
 </form>
+</div>
+
+<div style="float:right">
+<form action="http://127.0.0.1:8000/message/msg_send/" method="post">
+    {% csrf_token %}
+    <form>
+        [TELEGRAM]
+        <p>
+            <textarea id="message" name="message" cols="50" rows="10">{% if sendType == 'TELE' %}{{message}}
+                {% else %}메시지내용
+                {% endif %}
+            </textarea>
+        </p>
+        <p>
+            <textarea id="receiver" name="receiver" cols="50" rows="1">{% if sendType == 'TELE' %}{{channelId}}
+                {% else %}채널ID
+                {% endif %}
+            </textarea>
+        </p>
+        <p>
+            재전송<input type="checkbox" name="resend" value="True">
+            회수<input type="checkbox" name="retreive" value="True">
+            <br><font size=1>* 회수는 아직 기능 미구현</font>  
+        </p>
+        <p>
+            <input type="hidden" name="sendType" value="TELE">
+            <input type="submit" value="실행">
+        </p>
+    </form>
+</form>
+</div>
+</div>
 
 
-
+<div style="clear:both;">
 <h3> 생성된 메시지 선택하기 </h3>
 <table border="1">
     <th>ID</th>
     <th>Date</th>
     <th name="abcd">Message</th>
+    <th>Type</th>
+    <th>sended</th>
     <th>Select</th>
     {% for message in message_all %}
     <tr>
         <td>{{message.id}}</td>
         <td>{{message.measdate}}</td>
-        <form action="http://127.0.0.1:8000/message/xroshot/" method="post">
+        <form action="http://127.0.0.1:8000/message/sample/" method="post">
             {% csrf_token %}
             <td><input type="hidden" name="selected_message" value="{{message.message}}">{{message.message}}</td>
+            <td><input type="hidden" name="sendType" value="{{message.sendType}}">{{message.sendType}}</td>
+            <td>{{message.sended}}</td>
+            <input type="hidden" name="channelId" value="{{message.channelId}}">
             <td><input type="submit" value="선택"></td>
         </form>
         </tr>
     {% endfor %}
 </table>
-
+</div>
 

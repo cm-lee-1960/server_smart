@@ -27,10 +27,10 @@ def stop_cb(request):
 
 
 # 크로샷 메시지 작성 페이지 (임시)  // (3.13)
-def xroshot_index(request):
+def msg_index(request):
     if request.method=='POST':
-        print(request.POST)
-        message = {'message_all':Message.objects.all(), 'message':request.POST['selected_message']}
+        message = {'message_all':Message.objects.all(), 'message':request.POST['selected_message'], \
+                    'sendType':request.POST['sendType'], 'channelId':request.POST['channelId']}
         return render(request, 'message/xroshot_page.html', message)
     else:
         message = {'message_all':Message.objects.all()}
@@ -40,19 +40,30 @@ def xroshot_index(request):
 # 작성한 메시지를 바탕으로 메시지 전송  //  (3.13)
 from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
-def xroshot_send(request):
+def msg_send(request):
     if request.method=='POST':
-        form = SentXroshotMessageForm(request.POST)
-        if form.is_valid():
-            #messages = form.save(commit=False)
-            form.save()
-            result = send_sms()
-            if 'Result: 10000' in result:
-                return HttpResponse(result+'\nSuccess!')
+        if request.POST['sendType'] == 'XMCS':
+            form = SentXroshotMessageForm(request.POST)
+            if form.is_valid():
+                #messages = form.save(commit=False)
+                form.save()
+                result = send_sms()
+                if 'Result: 10000' in result:
+                    return HttpResponse(result+'\nSuccess!')
+                else:
+                    return HttpResponse(result+'\nFailed..')
             else:
-                return HttpResponse(result+'\nFailed..')
-        else:
-            return HttpResponse("Error occured. Please check your message or phone-number.")
+                return HttpResponse("Error occured. Please check your message or phone-number.")
+        elif request.POST['sendType'] == 'TELE':
+            try:
+                if request.POST['resend'] == 'True':
+                    result = '\nSended'
+                elif request.POST['retreive'] == 'True':
+                    result = bot.delete_message(sentMessage.chat_id, sentMessage.chat_message_id)
+                return HttpResponse(result)
+            except Exception as e:
+                raise Exception("telegram message send error: %s" % e) 
+    
     else:
         print("잘못된 요청입니다.")
         return HttpResponse("Bad Request..")
