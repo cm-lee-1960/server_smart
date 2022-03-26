@@ -55,7 +55,7 @@ def get_phoneGroupData(request):
         
     return HttpResponse(json_data_call, content_type="applications/json")
 
-def dashboard_form(request):
+def dashboard(request):
     """홈(Home) 페이지 뷰"""
     return render(request, "analysis/dashboard_form.html")
 
