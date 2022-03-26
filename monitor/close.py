@@ -84,18 +84,18 @@ def measuring_end(phoneGroup):
             message_end.update(downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, message=message)
         else:
             Message.objects.create(
-              phone=None,
-              status='END',
-              measdate=phoneGroup.measdate,
-              sendType='XMCS',
-              userInfo1=phoneGroup.userInfo1,
-              phone_no=None,
-              downloadBandwidth=avg_downloadBandwidth,
-              uploadBandwidth=avg_uploadBandwidth,
-              messageType='SMS',
-              message=message,
-              channelId='',
-              sended=False
+              phone=None, # 측정단말
+              status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
+              measdate=phoneGroup.measdate, # 측정일자
+              sendType='XMCS', # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+              userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+              phone_no=None, # 측정단말 전화번호
+              downloadBandwidth=avg_downloadBandwidth, # DL속도
+              uploadBandwidth=avg_uploadBandwidth, # UL속도
+              messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+              message=message, # 메시지 내용
+              channelId='', # 채널ID
+              sended=False # 전송여부
             )
 
         # 측정종료 처리가 완료된 단말그룹과 측정단말의 상태를 비활성화 시킨다.
@@ -136,11 +136,6 @@ def measuring_end(phoneGroup):
         if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008, active=True).count() == 0:
             # 측정지역 개수 추출
             daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
-            # daily_area_total_count  = PhoneGroup.objects.filter(measdate=phoneGroup.measdate).count()
-            # daily_area_fivg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='5G').count()
-            # daily_area_lte_thrg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='LTE').count() + \
-            #                             PhoneGroup.objects.filter(measdate=PhoneGroup.measdate, networkId='3G').count()
-            # daily_area_wifi_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='WiFi').count()
             # 네트워크 유형별 건수를 조회한다.
             cursor = connection.cursor()
             cursor.execute(" SELECT networkId, COUNT(*) AS COUNT " + \
@@ -172,18 +167,18 @@ def measuring_end(phoneGroup):
                 message_last_exists.update(userInfo1=phoneGroup.userInfo1, message=message_end_last)
             else:
                 Message.objects.create(
-                    phone=None,
+                    phone=None, # 측정단말
                     status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
-                    measdate=phoneGroup.measdate,
-                    sendType='XMCS',
-                    userInfo1=phoneGroup.userInfo1,
-                    phone_no=None,
-                    downloadBandwidth=None,
-                    uploadBandwidth=None,
-                    messageType='SMS',
-                    message=message_end_last,
-                    channelId='',
-                    sended=False
+                    measdate=phoneGroup.measdate, # 측정일자
+                    sendType='XMCS', # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+                    userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+                    phone_no=None, # 측정단말 전화번호
+                    downloadBandwidth=None, # DL속도
+                    uploadBandwidth=None, # UL속도
+                    messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+                    message=message_end_last, # 메시지 내용
+                    channelId='', # 채널ID
+                    sended=False # 전송여부
                     )
 
     except Exception as e:
