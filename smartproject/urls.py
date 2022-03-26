@@ -15,25 +15,19 @@ Including another URLconf
 """
 from django.conf.urls import include
 from django.contrib import admin
-from django.urls import reverse_lazy
 from django.urls import path
-from django.contrib.auth.views import LoginView
-from accounts.views import login
-# from monitor.admin import monitor_site
+from analysis.views import dashboard
 
 urlpatterns = [
-    #path('', LoginView.as_view(template_name='accounts/login_boot.html',
-    #                            next_page=reverse_lazy('analysis:dashboard')), name='login'),
-    path('', login, name='login'),
-    path('admin/', admin.site.urls),
-    # path('monitoradmin/', monitor_site.urls),
+    path('', dashboard),
+    # path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path("monitor/", include("monitor.urls")),
-    path("analysis/", include("analysis.urls")),
-    path("message/", include("message.urls")),
-    path("accounts/", include("accounts.urls")),
-    
+    path("monitor/", include("monitor.urls")), # 측정 모니터링
+    path("analysis/", include("analysis.urls")), # 분석
+    path("message/", include("message.urls")), # 전송 메시지
+    path("accounts/", include("accounts.urls")), # 계정
 ]
+
 # 어드민 페이지 변경
 admin.site.index_title = "스마트 상황실"
 admin.site.site_header = "스마트 상황실 관리"
