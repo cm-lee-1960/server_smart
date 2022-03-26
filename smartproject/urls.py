@@ -20,7 +20,7 @@ from analysis.views import dashboard
 
 urlpatterns = [
     path('', dashboard),
-    # path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path("monitor/", include("monitor.urls")), # 측정 모니터링
     path("analysis/", include("analysis.urls")), # 분석

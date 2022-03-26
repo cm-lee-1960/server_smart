@@ -1,5 +1,6 @@
-from rest_framework import serializers
+from rest_framework import serializers, relations
 from monitor.models import PhoneGroup, MeasuringDayClose
+from management.models import Center, Morphology
 
 ########################################################################################################################
 # 모델 직렬화 관련 모듈
@@ -7,6 +8,54 @@ from monitor.models import PhoneGroup, MeasuringDayClose
 # 2022.03.26 - 중복코드를 최적화 하기 위해 모델 직렬화 모듈 작성
 #
 ########################################################################################################################
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 모델 직렬화 시 외부키(Foreign Key)에 _ids 또는 _id 서핏스를 붙여주는 모들
+# ----------------------------------------------------------------------------------------------------------------------
+class IdManyRelatedField(relations.ManyRelatedField):
+    field_name_suffix = '_ids'
+
+    def bind(self, field_name, parent):
+        self.source = field_name[:-len(self.field_name_suffix)]
+        super().bind(field_name, parent)
+
+class IdPrimaryKeyRelatedField(relations.PrimaryKeyRelatedField):
+    """
+    Field, that renames the field name to FIELD_NAME_id.
+    Only works together the our ModelSerializer.
+    """
+    many_related_field_class = IdManyRelatedField
+    field_name_suffix = '_id'
+
+    def bind(self, field_name, parent):
+        """
+        Called when the field is bound to the serializer.
+        Changes the source  so that the original field name is used (removes
+        the _id suffix).
+        """
+        if field_name:
+            self.source = field_name[:-len(self.field_name_suffix)]
+        super().bind(field_name, parent)
+
+class IdModelSerializer(serializers.ModelSerializer):
+    """
+    ModelSerializer that changes the field names of related fields to
+    FIELD_NAME_id.
+    """
+    serializer_related_field = IdPrimaryKeyRelatedField
+
+    def get_fields(self):
+        fields = super().get_fields()
+        new_fields = type(fields)()
+
+        for field_name, field in fields.items():
+            try:
+                field_name += field.field_name_suffix
+            except AttributeError:
+                pass
+            new_fields[field_name] = field
+        return new_fields
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 다이나믹필드 모델 직렬화 클래스
@@ -32,11 +81,23 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
+class CenterSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = Center
+        fields = '__all__'
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 직렬화 클래스
 # ----------------------------------------------------------------------------------------------------------------------
+# 2022.03.26 - IdModelSerializer가 Foreign Key를 _id를 붙여주는 좋은 코드인데, 정상동작 하지 않음
+# ----------------------------------------------------------------------------------------------------------------------
+# class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 class PhoneGroupSerializer(DynamicFieldsModelSerializer):
     """단말그룹 직렬화 글래스"""
+    center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
+    morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
+
     class Meta:
         model = PhoneGroup
-        fields = '__all__' 
+        fields = '__all__'

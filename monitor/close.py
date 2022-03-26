@@ -111,52 +111,16 @@ def measuring_end(phoneGroup):
         # 해당 단말그룹에 대한 측정종료 데이터가 있는지 확인한다.
         md = MeasuringDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
         # 직렬화 대상 필드를 지정한다.
-        fields = ['userInfo1', 'networkId', 'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count', 'dl_nr_percent',
-                  'ul_nr_percent', 'total_count']
+        fields = ['center_id', 'morphology_id', 'userInfo1', 'networkId', 'dl_count', 'ul_count', 'dl_nr_count',
+                  'ul_nr_count', 'dl_nr_percent', 'ul_nr_percent', 'total_count']
         serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
+        print("#######\n", serializer.data)
         if md.exists():
-            # md.update(userInfo1=phoneGroup.userInfo1,
-            #           networkId=phoneGroup.networkId,
-            #           center=phoneGroup.center,
-            #           morphology=phoneGroup.morphology,
-            #           dl_count=phoneGroup.dl_count,
-            #           ul_count=phoneGroup.ul_count,
-            #           dl_nr_count=phoneGroup.dl_nr_count,
-            #           ul_nr_count=phoneGroup.ul_nr_count,
-            #           dl_lte_transRate=dl_nr_percent,
-            #           ul_lte_transRate=ul_nr_percent,
-            #           total_count=total_count,
-            #          )
             # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
-            md.update(
-                center=phoneGroup.center,
-                morphology=phoneGroup.morphology,
-                phoneGroup=phoneGroup,
-                **serializer.data
-                )
+            md.update(**serializer.data)
         else:
-            # MeasuringDayClose.objects.create(
-            #         measdate=phoneGroup.measdate,
-            #         phoneGroup=phoneGroup,
-            #         userInfo1=phoneGroup.userInfo1,
-            #         networkId=phoneGroup.networkId,
-            #         center=phoneGroup.center,
-            #         morphology=phoneGroup.morphology,
-            #         dl_count=phoneGroup.dl_count,
-            #         ul_count=phoneGroup.ul_count,
-            #         dl_nr_count=phoneGroup.dl_nr_count,
-            #         ul_nr_count=phoneGroup.ul_nr_count,
-            #         dl_lte_transRate=dl_nr_percent,
-            #         ul_lte_transRate=ul_nr_percent,
-            #         total_count=total_count,
-            #         )
             # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
-            MeasuringDayClose.objects.create(
-                center=phoneGroup.center,
-                morphology=phoneGroup.morphology,
-                phoneGroup=phoneGroup,
-                **serializer.data
-                )
+            MeasuringDayClose.objects.create(phoneGroup=phoneGroup, **serializer.data)
 
     except Exception as e:
         print("측정종료 메시지 및 데이터 저장: ", str(e))
