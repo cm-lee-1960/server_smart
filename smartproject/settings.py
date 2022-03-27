@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'django_crontab',
+    # 'django_crontab',
     'monitor',
     'analysis',
     'message',
@@ -260,3 +260,5 @@ MANAGEMENT_MODELS_ORDERING = {
 
 LOGIN_REDIRECT_URL = 'http://localhost:8000/'
 LOGOUT_REDIRECT_URL = '/'
+
+SCHEDULER_DEFAULT = False
