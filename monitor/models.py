@@ -581,6 +581,8 @@ class MeasureSecondData(models.Model):
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 의존성으로 마이그레이트 및 롤백 시 오류가 자주 발생하여 모니터 앱으로 옮겨 왔음
 # 2022.02.27 - 메시지 유형을 메시지(SMS)와 이벤트(EVENT)로 구분할 수 있도록 항목 추가
+# 2022.03.27 - 메시지가 생성되었을 때만 처리하도록 코드를 수정함(created=True)
+#
 ########################################################################################################################
 class Message(models.Model):
     """전송 메시지 정보"""
@@ -605,18 +607,24 @@ class Message(models.Model):
 # ----------------------------------------------------------------------------------------------------------------------
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 전송하는 함수
 # ----------------------------------------------------------------------------------------------------------------------
-def send_message(sender, **kwargs):
+# def send_message(sender, **kwargs):
+def send_message(sender, instance, created, **kwargs):
     """ 생성된 메시지를 크로샷 또는 텔레그램으로 전송하는 함수"""
-    bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
-    # 텔레그램으로 메시지를 전송한다.
-    if kwargs['instance'].sendType == 'TELE':
-        bot.send_message_bot(kwargs['instance'].channelId, kwargs['instance'].message)
-    # 크로샷으로 메시지를 전송한다.
-    elif kwargs['instance'].sendType == 'XMCS':
-        # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
-        # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
-        # npm install request 명령어로 모듈 설치 후 사용 가능
-        send_sms()
+    # 메시지가 생성되었을 때만 처리한다.
+    if created:
+        bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
+        # 텔레그램으로 메시지를 전송한다.
+        if instance.sendType == 'TELE':
+            bot.send_message_bot(instance.channelId, instance.message)
+        # 크로샷으로 메시지를 전송한다.
+        elif instance.sendType == 'XMCS':
+            # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
+            # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
+            # npm install request 명령어로 모듈 설치 후 사용 가능
+            send_sms()
+    else:
+        # 메시지가 업데이트 되었을 때는 아무런 처리를 하지 않는다.
+        pass
 
 
 # ----------------------------------------------------------------------------------------------------------------------
