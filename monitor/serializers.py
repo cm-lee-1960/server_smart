@@ -1,5 +1,5 @@
 from rest_framework import serializers, relations
-from monitor.models import PhoneGroup, MeasuringDayClose
+from monitor.models import Phone, PhoneGroup, MeasuringDayClose
 from management.models import Center, Morphology
 
 ########################################################################################################################
@@ -87,11 +87,11 @@ class CenterSerializer(DynamicFieldsModelSerializer):
         fields = '__all__'
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+########################################################################################################################
 # 단말그룹 직렬화 클래스
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.26 - IdModelSerializer가 Foreign Key를 _id를 붙여주는 좋은 코드인데, 정상동작 하지 않음
-# ----------------------------------------------------------------------------------------------------------------------
+########################################################################################################################
 # class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 class PhoneGroupSerializer(DynamicFieldsModelSerializer):
     """단말그룹 직렬화 글래스"""
@@ -100,4 +100,19 @@ class PhoneGroupSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
         model = PhoneGroup
+        fields = '__all__'
+
+
+########################################################################################################################
+# 측정단말 직렬화 클래스
+# ----------------------------------------------------------------------------------------------------------------------
+########################################################################################################################
+class PhoneSerializer(DynamicFieldsModelSerializer):
+    """측정다말 직렬화 글래스"""
+    phoneGroup_id = serializers.ReadOnlyField(source = 'phoneGroup.id') # 단말그룹
+    center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
+    morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
+
+    class Meta:
+        model = Phone
         fields = '__all__'

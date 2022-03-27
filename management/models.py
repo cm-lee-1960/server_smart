@@ -80,7 +80,8 @@ class MorphologyMap(models.Model):
     WORDSCOND_CHOICES = (('시작단어','시작단어'), ('포함단어','포함단어'))
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
-    words = models.CharField(max_length=200, null=True, blank=True, verbose_name="단어") # 모폴로지 판단 컬럼2 : 특정 단어 포함
+    words = models.CharField(max_length=200, null=True, blank=True,
+                             verbose_name="단어") # 모폴로지 판단 컬럼2 : 특정 단어 포함
     wordsCond = models.CharField(max_length=20, null=True, blank=True, choices=WORDSCOND_CHOICES, verbose_name='조건')
     morphology = models.ForeignKey(Morphology, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     manage = models.BooleanField(default=False, verbose_name='관리대상')  # 관리대상 여부
@@ -108,7 +109,8 @@ class SendFailure(models.Model):
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     areaInd = models.CharField(max_length=10, choices=AREAIND__CHOICES, verbose_name='지역구분')
-    networkId = models.CharField(max_length=10, null=True, blank=True, choices=NETWORKID_CHOICES, verbose_name='단말유형') # 네트워크ID(5G, LTE, 3G, WiFi)
+    networkId = models.CharField(max_length=10, null=True, blank=True, choices=NETWORKID_CHOICES,
+                                 verbose_name='단말유형') # 네트워크ID(5G, LTE, 3G, WiFi)
     dataType = models.CharField(max_length=10, choices=DATATYPE_CHOICES, verbose_name='데이터유형') # 데이터유형(DL, UL)
     bandwidth = models.FloatField(null=True, default=0.0, verbose_name='속도')
 
@@ -134,7 +136,8 @@ class LowThroughput(models.Model):
 
     center = models.ForeignKey(Center, on_delete=models.DO_NOTHING, verbose_name="센터")
     areaInd = models.CharField(max_length=10, choices=AREAIND__CHOICES, verbose_name='지역구분')
-    networkId = models.CharField(max_length=10, null=True, blank=True, choices=NETWORKID_CHOICES, verbose_name='단말유형') # 네트워크ID(5G, LTE, 3G, WiFi)
+    networkId = models.CharField(max_length=10, null=True, blank=True, choices=NETWORKID_CHOICES,
+                                 verbose_name='단말유형') # 네트워크ID(5G, LTE, 3G, WiFi)
     dataType = models.CharField(max_length=10, choices=DATATYPE_CHOICES, verbose_name='데이터유형') # 데이터유형(DL, UL)
     bandwidth = models.FloatField(null=True, default=0.0, verbose_name='속도')
 

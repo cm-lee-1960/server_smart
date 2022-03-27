@@ -11,7 +11,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # logger = logging.getLogger(__name__)
 
 ########################################################################################################################
-# 측정 단말기 그룹정보
+# 측정 단말그룹 정보
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 해당지역에 단말이 첫번째 측정을 시작했을 때 측정시작(START) 메시지를 한번 전송한다.
 # 2022.03.06 - 측정 데이터에 통신사(ispId)가 널(NULL)인 값이 들어와서 동일하게 모델의 해당 항목에 널을 허용함
@@ -143,7 +143,7 @@ def get_morphology(userInfo2: str) -> Morphology:
 
 
 ########################################################################################################################
-# 측정 단말기 정보
+# 측정단말 정보
 # * 측정중인 단말을 관리한다.
 # * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
 # ----------------------------------------------------------------------------------------------------------------------
@@ -352,9 +352,9 @@ class Phone(models.Model):
                 self.addressDetail = region_3depth_name  # 행정동(읍/동/면)
 
             # 모폴로지와 관리대상 여부를 설정한다.
-            morphology = get_morphology(self.userInfo2)
-            self.morphology = morphology
-            self.manage = morphology.manage
+            morphology = get_morphology(self.userInfo2) # 측정자 입력값2
+            self.morphology = morphology # 모폴로지
+            self.manage = morphology.manage # 관리대상 여부
 
             # 센터별 관할구역 매핑정보를 통해 관할센터를 업데이트 한다.
             qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)

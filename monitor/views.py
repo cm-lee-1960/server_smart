@@ -95,8 +95,8 @@ def receive_json(request):
     # 해당일자/해당지역 측정 단말기 그룹이 등록되어 있는지 확인한다.
     # meastime '20211101063756701'
     try: 
-        measdate = str(data['meastime'])[:8]
-        morphology = get_morphology(data['userInfo2'])
+        measdate = str(data['meastime'])[:8] # 측정일자
+        morphology = get_morphology(data['userInfo2']) # 모폴로지
         qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], morphology=morphology, \
             ispId=data['ispId'], active=True)
         if qs.exists():
@@ -110,7 +110,7 @@ def receive_json(request):
                             morphology=morphology, # 모폴로지
                             ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
                             manage=morphology.manage, # 관리대상 여부
-                            active=True) # 상태
+                            active=True) # 상태코드
             
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.

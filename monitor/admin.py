@@ -31,7 +31,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     list_display = ['measdate', 'phone_list', 'networkId', 'measuringTeam', 'userInfo1', 'morphology', 'active']
     list_display_links = ['phone_list', ]
     search_fields = ('measdate', 'userInfo1', 'phone_list', 'networkId', 'measuringTeam')
-    list_filter = ['measdate', 'networkId', 'measuringTeam', 'active']
+    list_filter = ['measdate', 'measuringTeam', 'active']
     actions = ['get_measuring_end_action']
 
     # DetailView에서 적용하는 내용임
@@ -120,7 +120,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# 측정 단말 관리자 페이지 설정
+# 측정단말 관리자 페이지 설정
 # ----------------------------------------------------------------------------------------------------------------------
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
