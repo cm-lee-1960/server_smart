@@ -609,7 +609,14 @@ class Message(models.Model):
 # ----------------------------------------------------------------------------------------------------------------------
 # def send_message(sender, **kwargs):
 def send_message(sender, instance, created, **kwargs):
-    """ 생성된 메시지를 크로샷 또는 텔레그램으로 전송하는 함수"""
+    """ 생성된 메시지를 크로샷 또는 텔레그램으로 전송하는 함수
+        - 파라미터
+          . sender: 메시지 모델 클래스
+          . instance: 메시지 객체 (생성된 레코드 하나 데이터)
+          . created: 신규생성 여부(True or False)
+          . kwargs: 키워트 파라미터
+        - 반환값: 없음
+    """
     # 메시지가 생성되었을 때만 처리한다.
     if created:
         bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
