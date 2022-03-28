@@ -17,15 +17,18 @@
 <script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+<!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>-->
+
+
 <!-- CSS,JS 호출 -->
 <!-- <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}"> -->
 <link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
 <script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
 <script type="text/javascript" defer src="{% static "js/jquery-3.4.1.min.js" %}"></script>
 <style>
-    .today_count{
-        color: red;
-    }
+    .today_count{ color: red; }
+    p { margin:20px 0px; }
 </style>
 </head>
 
@@ -33,74 +36,95 @@
 <body>    
 {% csrf_token %}
 {% load static %}
-    <div>
     <!-- 상단 내용 -->
-        <div style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 5px; width:60vh; height:70px">
-            <div style="margin-top:5px; display: flex; justify-content: space-between;">
-                <div>
-                    <h6 style="display:inline; margin-bottom:0px"> 오늘의 측정 </h6> 
-                    <h6 id="toDay" style="display:inline; margin-bottom:0px"></h6> <!-- 금일 날짜 -->
-                </div>
-                <div>
-                    <h6 style="display:inline; margin-bottom:0px"> 금일 총 </h6> <!--3개조 가져와야한다. -->
-                    <h6 id="toDayGroup" style="display:inline; margin-bottom:0px"> 3개 조 </h6> <!--3개조 가져와야한다.이건 추후-->
-                </div>
-            </div>   
-            {% comment %} <hr> {% endcomment %}
-            <div id="output" style="text-align: center;">
-                <table id="toDayWindow" sytle="border-spacing: 5px;">
-                    <tbody id='toDayDetail'>
-                        <tr id='toDayDetailTr'>
-                        </tr>
-                    </tbody>
-                </table>
-            </div> 
-        </div>
-        <!-- 중단 내용 -->
-        <div id = "main_body" class="w-100" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:455px">    
-            <h6> 금일 측정그룹 </h6>
-            <div id="output" style="text-align: center;">
-                <table id="groupWindow" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th >센터</th>
-                            <th >조</th>
-                            <th >단말번호</th>
-                            <th >측정지역</th>
-                            <th >모폴로지</th>
-                            <th >네트워크</th>
-                            <th >DL_콜수</th>
-                            <th >DL_속도</th>
-                            <th >UL_콜수</th>
-                            <th >UL_속도</th>
-                            <th >전환율</th>
-                            <th >CA</th>
-                            <th >이벤트</th>
-                            <th >측정시간</th>
-                            <th >상태</th>
-                            <th >종료</th>
-                        </tr>
-                    </thead>
-                    <tbody id = 'phoneGroupDetail'>
-                        <tr id='phoneGroupDetailTr'>
-                        </tr>
-                    </tbody>
-                </table>
+    <div style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 5px; width:60vh; height:70px">
+        <div style="margin-top:5px; display: flex; justify-content: space-between;">
+            <div>
+                <h6 style="display:inline; margin-bottom:0px"> 오늘의 측정 </h6> 
+                <h6 id="toDay" style="display:inline; margin-bottom:0px"></h6> <!-- 금일 날짜 -->
             </div>
+            <div>
+                <h6 style="display:inline; margin-bottom:0px"> 금일 총 </h6> <!--3개조 가져와야한다. -->
+                <h6 id="toDayGroup" style="display:inline; margin-bottom:0px"> 3개 조 </h6> <!--3개조 가져와야한다.이건 추후-->
+            </div>
+        </div>   
+        {% comment %} <hr> {% endcomment %}
+        <div id="output" style="text-align: center;">
+            <table id="toDayWindow" sytle="border-spacing: 5px;">
+                <tbody id='toDayDetail'>
+                    <tr id='toDayDetailTr'>
+                    </tr>
+                </tbody>
+            </table>
+        </div> 
+    </div>
+    <!-- 중단 내용 -->
+    <div id = "main_body" class="w-100" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">    
+        <h6> 금일 측정그룹 </h6>
+        <div id="output" style="text-align: center;">
+            <table id="groupWindow" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th >센터</th>
+                        <th >조</th>
+                        <th >단말번호</th>
+                        <th >측정지역</th>
+                        <th >모폴로지</th>
+                        <th >네트워크</th>
+                        <th >DL_콜수</th>
+                        <th >DL_속도</th>
+                        <th >UL_콜수</th>
+                        <th >UL_속도</th>
+                        <th >전환율</th>
+                        <th >CA</th>
+                        <th >이벤트</th>
+                        <th >측정시간</th>
+                        <th >상태</th>
+                        <th >종료</th>
+                    </tr>
+                </thead>
+                <tbody id = 'phoneGroupDetail'>
+                    <tr id='phoneGroupDetailTr'>
+                    </tr>
+                </tbody>
+            </table> 
         </div>
     </div>
     <!-- 하단 내용-->
-    <div sytle="display:flex;">
-        <div style="margin-bottom:5px; margin-right:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:250px; width:100px;">    
-            <h6> 금일 측정그룹 </h6>
-            <div id="output" style="text-align: center;">
-                
+    <div style="display:flex">
+        <div style="margin-bottom:5px; margin-right:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:1100px;">    
+            <div id = "eventwindow">
+                <div class="row">
+                  <div class="col">
+                      <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                          <a class="nav-link active" data-toggle="tab" href="#event">이벤트</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" data-toggle="tab" href="#xroshot">문자</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" data-toggle="tab" href="#tele">텔레그램</a>
+                        </li>
+                      </ul>
+                      <div class="tab-content">
+                        <div class="tab-pane fade show active" id="event">
+                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc id ornare libero. Vivamus iaculis, justo vel mattis pharetra, nisi ligula varius nisl, sit amet mollis tortor ligula vitae nisi.</p>
+                        </div>
+                        <div class="tab-pane fade" id="xroshot">
+                          <p>Nunc vitae turpis id nibh sodales commodo et non augue. Proin fringilla ex nunc. Integer tincidunt risus ut facilisis tristique.</p>
+                        </div>
+                        <div class="tab-pane fade" id="tele">
+                          <p>Curabitur dignissim quis nunc vitae laoreet. Etiam ut mattis leo, vel fermentum tellus. Sed sagittis rhoncus venenatis. Quisque commodo consectetur faucibus. Aenean eget ultricies justo.</p>
+                        </div>
+                      </div>
+                  </div>
+                </div>
             </div>
         </div>
-        <div style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:250px; width:680px;">    
+        <div style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">    
             <h6> 금일 측정그룹 </h6>
             <div id="output" style="text-align: center;">
-                
             </div>
         </div>
     </div>
