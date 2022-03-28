@@ -57,16 +57,16 @@ class PhoneGroup(models.Model):
                                      choices=sorted(MEASURINGTEAM_CHOICES, key=itemgetter(0)), verbose_name='측정조')
     ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, \
                              verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
-    downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="DL")
-    uploadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="UL")
-    dl_count = models.IntegerField(null=True, default=0)  # 다운로드 콜수
-    ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
+    downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="DL속도")
+    uploadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="UL속도")
+    dl_count = models.IntegerField(null=True, default=0, verbose_name="DL콜수")  # 다운로드 콜수
+    ul_count = models.IntegerField(null=True, default=0, verbose_name="UL콜수")  # 업로드 콜수
     dl_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(DL)
     ul_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(UL)
-    dl_nr_percent = models.FloatField(null=True, default=0.0) # DL LTE전환율
-    ul_nr_percent = models.FloatField(null=True, default=0.0) # UL LTE전환율
-    nr_percent = models.FloatField(null=True, default=0.0)  # LTE전환율
-    event_count = models.IntegerField(null=True, default=0)  # 이벤트발생건수
+    dl_nr_percent = models.FloatField(null=True, default=0.0, verbose_name="DL LTE전환율") # DL LTE전환율
+    ul_nr_percent = models.FloatField(null=True, default=0.0, verbose_name="UL LTE전환율") # UL LTE전환율
+    nr_percent = models.FloatField(null=True, default=0.0, verbose_name="LTE전환율")  # LTE전환율
+    event_count = models.IntegerField(null=True, default=0, verbose_name="이벤트")  # 이벤트발생건수
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
