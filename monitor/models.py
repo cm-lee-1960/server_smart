@@ -23,6 +23,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # 2022.03.18 - 측정마감 모델(MeasuringDayClose)  추가
 # 2022.03.19 - 관할센터(Center) 외래키 항목 추가
 # 2022.03.22 - 단말그룹에 관리대상 여부 항목 추가
+# 2022.03.28 - 단말그룹에 DL평균속도, UL평균속도, DL LTE전환율, UL LTE전환율, LTE 전환율, 이벤트발생건수 항목 추가
 #
 ########################################################################################################################
 class PhoneGroup(models.Model):
@@ -56,6 +57,9 @@ class PhoneGroup(models.Model):
     ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
     dl_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(DL)
     ul_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(UL)
+    dl_nr_percent = models.FloatField(null=True, default=0.0) # DL LTE전환율
+    ul_nr_percent = models.FloatField(null=True, default=0.0) # UL LTE전환율
+    nr_percent = models.FloatField(null=True, default=0.0)  # LTE전환율
     event_count = models.IntegerField(null=True, default=0)  # 이벤트발생건수
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
@@ -176,6 +180,7 @@ def get_morphology(userInfo2: str) -> Morphology:
 # 2022.03.16 - 중복측정 이벤트 발생여부를 확인하기 위해서 측정 단말기에 현재 측정유형 항목을 가져감(DL, UL)
 #              그룹으로 묶여 있는 단말기의 측정유형이 2개가 모두 동일할 때 이벤트 발생(DL/DL, UL/UL)
 # 2022.03.19 - 관할센터(Center) 외래키 항목 추가
+# 2022.03.28 - 단말그룹의 이벤트발생 건수를 업데이트 하는 코드를 추가함
 #
 ########################################################################################################################
 class Phone(models.Model):
@@ -271,10 +276,12 @@ class Phone(models.Model):
         #              측정단말 정보 업데이트 시 단말그룹의 콜카운트 관련 정보도 함께 업데이트 함
         phoneGroup = self.phoneGroup # 단말그룹
         if mdata.networkId == 'NR':
-            self.nr_count += 1
+            # DL속도 및 UL속도가 0(Zero)이면 NR 콜카운트에서 제외함
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
+                self.nr_count += 1
                 phoneGroup.dl_nr_count += 1
             elif mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
+                self.nr_count += 1
                 phoneGroup.ul_nr_count += 1
         else:
             # DL 평균속도 계산
@@ -301,6 +308,15 @@ class Phone(models.Model):
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
         self.currentCount = mdata.currentCount  # 현재 콜카운트
         self.total_count = self.dl_count + self.ul_count + self.nr_count  # 전체 콜건수
+
+        # 단말그룹 - LTE전환율
+        if phoneGroup.dl_count > 0:
+            phoneGroup.dl_nr_percent = round(phoneGroup.dl_nr_count / (phoneGroup.dl_count + phoneGroup.dl_nr_count) * 100,1)
+        if phoneGroup.ul_count > 0:
+            phoneGroup.ul_nr_percent = round(phoneGroup.ul_nr_count / (phoneGroup.ul_count + phoneGroup.ul_nr_count) * 100,1)
+        if phoneGroup.dl_count > 0 or phoneGroup.ul_count > 0:
+            phoneGroup.nr_percent = round((phoneGroup.dl_nr_count + phoneGroup.ul_nr_count) / \
+                (phoneGroup.dl_count + phoneGroup.dl_nr_count + phoneGroup.ul_count + phoneGroup.ul_nr_count) * 100,1)
 
         # 단말기의 상태를 업데이트 한다.
         # 상태 - 'POWERON', 'START_F', 'START_M', 'MEASURING', 'END'

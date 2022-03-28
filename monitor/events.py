@@ -24,7 +24,8 @@ from .models import MeasureCallData, Phone, Message
 # 2022.03.10 - 모델에서 다른 항목조건 및 연산을 해서 가져와야 하는 중복코드들을 모두 모델 함수로 이동(get함수)
 # 2022.03.15 - 여러개의 이벤트 발생시 하나의 메시지로 통합해서 보내기
 #            - 두 개의 단말이 중복측정하고 있는지 확인하는 이벤트 모듈 추가
-#  
+# 2022.03.28 - 단말그룹의 이벤트발생 건수를 업데이트 하는 코드를 추가함
+#
 ########################################################################################################################
 def event_occur_check(mdata: MeasureCallData):
     """이벤트 발생여부를 체크한다.
@@ -370,6 +371,7 @@ def duplicated_measuring(mdata: MeasureCallData) -> str:
 # 이벤트 메시지 작성 함수
 # 2022.02.27 - 메시지 포맷 정의 (이벤트 발생 관련 정보 표시)
 #            - 메시지 작성 코드를 각각 이벤트 확인하는 함수로 이동함(메시지 내에 관련정보 포함하기 위해)
+# 2022.03.28 - 단말그룹의 이벤트발생 건수를 업데이트 하는 코드를 추가함
 # ----------------------------------------------------------------------------------------------------------------------
 def make_event_message(mdata: MeasureCallData, events_list: list):
     """이벤트 메시지 작성한다.
@@ -414,4 +416,8 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
             channelId = channelId, # 채널ID
             sended=True # 전송여부
         )
+
+        # 단말그룹의 이벤트 발생건수를 하나 증가시킨다.
+        mdata.phone.phoneGroup.event_count += 1
+        mdata.phone.phoneGroup.save()
 
