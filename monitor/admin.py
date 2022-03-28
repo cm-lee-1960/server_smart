@@ -180,7 +180,7 @@ class PhoneAdmin(admin.ModelAdmin):
     """어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스"""
     # form = PhoneForm
     list_display = ['measdate', 'userInfo1', 'userInfo2', 'morphology', 'phone_no_abbr', 'networkId', 
-                    'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', 'status', 'total_count', 
+                    'downloadBandwidth_fmt', 'uploadBandwidth_fmt', 'status', 'total_count',
                     'last_updated_at', 'active', 'manage']
     list_display_links = ['phone_no_abbr']
     search_fields = ('userInfo1', 'phone_no', )
@@ -189,16 +189,16 @@ class PhoneAdmin(admin.ModelAdmin):
     list_per_page = 25 # 페이지당 데이터 건수 
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
-    def avg_downloadBandwidth_fmt(self, obj):
-        return '%.2f' % obj.avg_downloadBandwidth
+    def downloadBandwidth_fmt(self, obj):
+        return '%.2f' % obj.downloadBandwidth
 
-    avg_downloadBandwidth_fmt.short_description = 'DL'
+    downloadBandwidth_fmt.short_description = 'DL'
 
     # UL 평균속도를 소수점 2자리까지 화면에 표시한다. 
-    def avg_uploadBandwidth_fmt(self, obj):
-        return '%.2f' % obj.avg_uploadBandwidth
+    def uploadBandwidth_fmt(self, obj):
+        return '%.2f' % obj.uploadBandwidth
 
-    avg_uploadBandwidth_fmt.short_description = 'UL'
+    uploadBandwidth_fmt.short_description = 'UL'
 
     # 2022.03.06 - 측정 단말기의 상세화면에서 특정 항목의 길이를 조정한다.
     def get_form(self, request, obj=None, **kwargs):
@@ -217,7 +217,7 @@ class PhoneAdmin(admin.ModelAdmin):
         }),
         ('측정정보', {
              'fields': (('userInfo1', 'userInfo2', 'morphology'),
-                        ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
+                        ('downloadBandwidth', 'uploadBandwidth'),
                         ('dl_count', 'ul_count'),
                         ('status', 'total_count'),
                         'last_updated', 
