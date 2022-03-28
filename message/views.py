@@ -27,6 +27,7 @@ def stop_cb(request):
 
 
 # 크로샷 메시지 작성 페이지 (임시)  // (3.13)
+@csrf_exempt
 def xroshot_index(request):
     if request.method=='POST':
         print(request.POST)

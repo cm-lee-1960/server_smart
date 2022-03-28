@@ -34,59 +34,73 @@
 {% csrf_token %}
 {% load static %}
     <div>
-        <!-- 메인화면 -->
-        <div  style="display:flex; flex-flow: column nowrap;">
-            <div class="w-50" style="margin-bottom:20px;border: 2px solid rgb(228, 223, 223); padding: 10px;">
-                <div style="margin-top:5px; display: flex; justify-content: space-between;">
-                    <div>
-                        <h6 style="display:inline; margin-bottom:0px"> 오늘의 측정 </h6> 
-                        <h6 id="toDay" style="display:inline; margin-bottom:0px"></h6> <!-- 금일 날짜 -->
-                    </div>
-                    <div>
-                        <h6 style="display:inline; margin-bottom:0px"> 금일 총 </h6> <!--3개조 가져와야한다. -->
-                        <h6 id="toDayGroup" style="display:inline; margin-bottom:0px"> 3개 조 </h6> <!--3개조 가져와야한다.이건 추후-->
-                    </div>
-                </div>   
-                <hr>
-                <div id="output" style="text-align: center;">
-                    <table id="toDayWindow" sytle="border-spacing: 5px;">
-                        <tbody id='toDayDetail'>
-                            <tr id='toDayDetailTr'>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div> 
-            </div>
-            <div id="show1" class="w-100" style="margin-bottom:20px;border: 2px solid rgb(228, 223, 223); padding: 10px;">    
-                <h6> 금일 측정그룹 </h6>
-                <div id="output" style="text-align: center;">
-                    <table id="groupWindow" class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th >센터</th>
-                                <th >조</th>
-                                <th >단말번호</th>
-                                <th >측정지역</th>
-                                <th >모폴로지</th>
-                                <th >네트워크</th>
-                                <th >DL_콜수</th>
-                                <th >DL_속도</th>
-                                <th >UL_콜수</th>
-                                <th >UL_속도</th>
-                                <th >전환율</th>
-                                <th >CA</th>
-                                <th >이벤트</th>
-                                <th >측정시간</th>
-                                <th >상태</th>
-                                <th >종료</th>
-                            </tr>
-                        </thead>
-                        <tbody id = 'phoneGroupDetail'>
-                            <tr id='phoneGroupDetailTr'>
-                            </tr>
-                        </tbody>
-                    </table>
+    <!-- 상단 내용 -->
+        <div style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 5px; width:60vh; height:70px">
+            <div style="margin-top:5px; display: flex; justify-content: space-between;">
+                <div>
+                    <h6 style="display:inline; margin-bottom:0px"> 오늘의 측정 </h6> 
+                    <h6 id="toDay" style="display:inline; margin-bottom:0px"></h6> <!-- 금일 날짜 -->
                 </div>
+                <div>
+                    <h6 style="display:inline; margin-bottom:0px"> 금일 총 </h6> <!--3개조 가져와야한다. -->
+                    <h6 id="toDayGroup" style="display:inline; margin-bottom:0px"> 3개 조 </h6> <!--3개조 가져와야한다.이건 추후-->
+                </div>
+            </div>   
+            {% comment %} <hr> {% endcomment %}
+            <div id="output" style="text-align: center;">
+                <table id="toDayWindow" sytle="border-spacing: 5px;">
+                    <tbody id='toDayDetail'>
+                        <tr id='toDayDetailTr'>
+                        </tr>
+                    </tbody>
+                </table>
+            </div> 
+        </div>
+        <!-- 중단 내용 -->
+        <div id = "main_body" class="w-100" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:455px">    
+            <h6> 금일 측정그룹 </h6>
+            <div id="output" style="text-align: center;">
+                <table id="groupWindow" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th >센터</th>
+                            <th >조</th>
+                            <th >단말번호</th>
+                            <th >측정지역</th>
+                            <th >모폴로지</th>
+                            <th >네트워크</th>
+                            <th >DL_콜수</th>
+                            <th >DL_속도</th>
+                            <th >UL_콜수</th>
+                            <th >UL_속도</th>
+                            <th >전환율</th>
+                            <th >CA</th>
+                            <th >이벤트</th>
+                            <th >측정시간</th>
+                            <th >상태</th>
+                            <th >종료</th>
+                        </tr>
+                    </thead>
+                    <tbody id = 'phoneGroupDetail'>
+                        <tr id='phoneGroupDetailTr'>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- 하단 내용-->
+    <div sytle="display:flex;">
+        <div style="margin-bottom:5px; margin-right:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:250px; width:100px;">    
+            <h6> 금일 측정그룹 </h6>
+            <div id="output" style="text-align: center;">
+                
+            </div>
+        </div>
+        <div style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:250px; width:680px;">    
+            <h6> 금일 측정그룹 </h6>
+            <div id="output" style="text-align: center;">
+                
             </div>
         </div>
     </div>
@@ -267,7 +281,7 @@
         for(var phone_group_name of Object.keys(ajax_data)){
             var group_num = document.querySelector('#phoneGroupDetail_Tr_' + phone_group_name)
             var tag = group_num.getElementsByTagName("span");
-            for (var i=0 ; i < tag.length-1; i++){ //종료 버튼 td를 빼기 위해서 - 1
+            for (var i=0 ; i < tag.length; i++){ 
                 if (i===0){
                     tag[i].innerHTML = center_shot_name[Object.values(ajax_data[phone_group_name][i])[0]];
                     //운용센터 숏네임으로 변경

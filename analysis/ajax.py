@@ -20,14 +20,14 @@ def ajax_startdata():
     start_dict = {}
     meas_area = {}
     
-    measuing_count = len(PhoneGroup.objects.filter(active=1))
-    end_count = len(PhoneGroup.objects.filter(active=0))
-    
+    measuing_count = len(PhoneGroup.objects.filter(active=1, ispId='45008'))#KT데이터만 가져온다.
+    end_count = len(PhoneGroup.objects.filter(active=0, ispId='45008'))#KT데이터만 가져온다.
+
     start_dict['measuing_count'] = measuing_count
     start_dict['end_count'] = end_count
     
     # 측정 그룹을 통해 측정 지역을 가져온다.
-    qs = PhoneGroup.objects.all().order_by('-center_id')
+    qs = PhoneGroup.objects.filter(ispId='45008').order_by('-center_id')#KT데이터만 가져온다.
     area_distint = qs.values_list('center_id', flat=True).distinct()
     # 지역아이디 중복제거 ex)[7,7,7,4,4,4,3] -> [7,4,3]
     
@@ -56,7 +56,7 @@ def ajax_phoneGroupData():
     group_dict = {}
     
     if len(PhoneGroup.objects.all()) != 0:
-        for phonegroup in PhoneGroup.objects.all():
+        for phonegroup in PhoneGroup.objects.filter(ispId='45008'): #KT데이터만 가져온다.
             group_dict_list=[] # 리스트 초기화
             qs = phonegroup.phone_set.all() # 폰그룹으로 폰하위 가져오기 
             
