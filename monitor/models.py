@@ -115,6 +115,11 @@ class PhoneGroup(models.Model):
         self.ul_nr_count += 1
         self.save()
 
+    # 측정조를 반환한다.
+    def get_measuringTeam(self):
+        """측정조를 반환한다."""
+        return self.measuringTeam if self.measuringTeam is not None else ''
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.
@@ -602,7 +607,7 @@ class Message(models.Model):
     channelId = models.CharField(max_length=25) # 채널ID
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
     sended = models.BooleanField(default=True) # 전송여부
-
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일시')
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 전송하는 함수
