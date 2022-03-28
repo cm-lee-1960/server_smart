@@ -25,7 +25,7 @@ from analysis.views import dashboard
 #   ├- accounts : 로그인 관련 모듈
 #   ├- analysis : 분석 관련 모듈 (홈 데시보드 및 일일보고)
 #   |      ├- migrations : 데이터베이스 관련 파일
-#   |      ├- static : 정적 파일
+#   |      ├- static : 정적파일
 #   |      └- templates
 #   |            └- analysis : 화면
 #   |
