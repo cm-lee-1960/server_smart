@@ -3,7 +3,8 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q
 from django.db import connection
-from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuingDayClose
+from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuringDayClose
+from .serializers import PhoneGroupSerializer
 
 ########################################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -14,18 +15,21 @@ from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuingDayClos
 # |   url.py   |----------->|  views.py  |------------>|  close.py  |----------┳---------->|  Message   |
 # └----------- ┘            └----------- ┘             └----------- ┘          |           └----------- ┘
 # - monitor/end             - measuring_end_view        - measuring_end        |          (M)측정마감
-# - monitor/close           - measuring_day_close_view  - measuring_day_close  |측정마감  ┌ -----------------┐
-#                                                                              └--------->| MeasuingDayClose |
-#                                                                                         └----------------- ┘
+# - monitor/close           - measuring_day_close_view  - measuring_day_close  |측정마감  ┌-------------------┐
+#                                                                              └--------->| MeasuringDayClose |
+#                                                                                         └------------------ ┘
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022-03-21 - 확정된 모듈과 입시 모듈의 순서 변경 및 주석 추가
 # 2022-03-25 - 측정종료 및 측정마감 흐름도 작성 및 주석 추가
 #
 ########################################################################################################################
 
-# ----------------------------------------------------------------------------------------------------------------------
+########################################################################################################################
 # 해당지역의 측정을 종료한다.
-# ----------------------------------------------------------------------------------------------------------------------
+# 1) 해당지역 측정종료 메시지 생성
+# 2) 해당지역 측정종료 데이터 저장
+# 3) 당일 측정종료 메시지 생성(하루 한번)
+########################################################################################################################
 def measuring_end(phoneGroup):
     """ 해당지역의 측정을 종료하는 함수
       - 파라미터
@@ -36,6 +40,9 @@ def measuring_end(phoneGroup):
     """
     # 해당 단말그룹에 묶여 있는 단말기들을 가져온다.
     try:
+        # --------------------------------------------------------------------------------------------------------------
+        # 1) 측정종료된 단말그룹에 대한 측정종료 메시지를 생성한다.
+        # --------------------------------------------------------------------------------------------------------------
         phone_list = phoneGroup.phone_set.all()
         qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
         # DL 평균속도
@@ -77,73 +84,58 @@ def measuring_end(phoneGroup):
             message_end.update(downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, message=message)
         else:
             Message.objects.create(
-              phone=None,
-              status='END',
-              measdate=phoneGroup.measdate,
-              sendType='XMCS',
-              userInfo1=phoneGroup.userInfo1,
-              phone_no=None,
-              downloadBandwidth=avg_downloadBandwidth,
-              uploadBandwidth=avg_uploadBandwidth,
-              messageType='SMS',
-              message=message,
-              channelId='',
-              sended=False
+              phone=None, # 측정단말
+              status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
+              measdate=phoneGroup.measdate, # 측정일자
+              sendType='XMCS', # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+              userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+              phone_no=None, # 측정단말 전화번호
+              downloadBandwidth=avg_downloadBandwidth, # DL속도
+              uploadBandwidth=avg_uploadBandwidth, # UL속도
+              messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+              message=message, # 메시지 내용
+              channelId='', # 채널ID
+              sended=False # 전송여부
             )
 
-        # 측정종료 처리가 완료된 단말그룹에 대해서 상태를 비활성화 시킨다.
-        phoneGroup.active = False
+        # 측정종료 처리가 완료된 단말그룹과 측정단말의 상태를 비활성화 시킨다.
+        phoneGroup.active = False # 단말그룹
         phoneGroup.save()
+        phone_list.update(active=False) # 측정단말
 
-        # 해당 그룹의 폰들도 비활성화 시킨다.
-        phone_list.update(active=False)
-
-        # 해당 단말그룹에 해당하는 종료 데이터 DB(MeasuingDayClose) 생성 : 이미 존재하면 update, 미존재 시 신규생성
-        md = MeasuingDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
+        # --------------------------------------------------------------------------------------------------------------
+        # 2) 측정종료된 단말그룹에 대한 마감데이터를 생성한다.
+        #   - 신규 데이터: 생성(Create)
+        #   - 기존 데이터: 업데이트(Update)
+        # --------------------------------------------------------------------------------------------------------------
+        # 해당 단말그룹에 대한 측정종료 데이터가 있는지 확인한다.
+        md = MeasuringDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
+        # 직렬화 대상 필드를 지정한다.
+        fields = ['center_id', 'morphology_id', 'userInfo1', 'networkId', 'dl_count', 'ul_count', 'dl_nr_count',
+                  'ul_nr_count', 'dl_nr_percent', 'ul_nr_percent', 'total_count']
+        serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
+        print("#######\n", serializer.data)
         if md.exists():
-            md.update(userInfo1=phoneGroup.userInfo1,
-                      networkId=phoneGroup.networkId,
-                      center=phoneGroup.center,
-                      morphology=phoneGroup.morphology,
-                      dl_count=phoneGroup.dl_count,
-                      ul_count=phoneGroup.ul_count,
-                      dl_nr_count=phoneGroup.dl_nr_count,
-                      ul_nr_count=phoneGroup.ul_nr_count,
-                      dl_lte_transRate=dl_nr_percent,
-                      ul_lte_transRate=ul_nr_percent,
-                      total_count=total_count,
-                     )
+            # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
+            md.update(**serializer.data)
         else:
-            MeasuingDayClose.objects.create(
-                    measdate=phoneGroup.measdate,
-                    phoneGroup=phoneGroup,
-                    userInfo1=phoneGroup.userInfo1,
-                    networkId=phoneGroup.networkId,
-                    center=phoneGroup.center,
-                    morphology=phoneGroup.morphology,
-                    dl_count=phoneGroup.dl_count,
-                    ul_count=phoneGroup.ul_count,
-                    dl_nr_count=phoneGroup.dl_nr_count,
-                    ul_nr_count=phoneGroup.ul_nr_count,
-                    dl_lte_transRate=dl_nr_percent,
-                    ul_lte_transRate=ul_nr_percent,
-                    total_count=total_count,
-                    )
+            # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
+            MeasuringDayClose.objects.create(phoneGroup=phoneGroup, **serializer.data)
 
     except Exception as e:
-        print("종료 데이터 계산, 종료 메시지 생성:", str(e))
-        return HttpResponse("measuring_end/data_calculate and message:" + str(e), status=500)
-   
-    # 마지막 지역의 종료일 경우 추가 메시지 생성
+        print("측정종료 메시지 및 데이터 저장: ", str(e))
+        return HttpResponse("measuring_end() - 측정종료 메시지 및 데이터 저장:" + str(e), status=500)
+
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # 3) 해당 단말그룹이 당일 측정종료 최종 마지막일 때 당일 측정종료 메시지를 생성한다.
+    # ------------------------------------------------------------------------------------------------------------------
     try:
+        # 더 이상 활성화된 단말그룹이 없다면 최종 마지막 단말그룹이라고 판단한다.
+        # 즉, 가장 마지막 측정종료 단말그룹이라는 것을 의미한다.
         if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008, active=True).count() == 0:
-            # 측정 지역 개수 추출
+            # 측정지역 개수 추출
             daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
-            # daily_area_total_count  = PhoneGroup.objects.filter(measdate=phoneGroup.measdate).count()
-            # daily_area_fivg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='5G').count()
-            # daily_area_lte_thrg_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='LTE').count() + \
-            #                             PhoneGroup.objects.filter(measdate=PhoneGroup.measdate, networkId='3G').count()
-            # daily_area_wifi_count = PhoneGroup.objects.filter(measdate=phoneGroup.measdate, networkId='WiFi').count()
             # 네트워크 유형별 건수를 조회한다.
             cursor = connection.cursor()
             cursor.execute(" SELECT networkId, COUNT(*) AS COUNT " + \
@@ -175,18 +167,18 @@ def measuring_end(phoneGroup):
                 message_last_exists.update(userInfo1=phoneGroup.userInfo1, message=message_end_last)
             else:
                 Message.objects.create(
-                    phone=None,
+                    phone=None, # 측정단말
                     status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
-                    measdate=phoneGroup.measdate,
-                    sendType='XMCS',
-                    userInfo1=phoneGroup.userInfo1,
-                    phone_no=None,
-                    downloadBandwidth=None,
-                    uploadBandwidth=None,
-                    messageType='SMS',
-                    message=message_end_last,
-                    channelId='',
-                    sended=False
+                    measdate=phoneGroup.measdate, # 측정일자
+                    sendType='XMCS', # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+                    userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+                    phone_no=None, # 측정단말 전화번호
+                    downloadBandwidth=None, # DL속도
+                    uploadBandwidth=None, # UL속도
+                    messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+                    message=message_end_last, # 메시지 내용
+                    channelId='', # 채널ID
+                    sended=False # 전송여부
                     )
 
     except Exception as e:
@@ -198,9 +190,10 @@ def measuring_end(phoneGroup):
 
     return return_value
 
-# -------------------------------------------------------------------------------------------------
+
+########################################################################################################################
 # 당일 측정을 마감한다.
-# -------------------------------------------------------------------------------------------------
+########################################################################################################################
 def measuring_day_close(phoneGroup_list, measdate):
     """당일측정을 마감하는 함수
       - 파라미터
@@ -219,12 +212,12 @@ def measuring_day_close(phoneGroup_list, measdate):
     for phoneGroup in phoneGroup_list:
         measuring_end(phoneGroup)
  
-    # 각 단말 그룹들의 종료 데이터(MeasuingDayClose)를 보충
+    # 각 단말 그룹들의 종료 데이터(MeasuringDayClose)를 보충
     for phoneGroup in PhoneGroup.objects.filter(ispId='45008', active=False, measdate=measdate):
         try:
             phone_list = phoneGroup.phone_set.all()
             qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime") # 초데이터로 바꿔야함
-            md = phoneGroup.measuingdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
+            md = phoneGroup.measuringdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
     
             # !!--- 초데이터 기반, 데이터 가공 및 저장은 추후 데이터 확정 시 진행 예정 -- !!
             # 1) 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!!(3.22)

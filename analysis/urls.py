@@ -4,7 +4,7 @@ from . import views
 app_name = 'analysis'
 urlpatterns = [
                                         
-    path('dashboard/',views.dashboard_form,name='dashboard'), # 홈 화면
+    path('dashboard/',views.dashboard,name='dashboard'), # 홈 화면
     path("report/", views.report, name='report'), # 일일보고 페이지
 
     path('report/makereport/', views.register_measdata, name='register_measdata'), # 레포트정보등록페이지(측정대상, 측정완료, 전년도결과, 추가사항)

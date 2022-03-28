@@ -16,6 +16,7 @@ import pandas as pd
 import datetime
 from django.db.models import Sum
 from .makereport import *
+from django.urls import reverse
 from .forms import MeasLastyear5GForm, MeasLastyearLTEForm
 
 from monitor.models import *
@@ -55,9 +56,15 @@ def get_phoneGroupData(request):
         
     return HttpResponse(json_data_call, content_type="applications/json")
 
-def dashboard_form(request):
+# -------------------------------------------------------------------------------------------------
+# 홈페이지 페이지
+# -------------------------------------------------------------------------------------------------
+def dashboard(request):
     """홈(Home) 페이지 뷰"""
-    return render(request, "analysis/dashboard_form.html")
+    if request.user.is_authenticated:
+        return render(request, "analysis/dashboard_form.html")
+    else:
+        return redirect(reverse('accounts:login'))
 
 # -------------------------------------------------------------------------------------------------
 # 일일보고 페이지
