@@ -12,6 +12,12 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 
 ########################################################################################################################
 # 측정 단말그룹 정보
+#               ┏ ------┓
+#   ┌ ----------┴---┐   | - update_initial_data() : 객체생성시 한번 수행
+#   |  PhoneGroup   |<- ┛   * 측정조
+#   |  (단말그룹)   |       * 측정유형(5G,LTE,3G,WiFi)
+#   ┗ --------------┛       * # 관할센터
+#
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 해당지역에 단말이 첫번째 측정을 시작했을 때 측정시작(START) 메시지를 한번 전송한다.
 # 2022.03.06 - 측정 데이터에 통신사(ispId)가 널(NULL)인 값이 들어와서 동일하게 모델의 해당 항목에 널을 허용함
@@ -159,6 +165,13 @@ def get_morphology(userInfo2: str) -> Morphology:
 # 측정단말 정보
 # * 측정중인 단말을 관리한다.
 # * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
+#               ┏ ------┓
+#   ┌ ----------┴---┐   | - update_initial_data() : 객체생성시 한번 수행
+#   |     Phon      |<- ┛  * 행정동, 모폴로지, 관할센터, 관리대상 여부
+#   |  (측정단말)   ┣-- ┓
+#   ┗ -----------∧--┛   | - update_phone(mdata): 실시간 측정데이터로 측정단말 정보를 업데이트 수행
+#                |      |
+#                ┗------┛
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 측정일자(measdate) 문자열(8자래) 항목 추가
 # 2022.02.27 - 주소상세(addressDetail) 항목 추가
@@ -309,7 +322,7 @@ class Phone(models.Model):
         self.currentCount = mdata.currentCount  # 현재 콜카운트
         self.total_count = self.dl_count + self.ul_count + self.nr_count  # 전체 콜건수
 
-        # 단말그룹 - LTE전환율
+        # 단말그룹 - DL LTE전환율, UL LTE전환율, LTE전환율
         if phoneGroup.dl_count > 0:
             phoneGroup.dl_nr_percent = round(phoneGroup.dl_nr_count / (phoneGroup.dl_count + phoneGroup.dl_nr_count) * 100,1)
         if phoneGroup.ul_count > 0:
