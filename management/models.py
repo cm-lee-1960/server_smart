@@ -20,6 +20,7 @@ from django.db import models
 #            - 측정 보고주기를 하드코딩에서 DB화 함
 # 2022.03.12 - 지도맵에 현재 측정하고 있는 행정동 경계구역을 표시하기 위한 폴리건 데이터 모델(JSON) 추가
 # 2022.03.18 - 센터별 관할지역(CenterManageArea) 맵핑 정보 추가
+# 2022.03.28 - 센터정보 모델에 센터영문명(centerEngName) 항목 추가
 #
 ########################################################################################################################
 
@@ -31,6 +32,7 @@ class Center(models.Model):
         - 운용본부 및 전국 14개 센터정보를 관리한다.
     """
     centerName = models.CharField(max_length=100, verbose_name="센터명")
+    centerEngName = models.CharField(max_length=100, null=True, blank=True, verbose_name="센터영문명")
     channelId = models.CharField(max_length=25, verbose_name="채널ID")
     permissionLevel = models.IntegerField(default=1, verbose_name="권한레벨")
     active = models.BooleanField(default=True, verbose_name="상태")
@@ -41,7 +43,6 @@ class Center(models.Model):
     # 인스턴스 정보를 출력한다.
     def __str__(self):
         return self.centerName
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 모풀로지 정보관리 클래스

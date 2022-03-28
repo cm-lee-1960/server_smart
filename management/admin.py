@@ -17,6 +17,8 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.13 - 관리자 페이지 앱들과 특정 앱의 모델들을 재정렬 한다.
 # 2022.03.19 = 센터별 관할구역 관리자 페이지 추가
+# 2022.03.28 - 센터정보 모델에 센터영문명(centerEngName) 항목 추가
+#
 ########################################################################################################################
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -25,9 +27,9 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 class CenterAdmin(admin.ModelAdmin):
     """어드민 페이지에 센터 정보를 보여주기 위한 클래스"""
     # # form = PhoneForm
-    list_display = ['centerName', 'permissionLevel', 'active', ]
-    list_display_links = ['centerName',  ]
-    search_fields = ('centerName', 'centerName',)
+    list_display = ['centerName', 'centerEngName', 'permissionLevel', 'active', ]
+    list_display_links = ['centerName',  'centerEngName', ]
+    search_fields = ('centerName', 'centerEngName',)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 모풀로지 기준 관리자 페이지 설정
