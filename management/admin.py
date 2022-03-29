@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib import auth
 from django.conf import settings
 from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam, ReportCycle, MorphologyMap, CenterManageArea
+from .models import ChatMemberList
 
 ########################################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
@@ -113,6 +114,16 @@ class CenterManageAreaAdmin(admin.ModelAdmin):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# 채팅 멤버 리스트 페이지 설정
+# ----------------------------------------------------------------------------------------------------------------------
+class ChatMemberListAdmin(admin.ModelAdmin):
+    """어드민 페이지에 관리하는 채팅 멤버 리스트(ChatMemberList)를 보여주기 위한 클래스"""
+    list_display = ['userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId', 'allowed', 'isBot']
+    list_display_links = ['userchatId', ]
+    search_fields = ('userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId',)
+# ----------------------------------------------------------------------------------------------------------------------
+
+
 # 관리자 페이지에 모델을 등록한다.
 # ----------------------------------------------------------------------------------------------------------------------
 admin.site.register(Morphology, MorphologyAdmin) # 모풀로지 등록
@@ -124,6 +135,8 @@ admin.site.register(Center, CenterAdmin) # 센터정보 등록(전국 14개 센�
 admin.site.register(MeasureingTeam, MeasureingTeamAdmin) # 금일 측정조
 admin.site.register(ReportCycle, ReportCycleAdmin) # 측정 보고주기
 admin.site.register(CenterManageArea, CenterManageAreaAdmin) # 센터별 관할구역
+
+admin.site.register(ChatMemberList, ChatMemberListAdmin) # 채팅방 멤버 리스트
 
 # 사용자 인증관련 그룹을 어드민 페이지에서 제외한다.
 admin.site.unregister(auth.models.Group)
