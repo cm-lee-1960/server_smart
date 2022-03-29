@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-import time
+import time, requests
 import telegram
 from telegram.ext import CommandHandler, MessageHandler
 # from telegram import ParseMode
@@ -26,7 +26,7 @@ class TelegramBot:
         self.bot = telegram.Bot(self.bot_token)
         self.max_length = 512  # 텔레그램 메시지로 보낼 수 있는 최대 문자길이(Bytes)
         self.port = 5000
-        self.webhook_url = 'https://8374-121-165-124-29.ngrok.io'
+        self.webhook_url = 'https://e5a0-121-165-124-29.ngrok.io'
 
         ############### 텔레그램 Limit Check 를 위한 변수(3.10)
         self.now_time = time.time()
@@ -175,7 +175,8 @@ class TelegramBot:
 
         # webhook 종료
         elif set == 0 :
-            self.updater.stop()
+            requests.get(f'https://api.telegram.org/bot{self.bot_token}/deleteWebhook')
+            #self.updater.stop()
     
 
 ########################################################################################################################
