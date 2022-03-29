@@ -41,7 +41,9 @@ def get_startdata(request):
     """초기 데이터 호출 view"""
     if request.method== "POST":
         
-        start_dict = ajax_startdata() #측정 그룹 데이터 가져온다
+        toDate = request.POST['date']
+        print(toDate)
+        start_dict = ajax_startdata(toDate) #측정 그룹 데이터 가져온다
         json_data_call = json.dumps(start_dict)
         
     return HttpResponse(json_data_call, content_type="applications/json")

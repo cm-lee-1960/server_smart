@@ -37,11 +37,22 @@
 {% csrf_token %}
 {% load static %}
     <!-- 상단 내용 -->
-    <div style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 5px; width:60vh; height:70px">
+    <div style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 5px; width:80vh; height:70px">
         <div style="margin-top:5px; display: flex; justify-content: space-between;">
             <div>
-                <h6 style="display:inline; margin-bottom:0px"> 오늘의 측정 </h6> 
-                <h6 id="toDay" style="display:inline; margin-bottom:0px"></h6> <!-- 금일 날짜 -->
+                <div style="float:left; margin-bottom:0px">
+                    <h6> 오늘의 측정 </h6> 
+                <!--h6 id="toDay" style="display:inline; margin-bottom:0px"></h6> 금일 날짜 -->
+                </div>
+                <div style="float:left; margin-bottom:0px">
+                    <input style="height: 24px;" type="date" class="form-control" name="date" id="date" value=>
+                </div>
+                <div style="float:left; margin-bottom:0px">
+                    <button style="height: 24px;" id = "daychoice" onclick="startInterval_startData()">선택</button>
+                </div>
+                <div style="float:left; margin-bottom:0px">
+                    <button style="height: 24px;" id = "ajaxstop" onclick="ajax_stop()">정지</button>
+                </div>
             </div>
             <div>
                 <h6 style="display:inline; margin-bottom:0px"> 금일 총 </h6> <!--3개조 가져와야한다. -->
@@ -138,7 +149,8 @@
     let month = ('0' + (today.getMonth() + 1)).slice(-2);
     let day = ('0' + today.getDate()).slice(-2);
     let dateString = '(' + year + '-' + month  + '-' + day + ')';
-    document.getElementById("toDay").innerHTML = dateString;
+    //document.getElementById("toDay").innerHTML = dateString;
+    //현재날짜 이거 다시 넣어야된다.
     
 
     //콘솔
@@ -169,7 +181,23 @@
         '전북액세스운용센터' : ['전북'],
         '경북액세스운용센터' : ['경북']
     };
-    
+    //ajax 멈춤
+    function ajax_stop() {
+
+        clearInterval(startInterval_startData);
+        clearInterval(setInterval_phnoe);
+      
+      }
+    //날짜 선택하여 데이터 가져온다 (임시로 생성)
+    //document.getElementById("daychoice").addEventListener('click', startInterval_startData);
+    //document.getElementById("daychoice").addEventListener('click', startInterval_phoneGroup);
+    var toDay = document.getElementById("daychoice").value;
+
+
+
+    /////////////////////////////////////////////////////////////////////////
+
+
     //stratdata 부분
     //AJAX를 먼저 시작하고 딜레이
     //callback -> interval
@@ -185,7 +213,7 @@
         type:'POST',
         url: "{% url 'analysis:ajax_startdata' %}",
         dataType : 'text',
-        data : "",
+        data : {"date":toDay},
         async:false,
         success: function(ajax_data){
             ajax_data = JSON.parse(ajax_data); //데이터넘어온다.

@@ -166,3 +166,6 @@ def ajax_phoneGroupData():
         group_dict['no_data'] = "nodata" 
 
     return group_dict
+
+
+# def form_eventdata():

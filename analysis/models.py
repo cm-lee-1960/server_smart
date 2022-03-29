@@ -1,5 +1,8 @@
+from distutils.util import change_root
 from django.utils import timezone
 from django.db import models
+
+from management.models import Center
 
 ###############################################################################################################################################################################
 #3.16 측정대상 모델(수정완료)(클래스명 변경 필요, MeasPlan으로 변경예정)
@@ -158,3 +161,27 @@ class MeasLastyearLTE(models.Model):
     areatotalUL = models.FloatField(null=True, default=0)
     areatotalsucc = models.FloatField(null=True, default=0)
     areatotaldelay = models.FloatField(null=True, default=0)
+    
+###############################################################################################################################################################################
+#3.28 이창민 임시 모델 생성
+###############################################################################################################################################################################
+class imsiweb(models.Model):
+    Center = models.CharField(max_length=30, null=True, blank=True)
+    group = models.CharField(max_length=30, null=True, blank=True)
+    phonenum = models.CharField(max_length=30, null=True, blank=True)
+    userinfo1 = models.CharField(max_length=30, null=True, blank=True)
+    mor = models.CharField(max_length=30, null=True, blank=True)
+    network = models.CharField(max_length=30, null=True, blank=True)
+    DL_Call = models.IntegerField(null=True, blank=True)
+    DL_TH = models.FloatField(null=True, blank=True)
+    UL_Call = models.IntegerField(null=True, blank=True)
+    UL_TH = models.FloatField(null=True, blank=True)
+    changelte = models.FloatField(null=True, blank=True)
+    event_num = models.IntegerField(null=True, blank=True)
+    meastime_last = models.DateField(default=timezone.now, blank = True)
+    active = models.CharField(max_length=30, null=True, blank=True)
+    
+    def __str__(self):
+        return self.Center
+    class Meta:
+        ordering = ['-active']
