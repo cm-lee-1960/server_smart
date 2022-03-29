@@ -628,8 +628,8 @@ class MeasureSecondData(models.Model):
 #               ModelSignal
 #               ┏ ------┓
 #   ┌ ----------┴---┐   | post_save ------> send_message(sender, instance, created, **kwargs)
-#   |     Phon      |<- ┛ (SIGNAL)              |
-#   |  (측정단말)   ┣                           |           ┌ --------------┐
+#   |    Message    |<- ┛ (SIGNAL)              |
+#   | (전송메시지)  |                           |           ┌ --------------┐
 #   ┗ --------------┛                           ┣---------->|  TelegramBot  |
 #                                               |           ┗ --------------┛
 #                                                           - send_message_bot()          Node.js
