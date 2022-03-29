@@ -36,7 +36,7 @@ from .ajax import *
 # -------------------------------------------------------------------------------------------------
 # 홈(Home) 페이지
 # -------------------------------------------------------------------------------------------------
-@csrf_exempt 
+# @csrf_exempt
 def get_startdata(request):
     """초기 데이터 호출 view"""
     if request.method== "POST":
@@ -46,7 +46,7 @@ def get_startdata(request):
         
     return HttpResponse(json_data_call, content_type="applications/json")
 
-@csrf_exempt 
+# @csrf_exempt
 def get_phoneGroupData(request):
     """그룹데이터 호출 뷰"""
     if request.method== "POST":

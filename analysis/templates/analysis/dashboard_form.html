@@ -94,7 +94,8 @@
 
 <!--스크립트 구문 -->
 <script>
-    //현재 날짜 확인 
+
+    //현재 날짜 확인
     let today = new Date();
     let year = today.getFullYear();
     let month = ('0' + (today.getMonth() + 1)).slice(-2);
@@ -143,6 +144,11 @@
     //비동기통신
     //2분마다 주기적 요청
     startInterval_startData(function(){
+
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+        });
+
         $.ajax({
         type:'POST',
         url: "{% url 'analysis:ajax_startdata' %}",
@@ -216,6 +222,9 @@
     //비동기통신
     //10초마다 주기적 요청
     startInterval_phoneGroup(function(){
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+        });
         $.ajax({
         type:'POST',
         url: "{% url 'analysis:ajax_phoneGroupData' %}",
@@ -236,6 +245,11 @@
 
     //오늘의 측정그룹 테이블 생성
     function phoneGroupData(ajax_data){
+
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+        });
+
         $('#phoneGroupDetail').remove();
 
         //초기화
