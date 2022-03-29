@@ -20,6 +20,7 @@ from .close import measuring_end
 # 2022.03.17 - 단말그룹 관리자 페이지에서 선택된 단말그룹에 대해 측정종료 처리 함수를 추가함
 # 2022.03.22 - 단말그룹에 관리대상 여부를 추가하고 관리대상 자료만 관리자 화면에 조회도록 수정함
 # 2022.03.24 - 측정종료 및 측정마감 모듈을 홈페이지에서 호출할 수 있도록 측정 모니터링앱(monitor) 뷰 함수로 이동
+# 2022.03.29 - 단말그룹 관리자 페이지에 DL/UL콜수, DL/UL속도, LTE전환율, 이벤트발생 건수 등 항목 추가
 #
 ########################################################################################################################
 
@@ -28,11 +29,25 @@ from .close import measuring_end
 # ----------------------------------------------------------------------------------------------------------------------
 class PhoneGroupAdmin(admin.ModelAdmin):
     """어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스"""
-    list_display = ['measdate', 'phone_list', 'networkId', 'measuringTeam', 'userInfo1', 'morphology', 'active']
+    list_display = ['measdate', 'phone_list', 'networkId', 'measuringTeam', 'userInfo1', 'morphology',
+                    'dl_count', 'ul_count', 'downloadBandwidth_fmt', 'uploadBandwidth_fmt', 'nr_percent',
+                    'event_count', 'active']
     list_display_links = ['phone_list', ]
     search_fields = ('measdate', 'userInfo1', 'phone_list', 'networkId', 'measuringTeam')
     list_filter = ['measdate', 'measuringTeam', 'active']
     actions = ['get_measuring_end_action']
+
+    # DL 평균속도를 소수점 2자리까지 화면에 표시한다.
+    def downloadBandwidth_fmt(self, obj):
+        return '%.1f' % obj.downloadBandwidth
+
+    downloadBandwidth_fmt.short_description = 'DL속도'
+
+    # UL 평균속도를 소수점 2자리까지 화면에 표시한다.
+    def uploadBandwidth_fmt(self, obj):
+        return '%.1f' % obj.uploadBandwidth
+
+    uploadBandwidth_fmt.short_description = 'UL속도'
 
     # DetailView에서 적용하는 내용임
     # formfield_overrides = {
@@ -180,7 +195,7 @@ class PhoneAdmin(admin.ModelAdmin):
     """어드민 페이지에 측정단말 리스트를 보여주기 위한 클래스"""
     # form = PhoneForm
     list_display = ['measdate', 'userInfo1', 'userInfo2', 'morphology', 'phone_no_abbr', 'networkId', 
-                    'avg_downloadBandwidth_fmt', 'avg_uploadBandwidth_fmt', 'status', 'total_count', 
+                    'downloadBandwidth_fmt', 'uploadBandwidth_fmt', 'status', 'total_count',
                     'last_updated_at', 'active', 'manage']
     list_display_links = ['phone_no_abbr']
     search_fields = ('userInfo1', 'phone_no', )
@@ -189,16 +204,16 @@ class PhoneAdmin(admin.ModelAdmin):
     list_per_page = 25 # 페이지당 데이터 건수 
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
-    def avg_downloadBandwidth_fmt(self, obj):
-        return '%.2f' % obj.avg_downloadBandwidth
+    def downloadBandwidth_fmt(self, obj):
+        return '%.1f' % obj.downloadBandwidth
 
-    avg_downloadBandwidth_fmt.short_description = 'DL'
+    downloadBandwidth_fmt.short_description = 'DL속도'
 
     # UL 평균속도를 소수점 2자리까지 화면에 표시한다. 
-    def avg_uploadBandwidth_fmt(self, obj):
-        return '%.2f' % obj.avg_uploadBandwidth
+    def uploadBandwidth_fmt(self, obj):
+        return '%.1f' % obj.uploadBandwidth
 
-    avg_uploadBandwidth_fmt.short_description = 'UL'
+    uploadBandwidth_fmt.short_description = 'UL속도'
 
     # 2022.03.06 - 측정 단말기의 상세화면에서 특정 항목의 길이를 조정한다.
     def get_form(self, request, obj=None, **kwargs):
@@ -217,7 +232,7 @@ class PhoneAdmin(admin.ModelAdmin):
         }),
         ('측정정보', {
              'fields': (('userInfo1', 'userInfo2', 'morphology'),
-                        ('avg_downloadBandwidth', 'avg_uploadBandwidth'), 
+                        ('downloadBandwidth', 'uploadBandwidth'),
                         ('dl_count', 'ul_count'),
                         ('status', 'total_count'),
                         'last_updated', 

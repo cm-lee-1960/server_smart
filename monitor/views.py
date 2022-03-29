@@ -152,8 +152,8 @@ def receive_json(request):
                         userInfo2=data['userInfo2'], # 측정자 입력값2
                         networkId=networkId, # 측정유형(5G, LTE, 3G, WiFi)
                         ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
-                        avg_downloadBandwidth=0.0, # DL 평균속도
-                        avg_uploadBandwidth=0.0, # UL 평균속도
+                        downloadBandwidth=0.0, # DL 평균속도
+                        uploadBandwidth=0.0, # UL 평균속도
                         dl_count=0, # DL 콜카운트
                         ul_count=0, # UL 콜카운드
                         status='START_F', # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료)
