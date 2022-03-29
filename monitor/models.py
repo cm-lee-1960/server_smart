@@ -228,17 +228,17 @@ class Phone(models.Model):
                              verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
     downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="DL")
     uploadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="UL")
-    dl_count = models.IntegerField(null=True, default=0)  # 다운로드 콜수
-    ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
-    nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수
+    dl_count = models.IntegerField(null=True, default=0, verbose_name="DL콜수")  # 다운로드 콜수
+    ul_count = models.IntegerField(null=True, default=0, verbose_name="UL콜수")  # 업로드 콜수
+    nr_count = models.IntegerField(null=True, default=0, verbose_name="LTE전환콜수")  # 5G->NR 전환 콜수
     status = models.CharField(max_length=10, null=True, choices=STATUS_CHOICES, verbose_name="진행단계")
-    currentCount = models.IntegerField(null=True, blank=True)
+    currentCount = models.IntegerField(null=True, blank=True, verbose_name="현재 콜카운트")
     total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
-    siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
-    guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군
-    addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
-    latitude = models.FloatField(null=True, blank=True)  # 위도
-    longitude = models.FloatField(null=True, blank=True)  # 경도
+    siDo = models.CharField(max_length=100, null=True, blank=True, verbose_name="시,도")  # 시도
+    guGun = models.CharField(max_length=100, null=True, blank=True, verbose_name="군,구")  # 구,군
+    addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="상세주소")  # 주소상세
+    latitude = models.FloatField(null=True, blank=True, verbose_name="위도")  # 위도
+    longitude = models.FloatField(null=True, blank=True, verbose_name="경도")  # 경도
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
     center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="센터")
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
@@ -625,10 +625,24 @@ class MeasureSecondData(models.Model):
 
 ########################################################################################################################
 # 전송 메시지 클래스
+#               ModelSignal
+#               ┏ ------┓
+#   ┌ ----------┴---┐   | post_save ------> send_message(sender, instance, created, **kwargs)
+#   |     Phon      |<- ┛                       |
+#   |  (측정단말)   ┣                           |           ┌ --------------┐
+#   ┗ --------------┛                           ┣---------->|  TelegramBot  |
+#                                               |           ┗ --------------┛
+#                                                           - send_message_bot()          Node.js
+#                                               |           ┌ -----------------┐          ┌ -----------------┐
+#                                               ┗ --------->| message.xmcs_msg |--------->| sms_api.js       |
+#                                                           |                  |          | sms_broadcast.js |
+#                                                           ┗ -----------------┛          ┗ -----------------┛
+#                                                           - send_sms()
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 의존성으로 마이그레이트 및 롤백 시 오류가 자주 발생하여 모니터 앱으로 옮겨 왔음
 # 2022.02.27 - 메시지 유형을 메시지(SMS)와 이벤트(EVENT)로 구분할 수 있도록 항목 추가
 # 2022.03.27 - 메시지가 생성되었을 때만 처리하도록 코드를 수정함(created=True)
+# 2022.03.29 - 전송 메시지 모델에 대한 흐름도 및 주석 추가
 #
 ########################################################################################################################
 class Message(models.Model):
