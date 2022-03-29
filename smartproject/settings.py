@@ -48,6 +48,9 @@ SECRET_KEY = get_secret("SECRET_KEY")
 BOT_TOKEN = get_secret("BOT_TOKEN")
 CHANNEL_ID = get_secret("CHANNEL_ID")
 KAKAO_REST_API_KEY = get_secret("KAKAO_REST_API_KEY")
+# Telethon(채팅방 유저 업데이트) 호출을 위한 API ID/HASH 값을 찾아 온다.
+TELEGRAM_API_ID = get_secret("TELEGRAM_API_ID")
+TELEGRAM_API_HASH = get_secret("TELEGRAM_API_HASH")
 ################################################################
 
 # SECURITY WARNING: don't run with debug turned on in production!
