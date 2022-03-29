@@ -62,14 +62,17 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    # django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # third apps
     'django_extensions',
-    # 'django_crontab',
+    'rest_framework',
+    # local apps
     'monitor',
     'analysis',
     'message',

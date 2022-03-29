@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import include
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from analysis.views import dashboard
 
@@ -33,10 +35,11 @@ from analysis.views import dashboard
 #   ├- message : 전송 메시지 관련 모듈
 #   ├- monitor : 측정 모니터링 관련 모듈
 #   ├- scheduler : 백그라운드 스케쥴 작업 관련 모듈
-#   └- smartproject : 스마트상황실 프로젝트 메인 디렉토리
-#          ├- static
-#          └- templates
-#                └- admin : 커스터마이징 관리자 페이지
+#   ├- smartproject : 스마트상황실 프로젝트 메인 디렉토리
+#   |      ├- static
+#   |      └- templates
+#   |            └- admin : 커스터마이징 관리자 페이지
+#   └- staticfiles : STATIC 파일
 #
 ########################################################################################################################
 
@@ -49,6 +52,9 @@ urlpatterns = [
     path("message/", include("message.urls")), # 전송 메시지
     path("accounts/", include("accounts.urls")), # 계정
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # STATIC 파일
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.STATIC_ROOT) # MEDIA 파일
 
 # 어드민 페이지 변경
 admin.site.index_title = "스마트 상황실"
