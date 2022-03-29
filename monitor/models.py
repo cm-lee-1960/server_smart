@@ -628,7 +628,7 @@ class MeasureSecondData(models.Model):
 #               ModelSignal
 #               ┏ ------┓
 #   ┌ ----------┴---┐   | post_save ------> send_message(sender, instance, created, **kwargs)
-#   |     Phon      |<- ┛                       |
+#   |     Phon      |<- ┛ (SIGNAL)              |
 #   |  (측정단말)   ┣                           |           ┌ --------------┐
 #   ┗ --------------┛                           ┣---------->|  TelegramBot  |
 #                                               |           ┗ --------------┛
