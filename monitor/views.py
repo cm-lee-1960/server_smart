@@ -302,7 +302,7 @@ def measuring_day_close_view(request):
     #    - 측정 진행중인 단말그룹이 없고(active=True)
     #    - 측정마감 메시지가 이미 생성되어 있는 경우(status='REPORT_ALL')
     elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
-        Message.objects.filter(status='REPORT_ALL', measdate=date).count is not 0:
+        Message.objects.filter(status='REPORT_ALL', measdate=date).count() is not 0:
         messages.add_message(request, messages.ERROR, '해당일자에 대한 측정마감이 이미 처리되었습니다.')
 
     # 3) 해당일자에 대한 측정마감을 처리한다.
