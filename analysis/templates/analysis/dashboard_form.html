@@ -9,6 +9,13 @@
 <title>일일보고 데이터 등록</title>
 
 
+<!-- 쿠키보안 -->
+<script>
+    document.cookie = "safeCookie1=foo;SameSite=Lax";
+    document.cookie = "safeCookie2=foo";
+    document.cookie = "crossCookie=bar;SameSite=None;Secure";
+</script>
+
 <!-- 모달 기본 라이브러리 -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
 <script defer src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
@@ -29,6 +36,7 @@
 <style>
     .today_count{ color: red; }
     p { margin:20px 0px; }
+    .area_exit{  width:30px; height:30px;  }
 </style>
 </head>
 
@@ -75,25 +83,13 @@
         <div id="output" style="text-align: center;">
             <table id="groupWindow" class="table table-hover">
                 <thead>
-                    <tr>
-                        <th >센터</th>
-                        <th >조</th>
-                        <th >측정지역</th>
-                        <th >모폴로지</th>
-                        <th >네트워크</th>
-                        <th >DL_콜수</th>
-                        <th >DL_속도</th>
-                        <th >UL_콜수</th>
-                        <th >UL_속도</th>
-                        <th >전환율</th>
-                        <th >이벤트</th>
-                        <th >측정시간</th>
-                        <th >상태</th>
+                    <tr id = 'phoneGroupDetail_header'>
                     </tr>
                 </thead>
-                <tbody id = 'phoneGroupDetail'>
+                <tbody id = 'phoneGroupDetail_body'>
                     {% for phonegroup in phnoegroup %}
-                        <tr>
+                        {% if phonegroup.manage == 1 %}
+                        <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}'>
                             <td>{{phonegroup.center.centerName}}</td>
                             <td>{{phonegroup.measuringTeam}}</td>
                             <td>{{phonegroup.morphology.morphology}}</td>
@@ -105,9 +101,17 @@
                             <td>{{phonegroup.uploadBandwidth}}</td>
                             <td>{{phonegroup.nr_percent}}</td>
                             <td>{{phonegroup.event_count}}</td>
-                            <td>{{phonegroup.last_updated}}.toString()</td>
-                            <td>{{phonegroup.active}}</td>
+                            <td>{{phonegroup.last_updated}}</td>
+                            {% if phonegroup.active == 1 %}
+                            <td>측정 중</td>
+                            {% else %}
+                            <td>측정종료</td>
+                            {% endif %}
+                            <td>
+                                <img class='area_exit' id='img_group_{{phonegroup.id}}' src="{% static "images/endbutton.png" %}" alt="종료">
+                            </td>
                         </tr>
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table> 
@@ -166,10 +170,24 @@
     //현재날짜 이거 다시 넣어야된다.
     
 
-    //콘솔
-    console.log(dateString)
-    
-    ////////////////////////////
+    //초기 금일 측정 그룹 TH 셋팅
+    let phSetting = ['센터','조','측정지역','모폴로지','네트워크','DL_콜수','DL_속도','UL_콜수','UL_속도','전환율','이벤트','측정시간','상태','종료'];
+    thappend = ""
+    $(document).ready(
+
+        function PhoneGroupSetting(){ 
+            for(let phSetting_name of phSetting){
+                thappend += "<td>"
+                thappend += phSetting_name
+                thappend += "</td>"   
+                //document.querySelector('#' + meas_area_name_split_2[1] + '_count').innerHTML = meas_area_count
+            }
+            $('#phoneGroupDetail_header').append(thappend);
+        }
+    );
+
+
+    ////////////////////////////////////////////////////////////////////////////
     var toDayinfo = "" // 금일 날짜 변수 글로벌
 
     function input() {
@@ -191,9 +209,9 @@
             dataType : 'text',
             data : { 'date' : toDayinfo },
             async:false,
+            cache: false,
             success: function(data){
-                console.log(data)
-                $('#phoneGroupDetail').replaceWith($('#phoneGroupDetail',data));
+                $('#phoneGroupDetail_body').replaceWith($('#phoneGroupDetail_body',data));
             },
             error: function(error){
                 console.log("불러오기 실패")

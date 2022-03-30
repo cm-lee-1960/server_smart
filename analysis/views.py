@@ -56,19 +56,6 @@ def get_listview(request):
                 'phnoegroup' : phnoegroup
         }
     return render(request,"analysis/dashboard_form.html",context)
-        #phonegroup = []
-        #qs = get_list_or_404(PhoneGroup, measdate=toDate_str, ispId='45008')
-        
-        # print(qs)
-        # for q in qs:
-        #     qs1 = q.objects.annotate(center_name=Value(str(Center.objects.get(id=q.center_id).centerName)), output_field = CharField()).all()
-        #     qs2 = q.objects.annotate(center_eng=Value(Center.objects.get(id=q.center_id).centerEngName), output_field = CharField())
-        #     qs3 = q.objects.annotate(morpol_name=Value(Morphology.objects.get(id=q.morphology_id).morphology), output_field = CharField())
-
-        #     qs_dump = qs1.union(qs2, all=False)
-        #     result = qs_dump.union(qs3, all=False)
-            
-        #     phonegroup.append(result)
     
 def get_startdata(request):
     """초기 데이터 호출 view 날짜를 전달받는다"""
