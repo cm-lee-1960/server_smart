@@ -165,23 +165,23 @@ class MeasLastyearLTE(models.Model):
 ###############################################################################################################################################################################
 #3.28 이창민 임시 모델 생성
 ###############################################################################################################################################################################
-class imsiweb(models.Model):
-    Center = models.CharField(max_length=30, null=True, blank=True)
-    group = models.CharField(max_length=30, null=True, blank=True)
-    phonenum = models.CharField(max_length=30, null=True, blank=True)
-    userinfo1 = models.CharField(max_length=30, null=True, blank=True)
-    mor = models.CharField(max_length=30, null=True, blank=True)
-    network = models.CharField(max_length=30, null=True, blank=True)
-    DL_Call = models.IntegerField(null=True, blank=True)
-    DL_TH = models.FloatField(null=True, blank=True)
-    UL_Call = models.IntegerField(null=True, blank=True)
-    UL_TH = models.FloatField(null=True, blank=True)
-    changelte = models.FloatField(null=True, blank=True)
-    event_num = models.IntegerField(null=True, blank=True)
-    meastime_last = models.DateField(default=timezone.now, blank = True)
-    active = models.CharField(max_length=30, null=True, blank=True)
+# class imsiweb(models.Model):
+#     Center = models.CharField(max_length=30, null=True, blank=True)
+#     group = models.CharField(max_length=30, null=True, blank=True)
+#     phonenum = models.CharField(max_length=30, null=True, blank=True)
+#     userinfo1 = models.CharField(max_length=30, null=True, blank=True)
+#     mor = models.CharField(max_length=30, null=True, blank=True)
+#     network = models.CharField(max_length=30, null=True, blank=True)
+#     DL_Call = models.IntegerField(null=True, blank=True)
+#     DL_TH = models.FloatField(null=True, blank=True)
+#     UL_Call = models.IntegerField(null=True, blank=True)
+#     UL_TH = models.FloatField(null=True, blank=True)
+#     changelte = models.FloatField(null=True, blank=True)
+#     event_num = models.IntegerField(null=True, blank=True)
+#     meastime_last = models.DateField(default=timezone.now, blank = True)
+#     active = models.CharField(max_length=30, null=True, blank=True)
     
-    def __str__(self):
-        return self.Center
-    class Meta:
-        ordering = ['-active']
+#     def __str__(self):
+#         return self.Center
+#     class Meta:
+#         ordering = ['-active']

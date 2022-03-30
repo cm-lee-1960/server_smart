@@ -15,26 +15,43 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 
-def ajax_startdata():
+def ajax_startdata(toDate_str):
     """초기데이터 가져오는 함수"""
     start_dict = {}
     meas_area = {}
     
-    measuing_count = len(PhoneGroup.objects.filter(active=1, ispId='45008'))#KT데이터만 가져온다.
-    end_count = len(PhoneGroup.objects.filter(active=0, ispId='45008'))#KT데이터만 가져온다.
-
+    print(toDate_str)
+    try:
+        measuing_count = len(PhoneGroup.objects.filter(measdate = toDate_str, active=1, ispId='45008'))#KT데이터만 가져온다.
+    except:
+        measuing_count = 0
+        msg = "{} 측정중 값이 없습니다. ".format(toDate_str)
+        print(msg) 
+    try:
+        end_count = len(PhoneGroup.objects.filter(measdate=toDate_str, active=0, ispId='45008'))#KT데이터만 가져온다.
+    except:
+        end_count = 0
+        msg = "{} 측정종료 값이 없습니다. ".format(toDate_str)
+        print(msg) 
+        
     start_dict['measuing_count'] = measuing_count
     start_dict['end_count'] = end_count
     
     # 측정 그룹을 통해 측정 지역을 가져온다.
-    qs = PhoneGroup.objects.filter(ispId='45008').order_by('-center_id')#KT데이터만 가져온다.
+    try:
+        qs = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008').order_by('-center_id')#KT데이터만 가져온다.
+    except:
+        qs = []
+        msg = "{} 지역 값이 없습니다. ".format(toDate_str)
+        print(msg)
+        
     area_distint = qs.values_list('center_id', flat=True).distinct()
     # 지역아이디 중복제거 ex)[7,7,7,4,4,4,3] -> [7,4,3]
     
     if len(area_distint) != 0:
         for i in area_distint:
-            area_measuing_count = PhoneGroup.objects.filter(center_id=7,active=1).count()
-            area_end_count = PhoneGroup.objects.filter(center_id=7,active=0).count()
+            area_measuing_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i,active=1, ispId='45008').count()
+            area_end_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i, active=0, ispId='45008').count()
             result_count = str(area_measuing_count) + '/' + str(area_end_count)
 
             meas_area_name = Center.objects.get(id=i).centerName
@@ -95,7 +112,7 @@ def ajax_phoneGroupData():
             DL_Th = {}
             DL_Th_dump = 0
             for i in qs:
-                DL_Th_dump += (i.avg_downloadBandwidth * i.dl_count)
+                DL_Th_dump += (i.downloadBandwidth * i.dl_count)
                 
             try:
                 DL_Throughput = round((DL_Th_dump / DL_Call_count), 2) #DL카운트 재활용
@@ -111,7 +128,7 @@ def ajax_phoneGroupData():
             UL_Th = {}
             UL_Th_dump = 0
             for i in qs:
-                UL_Th_dump += (i.avg_uploadBandwidth * i.ul_count)
+                UL_Th_dump += (i.uploadBandwidth * i.ul_count)
             
             try:
                 UL_Throughput = round((UL_Th_dump / UL_Call_count), 2) #DL카운트 재활용
@@ -123,8 +140,11 @@ def ajax_phoneGroupData():
             LTE_Change = {}
             if network_name == '5G':
                 NR_count = phonegroup.dl_nr_count + phonegroup.ul_nr_count
-                LTE_Change_per = round(((DL_Call+UL_Call) / NR_count) * 100) # 전환율계산
-                LTE_Change['LTE_Change_per'] = str(LTE_Change_per) + "%"
+                if NR_count == 0:
+                    LTE_Change_per = "0%"
+                else:
+                    LTE_Change_per = str(round(((DL_Call+UL_Call) / NR_count) * 100)) + "%" # 전환율계산
+                LTE_Change['LTE_Change_per'] = LTE_Change_per
             else:
                 LTE_Change['LTE_Change_per'] = '-'
             #. 12.CA(필요하면 추후에 데이터 가져와야한다.)

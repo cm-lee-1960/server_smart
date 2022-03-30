@@ -22,4 +22,7 @@ urlpatterns = [
     #ajax url
     path('ajax/getstartdata/', views.get_startdata, name='ajax_startdata'), ## 초기데이터 가져온다(오늘의 측정)
     path('ajax/phoneGroupData/', views.get_phoneGroupData, name='ajax_phoneGroupData'), ## 측정그룹데이터가져온다(금일 측정그룹)
+    
+    #view url
+    path('listview/phoneGroupData/', views.get_listview, name='listview_phoneGroupData'), ## ## 측정그룹데이터가져온다(금일 측정그룹)
 ]

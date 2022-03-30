@@ -48,10 +48,10 @@
                     <input style="height: 24px;" type="date" class="form-control" name="date" id="date" value=>
                 </div>
                 <div style="float:left; margin-bottom:0px">
-                    <button style="height: 24px;" id = "daychoice" onclick="startInterval_startData()">선택</button>
+                    <button style="height: 24px;" id = "daychoice" onclick="input()">선택</button>
                 </div>
                 <div style="float:left; margin-bottom:0px">
-                    <button style="height: 24px;" id = "ajaxstop" onclick="ajax_stop()">정지</button>
+                    <button style="height: 24px;" id = "daychoice" onclick="listdata()">시작</button>
                 </div>
             </div>
             <div>
@@ -78,7 +78,6 @@
                     <tr>
                         <th >센터</th>
                         <th >조</th>
-                        <th >단말번호</th>
                         <th >측정지역</th>
                         <th >모폴로지</th>
                         <th >네트워크</th>
@@ -87,16 +86,29 @@
                         <th >UL_콜수</th>
                         <th >UL_속도</th>
                         <th >전환율</th>
-                        <th >CA</th>
                         <th >이벤트</th>
                         <th >측정시간</th>
                         <th >상태</th>
-                        <th >종료</th>
                     </tr>
                 </thead>
                 <tbody id = 'phoneGroupDetail'>
-                    <tr id='phoneGroupDetailTr'>
-                    </tr>
+                    {% for phonegroup in phnoegroup %}
+                        <tr>
+                            <td>{{phonegroup.center_id}}</td>
+                            <td>{{phonegroup.measuringTeam}}</td>
+                            <td>{{phonegroup.morphology_id}}</td>
+                            <td>{{phonegroup.userInfo1}}</td>
+                            <td>{{phonegroup.networkId}}</td>
+                            <td>{{phonegroup.dl_count}}</td>
+                            <td>{{phonegroup.downloadBandwidth}}</td>
+                            <td>{{phonegroup.ul_count}}</td>
+                            <td>{{phonegroup.uploadBandwidth}}</td>
+                            <td>{{phonegroup.nr_percent}}</td>
+                            <td>{{phonegroup.event_count}}</td>
+                            <td>{{phonegroup.last_updated}}</td>
+                            <td>{{phonegroup.active}}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table> 
         </div>
@@ -181,23 +193,41 @@
         '전북액세스운용센터' : ['전북'],
         '경북액세스운용센터' : ['경북']
     };
-    //ajax 멈춤
-    function ajax_stop() {
+    var toDayinfo = "" // 금일 날짜 변수 글로벌
 
-        clearInterval(startInterval_startData);
-        clearInterval(setInterval_phnoe);
-      
-      }
-    //날짜 선택하여 데이터 가져온다 (임시로 생성)
-    //document.getElementById("daychoice").addEventListener('click', startInterval_startData);
-    //document.getElementById("daychoice").addEventListener('click', startInterval_phoneGroup);
-    var toDay = document.getElementById("daychoice").value;
+   
+    function input() {
+        toDayinfo = document.querySelector('input[type="date"]').value;
+        console.log(toDayinfo);
+    }
+    ////////////////////////////////////////////////////////////////////////////
+    
+    function listdata(){ 
+        console.log("여기들어왔따.") 
+        setInterval(interval_listdata,5000); 
+    }
 
+    function interval_listdata(){
+        $.ajax({
+            headers: { "X-CSRFToken": '{{csrf_token}}'},
+            type:'POST',
+            url: "{% url 'analysis:listview_phoneGroupData' %}",
+            dataType : 'text',
+            data : { 'date' : toDayinfo },
+            async:false,
+            success: function(data){
+                $('#phoneGroupDetail').replaceWith($('#phoneGroupDetail',data));
+            },
+            error: function(error){
+                console.log("불러오기 실패")
+                console.log(error)
 
-
+            }
+        });
+    }
     /////////////////////////////////////////////////////////////////////////
-
-
+    
+    
     //stratdata 부분
     //AJAX를 먼저 시작하고 딜레이
     //callback -> interval
@@ -210,10 +240,11 @@
     //2분마다 주기적 요청
     startInterval_startData(function(){
         $.ajax({
+        headers: { "X-CSRFToken": '{{csrf_token}}'},
         type:'POST',
         url: "{% url 'analysis:ajax_startdata' %}",
         dataType : 'text',
-        data : {"date":toDay},
+        data : {'date' : toDayinfo},
         async:false,
         success: function(ajax_data){
             ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
@@ -225,7 +256,7 @@
             startDataCount(ajax_data); //초기데이터 값바꾸기          
         }
         });
-    }, 120) 
+    }, 20)
 
     //오늘의 측정 테이블 생성
     function startData(ajax_data){
@@ -242,6 +273,7 @@
             measStatus += '<span id = "measure_close_count" class="today_count"><font size="2"> 0 </font></span>';
             measStatus += '</th>';
         
+        if (ajax_data['meas_area'] != 'nodata'){  // 데이터가 없으면 생성하지 않는다 지역
         //for(var meas_area of ajax_data['meas_area']){
         for(var meas_area_name of Object.keys(ajax_data['meas_area'])){
             console.log(meas_area_name)
@@ -250,6 +282,7 @@
             measStatus += '<span id ="' + area_eng[meas_area_name] + '_count" class="today_count"><font size="3"> 0 </font></span>';
             measStatus += '</th>';
             }
+        }
         measStatus += '</tr>';
 
         //console.log(measStatus)
@@ -263,10 +296,11 @@
         document.querySelector('#measure_count').innerHTML = ajax_data['measuing_count'];
         document.querySelector('#measure_close_count').innerHTML = ajax_data['end_count'];
         
-    
-        for(let [meas_area_name, meas_area_count] of Object.entries(ajax_data['meas_area'])){
-            document.querySelector('#' + area_eng[meas_area_name]+ '_count').innerHTML = meas_area_count
-        }
+        if (ajax_data['meas_area'] != 'nodata'){ // 데이터가 없으면 생성하지 않는다 지역
+            for(let [meas_area_name, meas_area_count] of Object.entries(ajax_data['meas_area'])){
+                document.querySelector('#' + area_eng[meas_area_name]+ '_count').innerHTML = meas_area_count
+            }
+        }   
     }
     ////////////////////////////
 
@@ -274,7 +308,7 @@
     //AJAX를 먼저 시작하고 딜레이
     //callback -> interval
 
-    function startInterval_phoneGroup(callback, seconds){ 
+    {% comment %} function startInterval_phoneGroup(callback, seconds){ 
         callback(); 
         return setInterval(callback, seconds * 1000); 
     }
@@ -283,6 +317,7 @@
     //10초마다 주기적 요청
     startInterval_phoneGroup(function(){
         $.ajax({
+        headers: { "X-CSRFToken": '{{csrf_token}}'},
         type:'POST',
         url: "{% url 'analysis:ajax_phoneGroupData' %}",
         dataType : 'text',
@@ -342,7 +377,7 @@
                 }
             }
         }
-    }
+    } {% endcomment %}
 
 </script>
 {% endblock %}

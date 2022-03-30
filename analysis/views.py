@@ -8,6 +8,8 @@
 # from makereport import *
 # import sys
 
+from multiprocessing.sharedctypes import Value
+from django.forms import CharField
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from monitor.models import Phone
@@ -23,8 +25,11 @@ from monitor.models import *
 from management.models import *
 import json
 from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponsePermanentRedirect
 from .ajax import *
+
+from django.views.generic import ListView
+from django.shortcuts import get_list_or_404
 
 ###################################################################################################
 # 분석 처리모듈
@@ -36,19 +41,77 @@ from .ajax import *
 # -------------------------------------------------------------------------------------------------
 # 홈(Home) 페이지
 # -------------------------------------------------------------------------------------------------
-@csrf_exempt 
-def get_startdata(request):
-    """초기 데이터 호출 view"""
+#@csrf_exempt 
+# class Grouplist(ListView):
+#     model = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008')
+
+#FBV
+
+def get_listview(request):
+    """함수기반 뷰"""
     if request.method== "POST":
         
-        toDate = request.POST['date']
-        print(toDate)
-        start_dict = ajax_startdata(toDate) #측정 그룹 데이터 가져온다
+        toDate = request.POST['date'].split('-')
+        toDate_str = "".join(toDate)
+        
+        phnoegroup = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008')
+        context = {
+                'phnoegroup' : phnoegroup
+        }
+    return render(request,"analysis/dashboard_form.html",context)
+        #phonegroup = []
+        #qs = get_list_or_404(PhoneGroup, measdate=toDate_str, ispId='45008')
+        
+        # print(qs)
+        # for q in qs:
+        #     qs1 = q.objects.annotate(center_name=Value(str(Center.objects.get(id=q.center_id).centerName)), output_field = CharField()).all()
+        #     qs2 = q.objects.annotate(center_eng=Value(Center.objects.get(id=q.center_id).centerEngName), output_field = CharField())
+        #     qs3 = q.objects.annotate(morpol_name=Value(Morphology.objects.get(id=q.morphology_id).morphology), output_field = CharField())
+
+        #     qs_dump = qs1.union(qs2, all=False)
+        #     result = qs_dump.union(qs3, all=False)
+            
+        #     phonegroup.append(result)
+        
+   
+
+
+#CBV
+# class PhoneGroupForm(ListView):   
+#     def get_listview(request):
+#         if request.method== "POST":
+            
+#             global toDate_str
+#             toDate = request.POST['date'].split('-')
+#             toDate_str = "".join(toDate)
+
+#     context = []
+#     qs = get_list_or_404(PhoneGroup, measdate=toDate_str, ispId='45008')
+    
+#     for q in qs:
+#         qs1 = q.objects.annotate(center_name=Value(Center.objects.get(id=q.center_id).centerName), output_field = CharField())
+#         qs2 = q.objects.annotate(center_eng=Value(Center.objects.get(id=q.center_id).centerEngName), output_field = CharField())
+#         qs3 = q.objects.annotate(morpol_name=Value(Morphology.objects.get(id=q.morphology_id).morphology), output_field = CharField())
+
+#         qs_dump = qs1.union(qs2, all=False)
+#         result = qs_dump.union(qs3, all=False)
+        
+#         context.append(result)
+    
+    
+def get_startdata(request):
+    """초기 데이터 호출 view 날짜를 전달받는다"""
+    if request.method== "POST":
+
+        toDate = request.POST['date'].split('-')
+        toDate_str = "".join(toDate)
+
+        start_dict = ajax_startdata(toDate_str) 
         json_data_call = json.dumps(start_dict)
         
     return HttpResponse(json_data_call, content_type="applications/json")
 
-@csrf_exempt 
+#@csrf_exempt 
 def get_phoneGroupData(request):
     """그룹데이터 호출 뷰"""
     if request.method== "POST":
@@ -64,6 +127,12 @@ def get_phoneGroupData(request):
 def dashboard(request):
     """홈(Home) 페이지 뷰"""
     if request.user.is_authenticated:
+        
+        phnoegroup = PhoneGroup.objects.filter(measdate='20211101', ispId='45008')
+        context = {
+                'phnoegroup' : phnoegroup
+        }
+        
         return render(request, "analysis/dashboard_form.html")
     else:
         return redirect(reverse('accounts:login'))
