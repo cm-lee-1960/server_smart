@@ -18,7 +18,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 #   ┌ ----------┴---┐   | - update_initial_data() : 객체생성시 한번 수행
 #   |  PhoneGroup   |<- ┛   * 측정조
 #   |  (단말그룹)   |       * 측정유형(5G,LTE,3G,WiFi)
-#   ┗ --------------┛       * # 관할센터
+#   ┗ --------------┛       * 관할센터
 #
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 해당지역에 단말이 첫번째 측정을 시작했을 때 측정시작(START) 메시지를 한번 전송한다.
@@ -173,9 +173,10 @@ def get_morphology(userInfo2: str) -> Morphology:
 #   ┌ ----------┴---┐   | - update_initial_data() : 객체생성시 한번 수행
 #   |     Phone     |<- ┛  * 행정동, 모폴로지, 관할센터, 관리대상 여부
 #   |  (측정단말)   ┣-- ┓
-#   ┗ -----------∧--┛   | - update_phone(mdata): 실시간 측정데이터로 측정단말 정보를 업데이트 수행
-#                |      |
-#                ┗------┛
+#   ┗ -----------∧--┛   | - update_phone(mdata): 실시간 측정데이터로 측정단말과 단말그룹 정보를 업데이트 수행
+#                |      |  * DL콜수, UL콜수, DL속도, UL속도, DL LTE전환콜수, UL LTE전환콜수, 총콜수,
+#                ┗------┛    DL LTE전환율, UL LTE전환율, 최종위치보고시간 등
+#
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 측정일자(measdate) 문자열(8자래) 항목 추가
 # 2022.02.27 - 주소상세(addressDetail) 항목 추가
@@ -198,6 +199,7 @@ def get_morphology(userInfo2: str) -> Morphology:
 #              그룹으로 묶여 있는 단말기의 측정유형이 2개가 모두 동일할 때 이벤트 발생(DL/DL, UL/UL)
 # 2022.03.19 - 관할센터(Center) 외래키 항목 추가
 # 2022.03.28 - 단말그룹의 이벤트발생 건수를 업데이트 하는 코드를 추가함
+# 2022.03.30 - DL속도, UL속도 소숫점 첫째자리까지 표현(둘째자리에서 반올림)
 #
 ########################################################################################################################
 class Phone(models.Model):
@@ -304,22 +306,22 @@ class Phone(models.Model):
             # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.downloadBandwidth = round(
-                    ((self.downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 3)
+                    ((self.downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 1)
                 self.meastype = 'DL'
                 self.dl_count += 1
                 # 단말그룹 - DL평균속도, DL콜카운트
                 phoneGroup.downloadBandwidth = round(
-                    ((phoneGroup.downloadBandwidth * phoneGroup.dl_count) + mdata.downloadBandwidth) / (phoneGroup.dl_count + 1), 3)
+                    ((phoneGroup.downloadBandwidth * phoneGroup.dl_count) + mdata.downloadBandwidth) / (phoneGroup.dl_count + 1), 1)
                 phoneGroup.dl_count += 1
             # UP 평균속도 계산
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.uploadBandwidth = round(
-                    ((self.uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 3)
+                    ((self.uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 1)
                 self.meastype = 'UL'
                 self.ul_count += 1
                 # 단말그룹 - UL평균속도, UL콜카운트
                 phoneGroup.uploadBandwidth = round(
-                    ((phoneGroup.uploadBandwidth * phoneGroup.ul_count) + mdata.uploadBandwidth) / (phoneGroup.ul_count + 1), 3)
+                    ((phoneGroup.uploadBandwidth * phoneGroup.ul_count) + mdata.uploadBandwidth) / (phoneGroup.ul_count + 1), 1)
                 phoneGroup.ul_count += 1
 
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
