@@ -4,7 +4,9 @@ from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q
 from django.db import connection
 from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuringDayClose
+from management.models import Center
 from .serializers import PhoneGroupSerializer
+from message.tele_msg import TelegramBot
 
 ########################################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -79,25 +81,26 @@ def measuring_end(phoneGroup):
             message += f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth} / {avg_uploadBandwidth}"
 
         # 메시지를 저장한다.
+        chatId = phoneGroup.center.channelId  # phonegroup과 foreign-key 로 묶인 center 의 channelId 를 가져온다.
         message_end = Message.objects.filter(measdate=phoneGroup.measdate, userInfo1=phoneGroup.userInfo1, status='END')
         if message_end.exists():
             message_end.update(downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, message=message)
         else:
-            Message.objects.create(
-              phone=None, # 측정단말
-              status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
-              measdate=phoneGroup.measdate, # 측정일자
-              sendType='XMCS', # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
-              userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
-              phone_no=None, # 측정단말 전화번호
-              downloadBandwidth=avg_downloadBandwidth, # DL속도
-              uploadBandwidth=avg_uploadBandwidth, # UL속도
-              messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
-              message=message, # 메시지 내용
-              channelId='', # 채널ID
-              sended=False # 전송여부
+            message_end = Message.objects.create(
+                phone=None, # 측정단말
+                status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
+                measdate=phoneGroup.measdate, # 측정일자
+                sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
+                userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+                phone_no=None, # 측정단말 전화번호
+                downloadBandwidth=avg_downloadBandwidth, # DL속도
+                uploadBandwidth=avg_uploadBandwidth, # UL속도
+                messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+                message=message, # 메시지 내용
+                channelId=chatId, # 채널ID
+                sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
             )
-
+        
         # 측정종료 처리가 완료된 단말그룹과 측정단말의 상태를 비활성화 시킨다.
         phoneGroup.active = False # 단말그룹
         phoneGroup.save()
@@ -111,17 +114,16 @@ def measuring_end(phoneGroup):
         # 해당 단말그룹에 대한 측정종료 데이터가 있는지 확인한다.
         md = MeasuringDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
         # 직렬화 대상 필드를 지정한다.
-        fields = ['center_id', 'morphology_id', 'userInfo1', 'networkId', 'dl_count', 'ul_count', 'dl_nr_count',
-                  'ul_nr_count', 'dl_nr_percent', 'ul_nr_percent', 'total_count']
+        fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'networkId', 'downloadBandwidth', 'uploadBandwidth', 
+                'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count', 'dl_nr_percent', 'ul_nr_percent', 'total_count']
         serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
-        print("#######\n", serializer.data)
         if md.exists():
             # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
             md.update(**serializer.data)
         else:
             # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
             MeasuringDayClose.objects.create(phoneGroup=phoneGroup, **serializer.data)
-
+        
     except Exception as e:
         print("측정종료 메시지 및 데이터 저장: ", str(e))
         return HttpResponse("measuring_end() - 측정종료 메시지 및 데이터 저장:" + str(e), status=500)
@@ -154,7 +156,7 @@ def measuring_end(phoneGroup):
 
             # 메시지를 생성한다.
             message_end_last = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
-                        f"{phoneGroup.userInfo1}({phoneGroup.networkId}{phoneGroup.morphology})을 마지막으로 종료 되었습니다." + \
+                        f"{phoneGroup.userInfo1}({phoneGroup.networkId}{phoneGroup.morphology})을 마지막으로 종료 되었습니다.\n" + \
                         f"ㅇ 측정지역({total_count})\n" + \
                         f" - 5G품질({fiveg_count})\n" + "  .\n" + \
                         f" - LTE/3G 취약지역 품질({lte_count + threeg_count})\n" + "  .\n" + \
@@ -166,21 +168,20 @@ def measuring_end(phoneGroup):
             if message_last_exists.exists():
                 message_last_exists.update(userInfo1=phoneGroup.userInfo1, message=message_end_last)
             else:
-                Message.objects.create(
+                message_last_exists = Message.objects.create(
                     phone=None, # 측정단말
                     status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
                     measdate=phoneGroup.measdate, # 측정일자
-                    sendType='XMCS', # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+                    sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
                     userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
                     phone_no=None, # 측정단말 전화번호
                     downloadBandwidth=None, # DL속도
                     uploadBandwidth=None, # UL속도
                     messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
                     message=message_end_last, # 메시지 내용
-                    channelId='', # 채널ID
-                    sended=False # 전송여부
+                    channelId=chatId, # 채널ID
+                    sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
                     )
-
     except Exception as e:
         print("최종 종료 지역 메시지 생성:", str(e))
         return HttpResponse("measuring_end/message_end_last:" + str(e), status=500)
