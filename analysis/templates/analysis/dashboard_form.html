@@ -101,7 +101,7 @@
                             <td>{{phonegroup.uploadBandwidth}}</td>
                             <td>{{phonegroup.nr_percent}}</td>
                             <td>{{phonegroup.event_count}}</td>
-                            <td>{{phonegroup.last_updated}}</td>
+                            <td>{{phonegroup.last_updated_dt|date:"TIME_FORMAT"}}</td>
                             {% if phonegroup.active == 1 %}
                             <td>측정 중</td>
                             {% else %}

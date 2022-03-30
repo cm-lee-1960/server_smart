@@ -39,7 +39,7 @@ def ajax_startdata(toDate_str):
     
     # 측정 그룹을 통해 측정 지역을 가져온다.
     try:
-        qs = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008').order_by('-center_id')#KT데이터만 가져온다.
+        qs = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008',manage=1).order_by('-center_id')#KT데이터만 가져온다.
     except:
         qs = []
         msg = "{} 지역 값이 없습니다. ".format(toDate_str)
@@ -50,8 +50,8 @@ def ajax_startdata(toDate_str):
     
     if len(area_distint) != 0:
         for i in area_distint:
-            area_measuing_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i,active=1, ispId='45008').count()
-            area_end_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i, active=0, ispId='45008').count()
+            area_measuing_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i,active=1, ispId='45008', manage=1).count()
+            area_end_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i, active=0, ispId='45008',manage=1).count()
             result_count = str(area_measuing_count) + '/' + str(area_end_count)
 
             meas_area_name = Center.objects.get(id=i).centerName + "," + Center.objects.get(id=i).centerEngName

@@ -86,11 +86,6 @@ def dashboard(request):
     """홈(Home) 페이지 뷰"""
     if request.user.is_authenticated:
         
-        phnoegroup = PhoneGroup.objects.filter(measdate='20211101', ispId='45008')
-        context = {
-                'phnoegroup' : phnoegroup
-        }
-        
         return render(request, "analysis/dashboard_form.html")
     else:
         return redirect(reverse('accounts:login'))

@@ -73,7 +73,7 @@ class PhoneGroup(models.Model):
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
-    last_updated_dt = models.DateTimeField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간(날짜타입)
+    last_updated_dt = models.DateTimeField(null=True, blank=True, verbose_name="최종보고시간", default="2021-11-01 08:57:54")  # 최종 위치보고시간(날짜타입)
 
     class Meta:
         verbose_name = "단말 그룹"
