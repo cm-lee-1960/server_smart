@@ -63,6 +63,7 @@ class PhoneGroup(models.Model):
     ul_count = models.IntegerField(null=True, default=0, verbose_name="UL콜수")  # 업로드 콜수
     dl_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(DL)
     ul_nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수(UL)
+    total_count = models.IntegerField(null=True, default=0)  # 총 콜수
     dl_nr_percent = models.FloatField(null=True, default=0.0, verbose_name="DL LTE전환율") # DL LTE전환율
     ul_nr_percent = models.FloatField(null=True, default=0.0, verbose_name="UL LTE전환율") # UL LTE전환율
     nr_percent = models.FloatField(null=True, default=0.0, verbose_name="LTE전환율")  # LTE전환율
@@ -321,6 +322,10 @@ class Phone(models.Model):
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
         self.currentCount = mdata.currentCount  # 현재 콜카운트
         self.total_count = self.dl_count + self.ul_count + self.nr_count  # 전체 콜건수
+
+        # 단말그룹 - 총 콜수
+        phoneGroup.total_count = min(phoneGroup.dl_count + phoneGroup.dl_nr_count, \
+                                     phoneGroup.ul_count + phoneGroup.ul_nr_count)
 
         # 단말그룹 - DL LTE전환율, UL LTE전환율, LTE전환율
         if phoneGroup.dl_count > 0:
