@@ -45,7 +45,7 @@ from django.shortcuts import get_list_or_404
 
 #FBV
 def get_listview(request):
-    """함수기반 뷰"""
+    """함수기반 뷰 FBV"""
     if request.method== "POST":
         
         toDate = request.POST['date'].split('-')
