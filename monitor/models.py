@@ -171,7 +171,7 @@ def get_morphology(userInfo2: str) -> Morphology:
 # * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
 #               ┏ ------┓
 #   ┌ ----------┴---┐   | - update_initial_data() : 객체생성시 한번 수행
-#   |     Phone      |<- ┛  * 행정동, 모폴로지, 관할센터, 관리대상 여부
+#   |     Phone     |<- ┛  * 행정동, 모폴로지, 관할센터, 관리대상 여부
 #   |  (측정단말)   ┣-- ┓
 #   ┗ -----------∧--┛   | - update_phone(mdata): 실시간 측정데이터로 측정단말 정보를 업데이트 수행
 #                |      |
