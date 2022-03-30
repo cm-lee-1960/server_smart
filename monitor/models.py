@@ -729,8 +729,8 @@ class MeasuringDayClose(models.Model):
     ul_count = models.IntegerField(null=True, default=0, verbose_name='UL콜카운트')  # 업로드 콜수
     dl_nr_count = models.IntegerField(null=True, default=0, verbose_name='DL NR 콜카운트')  # 5G->NR 전환 콜수
     ul_nr_count = models.IntegerField(null=True, default=0, verbose_name='UL NR 콜카운트')  # 5G->NR 전환 콜수
-    dl_lte_transRate = models.FloatField(null=True, default=0.0, verbose_name='DL LTE전환율')  # 5G->NR 전환 전환율(dl)
-    ul_lte_transRate = models.FloatField(null=True, default=0.0, verbose_name='UL LTE전환율')  # 5G->NR 전환 전환율(ul)
+    dl_nr_percent = models.FloatField(null=True, default=0.0, verbose_name='DL LTE전환율')  # 5G->NR 전환 전환율(dl)
+    ul_nr_percent = models.FloatField(null=True, default=0.0, verbose_name='UL LTE전환율')  # 5G->NR 전환 전환율(ul)
     connect_time = models.FloatField(null=True, default=0.0, verbose_name='접속시간')  # 접속시간
     udpJitter = models.FloatField(null=True, default=0.0, verbose_name='지연시간')  # 지연시간
     total_count = models.IntegerField(null=True, default=0, verbose_name='시도호수')  # 시도호수
