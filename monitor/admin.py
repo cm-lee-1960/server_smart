@@ -99,7 +99,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
                 raise Exception("get_measuring_end_action(): %s" % e)
 
             #결과 메시지를 크로샷 전송 테스트 페이지로 넘긴다. (임시, 중복 종료 처리할 경우 결과 리스트의 첫 번째 메시지를 넘김)
-            return render(request, 'message/xroshot_page.html', {'message' : result_list[0]['message']})
+            return render(request, 'message/xroshot_page.html', {'sendType': 'XMCS', 'message' : result_list[0]['message']})
 
     get_measuring_end_action.short_description = '선택한 측정그룹 종료처리'
 

@@ -89,7 +89,7 @@ class TelegramBot:
 
             # 메시지를 텔레그램으로 전송한다.
             sent_msg = self.bot.sendMessage(channelId, text=self.unicode_truncate(message,self.max_length), parse_mode='HTML')
-            # 전송된 메시지를 데이터베이스에 저장한다.
+            # 전송된 메시지를 데이터베이스에 저장한다.   -- 제거 예정
             SentTelegramMessage.objects.create(
                 chat_id = sent_msg['chat']['id'],
                 chat_type = sent_msg['chat']['type'],
@@ -97,6 +97,7 @@ class TelegramBot:
                 chat_message_id = sent_msg['message_id'],
                 chat_text = sent_msg['text'],
             )
+            return sent_msg
 
         except Exception as e:
             # 에러 코드 및 내용을 반환한다.
