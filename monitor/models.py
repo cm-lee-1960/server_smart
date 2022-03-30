@@ -2,7 +2,7 @@ from operator import itemgetter
 from django.db import models
 from django.db.models.signals import post_save
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
@@ -690,7 +690,9 @@ class Message(models.Model):
     channelId = models.CharField(max_length=25) # 채널ID
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
     sended = models.BooleanField(default=True) # 전송여부
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일시')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='생성일시')
+    sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
+    telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
 
 
 
@@ -713,7 +715,10 @@ def send_message(sender, instance, created, **kwargs):
         bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
         # 1) 텔레그램으로 메시지를 전송한다.
         if instance.sendType == 'TELE' or instance.sendType == 'ALL':
-            bot.send_message_bot(instance.channelId, instance.message)
+            result = bot.send_message_bot(instance.channelId, instance.message)
+            instance.sendTime = result['date'].astimezone(timezone(timedelta(hours=9)))  ## 텔레그램 전송시각 저장
+            instance.telemessageId = result['message_id']  ## 텔레그램 메시지ID 저장
+            instance.save()
 
         # 2) 크로샷으로 메시지를 전송한다.
         if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
