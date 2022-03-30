@@ -36,7 +36,38 @@
 <style>
     .today_count{ color: red; }
     p { margin:20px 0px; }
-    .area_exit{  width:30px; height:30px;  }
+    .area_exit{  width:30px; height:30px; }
+
+    {% comment %} #phoneGroupDetail_header{ width:2000px; display: flex; justify-content: space-between; }
+    #phoneGroupDetail_body{ width:2000px; display: flex; justify-content: space-between; height: 320px; overflow-y: auto; } {% endcomment %}
+    .table thead th{
+        width:125px;
+    }
+    .table tbody td{
+        width:125px;
+    }
+    .table tbody .big_td{
+        width:270px;
+    }
+    .table thead .big_th{
+        width:270px;
+    }
+    .table tbody::-webkit-scrollbar {
+    height:auto;
+    width:5px;
+    }
+    .table tbody::-webkit-scrollbar-track {
+    background-color: transparent;
+    }
+    .table tbody::-webkit-scrollbar-thumb {
+    border-radius: 3px; 
+    background-color: gray;
+    }
+    .table tbody::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    }
+
 </style>
 </head>
 
@@ -68,7 +99,7 @@
             </div>
         </div>   
         {% comment %} <hr> {% endcomment %}
-        <div id="output" style="text-align: center;">
+        <div class="output">
             <table id="toDayWindow" sytle="border-spacing: 5px;">
                 <tbody id='toDayDetail'>
                     <tr id='toDayDetailTr'>
@@ -78,22 +109,22 @@
         </div> 
     </div>
     <!-- 중단 내용 -->
-    <div id = "main_body" class="w-100" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">    
+    <div id = "main_body" class="w-100 fixed-table-container" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">    
         <h6> <b>금일 측정그룹</b> </h6>
-        <div id="output" style="text-align: center;">
-            <table id="groupWindow" class="table table-hover">
-                <thead>
-                    <tr id = 'phoneGroupDetail_header'>
-                    </tr>
+        <div class="fixed-table-body" style="text-align: center;">
+            <table id="groupWindow" class='table' style = "display:block">
+                <thead id = 'phoneGroupDetail_header'>
+                    {% comment %} <tr id = 'phoneGroupDetail_header_tr'>
+                    </tr> {% endcomment %}
                 </thead>
-                <tbody id = 'phoneGroupDetail_body'>
+                <tbody id = 'phoneGroupDetail_body' class="table-hover" style="height:330px; overflow-y:auto; display:block">
                     {% for phonegroup in phnoegroup %}
                         {% if phonegroup.manage == 1 %}
                         <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}'>
                             <td>{{phonegroup.center.centerName}}</td>
                             <td>{{phonegroup.measuringTeam}}</td>
+                            <td class="big_td">{{phonegroup.userInfo1}}</td>
                             <td>{{phonegroup.morphology.morphology}}</td>
-                            <td>{{phonegroup.userInfo1}}</td>
                             <td>{{phonegroup.networkId}}</td>
                             <td>{{phonegroup.dl_count}}</td>
                             <td>{{phonegroup.downloadBandwidth}}</td>
@@ -151,7 +182,7 @@
         </div>
         <div style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">    
             <h6> 금일 측정그룹 </h6>
-            <div id="output" style="text-align: center;">
+            <div style="text-align: center;">
             </div>
         </div>
     </div>
@@ -171,15 +202,22 @@
     
 
     //초기 금일 측정 그룹 TH 셋팅
-    let phSetting = ['센터','조','측정지역','모폴로지','네트워크','DL_콜수','DL_속도','UL_콜수','UL_속도','전환율','이벤트','측정시간','상태','종료'];
+    let phSetting = ['본부','조','측정지역','모폴로지','네트워크','DL콜수','DL속도','UL콜수','UL속도','전환율','이벤트','측정시간','상태','종료'];
     thappend = ""
     $(document).ready(
 
         function PhoneGroupSetting(){ 
             for(let phSetting_name of phSetting){
-                thappend += "<td>"
-                thappend += phSetting_name
-                thappend += "</td>"   
+                if(phSetting_name == "측정지역"){
+                    thappend += '<th scope= "' + 'col" class="big_th">'
+                    thappend += phSetting_name
+                    thappend += "</th>"
+                }
+                else{
+                    thappend += '<th scope= "' + 'col">'
+                    thappend += phSetting_name
+                    thappend += "</th>"
+                }
                 //document.querySelector('#' + meas_area_name_split_2[1] + '_count').innerHTML = meas_area_count
             }
             $('#phoneGroupDetail_header').append(thappend);
@@ -198,7 +236,7 @@
     
     function listdata(){ 
         console.log("여기들어왔따.") 
-        setInterval(interval_listdata,5000); 
+        setInterval(interval_listdata,10000); 
     }
 
     function interval_listdata(){

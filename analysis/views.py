@@ -45,7 +45,7 @@ from django.shortcuts import get_list_or_404
 
 #FBV
 def get_listview(request):
-    """함수기반 뷰 F"""
+    """함수기반 뷰 FBV 그룹데이터 호출 뷰"""
     if request.method== "POST":
         
         toDate = request.POST['date'].split('-')
@@ -66,16 +66,6 @@ def get_startdata(request):
 
         start_dict = ajax_startdata(toDate_str) 
         json_data_call = json.dumps(start_dict)
-        
-    return HttpResponse(json_data_call, content_type="applications/json")
-
-# @csrf_exempt
-def get_phoneGroupData(request):
-    """그룹데이터 호출 뷰"""
-    if request.method== "POST":
-        
-        group_dict = ajax_phoneGroupData() #측정 그룹 데이터 가져온다
-        json_data_call = json.dumps(group_dict)
         
     return HttpResponse(json_data_call, content_type="applications/json")
 
