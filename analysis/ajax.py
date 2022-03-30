@@ -54,7 +54,7 @@ def ajax_startdata(toDate_str):
             area_end_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i, active=0, ispId='45008').count()
             result_count = str(area_measuing_count) + '/' + str(area_end_count)
 
-            meas_area_name = Center.objects.get(id=i).centerName
+            meas_area_name = Center.objects.get(id=i).centerName + "," + Center.objects.get(id=i).centerEngName
             meas_area_count = result_count
             
             meas_area[meas_area_name] = meas_area_count
