@@ -242,7 +242,7 @@ def measuring_day_close(phoneGroup_list, measdate):
             # 5G일 경우 LTE전환율 추가 - 접속시간은 추후 정확한 계산식 확인 후 업데이트
             if phoneGroup.networkId == '5G':
                 message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
-                                  f"  .{md.dl_lte_transRate}/{md.ul_lte_transRate}%,접속시간계산(업데이트예정)/{md.udpJitter}ms"
+                                  f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,접속시간계산(업데이트예정)/{md.udpJitter}ms"
             # LTE일 경우 CA비율 추가 - CA비율은 추후 정확한 계산식 확인 후 업데이트
             elif phoneGroup.networkId == 'LTE':
                 message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
