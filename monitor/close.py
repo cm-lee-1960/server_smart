@@ -7,6 +7,7 @@ from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuringDayClo
 from management.models import Center
 from .serializers import PhoneGroupSerializer
 from message.tele_msg import TelegramBot
+from datetime import datetime
 
 ########################################################################################################################
 # 측정종료 및 측정마감 모듈
@@ -95,8 +96,8 @@ def measuring_end(phoneGroup):
                                                ).aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
 
         # DL/UL 5G->LTE전환율
-        dl_nr_percent = round(phoneGroup.dl_nr_count / phoneGroup.dl_count * 100)
-        ul_nr_percent = round(phoneGroup.ul_nr_count / phoneGroup.ul_count * 100)
+        dl_nr_percent = round((phoneGroup.dl_nr_count / phoneGroup.dl_count * 100), 1)
+        ul_nr_percent = round((phoneGroup.ul_nr_count / phoneGroup.ul_count * 100), 1)
 
         # 총 콜카운트를 가져온다.
         total_count = min(phoneGroup.dl_count, phoneGroup.ul_count)
@@ -117,10 +118,30 @@ def measuring_end(phoneGroup):
             message += f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth} / {avg_uploadBandwidth}"
 
         # 메시지를 저장한다.
-        chatId = phoneGroup.center.channelId  # phonegroup과 foreign-key 로 묶인 center 의 channelId 를 가져온다.
+        try: # phonegroup과 foreign-key 로 묶인 center 의 channelId 를 가져온다.
+            chatId = phoneGroup.center.channelId
+        except Exception as e: # 묶인 center가 없으면 channelId는 None
+            chatId = None
+            print("메시지의 channelId가 없습니다. 센터 정보를 확인해주세요.: ", str(e))
+            raise Exception("measuring_end() - no channelId: %s" % e)
+        
         message_end = Message.objects.filter(measdate=phoneGroup.measdate, userInfo1=phoneGroup.userInfo1, status='END')
         if message_end.exists():
-            message_end.update(downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, message=message)
+            message_end.delete()  # 메시지는 생성될 때에만 전송되기때문에 이전 메시지는 삭제
+            message_end = Message.objects.create(
+                phone=None, # 측정단말
+                status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
+                measdate=phoneGroup.measdate, # 측정일자
+                sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
+                userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+                phone_no=None, # 측정단말 전화번호
+                downloadBandwidth=avg_downloadBandwidth, # DL속도
+                uploadBandwidth=avg_uploadBandwidth, # UL속도
+                messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+                message=message, # 메시지 내용
+                channelId=chatId, # 채널ID
+                sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
+            )
         else:
             message_end = Message.objects.create(
                 phone=None, # 측정단말
@@ -162,7 +183,7 @@ def measuring_end(phoneGroup):
         
     except Exception as e:
         print("측정종료 메시지 및 데이터 저장: ", str(e))
-        return HttpResponse("measuring_end() - 측정종료 메시지 및 데이터 저장:" + str(e), status=500)
+        raise Exception("measuring_end() - 측정종료 메시지 및 데이터 저장: %s" % e)
 
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -202,7 +223,21 @@ def measuring_end(phoneGroup):
             # 마지막 종료 메시지가 존재하면 update, 미존재면 신규생성
             message_last_exists = Message.objects.filter(measdate=phoneGroup.measdate, status='END_LAST')
             if message_last_exists.exists():
-                message_last_exists.update(userInfo1=phoneGroup.userInfo1, message=message_end_last)
+                message_last_exists.delete()  # 메시지는 생성될 때에만 전송되기때문에 이전 메시지는 삭제
+                message_last_exists = Message.objects.create(
+                    phone=None, # 측정단말
+                    status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
+                    measdate=phoneGroup.measdate, # 측정일자
+                    sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
+                    userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+                    phone_no=None, # 측정단말 전화번호
+                    downloadBandwidth=None, # DL속도
+                    uploadBandwidth=None, # UL속도
+                    messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+                    message=message_end_last, # 메시지 내용
+                    channelId=chatId, # 채널ID
+                    sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
+                    )
             else:
                 message_last_exists = Message.objects.create(
                     phone=None, # 측정단말
@@ -220,7 +255,7 @@ def measuring_end(phoneGroup):
                     )
     except Exception as e:
         print("최종 종료 지역 메시지 생성:", str(e))
-        return HttpResponse("measuring_end/message_end_last:" + str(e), status=500)
+        raise Exception("measuring_end/message_end_last: %s" % e)
 
     # 반환값에 대해서는 향후 고민 필요  //  일단 생성된 종료 message 내용 반환
     return_value = {'message': message}
@@ -290,7 +325,7 @@ def measuring_day_close(phoneGroup_list, measdate):
             # 생성한 메시지를 저장한다 : 기존 메시지 있는 경우 Update, 없는 경우 신규 생성
             message_exists = Message.objects.filter(measdate=measdate, status='REPORT', userInfo1=md.userInfo1)
             if message_exists.exists():
-                message_exists.update(downloadBandwidth=md.downloadBandwidth, uploadBandwidth=md.uploadBandwidth, message=message_report)
+                message_exists.update(downloadBandwidth=md.downloadBandwidth, uploadBandwidth=md.uploadBandwidth, message=message_report, updated_at=datetime.now(), sended=False)
             else:
                 Message.objects.create(
                     phone=None,
@@ -309,37 +344,38 @@ def measuring_day_close(phoneGroup_list, measdate):
 
         except Exception as e:
             print("마감 데이터 계산, 일일보고 메시지 생성:", str(e))
-            return HttpResponse("measuring_day_close/data_calculate and message_report:" + str(e), status=500)
+            raise Exception("measuring_day_close/data_calculate and message_report: %s" % e)
 
     # 일일보고용 메시지를 수합하여 하나로 작성한다
     try:
-        message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.\n'
-        messages = Message.objects.filter(status='REPORT', measdate=measdate).values_list('message')
-        for i in range(len(messages)):
-            message_report_all += messages[i][0] + "\n"
+        if Message.objects.filter(status='REPORT', measdate=measdate).count() != 0:
+            message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.\n'
+            messages = Message.objects.filter(status='REPORT', measdate=measdate).values_list('message')
+            for i in range(len(messages)):
+                message_report_all += messages[i][0] + "\n"
 
-        # 메시지를 저장한다.  //  메시지가 이미 존재하면 Update, 없으면 신규 생성
-        message_all_exists = Message.objects.filter(status='REPORT_ALL', measdate=measdate)
-        if message_all_exists.exists():
-            message_all_exists.update(message=message_report_all)
-        else:
-            Message.objects.create(
-                phone=None,
-                status='REPORT_ALL',  # REPORT_ALL : 일일보고용 메시지 전체 수합
-                measdate=measdate,
-                sendType='XMCS',
-                userInfo1=None,
-                phone_no=None,
-                downloadBandwidth=None,
-                uploadBandwidth=None,
-                messageType='SMS',
-                message=message_report_all,
-                channelId='',
-                sended=False
-                )
+            # 메시지를 저장한다.  //  메시지가 이미 존재하면 Update, 없으면 신규 생성
+            message_all_exists = Message.objects.filter(status='REPORT_ALL', measdate=measdate, updated_at=datetime.now())
+            if message_all_exists.exists():
+                message_all_exists.update(message=message_report_all)
+            else:
+                Message.objects.create(
+                    phone=None,
+                    status='REPORT_ALL',  # REPORT_ALL : 일일보고용 메시지 전체 수합
+                    measdate=measdate,
+                    sendType='XMCS',
+                    userInfo1=None,
+                    phone_no=None,
+                    downloadBandwidth=None,
+                    uploadBandwidth=None,
+                    messageType='SMS',
+                    message=message_report_all,
+                    channelId='',
+                    sended=False
+                    )
     except Exception as e:
         print("일일보고 메시지 수합, 생성:", str(e))
-        return HttpResponse("measuring_day_close/message_report_all:" + str(e), status=500)
+        raise Exception("measuring_day_close/message_report_all: %s" % e)
 
     # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
     return_value = {'measdate': measdate, 'message': message_report_all}
