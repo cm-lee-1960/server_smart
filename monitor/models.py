@@ -720,12 +720,12 @@ def send_message(sender, instance, created, **kwargs):
             instance.telemessageId = result['message_id']  ## 텔레그램 메시지ID 저장
             instance.save()
 
-        # 2) 크로샷으로 메시지를 전송한다.
-        if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
-            # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
-            # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
-            # npm install request 명령어로 모듈 설치 후 사용 가능
-            send_sms()
+        # # 2) 크로샷으로 메시지를 전송한다.
+        # if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
+        #     # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
+        #     # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
+        #     # npm install request 명령어로 모듈 설치 후 사용 가능
+        #     send_sms()
     else:
         # 메시지가 업데이트 되었을 때는 아무런 처리를 하지 않는다.
         pass
