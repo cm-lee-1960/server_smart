@@ -228,17 +228,17 @@ class Phone(models.Model):
                              verbose_name="통신사")  # 한국:450 / KT:08, SKT:05, LGU+:60
     downloadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="DL")
     uploadBandwidth = models.FloatField(null=True, default=0.0, verbose_name="UL")
-    dl_count = models.IntegerField(null=True, default=0)  # 다운로드 콜수
-    ul_count = models.IntegerField(null=True, default=0)  # 업로드 콜수
-    nr_count = models.IntegerField(null=True, default=0)  # 5G->NR 전환 콜수
+    dl_count = models.IntegerField(null=True, default=0, verbose_name="DL콜수")  # 다운로드 콜수
+    ul_count = models.IntegerField(null=True, default=0, verbose_name="UL콜수")  # 업로드 콜수
+    nr_count = models.IntegerField(null=True, default=0, verbose_name="LTE전환콜수")  # 5G->NR 전환 콜수
     status = models.CharField(max_length=10, null=True, choices=STATUS_CHOICES, verbose_name="진행단계")
-    currentCount = models.IntegerField(null=True, blank=True)
+    currentCount = models.IntegerField(null=True, blank=True, verbose_name="현재 콜카운트")
     total_count = models.IntegerField(null=True, default=0, verbose_name="콜 카운트")
-    siDo = models.CharField(max_length=100, null=True, blank=True)  # 시도
-    guGun = models.CharField(max_length=100, null=True, blank=True)  # 구,군
-    addressDetail = models.CharField(max_length=100, null=True, blank=True)  # 주소상세
-    latitude = models.FloatField(null=True, blank=True)  # 위도
-    longitude = models.FloatField(null=True, blank=True)  # 경도
+    siDo = models.CharField(max_length=100, null=True, blank=True, verbose_name="시,도")  # 시도
+    guGun = models.CharField(max_length=100, null=True, blank=True, verbose_name="군,구")  # 구,군
+    addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="상세주소")  # 주소상세
+    latitude = models.FloatField(null=True, blank=True, verbose_name="위도")  # 위도
+    longitude = models.FloatField(null=True, blank=True, verbose_name="경도")  # 경도
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
     center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="센터")
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
@@ -625,10 +625,26 @@ class MeasureSecondData(models.Model):
 
 ########################################################################################################################
 # 전송 메시지 클래스
+#               ModelSignal
+#               ┏ ------┓
+#   ┌ ----------┴---┐   | post_save ------> send_message(sender, instance, created, **kwargs)
+#   |    Message    |<- ┛ (SIGNAL)              |
+#   | (전송메시지)  |                           | TELE,ALL  ┌ --------------┐
+#   ┗ --------------┛                           ┣---------->|  TelegramBot  |
+#                                               |           ┗ --------------┛
+#                                                           - send_message_bot()          Node.js
+#                                               | XMCS,ALL  ┌ -----------------┐          ┌ -----------------┐
+#                                               ┗ --------->| message.xmcs_msg |--------->| sms_api.js       |
+#                                                           |                  |          | sms_broadcast.js |
+#                                                           ┗ -----------------┛          ┗ -----------------┛
+#                                                           - send_sms()
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 의존성으로 마이그레이트 및 롤백 시 오류가 자주 발생하여 모니터 앱으로 옮겨 왔음
 # 2022.02.27 - 메시지 유형을 메시지(SMS)와 이벤트(EVENT)로 구분할 수 있도록 항목 추가
 # 2022.03.27 - 메시지가 생성되었을 때만 처리하도록 코드를 수정함(created=True)
+# 2022.03.29 - 전송 메시지 모델에 대한 흐름도 및 주석 추가
+#            - 전송유형(sendType) 추가
+#              . TELE: 텔레그램, XMCS: 크로샷, ALL: 텔레그램과 크로샷 모두 전송
 #
 ########################################################################################################################
 class Message(models.Model):
@@ -636,7 +652,7 @@ class Message(models.Model):
     phone = models.ForeignKey(Phone, null=True, on_delete=models.DO_NOTHING)
     status = models.CharField(max_length=10, null=True)  # 메시지 전송시 측정단말의 상태
     measdate = models.CharField(max_length=10) # 측정일자(예: 20211101)
-    sendType = models.CharField(max_length=10)  # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+    sendType = models.CharField(max_length=10)  # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 텔레그램, 크로샷 모두 전송)
     #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정) ###########
     userInfo1 = models.CharField(max_length=100, null=True, blank=True) # 측정자 입력값1
     currentCount = models.IntegerField(null=True, blank=True) # 현재 콜카운트
@@ -650,6 +666,9 @@ class Message(models.Model):
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
     sended = models.BooleanField(default=True) # 전송여부
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일시')
+
+
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 전송하는 함수
@@ -667,11 +686,12 @@ def send_message(sender, instance, created, **kwargs):
     # 메시지가 생성되었을 때만 처리한다.
     if created:
         bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
-        # 텔레그램으로 메시지를 전송한다.
-        if instance.sendType == 'TELE':
+        # 1) 텔레그램으로 메시지를 전송한다.
+        if instance.sendType == 'TELE' or instance.sendType == 'ALL':
             bot.send_message_bot(instance.channelId, instance.message)
-        # 크로샷으로 메시지를 전송한다.
-        elif instance.sendType == 'XMCS':
+
+        # 2) 크로샷으로 메시지를 전송한다.
+        if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
             # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
             # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
             # npm install request 명령어로 모듈 설치 후 사용 가능
@@ -682,7 +702,7 @@ def send_message(sender, instance, created, **kwargs):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# 전송 메시지가 저장된 후 메시지 전송 모듈을 호출한다(SIGNAL). 
+# 전송 메시지가 저장된 후 메시지 전송 모듈을 호출한다(SIGNAL).
 # ----------------------------------------------------------------------------------------------------------------------
 post_save.connect(send_message, sender=Message)
 

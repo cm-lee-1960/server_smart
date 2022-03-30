@@ -41,12 +41,9 @@ from django.shortcuts import get_list_or_404
 # -------------------------------------------------------------------------------------------------
 # 홈(Home) 페이지
 # -------------------------------------------------------------------------------------------------
-#@csrf_exempt 
-# class Grouplist(ListView):
-#     model = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008')
+
 
 #FBV
-
 def get_listview(request):
     """함수기반 뷰"""
     if request.method== "POST":
@@ -72,32 +69,6 @@ def get_listview(request):
         #     result = qs_dump.union(qs3, all=False)
             
         #     phonegroup.append(result)
-        
-   
-
-
-#CBV
-# class PhoneGroupForm(ListView):   
-#     def get_listview(request):
-#         if request.method== "POST":
-            
-#             global toDate_str
-#             toDate = request.POST['date'].split('-')
-#             toDate_str = "".join(toDate)
-
-#     context = []
-#     qs = get_list_or_404(PhoneGroup, measdate=toDate_str, ispId='45008')
-    
-#     for q in qs:
-#         qs1 = q.objects.annotate(center_name=Value(Center.objects.get(id=q.center_id).centerName), output_field = CharField())
-#         qs2 = q.objects.annotate(center_eng=Value(Center.objects.get(id=q.center_id).centerEngName), output_field = CharField())
-#         qs3 = q.objects.annotate(morpol_name=Value(Morphology.objects.get(id=q.morphology_id).morphology), output_field = CharField())
-
-#         qs_dump = qs1.union(qs2, all=False)
-#         result = qs_dump.union(qs3, all=False)
-        
-#         context.append(result)
-    
     
 def get_startdata(request):
     """초기 데이터 호출 view 날짜를 전달받는다"""
@@ -111,7 +82,7 @@ def get_startdata(request):
         
     return HttpResponse(json_data_call, content_type="applications/json")
 
-#@csrf_exempt 
+# @csrf_exempt
 def get_phoneGroupData(request):
     """그룹데이터 호출 뷰"""
     if request.method== "POST":

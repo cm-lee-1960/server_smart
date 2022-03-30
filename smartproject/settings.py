@@ -48,6 +48,9 @@ SECRET_KEY = get_secret("SECRET_KEY")
 BOT_TOKEN = get_secret("BOT_TOKEN")
 CHANNEL_ID = get_secret("CHANNEL_ID")
 KAKAO_REST_API_KEY = get_secret("KAKAO_REST_API_KEY")
+# Telethon(채팅방 유저 업데이트) 호출을 위한 API ID/HASH 값을 찾아 온다.
+TELEGRAM_API_ID = get_secret("TELEGRAM_API_ID")
+TELEGRAM_API_HASH = get_secret("TELEGRAM_API_HASH")
 ################################################################
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -59,14 +62,17 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    # django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # third apps
     'django_extensions',
-    # 'django_crontab',
+    'rest_framework',
+    # local apps
     'monitor',
     'analysis',
     'message',
@@ -169,7 +175,7 @@ USE_TZ = False #장고 시간대
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'smartproject', 'static')
@@ -179,7 +185,7 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 # Default primary key field type
@@ -256,6 +262,7 @@ MANAGEMENT_MODELS_ORDERING = {
     "모풀로지": 6,
     "센터정보": 7,
     "센터별 관할구역": 8,
+    "채팅방 멤버 리스트": 9,
 }
 
 LOGIN_REDIRECT_URL = 'http://localhost:8000/'
