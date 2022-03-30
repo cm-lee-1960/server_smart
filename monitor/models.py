@@ -2,6 +2,8 @@ from operator import itemgetter
 from django.db import models
 from django.db.models.signals import post_save
 from django.conf import settings
+from datetime import datetime
+
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
 from message.xmcs_msg import send_sms  # 2022.03.04 크로샷 메시지 전송 함수 호출
@@ -71,6 +73,7 @@ class PhoneGroup(models.Model):
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
+    last_updated_dt = models.DateTimeField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간(날짜타입)
 
     class Meta:
         verbose_name = "단말 그룹"
@@ -168,7 +171,7 @@ def get_morphology(userInfo2: str) -> Morphology:
 # * 측정이 종료되면 해당 측정 단말기 정보를 삭제한다. (Active or Inactive 관리도 가능)
 #               ┏ ------┓
 #   ┌ ----------┴---┐   | - update_initial_data() : 객체생성시 한번 수행
-#   |     Phone      |<- ┛  * 행정동, 모폴로지, 관할센터, 관리대상 여부
+#   |     Phone     |<- ┛  * 행정동, 모폴로지, 관할센터, 관리대상 여부
 #   |  (측정단말)   ┣-- ┓
 #   ┗ -----------∧--┛   | - update_phone(mdata): 실시간 측정데이터로 측정단말 정보를 업데이트 수행
 #                |      |
@@ -347,6 +350,21 @@ class Phone(models.Model):
         # 최종 위치보고시간을 업데이트 한다.
         self.last_updated = mdata.meastime
         phoneGroup.last_updated = mdata.meastime
+
+        # 단말그룹의 최종 위치보고시간(날짜형식)을 업데이트 한다.
+        try:
+            meastime_s = str(mdata.meastime)
+            year = meastime_s[0:4] # 년도
+            month = meastime_s[4:6] # 월
+            day = meastime_s[6:8] # 일
+            hour = meastime_s[8:10] # 시간
+            minute = meastime_s[10:12] # 분
+            second = meastime_s[12:14] # 초
+            datetime_s = f"{year}-{month}-{day} {hour}:{minute}:{second}"
+            phoneGroup.last_updated_dt = datetime.strptime(datetime_s, "%Y-%m-%d %H:%M:%S")
+        except Exception as e:
+            print("update_phone():", str(e))
+            raise Exception("update_phone(): %s" % e)
 
         # 측정단말, 단말그룹 정보를 데이터베이스에 저장한다.
         self.save() # 측정단말
@@ -729,8 +747,8 @@ class MeasuringDayClose(models.Model):
     ul_count = models.IntegerField(null=True, default=0, verbose_name='UL콜카운트')  # 업로드 콜수
     dl_nr_count = models.IntegerField(null=True, default=0, verbose_name='DL NR 콜카운트')  # 5G->NR 전환 콜수
     ul_nr_count = models.IntegerField(null=True, default=0, verbose_name='UL NR 콜카운트')  # 5G->NR 전환 콜수
-    dl_lte_transRate = models.FloatField(null=True, default=0.0, verbose_name='DL LTE전환율')  # 5G->NR 전환 전환율(dl)
-    ul_lte_transRate = models.FloatField(null=True, default=0.0, verbose_name='UL LTE전환율')  # 5G->NR 전환 전환율(ul)
+    dl_nr_percent = models.FloatField(null=True, default=0.0, verbose_name='DL LTE전환율')  # 5G->NR 전환 전환율(dl)
+    ul_nr_percent = models.FloatField(null=True, default=0.0, verbose_name='UL LTE전환율')  # 5G->NR 전환 전환율(ul)
     connect_time = models.FloatField(null=True, default=0.0, verbose_name='접속시간')  # 접속시간
     udpJitter = models.FloatField(null=True, default=0.0, verbose_name='지연시간')  # 지연시간
     total_count = models.IntegerField(null=True, default=0, verbose_name='시도호수')  # 시도호수

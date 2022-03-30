@@ -1,8 +1,9 @@
 from django.conf import settings
-from haversine import haversine # 이동거리
+from haversine import haversine  # 이동거리
 from management.models import SendFailure, LowThroughput
 from .geo import KakaoLocalAPI, make_map_locations
 from .models import MeasureCallData, Phone, Message
+
 
 ########################################################################################################################
 # 이벤트 발생여부를 체크하는 모듈
@@ -25,6 +26,7 @@ from .models import MeasureCallData, Phone, Message
 # 2022.03.15 - 여러개의 이벤트 발생시 하나의 메시지로 통합해서 보내기
 #            - 두 개의 단말이 중복측정하고 있는지 확인하는 이벤트 모듈 추가
 # 2022.03.28 - 단말그룹의 이벤트발생 건수를 업데이트 하는 코드를 추가함
+# 2022.03.30 - 전송실패 이벤트 발생시 시 속도저하 이벤트를 체크하지 않음
 #
 ########################################################################################################################
 def event_occur_check(mdata: MeasureCallData):
@@ -47,9 +49,10 @@ def event_occur_check(mdata: MeasureCallData):
     if message and message is not None: events_list.append(message)
 
     # 2)속도저하(low throughput)
-    message = low_throughput_check(mdata)
-    if message and message is not None: events_list.append(message)
-    
+    if '전송실패' not in events_list:
+        message = low_throughput_check(mdata)
+        if message and message is not None: events_list.append(message)
+
     # 3)음성 콜 드랍
     message = voice_call_drop_check(mdata)
     if message and message is not None: events_list.append(message)
@@ -89,15 +92,15 @@ def send_failure_check(mdata: MeasureCallData) -> str:
         - 반환값: '전송실패' or None
     """
     message = None
-    try: 
+    try:
         if mdata.phone.morphology.morphology and mdata.phone.morphology.morphology == '취약지역':
-            areaInd = 'WEEK' # 취약지역
+            areaInd = 'WEEK'  # 취약지역
         else:
-            areaInd = 'NORM' # 보통지역
+            areaInd = 'NORM'  # 보통지역
         networkId = mdata.phone.networkId
         dataType = ''
         if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
-        if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType, bandwidth = 'UL', mdata.uploadBandwidth
+        if mdata.uploadBandwidth and mdata.uploadBandwidth > 0: dataType, bandwidth = 'UL', mdata.uploadBandwidth
         if dataType in ('DL', 'UL'):
 
             qs = SendFailure.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
@@ -113,14 +116,15 @@ def send_failure_check(mdata: MeasureCallData) -> str:
 
     except Exception as e:
         print("send_failure_check():", str(e))
-        raise Exception("send_failure_check(): %s" % e) 
-    
+        raise Exception("send_failure_check(): %s" % e)
+
     return message
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 속도저하(Low Throughput) 발생여부 확인
 # 2022.02.24 - 속도저하 기준 별도 테이블 관리 필요 -- LowThroughput
-# 2022.03.03 - 속도저하 기준 테이블(모델) 생성 및 체크 모듈 작성 
+# 2022.03.03 - 속도저하 기준 테이블(모델) 생성 및 체크 모듈 작성
 # ----------------------------------------------------------------------------------------------------------------------
 def low_throughput_check(mdata: MeasureCallData) -> str:
     """속도저하(Low Throughput) 발생여부 확인
@@ -132,16 +136,16 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
     message = None
     try:
         if mdata.phone.morphology.morphology and mdata.phone.morphology.morphology == '취약지역':
-            areaInd = 'WEEK' # 취약지역
+            areaInd = 'WEEK'  # 취약지역
         else:
-            areaInd = 'NORM' # 보통지역
+            areaInd = 'NORM'  # 보통지역
         networkId = mdata.phone.networkId
         # 해당 측정 데이터가 DL인지, UL인지 확인한다.
         dataType = ''
         if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
-        if mdata.uploadBandwidth and mdata.uploadBandwidth > 0 : dataType, bandwidth = 'UL', mdata.uploadBandwidth
+        if mdata.uploadBandwidth and mdata.uploadBandwidth > 0: dataType, bandwidth = 'UL', mdata.uploadBandwidth
         if dataType in ('DL', 'UL'):
-     
+
             # 데이터베이스에서 속도저하 판단 기준을 조회한다.
             qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
@@ -156,9 +160,10 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
 
     except Exception as e:
         print("low_throughput_check():", str(e))
-        raise Exception("low_throughput_check(): %s" % e) 
+        raise Exception("low_throughput_check(): %s" % e)
 
     return message
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 음성 콜 드랍 발생여부 확인
@@ -175,6 +180,7 @@ def voice_call_drop_check(mdata: MeasureCallData) -> str:
     # message = "음성 콜 드랍이 발생했습니다."
 
     return message
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 5G에서 LTE료 전환여부 확인
@@ -193,16 +199,17 @@ def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
         # message = f"{mdata.get_address()}에서 5G->LTE로 전환되었습니다.\n" + \
         #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
         #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-        #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+        #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
         message = 'LTE전환'
 
     return message
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말이 측정범위를 벗어났는지 확인
-# 2022.02.21 - 측정유형(userinfo2)이 행정동("행-")인 경우만 처리하는 것이 맞지 않나? 
+# 2022.02.21 - 측정유형(userinfo2)이 행정동("행-")인 경우만 처리하는 것이 맞지 않나?
 #            - 행정동: 도로주행 측정, 테마: 놀이공원 등 걸어서 측정, 인빌딩: 건물내 걸어서 측정
-# 2022.02.27 - 측정 단말기 상세주소(addressDetail) 항목에서 행정동을 비교한다. 
+# 2022.02.27 - 측정 단말기 상세주소(addressDetail) 항목에서 행정동을 비교한다.
 #            - 측정 데이터의 경우 위도,경도에 따른 상세주소가 잘못되어 있는 데이터가 있음 (측정 단말기에 처음 상세주소 가져감)
 #            - 측정 단말기에 있는 상세주소와 해당 측정 데이터의 위도,경도로 행정동을 찾아서 비고하도록 소스코드 수정함
 # 2022.02.27 - 행정동을 측정하는데, 여러 개의 동을 걸쳐서 측정하는 경우가 있음 <= 데이터 검증 필요
@@ -220,16 +227,16 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
     """
     message = None
     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
-    if mdata.phone.morphology.morphology != '행정동' : return None
-    if not (mdata.longitude and mdata.latitude) : return None
+    if mdata.phone.morphology.morphology != '행정동': return None
+    if not (mdata.longitude and mdata.latitude): return None
 
     # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
     rest_api_key = settings.KAKAO_REST_API_KEY
     kakao = KakaoLocalAPI(rest_api_key)
-    input_coord = "WGS84" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
-    output_coord = "TM" # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+    input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+    output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
-    result = kakao.geo_coord2regioncode(mdata.longitude,mdata.latitude, input_coord, output_coord)
+    result = kakao.geo_coord2regioncode(mdata.longitude, mdata.latitude, input_coord, output_coord)
     # [ 리턴값 형식 ]
     # print("out_measuring_range():", result)
     # {'meta': {'total_count': 2},
@@ -256,25 +263,26 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
     # 2022.02.28 - 단말기가 처음 측정을 시작할 때(현재 콜카운트가=1) 위치(위도,경도)가 정확하다고 가정하고 그때이 상세주소 값을
     #              측정 단말기 정보에 가져간다.
     #            - 측정 단말기의 상세주소와 해당 측정 데이터의 위도,경도를 통해 찾은 행정도 명칭과 비교한다.
-    try: 
+    try:
         region_3depth_name = result['documents'][1]['region_3depth_name']
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
             # # 메시지를 작성한다.
             # message = f"{mdata.get_address()}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
             #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
             #         f"{mdata.get_phone_no_sht()} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.get_time()} / {mdata.currentCount} / " + \
-            #         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            #         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
             message = f'측정범위 벗어남({region_3depth_name})'
 
     except Exception as e:
         print("out_measuring_range():", str(e))
-        raise Exception("out_measuring_range(): %s" % e) 
+        raise Exception("out_measuring_range(): %s" % e)
 
     return message
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정단말이 한곳에 머무는지 확인
-# 2022.02.22 - 처리대상 데이터를 속도측정 데이터('speed')에 한정하여 처리한다.  
+# 2022.02.22 - 처리대상 데이터를 속도측정 데이터('speed')에 한정하여 처리한다.
 #            - 행정동 측정일때만 체크한다. (예: 테마의 경우 위도,경도가 동일한 경우가 다수 발생함)
 #            - 행정동: 도로주행 측정, 테마: 놀이공원 등 걸어서 측정, 인빌딩: 건물내 걸어서 측정
 # 2022.02.27 - 기존 이동거리 5미터 이상, 연속해서 3회 초과 -> 이동거리 10미터 이상, 연속해서 5회 초과 발생으로 기준 변경
@@ -306,18 +314,18 @@ def call_staying_check(mdata: MeasureCallData) -> str:
                 if idx == 0:
                     before_loc = (md.latitude, md.longitude)
                 else:
-                    # 두 측정저점간의 이동거리를 계산한다. 
+                    # 두 측정저점간의 이동거리를 계산한다.
                     current_loc = (md.latitude, md.longitude)
-                    distance = haversine(before_loc, current_loc) * 1000 # 미터(meters)
+                    distance = haversine(before_loc, current_loc) * 1000  # 미터(meters)
                     # print("call_staying_check():", idx, str(md), distance, before_loc, current_loc)
                     # 측정 단말기 이동거리가 10M 이상이 되면 한곳에 머무르지 않고, 이동하는 것으로 판단한다.
-                    result += str(before_loc)+ '/' + str(current_loc) + '/' + str(distance) + ',\n'
+                    result += str(before_loc) + '/' + str(current_loc) + '/' + str(distance) + ',\n'
                     # if distance > 500 : <= 2022.03.01 테스트 시 사용
-                    if distance > 10 :
+                    if distance > 10:
                         callstay = False
                         break
                     before_loc = current_loc
-                if idx >= 6 : break
+                if idx >= 6: break
         else:
             callstay = False
 
@@ -326,10 +334,11 @@ def call_staying_check(mdata: MeasureCallData) -> str:
             # message = f"{mdata.get_address()}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
             #            "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
             #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-            #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
             message = '측정단말 한곳에 머뭄'
 
     return message
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 중복측정이 발생했는지 확인
@@ -356,7 +365,7 @@ def duplicated_measuring(mdata: MeasureCallData) -> str:
         qs = Phone.objects.filter(phoneGroup=mdata.phone.phoneGroup, meastype='UL')
         if qs.exists() and qs.count() > 1:
             duplicated = True
-        
+
         if duplicated:
             # # 메시지 내용을 작성한다.
             # message = f"{mdata.get_address()}에서 중복측정({mdata.phone.meastype})을 하고 있습니다.\n" + \
@@ -390,10 +399,10 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
 
     # 메시지를 작성한다.
     message = f"{mdata.get_address()}에서 측정단말에 이벤트가 발생했습니다.\n" + \
-            f"* 발생 이벤트({len(events_list)}건): {', '.join(events_list)}\n" + \
-            "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-            f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-            f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+              f"* 발생 이벤트({len(events_list)}건): {', '.join(events_list)}\n" + \
+              "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+              f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
+              f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
 
     # 2022.03.17 - 보안이슈로 지도맵 제공기능 취소함
     # message += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
@@ -402,19 +411,19 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
     if message:
         # 전송 메시지를 생성한다. 
         Message.objects.create(
-            phone=mdata.phone, # 측정 단말기
-            status=mdata.phone.status, # 측정단말 상태
-            measdate=str(mdata.meastime)[0:8], # 측정일자
-            sendType = 'TELE', # 메시지 전송유형(TELE: 텔레그램, XMCS: 크로샷)
-            userInfo1=mdata.userInfo1, # 측정자 입력값1
-            currentCount=mdata.currentCount, # 현재 콜카운트
-            phone_no=mdata.phone_no, # 측정단말 전화번호
-            downloadBandwidth=mdata.downloadBandwidth, # DL 속도
-            uploadBandwidth=mdata.uploadBandwidth, # UL 속도
-            messageType='EVENT', # 메시지 유형(SMS: 단문메시지, EVENT: 이벤트발생 메시지)
-            message = message, # 메시지 내용
-            channelId = channelId, # 채널ID
-            sended=True # 전송여부
+            phone=mdata.phone,  # 측정 단말기
+            status=mdata.phone.status,  # 측정단말 상태
+            measdate=str(mdata.meastime)[0:8],  # 측정일자
+            sendType='TELE',  # 메시지 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+            userInfo1=mdata.userInfo1,  # 측정자 입력값1
+            currentCount=mdata.currentCount,  # 현재 콜카운트
+            phone_no=mdata.phone_no,  # 측정단말 전화번호
+            downloadBandwidth=mdata.downloadBandwidth,  # DL 속도
+            uploadBandwidth=mdata.uploadBandwidth,  # UL 속도
+            messageType='EVENT',  # 메시지 유형(SMS: 단문메시지, EVENT: 이벤트발생 메시지)
+            message=message,  # 메시지 내용
+            channelId=channelId,  # 채널ID
+            sended=True  # 전송여부
         )
 
         # 단말그룹의 이벤트 발생건수를 하나 증가시킨다.
