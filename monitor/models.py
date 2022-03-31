@@ -32,6 +32,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # 2022.03.19 - 관할센터(Center) 외래키 항목 추가
 # 2022.03.22 - 단말그룹에 관리대상 여부 항목 추가
 # 2022.03.28 - 단말그룹에 DL평균속도, UL평균속도, DL LTE전환율, UL LTE전환율, LTE 전환율, 이벤트발생건수 항목 추가
+# 2022.03.31 - 콜수 관련 add_xxx() 함수 모두 삭제 (비효율적 코드)
 #
 ########################################################################################################################
 class PhoneGroup(models.Model):
@@ -115,26 +116,27 @@ class PhoneGroup(models.Model):
         self.dl_count += 1
         self.save()
 
-    # 업로드(UL) 콜카운트를 하나 증가시킨다.
-    def add_ul_count(self):
-        """UL 콜카운트를 증가시킨다."""
-        self.ul_count += 1
-        self.save()
-
-    # 다운로드(DL) LTE전환 콜카운트를 하나 증가시킨다.
-    def add_dl_nr_count(self):
-        """LTE전환 DL 콜카운트를 증가시킨다."""
-        self.dl_nr_count += 1
-        self.save()
-
-    # 다운로드(UL) LTE전환 콜카운트를 하나 증가시킨다.
-    def add_ul_nr_count(self):
-        """LTE전환 UL 콜카운트를 증가시킨다."""
-        self.ul_nr_count += 1
-        self.save()
+    # # 업로드(UL) 콜카운트를 하나 증가시킨다.
+    # def add_ul_count(self):
+    #     """UL 콜카운트를 증가시킨다."""
+    #     self.ul_count += 1
+    #     self.save()
+    #
+    # # 다운로드(DL) LTE전환 콜카운트를 하나 증가시킨다.
+    # def add_dl_nr_count(self):
+    #     """LTE전환 DL 콜카운트를 증가시킨다."""
+    #     self.dl_nr_count += 1
+    #     self.save()
+    #
+    # # 다운로드(UL) LTE전환 콜카운트를 하나 증가시킨다.
+    # def add_ul_nr_count(self):
+    #     """LTE전환 UL 콜카운트를 증가시킨다."""
+    #     self.ul_nr_count += 1
+    #     self.save()
 
     # 측정조를 반환한다.
-    def get_measuringTeam(self):
+    @property
+    def p_measuringTeam(self):
         """측정조를 반환한다."""
         return self.measuringTeam if self.measuringTeam is not None else ''
 
@@ -259,7 +261,8 @@ class Phone(models.Model):
         return f"{self.userInfo1}/{self.userInfo2}/{self.phone_no}/{self.total_count}"
 
     # 전화번호 뒤에서 4자리를 반환한다.
-    def get_phone_no_sht(self):
+    @property
+    def phone_no_sht(self):
         """전화번호 끝 4자리를 반환한다."""
         return str(self.phone_no)[-4:]
 
@@ -710,7 +713,7 @@ class Message(models.Model):
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
     sended = models.BooleanField(default=True) # 전송여부
     updated_at = models.DateTimeField(auto_now=True, verbose_name='생성일시')
-    sendTime = models.DateTimeField(null=True, blank=True, verbose_name='보낸시간')
+    sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
 
 
@@ -733,7 +736,7 @@ def send_message(sender, instance, created, **kwargs):
         # 1) 텔레그램으로 메시지를 전송한다.
         if instance.sendType == 'TELE' or instance.sendType == 'ALL':
             result = bot.send_message_bot(instance.channelId, instance.message)
-            instance.sendTime = datetime.now()  ## 텔레그램 전송시각 저장
+            instance.sendTime = result['date'].astimezone(timezone(timedelta(hours=9)))  ## 텔레그램 전송시각 저장
             instance.telemessageId = result['message_id']  ## 텔레그램 메시지ID 저장
             instance.save()
 
