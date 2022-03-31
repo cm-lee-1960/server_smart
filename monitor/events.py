@@ -107,10 +107,10 @@ def send_failure_check(mdata: MeasureCallData) -> str:
             if qs.exists():
                 if bandwidth < qs[0].bandwidth:
                     # # 메시지 내용을 작성한다.
-                    # message = f"{mdata.get_address()}에서 전송실패가 발생하였습니다.\n" + \
+                    # message = f"{mdata.address}에서 전송실패가 발생하였습니다.\n" + \
                     #         "(단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
-                    #         f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / {mdata.get_pci} / {mdata.cellId} / " + \
-                    #         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+                    #         f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / {mdata.get_pci} / {mdata.cellId} / " + \
+                    #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
                     message = '전송실패'
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
@@ -151,10 +151,10 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
             if qs.exists():
                 if bandwidth < qs[0].bandwidth:
                     # # 메시지 내용을 작성한다.
-                    # message = f"{mdata.get_address()}에서 속도저하가 발생했습니다.\n" + \
+                    # message = f"{mdata.address}에서 속도저하가 발생했습니다.\n" + \
                     #         "(시간/단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
-                    #         f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / {mdata.get_pci()} / {mdata.cellId} / " + \
-                    #         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+                    #         f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / {mdata.get_pci()} / {mdata.cellId} / " + \
+                    #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
                     message = '속도저하'
                     # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
@@ -196,10 +196,10 @@ def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
     # 2022.02.21 - 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
     # 2022.02.27 - 메시지 내용을 작성한다.
     if mdata.phone.networkId == '5G' and mdata.networkId == 'NR':
-        # message = f"{mdata.get_address()}에서 5G->LTE로 전환되었습니다.\n" + \
+        # message = f"{mdata.address}에서 5G->LTE로 전환되었습니다.\n" + \
         #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-        #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-        #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+        #             f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \
+        #             f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
         message = 'LTE전환'
 
     return message
@@ -267,10 +267,10 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
         region_3depth_name = result['documents'][1]['region_3depth_name']
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
             # # 메시지를 작성한다.
-            # message = f"{mdata.get_address()}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
+            # message = f"{mdata.address}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
             #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-            #         f"{mdata.get_phone_no_sht()} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.get_time()} / {mdata.currentCount} / " + \
-            #         f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+            #         f"{mdata.phone_no_sht} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.time} / {mdata.currentCount} / " + \
+            #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
             message = f'측정범위 벗어남({region_3depth_name})'
 
     except Exception as e:
@@ -331,10 +331,10 @@ def call_staying_check(mdata: MeasureCallData) -> str:
 
         if callstay:
             # # 메시지 내용을 작성한다.
-            # message = f"{mdata.get_address()}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
+            # message = f"{mdata.address}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
             #            "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-            #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-            #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+            #             f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \
+            #             f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
             message = '측정단말 한곳에 머뭄'
 
     return message
@@ -368,10 +368,10 @@ def duplicated_measuring(mdata: MeasureCallData) -> str:
 
         if duplicated:
             # # 메시지 내용을 작성한다.
-            # message = f"{mdata.get_address()}에서 중복측정({mdata.phone.meastype})을 하고 있습니다.\n" + \
+            # message = f"{mdata.address}에서 중복측정({mdata.phone.meastype})을 하고 있습니다.\n" + \
             #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-            #             f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-            #             f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}" 
+            #             f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \
+            #             f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
             message = '중복측정'
     return message
 
@@ -398,11 +398,11 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
     # filename = make_map_locations(mdata)
 
     # 메시지를 작성한다.
-    message = f"{mdata.get_address()}에서 측정단말에 이벤트가 발생했습니다.\n" + \
+    message = f"{mdata.address}에서 측정단말에 이벤트가 발생했습니다.\n" + \
               f"* 발생 이벤트({len(events_list)}건): {', '.join(events_list)}\n" + \
               "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
-              f"{mdata.get_phone_no_sht()} / {mdata.get_time()} / {mdata.currentCount} / " + \
-              f"{mdata.get_dl()} / {mdata.get_ul()} / {mdata.get_rsrp()} / {mdata.get_sinr()}"
+              f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \
+              f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
 
     # 2022.03.17 - 보안이슈로 지도맵 제공기능 취소함
     # message += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"

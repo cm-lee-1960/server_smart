@@ -446,6 +446,8 @@ class Phone(models.Model):
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.10 - 다른 항목 조건을 고려하거나 연산을 해서 가져오는 속성값을 가져오기 위한 함수들 정의(get)
 # 2022.03.15 - 주소 반환시 시/도와 구/군이 동일한 경우 한번만 주소값에 반환하도록 수정함
+# 2022.03.31 - get_xxx() 함수 -> Property Decorator(@property)로 변경
+#
 ########################################################################################################################
 class MeasureCallData(models.Model):
     """실시간 측정 데이터(콜 단위) 정보"""
@@ -488,12 +490,14 @@ class MeasureCallData(models.Model):
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
 
     # 전화번호 뒤에서 4자리를 반환한다.
-    def get_phone_no_sht(self):
+    @property
+    def phone_no_sht(self):
         """전화번호 끝 4자리를 리턴한다."""
         return str(self.phone_no)[-4:]
 
     # DL 속도를 반환한다.
-    def get_dl(self):
+    @property
+    def dl(self):
         """DL 속도를 반환한다."""
         if self.downloadBandwidth is not None and self.downloadBandwidth > 0:
             return f"{self.downloadBandwidth:.1f}"
@@ -501,7 +505,8 @@ class MeasureCallData(models.Model):
             return '-'
 
     # UL 속도를 반환한다.
-    def get_ul(self):
+    @property
+    def ul(self):
         """UL 속도를 반환한다."""
         if self.uploadBandwidth is not None and self.uploadBandwidth > 0:
             return f"{self.uploadBandwidth:.1f}"
@@ -509,7 +514,8 @@ class MeasureCallData(models.Model):
             return '-'
 
     # PCI를 반환한다.
-    def get_pci(self):
+    @property
+    def pci(self):
         """PCI를 반환한다."""
         if self.networkId == '5G':
             return self.NR_PCI
@@ -517,7 +523,8 @@ class MeasureCallData(models.Model):
             return self.p_pci
 
     # RSRP를 반환한다.
-    def get_rsrp(self):
+    @property
+    def rsrp(self):
         """RSRP 값을 반환한다."""
         if self.networkId is not None and self.networkId == '5G':
             return self.NR_RSRP
@@ -525,7 +532,8 @@ class MeasureCallData(models.Model):
             return self.p_rsrp
 
     # SINR를 반환한다.
-    def get_sinr(self):
+    @property
+    def p_sinr(self):
         """SINR 값을 리턴한다."""
         if self.networkId is not None and self.networkId == '5G':
             return self.NR_SINR
@@ -533,7 +541,8 @@ class MeasureCallData(models.Model):
             return self.p_SINR
 
     # 측정시간을 반환한다(예: 09:37).
-    def get_time(self):
+    @property
+    def time(self):
         """ 측정시간을 반환한다.
             - 예) 09:30
         """
@@ -544,7 +553,8 @@ class MeasureCallData(models.Model):
             return ''
 
     # 측정위치를 반환한다(예: 경상남도 사천시 노룡동).
-    def get_address(self) -> str:
+    @property
+    def address(self) -> str:
         """ 측정위치에 대한 주소를 반환한다.
             - 시/도, 군/구가 동일한 경우 한번만 표시한다.
               . 서울특벌시 서욽특벌시 가산동 -> 서울특별시 가산동

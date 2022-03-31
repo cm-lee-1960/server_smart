@@ -200,27 +200,27 @@ def make_message(mdata: MeasureCallData):
             qs = MeasureingTeam.objects.filter(measdate=measdate)
             if qs.exists():
                 measuringteam_msg = qs[0].message
-            messages = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.get_address()}에서 시작되었습니다.\n" + \
+            messages = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.address}에서 시작되었습니다.\n" + \
                        f"{measuringteam_msg}\n" + \
                        "\n평가에 만전을 기하여 주시기 바랍니다. "
         elif phone.status == 'START_M':
-            messages = f"S-CXI {mdata.phone.morphology} {mdata.get_address()} 측정시작({mdata.get_time()}~)"
+            messages = f"S-CXI {mdata.phone.morphology} {mdata.address} 측정시작({mdata.time}~)"
 
         # [측정진행 메시지] --------------------------------------------------------------------------------------------
         elif phone.status == 'MEASURING':
             # WiFi 측정 데이터의 경우
             if phone.networkId == 'WiFi':
-                messages = f"<code>{mdata.get_address()} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
+                messages = f"<code>{mdata.address} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
                            "속도(DL/UL, Mbps)\n" + \
                            f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
             # 5G 측정 데이터의 경우
             elif phone.networkId == '5G':
-                messages = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"<code>{phone.networkId} {mdata.address} 측정({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
             # 기타(LTE, 3G) 측정데이터의 경우
             else:
-                messages = f"<code>{phone.networkId} {mdata.get_address()} 측정({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"<code>{phone.networkId} {mdata.address} 측정({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
 
         # [측정종료 메시지] --------------------------------------------------------------------------------------------
