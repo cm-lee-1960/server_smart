@@ -126,8 +126,8 @@
     <div id = "main_body" class="w-100 fixed-table-container" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">    
         <h6> <b>금일 측정그룹</b> </h6>
         <div class="fixed-table-body" style="text-align: center;">
-            <table id="groupWindow" class='table' style = "display:block">
-                <thead id = 'phoneGroupDetail_header'>
+            <table id="groupWindow" class='table table-hover' style = "display:block">
+                <thead id = 'phoneGroupDetail_header' class="bg-light">
                 </thead>
                 <tbody id = 'phoneGroupDetail_body' class="table-hover" style="height:330px; overflow-y:auto; display:block">
                     {% for phonegroup in phnoegroup %}
@@ -151,7 +151,11 @@
                             <td>측정종료</td>
                             {% endif %}
                             <td onclick="event.cancelBubble=true;">
-                                <img class='area_exit' id='img_group_{{phonegroup.id}}' src="{% static "images/endbutton.png" %}" alt="종료">
+                                {%  if phonegroup.active == 1  %}
+                                    <img class='area_exit' id='img_group_{{phonegroup.id}}' src="{% static "admin/img/icon-yes.svg" %}" alt="종료">
+                                {% else %}
+                                    <img class='area_exit' id='img_group_{{phonegroup.id}}' src="{% static "admin/img/icon-no.svg" %}" alt="종료">
+                                {% endif %}
                             </td>
                         </tr>
                         {% endif %}
