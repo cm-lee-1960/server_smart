@@ -269,4 +269,3 @@ def delete_measlastyearLTE(request):
        MeasLastyearLTE.objects.all().delete()
 
     return redirect("analysis:register_measdata")
-
