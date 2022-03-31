@@ -51,13 +51,19 @@ def get_listview_m(request):
         group_id = request.POST['groupid'].split('_')[2]
         ## ex) 1,2,3,4
         print("이거잘나오나:", group_id)
+        # phone_group = PhoneGroup.objects.get(id = group_id)
+        # phones = phone_group.phone_set.all()
+        # #message_data = Message.objects.filters(phonegroup_id=group_id)
+        # message_data = Message.objects.filter(phone__in=phones)
+        # print(message_data)
+        # context = {
+        #         'message_data' : message_data
+        # }
+        message_dict = ajax_messagedata(group_id) 
+        json_data_call = json.dumps(message_dict)
         
-        #message_data = Message.objects.filters(phonegroup_id=group_id)
-        message_data = Message.objects.all()
-        context = {
-                'message_data' : message_data
-        }
-    return render(request,"analysis/dashboard_form.html",context)
+    #return render(request,"analysis/dashboard_form.html",json_data_call)
+    return HttpResponse(json_data_call, content_type="applications/json")
 
 #FBV grouplist
 def get_listview(request):

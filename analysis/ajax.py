@@ -17,6 +17,7 @@ from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 
 ###########################
 #03/31 측정종료 임시 제거 1번
+#03/31 메제지 데이터 ajax dict으로
 
 
 ###########################
@@ -76,3 +77,35 @@ def ajax_startdata(toDate_str):
    
 
     return start_dict
+
+def ajax_messagedata(group_id):
+    """초기데이터 가져오는 함수"""
+    messsage_dict = {}
+    message_type = {}
+    
+    phone_group = PhoneGroup.objects.get(id = group_id)
+    phones = phone_group.phone_set.all()
+    #message_data = Message.objects.filters(phonegroup_id=group_id)
+    try:
+        message_data = Message.objects.filter(phone__in=phones)
+    except:
+        message_data = []
+        msg = "{} 메세지가 없습니다. ".format(phone_group.measuringTeam)
+        print(msg)
+    
+    if len(message_data) != 0:
+        for data in message_data:
+            message_data = [ data.measdate, data.message, data.sended ]
+            if data.messageType == 'EVENT':
+                message_type['EVENT'] = message_data 
+            elif data.messageType == 'SMS' and data.messageType == 'XROSHOT':
+                message_type['XROSHOT'] = message_data
+            else:
+                message_type['TELE'] = message_data
+                
+        messsage_dict['message'] = message_type
+    else:
+        
+        messsage_dict['message'] = 'nodata'
+        
+    return messsage_dict
