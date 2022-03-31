@@ -57,7 +57,7 @@ from django.views.decorators.csrf import csrf_exempt
 def msg_send(request):
     if request.method=='POST':
         if request.POST['sendType'] == 'XMCS':
-            receiver_list = request.POST['receiver'].split(',')
+            receiver_list = request.POST['receiver'].replace(' ','').split(',')
             result = send_sms(request.POST['message'], receiver_list)
             return JsonResponse(result)
 
