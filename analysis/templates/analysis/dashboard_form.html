@@ -33,6 +33,7 @@
 <link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
 <script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
 <script type="text/javascript" defer src="{% static "js/jquery-3.4.1.min.js" %}"></script>
+
 <style>
     .today_count{ color: red; }
     p { margin:20px 0px; }
@@ -40,18 +41,32 @@
 
     {% comment %} #phoneGroupDetail_header{ width:2000px; display: flex; justify-content: space-between; }
     #phoneGroupDetail_body{ width:2000px; display: flex; justify-content: space-between; height: 320px; overflow-y: auto; } {% endcomment %}
-    .table thead th{
+    #main_body .table thead th{
         width:125px;
     }
-    .table tbody td{
+    #main_body .table tbody td{
         width:125px;
     }
-    .table tbody .big_td{
+    #main_body .table tbody .big_td{
         width:270px;
     }
-    .table thead .big_th{
+    #main_body .table thead .big_th{
         width:270px;
     }
+
+    #bottom_body_left .table thead th{
+        width:200px;
+    }
+    #bottom_body_left .table tbody td{
+        width:200px;
+    }
+    #bottom_body_left .table tbody .big_td{
+        width:700px;
+    }
+    #bottom_body_left .table thead .big_th{
+        width:700px;
+    }
+
     .table tbody::-webkit-scrollbar {
     height:auto;
     width:5px;
@@ -90,15 +105,14 @@
                     <button style="height: 24px;" id = "daychoice" onclick="input()">선택</button>
                 </div>
                 <div style="float:left; margin-bottom:0px">
-                    <button style="height: 24px;" id = "daychoice" onclick="listdata()">시작</button>
+                    <button style="height: 24px;" id = "daychoice" onclick="startTimer_listdata()">시작</button>
                 </div>
             </div>
-            <div>
+            {% comment %} <div>
                 <h6 style="display:inline; margin-bottom:0px"> 금일 총 </h6> <!--3개조 가져와야한다. -->
                 <h6 id="toDayGroup" style="display:inline; margin-bottom:0px"> 3개 조 </h6> <!--3개조 가져와야한다.이건 추후-->
-            </div>
+            </div> {% endcomment %}
         </div>   
-        {% comment %} <hr> {% endcomment %}
         <div class="output">
             <table id="toDayWindow" sytle="border-spacing: 5px;">
                 <tbody id='toDayDetail'>
@@ -114,13 +128,11 @@
         <div class="fixed-table-body" style="text-align: center;">
             <table id="groupWindow" class='table' style = "display:block">
                 <thead id = 'phoneGroupDetail_header'>
-                    {% comment %} <tr id = 'phoneGroupDetail_header_tr'>
-                    </tr> {% endcomment %}
                 </thead>
                 <tbody id = 'phoneGroupDetail_body' class="table-hover" style="height:330px; overflow-y:auto; display:block">
                     {% for phonegroup in phnoegroup %}
                         {% if phonegroup.manage == 1 %}
-                        <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}'>
+                        <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}' onclick='startTimer_messagedata(this.attributes["id"].value);'>
                             <td>{{phonegroup.center.centerName}}</td>
                             <td>{{phonegroup.measuringTeam}}</td>
                             <td class="big_td">{{phonegroup.userInfo1}}</td>
@@ -138,7 +150,7 @@
                             {% else %}
                             <td>측정종료</td>
                             {% endif %}
-                            <td>
+                            <td onclick="event.cancelBubble=true;">
                                 <img class='area_exit' id='img_group_{{phonegroup.id}}' src="{% static "images/endbutton.png" %}" alt="종료">
                             </td>
                         </tr>
@@ -150,8 +162,8 @@
     </div>
     <!-- 하단 내용-->
     <div style="display:flex">
-        <div style="margin-bottom:5px; margin-right:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:1100px;">    
-            <div id = "eventwindow">
+        <div id = "bottom_body_left"  style="margin-bottom:5px; margin-right:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:1100px;">    
+            <div>
                 <div class="row">
                   <div class="col">
                       <ul class="nav nav-tabs">
@@ -166,15 +178,60 @@
                         </li>
                       </ul>
                       <div class="tab-content">
-                        <div class="tab-pane fade show active" id="event">
-                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc id ornare libero. Vivamus iaculis, justo vel mattis pharetra, nisi ligula varius nisl, sit amet mollis tortor ligula vitae nisi.</p>
-                        </div>
-                        <div class="tab-pane fade" id="xroshot">
-                          <p>Nunc vitae turpis id nibh sodales commodo et non augue. Proin fringilla ex nunc. Integer tincidunt risus ut facilisis tristique.</p>
-                        </div>
-                        <div class="tab-pane fade" id="tele">
-                          <p>Curabitur dignissim quis nunc vitae laoreet. Etiam ut mattis leo, vel fermentum tellus. Sed sagittis rhoncus venenatis. Quisque commodo consectetur faucibus. Aenean eget ultricies justo.</p>
-                        </div>
+                            <div class="tab-pane fade show active fixed-table-body" id="event" style="text-align: center;">
+                                <table id="eventWindow" class='table' style = "display:block">
+                                    <thead id = 'eventDetail_header'>
+                                        <th scope= "col">전송시간</th>
+                                        <th scope= "col" class="big_th">메세지</th>
+                                        <th scope= "col">전송여부</th>
+                                    </thead>
+                                    <tbody id = 'eventDetail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
+                                        {% comment %} {% for messagedata in messagedata %}
+                                            <tr id = 'eventDetail_tr_{{messagedata.id}}' >
+                                                <td>{{messagedata.sendTime|date:"TIME_FORMAT"}}</td>
+                                                <td class="big_td">{{messagedata.message}}</td>
+                                                <td>{{messagedata.sended}}</td>
+                                            </tr>
+                                        {% endfor %} {% endcomment %}
+                                    </tbody>
+                                </table> 
+                            </div>
+                            <div class="tab-pane fade active fixed-table-body" id="xroshot" style="text-align: center;">
+                                <table id="xroshotWindow" class='table' style = "display:block">
+                                    <thead id = 'xroshotDetail_header'>
+                                        <th scope= "col">전송시간</th>
+                                        <th scope= "col" class="big_th">메세지</th>
+                                        <th scope= "col">전송여부</th>
+                                    </thead>
+                                    <tbody id = 'xroshotDetail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
+                                        {% comment %} {% for messagedata in messagedata %}
+                                            <tr id = 'xroshotDetail_tr_{{messagedata.id}}' >
+                                                <td>{{messagedata.sendTime|date:"TIME_FORMAT"}}</td>
+                                                <td class="big_td">{{messagedata.message}}</td>
+                                                <td>{{messagedata.sended}}</td>
+                                            </tr>
+                                        {% endfor %} {% endcomment %}
+                                    </tbody>
+                                </table> 
+                            </div>
+                            <div class="tab-pane fade active fixed-table-body" id="tele" style="text-align: center;">
+                                <table id="teleWindow" class='table' style = "display:block">
+                                    <thead id = 'teleDetail_header'>
+                                        <th scope= "col">전송시간</th>
+                                        <th scope= "col" class="big_th">메세지</th>
+                                        <th scope= "col">전송여부</th>
+                                    </thead>
+                                    <tbody id = 'teleDetail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
+                                        {% comment %} {% for messagedata in messagedata %}
+                                            <tr id = 'teleDetail_tr_{{messagedata.id}}' >
+                                                <td>{{messagedata.sendTime|date:"TIME_FORMAT"}}</td>
+                                                <td class="big_td">{{messagedata.message}}</td>
+                                                <td>{{messagedata.sended}}</td>
+                                            </tr>
+                                        {% endfor %} {% endcomment %}
+                                    </tbody>
+                                </table> 
+                            </div>
                       </div>
                   </div>
                 </div>
@@ -205,7 +262,6 @@
     let phSetting = ['본부','조','측정지역','모폴로지','네트워크','DL콜수','DL속도','UL콜수','UL속도','전환율','이벤트','측정시간','상태','종료'];
     thappend = ""
     $(document).ready(
-
         function PhoneGroupSetting(){ 
             for(let phSetting_name of phSetting){
                 if(phSetting_name == "측정지역"){
@@ -223,8 +279,49 @@
             $('#phoneGroupDetail_header').append(thappend);
         }
     );
+    ////////////////////////////////////////////////////////////////////////////
+    //setinterval 관련 부분
+    const GV = {
+                isPause_startdata: false, 
+                timer_startdata: null, 
+                isPause_listdata: false, 
+                timer_listdata: null,
+                isPause_messagedata: false, 
+                timer_messagedata: null,  
+            } 
+    // setinter isPauser true false로 false일때만 인터벌이 돌게끔 한다 인터벌이 큐에 쌓이는걸방지
+    
+    const startTimer_startdata = function(){ 
+                GV.isPause_startdata = false;
+                interval_startdata();  
+                GV.timer_startdata = setInterval(function(){ 
+                    interval_startdata(); 
+                }, 35000);          
+    } 
 
-
+    // listdata ajax실행 인터벌이 바로 실행하게 한다.
+    const startTimer_listdata = function(){ 
+                GV.isPause_listdata = false;
+                interval_listdata();  
+                GV.timer_listdata = setInterval(function(){ 
+                    interval_listdata(); 
+                }, 20000);          
+    } 
+    // messagedata ajax실행 인터벌이 바로 실행하게 한다.
+    const startTimer_messagedata = function(tr_id){
+        var list_tr_id =  tr_id
+        GV.isPause_messagedata = false;
+        interval_messagedata(list_tr_id);  
+        GV.timer_messagedata = setInterval(function(){ 
+            interval_messagedata(list_tr_id); 
+        }, 20000);          
+    } 
+    
+    // ajax종료
+    const stopTimer = function(){ 
+               clearInterval(GV.timer_listdata); 
+               GV.isPause_listdata = true; 
+    }    
     ////////////////////////////////////////////////////////////////////////////
     var toDayinfo = "" // 금일 날짜 변수 글로벌
 
@@ -233,30 +330,31 @@
         console.log(toDayinfo);
     }
     ////////////////////////////////////////////////////////////////////////////
-    
-    function listdata(){ 
-        console.log("여기들어왔따.") 
-        setInterval(interval_listdata,10000); 
-    }
 
-    function interval_listdata(){
-        $.ajax({
-            headers: { "X-CSRFToken": '{{csrf_token}}'},
-            type:'POST',
-            url: "{% url 'analysis:listview_phoneGroupData' %}",
-            dataType : 'text',
-            data : { 'date' : toDayinfo },
-            async:false,
-            cache: false,
-            success: function(data){
-                $('#phoneGroupDetail_body').replaceWith($('#phoneGroupDetail_body',data));
-            },
-            error: function(error){
-                console.log("불러오기 실패")
-                console.log(error)
+    const interval_listdata = function(){
+    if(!GV.isPause_listdata){
+    //function interval_listdata(){
+            $.ajaxSetup({
+                headers: { "X-CSRFToken": '{{csrf_token}}' }
+            });
 
-            }
-        });
+            $.ajax({
+                type:'POST',
+                url: "{% url 'analysis:listview_phoneGroupData' %}",
+                dataType : 'text',
+                data : { 'date' : toDayinfo },
+                async:false,
+                cache: false,
+                success: function(data){
+                    $('#phoneGroupDetail_body').replaceWith($('#phoneGroupDetail_body',data));
+                },
+                error: function(error){
+                    console.log("불러오기 실패")
+                    console.log(error)
+
+                }
+            });
+        }
     }
     /////////////////////////////////////////////////////////////////////////
     
@@ -264,37 +362,37 @@
     //stratdata 부분
     //AJAX를 먼저 시작하고 딜레이
     //callback -> interval
-    function startInterval_startData(callback, seconds){ 
-        callback(); 
-        return setInterval(callback, seconds * 1000); 
-    }
+    //function startInterval_startData(callback, seconds){ 
+    //    callback(); 
+    //    return setInterval(callback, seconds * 1000); 
+    //}
 
     //비동기통신
-    //2분마다 주기적 요청
-    startInterval_startData(function(){
-
+    //2분마다 주기적 요청(현재 테스트로 10초)
+    //startInterval_startData(function(){
+    const interval_startdata = function(){
+    if(!GV.isPause_listdata){    
         $.ajaxSetup({
             headers: { "X-CSRFToken": '{{csrf_token}}' }
         });
-
-        $.ajax({
-        headers: { "X-CSRFToken": '{{csrf_token}}'},
-        type:'POST',
-        url: "{% url 'analysis:ajax_startdata' %}",
-        dataType : 'text',
-        data : {'date' : toDayinfo},
-        async:false,
-        success: function(ajax_data){
-            ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
-            json_data_dump = ajax_data; //ajax_data dump
-            console.log("제이슨 덤프 처음")
-            console.log(json_data_dump)
-            
-            startData(ajax_data); //초기데이터 세팅
-            startDataCount(ajax_data); //초기데이터 값바꾸기          
+        
+        $.ajax({  
+            type:'POST',
+            url: "{% url 'analysis:ajax_startdata' %}",
+            dataType : 'text',
+            data : {'date' : toDayinfo },
+            async:false,
+            success: function(ajax_data){
+                ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
+                console.log(ajax_data)
+                
+                startData(ajax_data); //초기데이터 세팅
+                startDataCount(ajax_data); //초기데이터 값바꾸기          
+            }
+            });
+        //}, 30)
         }
-        });
-    }, 10)
+    }
 
     //오늘의 측정 테이블 생성
     function startData(ajax_data){
@@ -302,14 +400,18 @@
 
         //초기화
         let measStatus = '<tr id = "toDayDetailTr">';
+            measStatus += '<th id="Group" style="padding-right:15px">';
+            measStatus += '<span><font size="3"> 금일 총 </font></span>';
+            measStatus += '<span id = "today_group" class="today_count"><font size="3"> 3조 </font></span>'
+            measStatus += '</th>';
             measStatus += '<th id = "measure" style="padding-right:15px">';
             measStatus += '<span><font size="3"> 측정 중 </font></span>';
             measStatus += '<span id = "measure_count" class="today_count"><font size="2"> 0 </font></span>'
             measStatus += '</th>';
-            measStatus += '<th id = "measure_close" style="padding-right:15px">';
-            measStatus += '<span><font size="3"> 측정종료 </font></span>';
-            measStatus += '<span id = "measure_close_count" class="today_count"><font size="2"> 0 </font></span>';
-            measStatus += '</th>';
+            //measStatus += '<th id = "measure_close" style="padding-right:15px">';
+            //measStatus += '<span><font size="3"> 측정종료 </font></span>';
+            //measStatus += '<span id = "measure_close_count" class="today_count"><font size="2"> 0 </font></span>';
+            //measStatus += '</th>';
         
         if (ajax_data['meas_area'] != 'nodata'){  // 데이터가 없으면 생성하지 않는다 지역
         //for(var meas_area of ajax_data['meas_area']){
@@ -331,7 +433,7 @@
     //오늘의 측정 테이블 값만 변경
     function startDataCount(ajax_data){
         document.querySelector('#measure_count').innerHTML = ajax_data['measuing_count'];
-        document.querySelector('#measure_close_count').innerHTML = ajax_data['end_count'];
+        //document.querySelector('#measure_close_count').innerHTML = ajax_data['end_count'];
         
         if (ajax_data['meas_area'] != 'nodata'){ // 데이터가 없으면 생성하지 않는다 지역
             for(let [meas_area_name, meas_area_count] of Object.entries(ajax_data['meas_area'])){
@@ -340,90 +442,37 @@
             }
         }   
     }
-    ////////////////////////////
+    ///////////////////////////////
+    startTimer_startdata(); //start타이머 시작
 
-    //금일측정그룹 부분
-    //AJAX를 먼저 시작하고 딜레이
-    //callback -> interval
-
-    {% comment %} function startInterval_phoneGroup(callback, seconds){ 
-        callback(); 
-        return setInterval(callback, seconds * 1000); 
-    }
-
-    //비동기통신
-    //10초마다 주기적 요청
-    startInterval_phoneGroup(function(){
-        $.ajaxSetup({
-            headers: { "X-CSRFToken": '{{csrf_token}}' }
-        });
-        $.ajax({
-        headers: { "X-CSRFToken": '{{csrf_token}}'},
-        type:'POST',
-        url: "{% url 'analysis:ajax_phoneGroupData' %}",
-        dataType : 'text',
-        data : "",
-        async:false,
-        success: function(ajax_data){
-            ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
-            json_data_dump = ajax_data; //ajax_data dump
-            console.log("제이슨 덤프 처음")
-            console.log(json_data_dump)
-            
-            phoneGroupData(ajax_data)
-            phoneGroupDataInfo(ajax_data)
-        }
-        });
-    }, 10) 
-
-    //오늘의 측정그룹 테이블 생성
-    function phoneGroupData(ajax_data){
-
-        $.ajaxSetup({
-            headers: { "X-CSRFToken": '{{csrf_token}}' }
-        });
-
-        $('#phoneGroupDetail').remove();
-
-        //초기화
-        let measStatus = '<tbody id = "phoneGroupDetail">';
-
-        for(var phone_group_name of Object.keys(ajax_data)){
-            console.log(phone_group_name)
-            measStatus += '<tr id = "phoneGroupDetail_Tr_' + phone_group_name + '">';
-            for(var i=0 ; i < ajax_data[phone_group_name].length; i++){ 
-                measStatus += '<td>';
-                measStatus += '<span>0';
-                measStatus += '</span>';
-                measStatus += '</td>';
-            }
-            measStatus += '<td>';
-            measStatus +=  '<img id="img_group_' + phone_group_name + '" width="30" height="30" src="{% static "images/endbutton.png" %}" alt="종료">';
-            measStatus += '</td>';
-            measStatus += '</tr>';
-        }
-
-        measStatus += '</tbody>'
-
-        $('#groupWindow').append(measStatus);
-
-    }
+    ///////////////////////////////
+    //event 내용 생성 ajax
+    const interval_messagedata = function(list_tr_id){
+        if(!GV.isPause_messagedata){
+        //function interval_listdata(){
+                $.ajaxSetup({
+                    headers: { "X-CSRFToken": '{{csrf_token}}' }
+                });
     
-    //오늘의 측정 테이블 값만 변경
-    function phoneGroupDataInfo(ajax_data){
-        for(var phone_group_name of Object.keys(ajax_data)){
-            var group_num = document.querySelector('#phoneGroupDetail_Tr_' + phone_group_name)
-            var tag = group_num.getElementsByTagName("span");
-            for (var i=0 ; i < tag.length; i++){ 
-                if (i===0){
-                    tag[i].innerHTML = center_shot_name[Object.values(ajax_data[phone_group_name][i])[0]];
-                    //운용센터 숏네임으로 변경
-                } else {    
-                    tag[i].innerHTML = Object.values(ajax_data[phone_group_name][i]);
-                }
+                $.ajax({
+                    type:'POST',
+                    url: "{% url 'analysis:listview_messageData' %}",
+                    dataType : 'text',
+                    data : { 'groupid' : list_tr_id },
+                    async:false,
+                    cache: false,
+                    success: function(data){
+                        console.log("불러오기 성공")
+                        //$('#phoneGroupDetail_body').replaceWith($('#phoneGroupDetail_body',data));
+                    },
+                    error: function(error){
+                        console.log("불러오기 실패")
+                        console.log(error)
+    
+                    }
+                });
             }
         }
-    } {% endcomment %}
 
 </script>
 {% endblock %}

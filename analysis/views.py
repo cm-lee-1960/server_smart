@@ -36,14 +36,30 @@ from django.shortcuts import get_list_or_404
 # -------------------------------------------------------------------------------------------------
 # 2022-03-23 - 모듈 정리 및 주석 추가
 # 2022-03-24 - 데이터 비동기 호출(Ajax) 함수 추가 -> ajax.py
+# 2022-03-29 - 그룹 리스트 가져오는 함수 추가 -> get_list
+# 2022-03-31 - 메세지 리스트 가져오는 함수 추가 -> get_list_m
 ###################################################################################################
 
 # -------------------------------------------------------------------------------------------------
 # 홈(Home) 페이지
 # -------------------------------------------------------------------------------------------------
+#FBV messagelist
+def get_listview_m(request):
+    """함수기반 뷰 FBV 그룹데이터 호출 뷰"""
+    if request.method== "POST":
+        
+        group_id = request.POST['groupid'].split('_')[2]
+        ## ex) 1,2,3,4
+        print("이거잘나오나:", group_id)
+        
+        # message_data = Message.objects.filters(phonegroup_id=group_id)
+        #message_data = Message.objects.all()
+        context = {
+                'message_data' : "성공"
+        }
+    return render(request,"analysis/dashboard_form.html",context)
 
-
-#FBV
+#FBV grouplist
 def get_listview(request):
     """함수기반 뷰 FBV 그룹데이터 호출 뷰"""
     if request.method== "POST":

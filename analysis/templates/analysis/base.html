@@ -50,6 +50,7 @@
           <input type="button" class="btn btn-danger" value="로그아웃" onclick=" logout()">
           <script>
             function logout() {
+              stopTimer();
               location.href = "{% url 'accounts:logout' %}";
             }
           </script>

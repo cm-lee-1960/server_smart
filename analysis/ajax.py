@@ -15,6 +15,12 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 
+###########################
+#03/31 측정종료 임시 제거 1번
+
+
+###########################
+
 def ajax_startdata(toDate_str):
     """초기데이터 가져오는 함수"""
     start_dict = {}
@@ -26,16 +32,18 @@ def ajax_startdata(toDate_str):
     except:
         measuing_count = 0
         msg = "{} 측정중 값이 없습니다. ".format(toDate_str)
-        print(msg) 
-    try:
-        end_count = len(PhoneGroup.objects.filter(measdate=toDate_str, active=0, ispId='45008',manage=1))#KT데이터만 가져온다.
-    except:
-        end_count = 0
-        msg = "{} 측정종료 값이 없습니다. ".format(toDate_str)
-        print(msg) 
+        print(msg)
+        
+    ##1번 측정종료 확인 내용(현재버전에서는 제거)     
+    # try:
+    #     end_count = len(PhoneGroup.objects.filter(measdate=toDate_str, active=0, ispId='45008',manage=1))#KT데이터만 가져온다.
+    # except:
+    #     end_count = 0
+    #     msg = "{} 측정종료 값이 없습니다. ".format(toDate_str)
+    #     print(msg) 
         
     start_dict['measuing_count'] = measuing_count
-    start_dict['end_count'] = end_count
+    ##1번 start_dict['end_count'] = end_count
     
     # 측정 그룹을 통해 측정 지역을 가져온다.
     try:
@@ -51,8 +59,9 @@ def ajax_startdata(toDate_str):
     if len(area_distint) != 0:
         for i in area_distint:
             area_measuing_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i,active=1, ispId='45008', manage=1).count()
-            area_end_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i, active=0, ispId='45008',manage=1).count()
-            result_count = str(area_measuing_count) + '/' + str(area_end_count)
+            #1번 area_end_count = PhoneGroup.objects.filter(measdate=toDate_str, center_id=i, active=0, ispId='45008',manage=1).count()
+            #result_count = str(area_measuing_count) + '/' + str(area_end_count)
+            result_count =  str(area_measuing_count)
 
             meas_area_name = Center.objects.get(id=i).centerName + "," + Center.objects.get(id=i).centerEngName
             meas_area_count = result_count
