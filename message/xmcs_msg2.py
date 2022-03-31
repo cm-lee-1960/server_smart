@@ -24,8 +24,8 @@ def send_sms2(message, receiver):
     - message: 보낼 메시지 내용 (Text)
     - receiver: 보낼 수신자 리스트 (List) '''
   url = "http://localhost:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
-  execute_sms_nodejs = os.popen('node ./sms_broadcast2.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast2.js
-
+  execute_sms_nodejs = os.popen('node ./message/sms_broadcast2.js')  # nodejs 파일 실행 -> 리스닝 시작
+  
   # 수신자 리스트를 적절한 형태로 변환한다.
   receivers = []
   for i in range(len(receiver)):

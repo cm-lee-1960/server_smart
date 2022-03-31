@@ -2,8 +2,6 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .tele_msg import TelegramBot
-from .models import SentXroshotMessage
-from .forms import SentXroshotMessageForm
 from .xmcs_msg import send_sms
 from monitor.models import Message
 from rest_framework.parsers import JSONParser
@@ -43,7 +41,7 @@ def stop_cb(request):
 
 # 크로샷 메시지 작성 페이지 (임시)  // (3.13)
 @csrf_exempt
-def xroshot_index(request):
+def msg_index(request):
     if request.method=='POST':
         message = {'message_all':Message.objects.all(), 'message':request.POST['selected_message'], \
                     'sendType':request.POST['sendType'], 'channelId':request.POST['channelId']}
@@ -59,17 +57,10 @@ from django.views.decorators.csrf import csrf_exempt
 def msg_send(request):
     if request.method=='POST':
         if request.POST['sendType'] == 'XMCS':
-            form = SentXroshotMessageForm(request.POST)
-            if form.is_valid():
-                #messages = form.save(commit=False)
-                form.save()
-                result = send_sms()
-                if 'Result: 10000' in result:
-                    return HttpResponse(result+'\nSuccess!')
-                else:
-                    return HttpResponse(result+'\nFailed..')
-            else:
-                return HttpResponse("Error occured. Please check your message or phone-number.")
+            receiver_list = request.POST['receiver'].split(',')
+            result = send_sms(request.POST['message'], receiver_list)
+            return JsonResponse(result)
+
         elif request.POST['sendType'] == 'TELE':
             try:
                 if request.POST['resend'] == 'True':
