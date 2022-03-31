@@ -650,6 +650,7 @@ class MeasureSecondData(models.Model):
 
 ########################################################################################################################
 # 전송 메시지 클래스
+#
 #               ModelSignal
 #               ┏ ------┓
 #   ┌ ----------┴---┐   | post_save ------> send_message(sender, instance, created, **kwargs)
@@ -659,10 +660,18 @@ class MeasureSecondData(models.Model):
 #                                               |           ┗ --------------┛
 #                                                           - send_message_bot()          Node.js
 #                                               | XMCS,ALL  ┌ -----------------┐          ┌ -----------------┐
-#                                               ┗ --------->| message.xmcs_msg |--------->| sms_api.js       |
-#                                                           |                  |          | sms_broadcast.js |
-#                                                           ┗ -----------------┛          ┗ -----------------┛
-#                                                           - send_sms()
+#                                               ┗ ---(X)--->| message.xmcs_msg |--------->| sms_api.js       |
+#                                                 수동전송  |                  |          | sms_broadcast.js |
+#                                               ┏---------->┗ -----------------┛          ┗ -----------------┛
+#                                               |           - send_sms()
+# ┌ --------------------┐     (수동전송)        |
+# |        Home         |-----------------------┨
+# |(dashboard_home.html)|                       |
+# ┗ --------------------┛                       |
+# ┌ --------------------┐     (수동전송)        |
+# |     전송 메시지     |-----------------------┛
+# |   (관리자 페이지)   |
+# ┗ --------------------┛
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.02.25 - 의존성으로 마이그레이트 및 롤백 시 오류가 자주 발생하여 모니터 앱으로 옮겨 왔음
 # 2022.02.27 - 메시지 유형을 메시지(SMS)와 이벤트(EVENT)로 구분할 수 있도록 항목 추가
@@ -693,8 +702,6 @@ class Message(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='생성일시')
     sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
-
-
 
 
 # ----------------------------------------------------------------------------------------------------------------------
