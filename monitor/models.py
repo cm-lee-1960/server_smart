@@ -710,7 +710,7 @@ class Message(models.Model):
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
     sended = models.BooleanField(default=True) # 전송여부
     updated_at = models.DateTimeField(auto_now=True, verbose_name='생성일시')
-    sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
+    sendTime = models.DateTimeField(null=True, blank=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
 
 
@@ -733,7 +733,7 @@ def send_message(sender, instance, created, **kwargs):
         # 1) 텔레그램으로 메시지를 전송한다.
         if instance.sendType == 'TELE' or instance.sendType == 'ALL':
             result = bot.send_message_bot(instance.channelId, instance.message)
-            instance.sendTime = result['date'].astimezone(timezone(timedelta(hours=9)))  ## 텔레그램 전송시각 저장
+            instance.sendTime = datetime.now()  ## 텔레그램 전송시각 저장
             instance.telemessageId = result['message_id']  ## 텔레그램 메시지ID 저장
             instance.save()
 

@@ -1,5 +1,6 @@
 #from subprocess import check_output, call, Popen  // subprocess 모듈로도 호출 가능
 import os, requests, json
+from datetime import datetime
 
 ########################################################################################################################
 # 크로샷 문자 메시지를 전송한다.
@@ -21,7 +22,7 @@ import os, requests, json
 #   return result
 
 # def send_sms_db():
-#   execute_sms_nodejs = os.popen('node ./message/sms_broadcast.js')
+#   execute_sms_nodejs = os.popen('node ./message/sms_broadcast2.js')
 #   result = execute_sms_nodejs.read()
 #   return result
 ############################ 상기 함수들 삭제 예정 (DB형식 -> Json 형식 변경 예정)
@@ -45,11 +46,13 @@ import os, requests, json
 
 def send_sms(message, receiver):
   '''크로샷 전송 함수
-   .파라미터
+   .파라미터:
     - message: 보낼 메시지 내용 (Text)
-    - receiver: 보낼 수신자 리스트 (List) '''
+    - receiver: 보낼 수신자 리스트 (List) 
+   .반환값:
+    - Dict {status_code : 200, Body : 전송결과}'''
   url = "http://localhost:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
-  execute_sms_nodejs = os.popen('node ./message/sms_broadcast2.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast2.js
+  execute_sms_nodejs = os.popen('node ./message/sms_broadcast.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast2.js
 
   # 수신자 리스트를 적절한 형태로 변환한다.
   receivers = []
@@ -65,3 +68,21 @@ def send_sms(message, receiver):
 
   print(result)
   return result   # nodejs에서 받은 return값을 Dict로 변환한 값 : status code:200, Body:크로샷전송결과})
+
+# Queryset을 Input으로 받아 Xroshot 전송하는 함수
+def send_sms_queryset(queryset, receiver):
+  ''' queryset 하나를 input으로 받아 크로샷 전송 함수
+  .파라미터:
+   - queryset: 메시지 쿼리셋(Message.objects.get)
+   - receiver: 수신자 번호 리스트
+   .반환값: Dict {status_code : 200, Body : 전송결과} '''
+  msg = queryset.message
+  result = send_sms(msg, receiver)
+  if result['status_code'] == 200:
+    queryset.sended = True if result['Body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
+    queryset.sendTime = datetime.strptime(result['Body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
+    queryset.save()
+  else:
+    print('Sending Xroshot Failed....')
+
+# 크로샷 전송 결과 개별 조회 함수는 필요 시 작성
