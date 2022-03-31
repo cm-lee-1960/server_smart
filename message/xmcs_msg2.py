@@ -40,9 +40,3 @@ def send_sms2(message, receiver):
 
   print(result)
   return result   # nodejs에서 받은 return값을 Dict로 변환한 값 : status code:200, Body:크로샷전송결과})
-
-msg = 'TEST2'
-rcv = ['01098880025']
-rst = send_sms2(msg, rcv)
-print('=====================')
-print(rst)
