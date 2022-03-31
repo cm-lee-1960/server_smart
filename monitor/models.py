@@ -670,13 +670,17 @@ class MeasureSecondData(models.Model):
 #   |    Message    |<- ┛ (SIGNAL)              |
 #   | (전송메시지)  |                           | TELE,ALL  ┌ --------------┐
 #   ┗ --------------┛                           ┣---------->|  TelegramBot  |
-#                                               |           ┗ --------------┛
-#                                                           - send_message_bot()          Node.js
-#                                               | XMCS,ALL  ┌ -----------------┐          ┌ -----------------┐
-#                                               ┗ ---(X)--->| message.xmcs_msg |--------->| sms_api.js       |
-#                                                 수동전송  |                  |          | sms_broadcast.js |
-#                                               ┏---------->┗ -----------------┛          ┗ -----------------┛
-#                                               |           - send_sms()
+#   * 전송유형(sendType)                        |           ┗ --------------┛
+#     - TELE: 텔레그램, XMCS: 크로샷,           |           - send_message_bot()          Node.js
+#       ALL: 텔레그램, 크로샷 모두 전송         | XMCS,ALL  ┌ -----------------┐          ┌ -----------------┐
+#   * 메시지유형(messageType)                   ┗ ---(X)--->| message.xmcs_msg |--------->| sms_api.js       |
+#     - SMS: 메시지, EVENT: 이벤트                수동전송  |                  |          | sms_broadcast.js |
+#   * 생성일시(updated_at)                      ┏---------->┗ -----------------┛          ┗ -----------------┛
+#   * 전송일시(sendTime)                        |           - send_sms()
+#   * 메시지 전송시 단말상태(status)            |
+#    - POWERON:파워온,START_F:측정첫시작,START_M|:측정시작,MEASURING:측정중,END:측정종료,END_LAST:마지막지역측정종료,
+#      REPORT:일일보고용,REPORT_ALL:일일보고용전체
+#                                               |
 # ┌ --------------------┐     (수동전송)        |
 # |        Home         |-----------------------┨
 # |(dashboard_home.html)|                       |
