@@ -52,10 +52,10 @@ def get_listview_m(request):
         ## ex) 1,2,3,4
         print("이거잘나오나:", group_id)
         
-        # message_data = Message.objects.filters(phonegroup_id=group_id)
-        #message_data = Message.objects.all()
+        #message_data = Message.objects.filters(phonegroup_id=group_id)
+        message_data = Message.objects.all()
         context = {
-                'message_data' : "성공"
+                'message_data' : message_data
         }
     return render(request,"analysis/dashboard_form.html",context)
 
