@@ -25,11 +25,15 @@ from analysis.views import dashboard
 # ----------------------------------------------------------------------------------------------------------------------
 # smart_project
 #   ├- accounts : 로그인 관련 모듈
+#   |     ├- static : 정적파일
+#   |     └- templates
+#   |            └- accounts : 로그인 화면
+#   |
 #   ├- analysis : 분석 관련 모듈 (홈 데시보드 및 일일보고)
 #   |      ├- migrations : 데이터베이스 관련 파일
 #   |      ├- static : 정적파일
 #   |      └- templates
-#   |            └- analysis : 화면
+#   |            └- analysis : 홈(데시보드) 및 일일보고 화면
 #   |
 #   ├- management : 운영환경 관리 관련 모듈
 #   ├- message : 전송 메시지 관련 모듈
@@ -39,6 +43,7 @@ from analysis.views import dashboard
 #   |      ├- static
 #   |      └- templates
 #   |            └- admin : 커스터마이징 관리자 페이지
+#   |
 #   └- staticfiles : STATIC 파일
 #
 ########################################################################################################################
