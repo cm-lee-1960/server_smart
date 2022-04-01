@@ -4,8 +4,26 @@ from management.models import Center, Morphology
 
 ########################################################################################################################
 # 모델 직렬화 관련 모듈
+#  ┌ -----------------------------┐   ┌ ------------------┐ <has a>   ┌ -------------------┐
+#  | DynamicFieldsModelSerializer |   | IdModelSerializer |------┯--->| IdManyRelatedField |
+#  | (직렬화시 필드 지정 가능)    |   | (관계 필드 '_id   |      |    └------------------- ┘
+#  └--------------┯-------------- ┘   └---------┯-------- ┘      |    ┌ -------------------┐
+#                 |                             |                └--->| IdManyRelatedField |
+#                 |                             |                     └------------------- ┘
+#                 └--------------┯--------------┘
+#                                |
+#                   ┌ -----------∨---------┐
+#                   | PhoneGroupSerializer | [ 기능 ]
+#                   |                      |  * 모델을 직렬활할 때 특정 필드만 선택하여 직렬화 가능
+#                   └--------------------- ┘  * 관계 필드가 포함된 경우 '_id'로 직렬화 가능
+#                                               (예: center_id, morphology_id 등)
+# [ 사용법 ]
+# fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'networkId', 'downloadBandwidth', 'uploadBandwidth',
+#                'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count', 'dl_nr_percent', 'ul_nr_percent', 'total_count']
+# serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.26 - 중복코드를 최적화 하기 위해 모델 직렬화 모듈 작성
+# 2022.04.01 - 모델 내에 관계 필드를 '_ids' 또는 '_id'를 붙이는 클래스 오류 수정
 #
 ########################################################################################################################
 
@@ -13,6 +31,7 @@ from management.models import Center, Morphology
 # 모델 직렬화 시 외부키(Foreign Key)에 _ids 또는 _id 서핏스를 붙여주는 모들
 # ----------------------------------------------------------------------------------------------------------------------
 class IdManyRelatedField(relations.ManyRelatedField):
+    """관계 필드에 서픽스 '_ids'를 붙이기 위한 클래스"""
     field_name_suffix = '_ids'
 
     def bind(self, field_name, parent):
@@ -20,28 +39,17 @@ class IdManyRelatedField(relations.ManyRelatedField):
         super().bind(field_name, parent)
 
 class IdPrimaryKeyRelatedField(relations.PrimaryKeyRelatedField):
-    """
-    Field, that renames the field name to FIELD_NAME_id.
-    Only works together the our ModelSerializer.
-    """
+    """관계 필드에 서픽스 '_id'를 붙이기 위한 클래스"""
     many_related_field_class = IdManyRelatedField
     field_name_suffix = '_id'
 
     def bind(self, field_name, parent):
-        """
-        Called when the field is bound to the serializer.
-        Changes the source  so that the original field name is used (removes
-        the _id suffix).
-        """
         if field_name:
             self.source = field_name[:-len(self.field_name_suffix)]
         super().bind(field_name, parent)
 
 class IdModelSerializer(serializers.ModelSerializer):
-    """
-    ModelSerializer that changes the field names of related fields to
-    FIELD_NAME_id.
-    """
+    """모델 내에 관계 필드가 있는 경우 'FIELD_NAME_id' 변경하는 클래스"""
     serializer_related_field = IdPrimaryKeyRelatedField
 
     def get_fields(self):
@@ -54,8 +62,8 @@ class IdModelSerializer(serializers.ModelSerializer):
             except AttributeError:
                 pass
             new_fields[field_name] = field
-        return new_fields
 
+        return new_fields
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 다이나믹필드 모델 직렬화 클래스
@@ -81,12 +89,6 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
-class CenterSerializer(DynamicFieldsModelSerializer):
-    class Meta:
-        model = Center
-        fields = '__all__'
-
-
 ########################################################################################################################
 # 단말그룹 직렬화 클래스
 # ----------------------------------------------------------------------------------------------------------------------
@@ -94,13 +96,16 @@ class CenterSerializer(DynamicFieldsModelSerializer):
 # 2022.04.01 - @property decorator 항목 직렬화 추가
 #
 ########################################################################################################################
-# class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
-class PhoneGroupSerializer(DynamicFieldsModelSerializer):
+class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
+# class PhoneGroupSerializer(DynamicFieldsModelSerializer):
     """단말그룹 직렬화 글래스"""
-    center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
-    centerName = serializers.ReadOnlyField(source = 'center.centerName') # 운용센터명
-    morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
-    p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조 (@property decorator)
+    # 2022.04.01 - IdModelSerializer 클래스를 상속하면서 불필요한 코드가 됨
+    #            - 그래도 향후 사용하거나 참고하기 위해 코드를 남겨 두는 것이 좋을 듯 함
+    # center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
+    # centerName = serializers.ReadOnlyField(source = 'center.centerName') # 운용센터명
+    # center = CenterSerializer(many=False, read_only=True)
+    # morphology_id = serializers.ReadOnlyField(source = 'mSorphology.id') # 모폴로지
+    # p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조 (@property decorator)
 
     class Meta:
         model = PhoneGroup
@@ -113,9 +118,11 @@ class PhoneGroupSerializer(DynamicFieldsModelSerializer):
 ########################################################################################################################
 class PhoneSerializer(DynamicFieldsModelSerializer):
     """측정다말 직렬화 글래스"""
-    phoneGroup_id = serializers.ReadOnlyField(source = 'phoneGroup.id') # 단말그룹
-    center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
-    morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
+    # 2022.04.01 - IdModelSerializer 클래스를 상속하면서 불필요한 코드가 됨
+    #            - 그래도 향후 사용하거나 참고하기 위해 코드를 남겨 두는 것이 좋을 듯 함
+    # phoneGroup_id = serializers.ReadOnlyField(source = 'phoneGroup.id') # 단말그룹
+    # center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
+    # morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
 
     class Meta:
         model = Phone
