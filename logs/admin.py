@@ -35,7 +35,8 @@ class StatusLogAdmin(admin.ModelAdmin):
     # 디버깅 로그의 생성일자에 대한 날짜 포맷을 설정한다.
     def create_datetime_format(self, instance):
         return instance.create_datetime.strftime('%Y-%m-%d %X')
-    create_datetime_format.short_description = 'Created at'
+    create_datetime_format.short_description = '발생일시'
+
 
 # 관리자 페이지에 모델을 등록한다.
 admin.site.register(StatusLog, StatusLogAdmin)

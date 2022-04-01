@@ -23,7 +23,7 @@ class StatusLog(models.Model):
                                              db_index=True, verbose_name="로그레벨") # 로그레벨
     msg = models.TextField(verbose_name="로그내용") # 로그내용
     trace = models.TextField(blank=True, null=True, verbose_name="추적내용") # 추적내용
-    create_datetime = models.DateTimeField(auto_now_add=True, verbose_name='발생일시') # 생성일시
+    create_datetime = models.DateTimeField(auto_now_add=True, verbose_name='발생일시') # 발생일시
 
     def __str__(self):
         return self.msg
