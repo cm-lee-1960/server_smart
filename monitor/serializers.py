@@ -98,6 +98,7 @@ class PhoneGroupSerializer(DynamicFieldsModelSerializer):
     center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
     centerName = serializers.ReadOnlyField(source = 'center.centerName') # 운용센터명
     morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
+    p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조
 
     class Meta:
         model = PhoneGroup
