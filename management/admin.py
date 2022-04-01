@@ -121,9 +121,9 @@ class ChatMemberListAdmin(admin.ModelAdmin):
     list_display = ['userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId', 'allowed', 'isBot']
     list_display_links = ['userchatId', ]
     search_fields = ('userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId',)
+
+
 # ----------------------------------------------------------------------------------------------------------------------
-
-
 # 관리자 페이지에 모델을 등록한다.
 # ----------------------------------------------------------------------------------------------------------------------
 admin.site.register(Morphology, MorphologyAdmin) # 모풀로지 등록

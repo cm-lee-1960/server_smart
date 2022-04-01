@@ -72,12 +72,14 @@ INSTALLED_APPS = [
     # third apps
     'django_extensions',
     'rest_framework',
+    # 'django_db_logger',
     # local apps
     'monitor',
     'analysis',
     'message',
     'management',
     'accounts',
+    'logs',
 ]
 
 MIDDLEWARE = [
@@ -193,55 +195,36 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# CRONTAB_DJANGO_SETTINGS_MODULE = 'config.settings.deploy'
-CRONTAB_COMMAND_SUFFIX = '2>&1'
-CRONJOBS = [
-    ('* * * * *', 'monitor.cron.measuring_end_check', '>>' + str(BASE_DIR) + '/monitor/cron.log'),
-]
-
-
-
-# 로깅
-# logger.debug()
-# logger.info()
-# logger.warning()
-# logger.error()
-# logger.critical()
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': True,
-#     'formatters': {
-#         'fileFormat': {
-#             'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
-#             'datefmt': '%d/%b/%Y %H:%M:%S'
-#         }
-#     },
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': join(BASE_DIR, 'logs/smart.log'),
-#             'formatter': 'fileFormat'
-#         },
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-
-#     },
-#     'loggers': {
-#         'post': {
-#             'handlers': ['file', 'console'],
-#             'level': 'DEBUG',
-#         },
-#         'django.db.backends': {
-#             'handlers': ['file', 'console'],
-#             'level': 'DEBUG',
-#         },
-#     }
-# }
-
+# 로그 관련 설정
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(asctime)s %(message)s'
+        },
+    },
+    'handlers': {
+        'db_log': {
+            'level': 'DEBUG',
+            'class': 'logs.db_log_handler.DatabaseLogHandler'
+        },
+    },
+    'loggers': {
+        'db': {
+            'handlers': ['db_log'],
+            'level': 'DEBUG'
+        },
+        'django.request': { # logging 500 errors to database
+            'handlers': ['db_log'],
+            'level': 'ERROR',
+            'propagate': False,
+        }
+    }
+}
 
 # 관리자 페이지 앱들 정렬 순서
 APPS_ORDERING = {
@@ -250,6 +233,7 @@ APPS_ORDERING = {
     "분석 및 보고": 3,
     "환경설정 관리": 4,
     "인증 및 권한": 5,
+    "디버깅 로그": 6,
 }
 
 # 환경설정 관리 앱의 모델들 정렬 순서
