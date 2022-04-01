@@ -91,6 +91,8 @@ class CenterSerializer(DynamicFieldsModelSerializer):
 # 단말그룹 직렬화 클래스
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.26 - IdModelSerializer가 Foreign Key를 _id를 붙여주는 좋은 코드인데, 정상동작 하지 않음
+# 2022.04.01 - @property decorator 항목 직렬화 추가
+#
 ########################################################################################################################
 # class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 class PhoneGroupSerializer(DynamicFieldsModelSerializer):
@@ -98,7 +100,7 @@ class PhoneGroupSerializer(DynamicFieldsModelSerializer):
     center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
     centerName = serializers.ReadOnlyField(source = 'center.centerName') # 운용센터명
     morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
-    p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조
+    p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조 (@property decorator)
 
     class Meta:
         model = PhoneGroup
