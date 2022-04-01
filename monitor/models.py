@@ -110,12 +110,12 @@ class PhoneGroup(models.Model):
         # 단말그룹 정보를 업데이트 한다.
         self.save()
 
-    # 다운로드(DL) 콜카운트를 하나 증가시킨다.
-    def add_dl_count(self):
-        """DL 콜카운트를 증가시킨다."""
-        self.dl_count += 1
-        self.save()
-
+    # # 다운로드(DL) 콜카운트를 하나 증가시킨다.
+    # def add_dl_count(self):
+    #     """DL 콜카운트를 증가시킨다."""
+    #     self.dl_count += 1
+    #     self.save()
+    #
     # # 업로드(UL) 콜카운트를 하나 증가시킨다.
     # def add_ul_count(self):
     #     """UL 콜카운트를 증가시킨다."""

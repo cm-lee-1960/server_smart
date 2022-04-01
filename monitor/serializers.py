@@ -96,6 +96,7 @@ class CenterSerializer(DynamicFieldsModelSerializer):
 class PhoneGroupSerializer(DynamicFieldsModelSerializer):
     """단말그룹 직렬화 글래스"""
     center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
+    centerName = serializers.ReadOnlyField(source = 'center.centerName') # 운용센터명
     morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
 
     class Meta:
