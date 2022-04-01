@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from django.db import models
 from django.forms import TextInput, Textarea
 from django.utils.text import Truncator
+from django.utils.safestring import mark_safe
 
 from .models import StatusLog
 
@@ -34,7 +35,9 @@ class StatusLogAdmin(admin.ModelAdmin):
 
     # 추적내용 중에 태그가 포함되는 경우 브라우저에 의해서 해석되지 않고 그래로 보여준다.
     def traceback(self, instance):
-        return format_html('<pre><code>{content}</code></pre>', content=Truncator(instance.trace).chars(300) if instance.trace else '')
+        # return format_html('<pre><code>{content}</code></pre>', content=Truncator(instance.trace).chars(300) if instance.trace else '')
+        return mark_safe('<code style="color:black; width:80px; height:auto;">{}</code>'.format(
+            Truncator(instance.trace).chars(300)))
     traceback.short_description = '추적내용'
 
     # 디버깅 로그의 생성일자에 대한 날짜 포맷을 설정한다.
