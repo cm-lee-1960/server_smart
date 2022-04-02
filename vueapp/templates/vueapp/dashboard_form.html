@@ -1,0 +1,182 @@
+<!--
+########################################################################################################################
+[ base.html 블럭구조 ]
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    ....
+    ┌ ---------------------------┐
+    | block title                |
+    └--------------------------- ┘
+    <link rel="stylesheet" href="....">
+    ....
+    ┌ ---------------------------┐
+    | block extra-style          |
+    └--------------------------- ┘
+</head>
+<body style="..">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-primary fixed-top">
+    ....
+    </nav>
+    <div class="container">
+    ┌ ---------------------------┐
+    | block content              |
+    └--------------------------- ┘
+    </div>
+    ┌ ---------------------------┐
+    | block footer               |
+    └--------------------------- ┘
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    ....
+    ┌ ---------------------------┐
+    | block extra-script         |
+    └--------------------------- ┘
+</body>
+
+</html>
+########################################################################################################################
+-->
+
+{% extends "vueapp/base.html" %}
+{% load static %}
+
+{% block extra-style %}
+    <style>
+        .counter {
+            background-color: #f5f5f5;
+            padding: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+
+{% endblock %}
+
+{% block contents %}
+    <div id="app">
+    <!-- 상단 내용 -->
+    <div class="container">
+        <div class="row text-center">
+            <div class="col">
+                <div class="counter">
+                    <h5>오늘의 측정</h5>
+                    <input style="height: 24px; " type="date" class="form-control" v-model="date">
+                    <h7>금일 총 3조 / 측정 중 [[total_count]]</h7>
+                </div>
+            </div>
+            <div v-for="(center, index) in centerList" class="col">
+                <div class="counter">
+                    <h5>[[center.centerName]]</h5>
+                    <h5>[[center.count]]</h5>
+                    <div class="layout">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main_body" class="mt-2 w-100 fixed-table-container"
+         style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">
+        <h6><b>금일 측정그룹</b></h6>
+        <div class="fixed-table-body" style="text-align: center;">
+            <table id="groupWindow" class='table table-hover' style="display:block">
+                <thead class="bg-light">
+                    <th scope="col">본부</th>
+                    <th scope="col">조</th>
+                    <th scope="col">측정지역</th>
+                    <th scope="col">모폴로지</th>
+                    <th scope="col">네트워크</th>
+                    <th scope="col">DL콜수</th>
+                    <th scope="col">DL속도</th>
+                    <th scope="col">UL콜수</th>
+                    <th scope="col">UL속도</th>
+                    <th scope="col">전환율</th>
+                    <th scope="col">이벤트</th>
+                    <th scope="col">측정시간</th>
+                    <th scope="col">상태</th>
+                    <th scope="col">종료</th>
+                </thead>
+                <tbody id='phoneGroupDetail_body' class="table-hover"
+                       style="height:330px; overflow-y:auto; display:block" class="d-flex">
+                {# <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}' onclick='startTimer_messagedata(this.attributes["id"].value);'>#}
+                <tr v-for="(phoneGroup, index) in phoneGroupList" class="d-flex">
+                    <td>[[phoneGroup.centerName]]</td>
+                    <td>[[phoneGroup.P_measuringTeam]]</td>
+                    <td class="big_td">[[phoneGroup.userInfo1]]</td>
+                    <td>[[phoneGroup.morphologyName]]</td>
+                    <td>[[phoneGroup.networkId]]</td>
+                    <td>[[phoneGroup.dl_count]]</td>
+                    <td>[[phoneGroup.downloadBandwidth]]</td>
+                    <td>[[phoneGroup.ul_count]]</td>
+                    <td>[[phoneGroup.uploadBandwidth]]</td>
+                    <td>[[phoneGroup.nr_percent]]</td>
+                    <td>[[phoneGroup.event_count]]</td>
+                    {#<td>[[phoneGroup.last_updated_dt|date:"TIME_FORMAT"]]</td>#}
+                    <td>[[phoneGroup.last_updated_dt]]</td>
+                    <td v-if="phoneGroup.active">측정 중</td>
+                    <td v-else="phoneGroup.active">측정종료</td>
+                    <td v-if="phoneGroup.active">
+                        <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료">
+                    </td>
+                    <td v-else="phoneGroup.active">
+                        <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료">
+                    </td>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra-script   %}
+<script src="https://unpkg.com/vue@2.4.2"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+var vm = new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#app',
+    data: {
+        date: "2022-04-02",
+        total_count: 0,
+        centerList: [
+            {'centerName': '', 'count': ''},
+            {'centerName': '', 'count': ''},
+            {'centerName': '', 'count': ''},
+            {'centerName': '', 'count': ''},
+            {'centerName': '', 'count': ''},
+        ],
+        phoneGroupList: [],
+        timer: '',
+    },
+    created: function () {
+        //this.date = Date.now();
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = ("0" + (1 + date.getMonth())).slice(-2);
+        var day = ("0" + date.getDate()).slice(-2);
+        this.date = year + "-" + month + "-" + day;
+
+        console.log("created()...");
+        this.fetch_all_phoneGroup();
+        this.timer = setInterval(this.fetch_all_phoneGroup, 5000);
+        console.log("####...", this.centerList);
+    },
+
+    methods: {
+        async fetch_all_phoneGroup() {
+            console.log("fetch_all_todo()...");
+            const res = await fetch("/api/phonegroup/list/" + this.date);
+            const data = await res.json();
+            console.log("####", data);
+            this.total_count = data['total_count'];
+            this.centerList = data['centerList'];
+            this.phoneGroupList = data['phoneGroupList'];
+         },
+    },
+
+});
+</script>
+
+{% endblock %}

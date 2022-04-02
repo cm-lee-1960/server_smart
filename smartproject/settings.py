@@ -80,6 +80,8 @@ INSTALLED_APPS = [
     'management',
     'accounts',
     'logs',
+    'vueapp',
+    'api',
 ]
 
 MIDDLEWARE = [

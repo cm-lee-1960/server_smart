@@ -102,10 +102,11 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     # 2022.04.01 - IdModelSerializer 클래스를 상속하면서 불필요한 코드가 됨
     #            - 그래도 향후 사용하거나 참고하기 위해 코드를 남겨 두는 것이 좋을 듯 함
     # center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
-    # centerName = serializers.ReadOnlyField(source = 'center.centerName') # 운용센터명
+    centerName = serializers.ReadOnlyField(source = 'center.centerName') # 운용센터명
     # center = CenterSerializer(many=False, read_only=True)
     # morphology_id = serializers.ReadOnlyField(source = 'mSorphology.id') # 모폴로지
-    # p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조 (@property decorator)
+    morphologyName = serializers.ReadOnlyField(source = 'morphology.morphology') # 모폴로지명
+    p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조 (@property decorator)
 
     class Meta:
         model = PhoneGroup
@@ -122,8 +123,9 @@ class PhoneSerializer(DynamicFieldsModelSerializer):
     #            - 그래도 향후 사용하거나 참고하기 위해 코드를 남겨 두는 것이 좋을 듯 함
     # phoneGroup_id = serializers.ReadOnlyField(source = 'phoneGroup.id') # 단말그룹
     # center_id = serializers.ReadOnlyField(source = 'center.id') # 운용센터
+    centerName = serializers.ReadOnlyField(source = 'center.centerName') # 운용센터명
     # morphology_id = serializers.ReadOnlyField(source = 'morphology.id') # 모폴로지
-
+    morphologyName = serializers.ReadOnlyField(source = 'morphology.morphology') # 모폴로지명
     class Meta:
         model = Phone
         fields = '__all__'
