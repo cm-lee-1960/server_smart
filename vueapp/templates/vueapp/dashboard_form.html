@@ -59,13 +59,12 @@
                 <div class="card text-white bg-primary mb-1 mx-2" style="width: 12rem; height: 7em">
                     <!-- 출저: https://getbootstrap.com/docs/4.0/components/card/#background-and-color -->
                     <div class="card-header p-1">오늘의 측정</div>
-                    <div class="card-body p-2">
-                        <h6 class="card-title p-0">총 3조 / 측정중 [[total_count]]</h6>
-                        <p class="card-text">
-                        <div class="col-xs-offset-3 col-xs-6 col-md-offset-4 col-md-4">
+                    <div class="card-body mt-0 pt-0">
+                        <span style="font-size: 16px;">총 </span><span style="font-size: 24px;">3</span>
+                        <span style="font-size: 16px;">조 / 측정중 </span><span style="font-size: 24px;">[[total_count]]</span>
+                        <div class="mt-2">
                             <input style="height: 24px; width: 150px;" type="date" class="form-control" v-model="date">
                         </div>
-                        </p>
                     </div>
                 </div>
                 <div v-for="(center, index) in centerList" class="card bg-light mb-1, mx-1"
@@ -122,10 +121,10 @@
                             <td style="width: 10%" v-if="phoneGroup.active">측정 중</td>
                             <td style="width: 10%" v-else="phoneGroup.active">측정종료</td>
                             <td style="width: 5%" v-if="phoneGroup.active">
-                                <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료">
+                                <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료" width="20">
                             </td>
                             <td style="width: 5%" v-else="phoneGroup.active">
-                                <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료">
+                                <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료" width="20">
                             </td>
                         </tbody>
                     </table>
@@ -238,8 +237,12 @@
                     <div class="mb-1">
                         <textarea class="form-control" id="message_contents" rows="5">[[message]]</textarea>
                     </div>
-                    <button type="button" class="btn btn-primary">전송</button>
-                    <button type="button" class="btn btn-danger">회수</button>
+                    <!--
+                    <button type="button" class="btn btn-outline-primary btn-sm">전송</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm">회수</button>
+                    -->
+                    <button type="button" class="btn btn-primary btn-sm">전송</button>
+                    <button type="button" class="btn btn-danger btn-sm">회수</button>
                 </div>
             </div>
         </div>
