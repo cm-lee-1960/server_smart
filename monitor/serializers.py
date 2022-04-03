@@ -1,5 +1,5 @@
 from rest_framework import serializers, relations
-from monitor.models import Phone, PhoneGroup, MeasuringDayClose
+from monitor.models import Phone, PhoneGroup, MeasuringDayClose, Message
 from management.models import Center, Morphology
 
 ########################################################################################################################
@@ -117,7 +117,7 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 # 측정단말 직렬화 클래스
 # ----------------------------------------------------------------------------------------------------------------------
 ########################################################################################################################
-class PhoneSerializer(DynamicFieldsModelSerializer):
+class PhoneSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     """측정다말 직렬화 글래스"""
     # 2022.04.01 - IdModelSerializer 클래스를 상속하면서 불필요한 코드가 됨
     #            - 그래도 향후 사용하거나 참고하기 위해 코드를 남겨 두는 것이 좋을 듯 함
@@ -128,4 +128,15 @@ class PhoneSerializer(DynamicFieldsModelSerializer):
     morphologyName = serializers.ReadOnlyField(source = 'morphology.morphology') # 모폴로지명
     class Meta:
         model = Phone
+        fields = '__all__'
+
+
+########################################################################################################################
+# 메시지 직렬화 클래스
+# ----------------------------------------------------------------------------------------------------------------------
+########################################################################################################################
+class MessageSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
+
+    class Meta:
+        model = Message
         fields = '__all__'

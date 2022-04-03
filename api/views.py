@@ -2,17 +2,24 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.generic import ListView
 from django.db import connection
+from django.db.models import Q
 from datetime import datetime
 import json
 
-from monitor.models import PhoneGroup
-from monitor.serializers import PhoneGroupSerializer
+from monitor.models import PhoneGroup, Message
+from monitor.serializers import PhoneGroupSerializer, MessageSerializer
 
 ########################################################################################################################
-# 단말그룹 정보를 제공하는 API
+# REST API 기능
+# - 데이터를 조회해서 JSON 형태로 반환한다.
 # ----------------------------------------------------------------------------------------------------------------------
+# 2022.04.03 - 메시지 리스트 조회 API 추가
+#
 ########################################################################################################################
-# Create your views here.
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹 리스트 조회 API
+# ----------------------------------------------------------------------------------------------------------------------
 class ApiPhoneGroupLV(ListView):
     model = PhoneGroup
     # 반환값이 JSON 데이터이기 때문에 템플릿 지정이 필요 없다.
@@ -30,12 +37,11 @@ class ApiPhoneGroupLV(ListView):
             qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True)
             phoneGroupList = []
             if qs.exists():
+                fields = ['id', 'centerName', 'p_measuringTeam', 'userInfo1', 'morphologyName', 'networkId', 'dl_count',
+                          'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
+                          'last_updated_dt','active',]
                 for phoneGroup in qs:
-                    fields = ['id', 'centerName', 'p_measuringTeam', 'userInfo1', 'morphologyName', 'networkId', 'dl_count',
-                              'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
-                              'last_updated_dt',
-                              'active']
-                    serializer = PhoneGroupSerializer(phoneGroup)
+                    serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
                     phoneGroupList.append(serializer.data)
 
             # 센터별 측정진행 건수를 가져온다.
@@ -65,4 +71,58 @@ class ApiPhoneGroupLV(ListView):
 
         return JsonResponse(data=data, safe=False)
 
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹 리스트 조회 API
+# ----------------------------------------------------------------------------------------------------------------------
+class ApiMessageLV(ListView):
+    model = Message
 
+    # 메시지 내역을 조회한다.
+    def get(self, request, *args, **kwargs):
+        data = {}
+        # 조회하고자 하는 메시지ID가 파라미터로 넘어 왔는지 확인한다.
+        if 'phonegroup_id' in kwargs.keys():
+            phonegroup_id = kwargs['phonegroup_id']
+
+            messageEventList = [] # 이벤트 메시지
+            messageSmsList = [] # 문자 메시지
+            messageTeleList = [] # 텔레그램
+            try:
+                # 해당 단말그룹에 대한 모든 메시지를 가져온다.
+                qs = Message.objects.filter(phone__phoneGroup_id=phonegroup_id).order_by('-updated_at')
+                if qs.exists():
+                    # 1) 이벤트 메시지 내역을 가져온다.
+                    event_qs = qs.filter(messageType='EVENT')
+                    if event_qs.exists():
+                        fields = ['id', 'sendTime', 'message', 'sended',]
+                        for message in event_qs:
+                            serializer = MessageSerializer(message, fields=fields)
+                            messageEventList.append(serializer.data)
+
+                    # 2) 문자 메시지 내역을 가져온다.
+                    sms_qs = qs.filter(Q(sendType='XMCS') | Q(sendType='ALL'))
+                    print("#### SMS", sms_qs.count(), phonegroup_id)
+                    if sms_qs.exists():
+                        fields = ['id', 'sendTime', 'message', 'sended',]
+                        for message in sms_qs:
+                            serializer = MessageSerializer(message, fields=fields)
+                            messageSmsList.append(serializer.data)
+
+                    # 3) 텔레그램 메시지 내역을 가져온다.
+                    tele_qs = qs.filter(sendType='TELE')
+                    if tele_qs.exists():
+                        fields = ['id', 'sendTime', 'message', 'sended',]
+                        for message in tele_qs:
+                            serializer = MessageSerializer(message, fields=fields)
+                            messageTeleList.append(serializer.data)
+
+                # 클라이언트 브라우저에 전송할 데이터를 랩필한다.
+                data = {'messageEventList': messageEventList,
+                        'messageSmsList': messageSmsList,
+                        'messageTeleList': messageTeleList,}
+
+            except Exception as e:
+                print("ApiMessageLV:", str(e))
+                raise Exception("ApiMessageLV: %s" % e)
+
+        return JsonResponse(data=data, safe=False)
