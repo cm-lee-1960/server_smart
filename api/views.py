@@ -93,17 +93,16 @@ class ApiMessageLV(ListView):
                 if qs.exists():
                     # 1) 이벤트 메시지 내역을 가져온다.
                     event_qs = qs.filter(messageType='EVENT')
+                    fields = ['id', 'phone_no_sht', 'create_time', 'message', 'sended_time', 'sended', ]
                     if event_qs.exists():
-                        fields = ['id', 'sendTime', 'message', 'sended',]
                         for message in event_qs:
                             serializer = MessageSerializer(message, fields=fields)
                             messageEventList.append(serializer.data)
 
                     # 2) 문자 메시지 내역을 가져온다.
                     sms_qs = qs.filter(Q(sendType='XMCS') | Q(sendType='ALL'))
-                    print("#### SMS", sms_qs.count(), phonegroup_id)
+                    # print("#### SMS", sms_qs.count(), phonegroup_id)
                     if sms_qs.exists():
-                        fields = ['id', 'sendTime', 'message', 'sended',]
                         for message in sms_qs:
                             serializer = MessageSerializer(message, fields=fields)
                             messageSmsList.append(serializer.data)
@@ -111,7 +110,6 @@ class ApiMessageLV(ListView):
                     # 3) 텔레그램 메시지 내역을 가져온다.
                     tele_qs = qs.filter(sendType='TELE')
                     if tele_qs.exists():
-                        fields = ['id', 'sendTime', 'message', 'sended',]
                         for message in tele_qs:
                             serializer = MessageSerializer(message, fields=fields)
                             messageTeleList.append(serializer.data)

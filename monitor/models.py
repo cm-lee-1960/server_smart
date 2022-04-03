@@ -696,6 +696,7 @@ class MeasureSecondData(models.Model):
 # 2022.03.29 - 전송 메시지 모델에 대한 흐름도 및 주석 추가
 #            - 전송유형(sendType) 추가
 #              . TELE: 텔레그램, XMCS: 크로샷, ALL: 텔레그램과 크로샷 모두 전송
+# 2022.04.03 - 전화번호(4자리), 메시지 생성시간, 전송시간을 가져올 수 있는 @property 함수를 추가함
 #
 ########################################################################################################################
 class Message(models.Model):
@@ -719,6 +720,34 @@ class Message(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='생성일시')
     sendTime = models.DateTimeField(auto_now=True, verbose_name='전송시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
+
+    # 전화번호 뒤에서 4자리를 반환한다.
+    @property
+    def phone_no_sht(self):
+        """전화번호 끝 4자리를 리턴한다."""
+        # 단말그룸으로 메시지가 생성되는 경우 어떻게 할 것인지에 대한 코드를 작성해야 함
+        if self.phone is not None:
+            return str(self.phone.phone_no)[-4:]
+        else:
+            return ''
+
+    # 메시지 생성시간을 반환한다.
+    @property
+    def create_time(self):
+        if self.updated_at is not None:
+            return self.updated_at.strftime("%H:%M")
+        else:
+            return ''
+
+    # 메시지 전송시간을 반환한다.
+    @property
+    def sended_time(self):
+        if self.sendTime is not None:
+            return self.sendTime.strftime("%H:%M")
+        else:
+            return ''
+
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------

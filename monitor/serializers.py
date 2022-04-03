@@ -137,6 +137,10 @@ class PhoneSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 ########################################################################################################################
 class MessageSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 
+    phone_no_sht = serializers.ReadOnlyField()  # 전화번호(끝 4자리) (@property decorator)
+    create_time = serializers.ReadOnlyField()  # 메시지 생성시간(예: 12:10) (@property decorator)
+    sended_time = serializers.ReadOnlyField()  # 메시지 전송시간(예: 14:20) (@property decorator)
+
     class Meta:
         model = Message
         fields = '__all__'
