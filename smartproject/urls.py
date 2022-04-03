@@ -29,22 +29,28 @@ from analysis.views import dashboard
 #   |     └- templates
 #   |            └- accounts : 로그인 화면
 #   |
-#   ├- analysis : 분석 관련 모듈 (홈 데시보드 및 일일보고)
+#   ├- analysis : 분석 관련 모듈 (홈 데시보드 및 일일보고) ***
 #   |      ├- migrations : 데이터베이스 관련 파일
 #   |      ├- static : 정적파일
 #   |      └- templates
 #   |            └- analysis : 홈(데시보드) 및 일일보고 화면
 #   |
-#   ├- management : 운영환경 관리 관련 모듈
-#   ├- message : 전송 메시지 관련 모듈
-#   ├- monitor : 측정 모니터링 관련 모듈
+#   ├- api : REST API 모듈 (JSON 데이터 제공)
+#   ├- logs : 로그관리 모듈(DB에 저장 및 조회)
+#   |
+#   ├- management : 운영환경 관리 관련 모듈 ***
+#   ├- message : 전송 메시지 관련 모듈 ***
+#   ├- monitor : 측정 모니터링 관련 모듈 ***
 #   ├- scheduler : 백그라운드 스케쥴 작업 관련 모듈
 #   ├- smartproject : 스마트상황실 프로젝트 메인 디렉토리
 #   |      ├- static
 #   |      └- templates
 #   |            └- admin : 커스터마이징 관리자 페이지
 #   |
-#   └- staticfiles : STATIC 파일
+#   ├- staticfiles : STATIC 파일
+#   └- vueapp : Django + Vue.js 연동 테스트 (화면 자동갱신 기능: 비동기 통신)
+#
+# *** 업무 서비스 관련 모듈
 #
 ########################################################################################################################
 
