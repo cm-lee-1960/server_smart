@@ -4,7 +4,6 @@ from django.views.generic import ListView
 from django.db import connection
 from django.db.models import Q
 from datetime import datetime
-import json
 
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer
@@ -67,7 +66,9 @@ class ApiPhoneGroupLV(ListView):
             raise Exception("ApiPhoneGroupLVt: %s" % e)
 
         # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
-        data = {'total_count': total_count, 'centerList': centerList, 'phoneGroupList': phoneGroupList}
+        data = {'total_count': total_count, # 측정 총건수
+                'centerList': centerList, # 센터별 측정건ㅅ
+                'phoneGroupList': phoneGroupList} # 단말그룹 리스트
 
         return JsonResponse(data=data, safe=False)
 
@@ -115,9 +116,9 @@ class ApiMessageLV(ListView):
                             messageTeleList.append(serializer.data)
 
                 # 클라이언트 브라우저에 전송할 데이터를 랩필한다.
-                data = {'messageEventList': messageEventList,
-                        'messageSmsList': messageSmsList,
-                        'messageTeleList': messageTeleList,}
+                data = {'messageEventList': messageEventList, # 이벤트 메시지 리스트
+                        'messageSmsList': messageSmsList, # 문자 메시지 리스트
+                        'messageTeleList': messageTeleList,} # 텔레그램 메시지 리스트
 
             except Exception as e:
                 print("ApiMessageLV:", str(e))

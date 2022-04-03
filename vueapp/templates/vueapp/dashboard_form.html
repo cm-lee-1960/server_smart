@@ -34,11 +34,9 @@
     | block extra-script         |
     └--------------------------- ┘
 </body>
-
 </html>
 ########################################################################################################################
 -->
-
 {% extends "vueapp/base.html" %}
 {% load static %}
 
@@ -247,8 +245,11 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 <script>
+/* =====================================================================================================================
+ * 측정현황을 주기적으로 갱신하기 위한 모듈(Vue.js)
+ =====================================================================================================================*/
 var vm = new Vue({
-    delimiters: ['[[', ']]'],
+    delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
     el: '#app',
     data: {
         date: "2021-11-01", // 측정일자
@@ -269,6 +270,7 @@ var vm = new Vue({
     },
     created: function () {
         console.log("created()...");
+        // 날짜타입의 측정일자를 스트링으로 변환한다(예: 20211101)
         //this.date = Date.now();
         var date = new Date("2021-11-01");
         var year = date.getFullYear();
@@ -276,12 +278,16 @@ var vm = new Vue({
         var day = ("0" + date.getDate()).slice(-2);
         this.date = year + "-" + month + "-" + day;
 
+        // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
         this.fetch_all_phoneGroup();
         this.timer = setInterval(this.fetch_all_phoneGroup, 10000);
         console.log("####...", this.centerList);
     },
 
     methods: {
+        /* -------------------------------------------------------------------------------------------------------------
+         * 측정일자에 해당하는 측정단말 리스트를 가져온다.
+         -------------------------------------------------------------------------------------------------------------*/
         async fetch_all_phoneGroup() {
             console.log("fetch_all_phoneGroup()...");
             const res = await fetch("/api/phonegroup/list/" + this.date);
@@ -291,19 +297,28 @@ var vm = new Vue({
             this.centerList = data['centerList'];
             this.phoneGroupList = data['phoneGroupList'];
          },
+        /* -------------------------------------------------------------------------------------------------------------
+         * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
+         -------------------------------------------------------------------------------------------------------------*/
         clickPhoneGroupList: function (phoneGroup) {
             console.log("clickPhoneGroupList()...");
             this.fetch_all_message(phoneGroup);
         },
+        /* -------------------------------------------------------------------------------------------------------------
+         * 전송 메시지(이벤트/문자/텔레그랠) 리스트를 가져온다.
+         -------------------------------------------------------------------------------------------------------------*/
         async fetch_all_message(phoneGroup) {
             console.log("fetch_all_message()...");
             const res = await fetch("/api/message/list/" + phoneGroup.id)
             const data = await res.json();
-            this.messageEventList = data['messageEventList'];
-            this.messageSmsList = data['messageSmsList'];
-            this.messageTeleList = data['messageTeleList'];
+            this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
+            this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
+            this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
             console.log("#### message ####", data);
         },
+        /* -------------------------------------------------------------------------------------------------------------
+         * 전송 메시지 내역을 클릭 했을 때 메시지 상세내역을 보여준다.
+         -------------------------------------------------------------------------------------------------------------*/
         clickMessageList: function(message) {
             console.log("clickMessageList()...");
             console.log("##### message.id", message.message)
