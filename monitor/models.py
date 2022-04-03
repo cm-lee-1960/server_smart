@@ -140,6 +140,16 @@ class PhoneGroup(models.Model):
         """측정조를 반환한다."""
         return self.measuringTeam if self.measuringTeam is not None else ''
 
+    # 최종 측정위치보고 시간을 반환한다.
+    @property
+    def last_updated_time(self):
+        """최종 측정위치보고 시간을 반환한다."""
+        if self.last_updated_dt is not None:
+            return self.last_updated_dt.strftime("%H:%M")
+        else:
+            return ''
+
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.

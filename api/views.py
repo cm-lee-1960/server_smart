@@ -38,7 +38,7 @@ class ApiPhoneGroupLV(ListView):
             if qs.exists():
                 fields = ['id', 'centerName', 'p_measuringTeam', 'userInfo1', 'morphologyName', 'networkId', 'dl_count',
                           'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
-                          'last_updated_dt','active',]
+                          'last_updated_dt', 'last_updated_time', 'active',]
                 for phoneGroup in qs:
                     serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
                     phoneGroupList.append(serializer.data)
@@ -58,8 +58,8 @@ class ApiPhoneGroupLV(ListView):
             summary = dict((x, y) for x, y in [row for row in cursor.fetchall()])
             total_count = sum(summary.values())
             centerList = [{'centerName': key, 'count': value} for key, value in summary.items()]
-            for i in range(5-len(centerList)):
-                centerList.append( {'centerName': ' ', 'count': ' '})
+            # for i in range(5-len(centerList)):
+            #     centerList.append( {'centerName': ' ', 'count': ' '})
 
         except Exception as e:
             print("ApiPhoneGroupLV:", str(e))
