@@ -38,7 +38,7 @@ from datetime import datetime
 #   ┗ ---------------┛ |  2) POST로 메시지 내용, 수신자 리스트 json 전달    │  -> http 3000포트 리스닝 시작        　 　 │
 #     ↑                ┗ -->--------------------------------------------> │ 2) json Data Parsing                      │             
 #     |                   3) Status Code 200, Body : {result: 'True'}     │  -> 메시지 내용/수신자 변수 저장　  　      │
-#     ┗--------------------<----------------------------------------------│-3) eponse 전송 후 리스닝 종료              │
+#     ┗--------------------<----------------------------------------------│-3) Reponse 전송 후 리스닝 종료             │
 #                                                                         │  -> Status Code:200, Body:{크로샷 결과}    │
 #                                                                         ┖───────────────────────────────────────────┛
 # ----------------------------------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ def send_sms(message, receiver):
   '''크로샷 전송 함수
    .파라미터:
     - message: 보낼 메시지 내용 (Text)
-    - receiver: 보낼 수신자 리스트 (List) 
+    - receiver: 보낼 수신자(str) 리스트 (List) 
    .반환값:
     - Dict {status_code : 200, Body : 전송결과}'''
   url = "http://localhost:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
@@ -59,22 +59,27 @@ def send_sms(message, receiver):
   for i in range(len(receiver)):
     seq_num = {'Seq' : i+1, 'Number' : receiver[i]}
     receivers.append(seq_num)
+  receivers.sort(key=len)
+  try:
+    if (message.isspace() == True) or receivers[0] == receivers[-1] != 11:  # 메시지가 공백이거나 or 수신자번호 11자리 아니면 오류
+      print('Error: 메시지 또는 수신자 번호를 확인해주세요.')
+    # messages.warning(request, 'Error....')
+    else:  # 보낼 Data 생성 후 nodejs로 post 전송한다 : 응답받은 후 리스닝 종료됨
+      data = {'message': message, 'receiver': receivers}
+      headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+      response = requests.post(url, data=json.dumps(data), headers=headers)
+      result = {'status_code' : response.status_code, 'Body': json.loads(response.text)}
+      return result   # nodejs에서 받은 return값을 Dict로 변환한 값 : status code:200, Body:크로샷전송결과})
+  except Exception as e:
+    raise Exception("Xroshot message send error: %s" % e) 
 
-  # 보낼 Data 생성 후 nodejs로 post 전송한다 : 응답받은 후 리스닝 종료됨
-  data = {'message': message, 'receiver': receivers}
-  headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-  response = requests.post(url, data=json.dumps(data), headers=headers)
-  result = {'status_code' : response.status_code, 'Body': json.loads(response.text)}
-
-  print(result)
-  return result   # nodejs에서 받은 return값을 Dict로 변환한 값 : status code:200, Body:크로샷전송결과})
 
 # Queryset을 Input으로 받아 Xroshot 전송하는 함수
 def send_sms_queryset(queryset, receiver):
   ''' queryset 하나를 input으로 받아 크로샷 전송 함수
   .파라미터:
    - queryset: 메시지 쿼리셋(Message.objects.get)
-   - receiver: 수신자 번호 리스트
+   - receiver: 수신자 번호(str) 리스트
    .반환값: Dict {status_code : 200, Body : 전송결과} '''
   msg = queryset.message
   result = send_sms(msg, receiver)
