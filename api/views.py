@@ -12,7 +12,7 @@ from monitor.serializers import PhoneGroupSerializer, MessageSerializer
 # REST API 기능
 # - 데이터를 조회해서 JSON 형태로 반환한다.
 #
-#  /vueapp/dashboard                urls.py                           views.py
+#  /vueapp/dashboard                urls.py                            views.py
 # ┌---------------------┐           ┌----------------------┐           ┌----------------------┐
 # |      홈 페이지      |   ┌------>|         /api         |   ┌------>|         /api         |----┐
 # |(dashboard_form.html)|   |       |(smartproject/urls.py)|   |       |    (api/views.py)    |    |
@@ -54,7 +54,9 @@ class ApiPhoneGroupLV(ListView):
                           'last_updated_dt', 'last_updated_time', 'active',]
                 for phoneGroup in qs:
                     serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
-                    phoneGroupList.append(serializer.data)
+                    data = serializer.data
+                    data['selected'] = False
+                    phoneGroupList.append(data)
 
             # 센터별 측정진행 건수를 가져온다.
             cursor = connection.cursor()
