@@ -101,7 +101,7 @@
 
         <!-- 금일 측정그룹 -->
         <div id="main_body" class="mt-2 w-100 fixed-table-container mt-0 pt-0 px-1"
-             style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:400px">
+             style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:380px">
             <!-- <h6><b>금일 측정그룹</b></h6> -->
             <div class="fixed-table-body">
                 <table id="groupWindow" class='table table-hover' style="display:block">
@@ -128,7 +128,7 @@
                     <th scope="col" style="width: 5%">종료</th>
                     </thead>
                     <tbody id='phoneGroupDetail_body' class="table-hover"
-                           style="height:330px; overflow-y:auto; display:block" class="d-flex">
+                           style="height:310px; overflow-y:auto; display:block" class="d-flex">
                     {# <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}' onclick='startTimer_messagedata(this.attributes["id"].value);'>#}
                     <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex"
                         v-on:click="clickPhoneGroupList(phoneGroup)">
@@ -272,11 +272,12 @@
             </div>
             <!-- /.container -->
 
-            <div style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">
+            <div style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">
                 <h6> 상세 메시지내역 </h6>
                 <div style="text-align: center;">
                     <div class="mb-1">
-                        <textarea class="form-control" id="message_contents" rows="6">[[message]]</textarea>
+                        <textarea class="form-control mb-1" id="message_contents" rows="5">[[message]]</textarea>
+                        <input class="form-control form-control-sm" id="formFileSm" type="file" />
                     </div>
                     <!--
                     <button type="button" class="btn btn-outline-primary btn-sm">전송</button>
@@ -289,11 +290,6 @@
         </div>
 
     </div>
-
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#closeModal">
-        Launch demo modal
-    </button>
 
     <!-- Modal -->
     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true"
@@ -315,9 +311,6 @@
             </div>
         </div>
     </div>
-
-    <div class="alert" role="alert" id="result"></div>
-
 
 {% endblock %}
 
