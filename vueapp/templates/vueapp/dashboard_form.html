@@ -306,7 +306,7 @@
                             aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    선택된 단말그룹에 대한 측정을 종료하시겠습니까?
+                    <p id="modal_body"></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="modal-btn-end">측정종료</button>
@@ -343,6 +343,7 @@ var vm = new Vue({
         message: '',
         timer: '', // 타이머
         allChecked: false,
+        checkedCount: 0,
     },
     created: function () {
         console.log("created()...");
@@ -372,6 +373,7 @@ var vm = new Vue({
             this.total_count = data['total_count'];
             this.centerList = data['centerList'];
             this.phoneGroupList = data['phoneGroupList'];
+            this.checkedCount = 0;
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
@@ -420,14 +422,13 @@ var vm = new Vue({
             }
         },
         getSelected() {
-            console.log("EEEEEE")
-            let phoneGroupId = [];
+            let phoneGroupIdList = [];
             for (let i in this.phoneGroupList) {
                 if (this.phoneGroupList[i].selected) {
-                    phoneGroupId.push(this.phoneGroupList[i].id);
+                    phoneGroupIdList.push(this.phoneGroupList[i].id);
                 }
             }
-            console.log("####", phoneGroupId)
+            this.checkedCount = phoneGroupIdList.length
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 단말그룹에 대한 측정을 종료한다.
@@ -465,12 +466,10 @@ $(".nav-link").mouseover(function () {
     $(this).tab("show");
 });
 
-/*
 $(".nav-link").on("show.bs.tab", function (e) {
     const tabPanelId = e.relatedTarget.getAttribute("href");
     $(tabPanelId).removeClass("active");
 });
-*/
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * 측정종료 확인창(모달) 내 버튼을 위한 함수를 정의한다.
@@ -478,7 +477,18 @@ $(".nav-link").on("show.bs.tab", function (e) {
 var modalConfirm = function (callback) {
 
     $("#btn-end-confirm").on("click", function () {
-        $("#mi-modal").modal('show');
+        //const selectedRow = document.getElementsByClassName("phoneGroup.selected");
+        //console.log(selectedRow)
+        vm.getSelected();
+        if (vm.checkedCount > 0) {
+            //$(".modal-body #modal-body-content").val("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
+            $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
+            $("#mi-modal").modal('show');
+        } else {
+            //$(".modal-body #modal-body-content").val("선택된 단말그룹이 없습니다.");
+            $("#modal_body").html("선택된 단말그룹이 없습니다.");
+            $("#mi-modal").modal('show');
+        }
     });
 
     $("#modal-btn-end").on("click", function () {
