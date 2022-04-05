@@ -93,7 +93,7 @@
                 </div>
             </div>
             <div class="col-2">
-                <button type="button" class="btn btn-secondary btn-lg mt-lg-5" v-on:click="getSelected()"><h5>측정종료</h5></button>
+                <button type="button" class="btn btn-secondary btn-lg mt-lg-5" id="btn-end-confirm"><h5>측정종료</h5></button>
                 <button type="button" class="btn btn-danger btn-lg mt-lg-5"><h5>측정마감</h5></button>
             </div>
         </div>
@@ -171,15 +171,15 @@
                  style="border: 2px solid rgb(228, 223, 223); padding: 2px; height:270px; width:1100px;">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#event" role="tab"
+                        <a class="nav-link active" id="event-tab" data-toggle="tab" href="#event" role="tab"
                            aria-controls="home" aria-selected="true">이벤트</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#sms" role="tab"
+                        <a class="nav-link" id="sms-tab" data-toggle="tab" href="#sms" role="tab"
                            aria-controls="profile" aria-selected="false">문자</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#tele" role="tab"
+                        <a class="nav-link" id="tele-tab" data-toggle="tab" href="#tele" role="tab"
                            aria-controls="contact" aria-selected="false">텔레그램</a>
                     </li>
                 </ul>
@@ -275,13 +275,43 @@
                     <button type="button" class="btn btn-outline-primary btn-sm">전송</button>
                     <button type="button" class="btn btn-outline-danger btn-sm">회수</button>
                     -->
-                    <button type="button" class="btn btn-primary">전송</button>
+                    <button type="button" class="btn btn-primary" v-on:click="getSelected()">전송</button>
                     <button type="button" class="btn btn-danger">회수</button>
                 </div>
             </div>
         </div>
 
     </div>
+
+
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#closeModal">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="mi-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">확인</h4>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        선택된 단말그룹에 대한 측정을 종료하시겠습니까?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="modal-btn-end">측정종료</button>
+        <button type="button" class="btn btn-default" id="modal-btn-cancel">취소</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="alert" role="alert" id="result"></div>
+
+
 {% endblock %}
 
 {% block extra-script   %}
@@ -383,6 +413,7 @@ var vm = new Vue({
             }
         },
         getSelected() {
+            console.log("EEEEEE")
             let phoneGroupId = [];
             for (let i in this.phoneGroupList) {
                 if (this.phoneGroupList[i].selected) {
@@ -416,9 +447,39 @@ $(".nav-link").mouseover(function () {
     $(this).tab("show");
 });
 
+/*
 $(".nav-link").on("show.bs.tab", function (e) {
     const tabPanelId = e.relatedTarget.getAttribute("href");
     $(tabPanelId).removeClass("active");
+});
+*/
+
+var modalConfirm = function(callback){
+
+  $("#btn-end-confirm").on("click", function(){
+    $("#mi-modal").modal('show');
+  });
+
+  $("#modal-btn-end").on("click", function(){
+    callback(true);
+    $("#mi-modal").modal('hide');
+  });
+
+  $("#modal-btn-cancel").on("click", function(){
+    callback(false);
+    $("#mi-modal").modal('hide');
+  });
+};
+
+modalConfirm(function(confirm){
+  if(confirm){
+    //Acciones si el usuario confirma
+    //$("#result").html("CONFIRMADO");
+      vm.getSelected();
+  }else{
+    //Acciones si el usuario no confirma
+    //$("#result").html("NO CONFIRMADO");
+  }
 });
 
 </script>
