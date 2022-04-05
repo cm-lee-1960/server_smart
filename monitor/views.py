@@ -260,12 +260,19 @@ def receive_json(request):
 ########################################################################################################################
 # 해당지역 측정을 종료한다.
 ########################################################################################################################
-def measuring_end_view(request):
+def measuring_end_view(request, phonegroup_id):
     """ 해당일자에 대한 측정종료을 처리하는 뷰 함수
         - 파라미터
           . request(phoneGroup_list): 측정종료 대상 단말그룹 리스트
         - 반환값: 없음(현재 페이지 유지)
         """
+    print(request, phonegroup_id)
+    qs = PhoneGroup.objects.filter(id=phonegroup_id)
+    if qs.exists():
+        phoneGroup = qs[0]
+        print("서버 PhoneGroup", phoneGroup)
+        measuring_end(phoneGroup)
+
     # 2022.03.24 - 단말그룹을 전달 받아서 아래 코드가 수행될 수 있도록 처리해야 함
     # 홈 페이지에서 어떻게 단말그룹 리스트를 보낼지 협의 후 진행해야 함
     # if queryset.exists():
