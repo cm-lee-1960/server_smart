@@ -422,10 +422,13 @@ var vm = new Vue({
             }
             console.log("####", phoneGroupId)
         },
+        /* -------------------------------------------------------------------------------------------------------------
+         * 단말그룹에 대한 측정을 종료한다.
+         -------------------------------------------------------------------------------------------------------------*/
          async measuring_end() {
             for (let i in this.phoneGroupList) {
                 if (this.phoneGroupList[i].selected) {
-                    console.log("#### measuring_end()")
+                    // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
                     const res = await fetch("/monitor/end/" + this.phoneGroupList[i].id)
                 }
             }
@@ -485,26 +488,15 @@ var modalConfirm = function(callback){
 /* ---------------------------------------------------------------------------------------------------------------------
  * 측정종료 확인창(모달) 내에서 '측정종료' 버튼을 클릭했을 때 측정종료를 실행한다.
  ---------------------------------------------------------------------------------------------------------------------*/
-modalConfirm(function(confirm){
-  if(confirm){
-    //Acciones si el usuario confirma
-    //$("#result").html("CONFIRMADO");
-      let phoneGroupList = vm.getSelected();
-      console.log(phoneGroupList);
-          vm.measuring_end()
-      console.log("### measuring_end() 호출")
-      /*
-      for (let phonegroup_id in phoneGroupList) {
-          // 선택된 단말에 대해서 측정종료를 처리한다.
-
-
-      }
-      */
-
-  }else{
-    //Acciones si el usuario no confirma
-    //$("#result").html("NO CONFIRMADO");
-  }
+modalConfirm(function (confirm) {
+    if (confirm) {
+        // 선택된 단말그룹에 대한 측정을 종료하는 함수를 호출한다.
+        vm.measuring_end();
+        // 측정을 종료한 후 단말그룹 리스트를 다시 조회한다.
+        vm.fetch_all_phoneGroup()
+    } else {
+        // 선택된 단말그룹이 없는 경우 아무런 처리를 하지 않는다.
+    }
 });
 
 </script>

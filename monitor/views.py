@@ -259,33 +259,21 @@ def receive_json(request):
 
 ########################################################################################################################
 # 해당지역 측정을 종료한다.
+# ----------------------------------------------------------------------------------------------------------------------
+# 2022.04.05 - 단말그룹ID를 전달 받아 측정을 종료하는 기능을 구현함
 ########################################################################################################################
 def measuring_end_view(request, phonegroup_id):
     """ 해당일자에 대한 측정종료을 처리하는 뷰 함수
         - 파라미터
-          . request(phoneGroup_list): 측정종료 대상 단말그룹 리스트
+          . phonegroup_id: 단말그룹ID (int)
         - 반환값: 없음(현재 페이지 유지)
         """
-    print(request, phonegroup_id)
+    # 해당 단말그룹 ID로 오브젝트 데이터를 가져온다.
     qs = PhoneGroup.objects.filter(id=phonegroup_id)
     if qs.exists():
         phoneGroup = qs[0]
-        print("서버 PhoneGroup", phoneGroup)
-        measuring_end(phoneGroup)
-
-    # 2022.03.24 - 단말그룹을 전달 받아서 아래 코드가 수행될 수 있도록 처리해야 함
-    # 홈 페이지에서 어떻게 단말그룹 리스트를 보낼지 협의 후 진행해야 함
-    # if queryset.exists():
-    #     try:
-    #         result_list = []  # 여러개 그룹을 종료 시킬 수 있으므로 결과값을 리스트 선언
-    #         # 관리자 페이지에서 넘겨 받은 쿼리셋에서 선택된 단말그룹을 하나씩 가져와서 측정종료 처리를 한다.
-    #         for phoneGroup in queryset:
-    #             result = measuring_end(phoneGroup)
-    #             result_list.append(result)  # 결과 리스트 append
-    #     except Exception as e:
-    #         # 오류 코드 및 내용을 반환한다.
-    #         print("get_measuring_end_action():", str(e))
-    #         raise Exception("get_measuring_end_action(): %s" % e)
+        # 해당 단말 그룹에 대한 측정을 종료한다.
+        result = measuring_end(phoneGroup)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
