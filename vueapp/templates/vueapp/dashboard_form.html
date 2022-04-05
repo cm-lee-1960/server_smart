@@ -93,7 +93,8 @@
                 </div>
             </div>
             <div class="col-2">
-                <button type="button" class="btn btn-secondary btn-lg mt-lg-5" id="btn-end-confirm"><h5>측정종료</h5></button>
+                <button type="button" class="btn btn-secondary btn-lg mt-lg-5" id="btn-end-confirm"><h5>측정종료</h5>
+                </button>
                 <button type="button" class="btn btn-danger btn-lg mt-lg-5"><h5>측정마감</h5></button>
             </div>
         </div>
@@ -201,7 +202,9 @@
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.phone_no_sht ]]</td>
-                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80, '...')]]</td>
+                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80,
+                                    '...')]]
+                                </td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.sended_time ]]</td>
                                 <td class="col-md-1 text-center" style="width: 10%" v-if="message.message">전송</td>
                                 <td class="col-md-1 text-center" style="width: 10%" v-else="message.message">미전송</td>
@@ -227,7 +230,9 @@
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.phone_no_sht ]]</td>
-                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80, '...')]]</td>
+                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80,
+                                    '...')]]
+                                </td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.sended_time ]]</td>
                                 <td class="col-md-1 text-center" style="width: 10%" v-if="message.message">전송</td>
                                 <td class="col-md-1 text-center" style="width: 10%" v-else="message.message">미전송</td>
@@ -251,7 +256,9 @@
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.phone_no_sht ]]</td>
-                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80, '...')]]</td>
+                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80,
+                                    '...')]]
+                                </td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.sended_time ]]</td>
                                 <td class="col-md-1 text-center" style="width: 10%" v-if="message.message">전송</td>
                                 <td class="col-md-1 text-center" style="width: 10%" v-else="message.message">미전송</td>
@@ -283,33 +290,33 @@
 
     </div>
 
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#closeModal">
+        Launch demo modal
+    </button>
 
-
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#closeModal">
-  Launch demo modal
-</button>
-
-<!-- Modal -->
-<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="mi-modal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title" id="myModalLabel">확인</h4>
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      </div>
-      <div class="modal-body">
-        선택된 단말그룹에 대한 측정을 종료하시겠습니까?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="modal-btn-end">측정종료</button>
-        <button type="button" class="btn btn-default" id="modal-btn-cancel">취소</button>
-      </div>
+    <!-- Modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true"
+         id="mi-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">확인</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    선택된 단말그룹에 대한 측정을 종료하시겠습니까?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="modal-btn-end">측정종료</button>
+                    <button type="button" class="btn btn-default" id="modal-btn-cancel">취소</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<div class="alert" role="alert" id="result"></div>
+    <div class="alert" role="alert" id="result"></div>
 
 
 {% endblock %}
@@ -425,7 +432,7 @@ var vm = new Vue({
         /* -------------------------------------------------------------------------------------------------------------
          * 단말그룹에 대한 측정을 종료한다.
          -------------------------------------------------------------------------------------------------------------*/
-         async measuring_end() {
+        async measuring_end() {
             for (let i in this.phoneGroupList) {
                 if (this.phoneGroupList[i].selected) {
                     // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
@@ -468,21 +475,21 @@ $(".nav-link").on("show.bs.tab", function (e) {
 /* ---------------------------------------------------------------------------------------------------------------------
  * 측정종료 확인창(모달) 내 버튼을 위한 함수를 정의한다.
  ---------------------------------------------------------------------------------------------------------------------*/
-var modalConfirm = function(callback){
+var modalConfirm = function (callback) {
 
-  $("#btn-end-confirm").on("click", function(){
-    $("#mi-modal").modal('show');
-  });
+    $("#btn-end-confirm").on("click", function () {
+        $("#mi-modal").modal('show');
+    });
 
-  $("#modal-btn-end").on("click", function(){
-    callback(true);
-    $("#mi-modal").modal('hide');
-  });
+    $("#modal-btn-end").on("click", function () {
+        callback(true);
+        $("#mi-modal").modal('hide');
+    });
 
-  $("#modal-btn-cancel").on("click", function(){
-    callback(false);
-    $("#mi-modal").modal('hide');
-  });
+    $("#modal-btn-cancel").on("click", function () {
+        callback(false);
+        $("#mi-modal").modal('hide');
+    });
 };
 
 /* ---------------------------------------------------------------------------------------------------------------------
