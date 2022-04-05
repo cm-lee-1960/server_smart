@@ -321,6 +321,9 @@
 <script>
 /* =====================================================================================================================
  * 측정현황을 주기적으로 갱신하기 위한 모듈(Vue.js)
+ * ---------------------------------------------------------------------------------------------------------------------
+ * 2022.04.05 - 선택된 단말그룹 내역 건수를 계산하는 함수를 computed 속성으로 변환함
+ *
  =====================================================================================================================*/
 var vm = new Vue({
     delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
@@ -335,8 +338,19 @@ var vm = new Vue({
         messageTeleList: [], // 텔레그램 메시지 리스트
         message: '',
         timer: '', // 타이머
-        allChecked: false,
-        checkedCount: 0,
+        allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
+        checkedCount: 0, // 선택된 단말그룹 건수
+    },
+    computed: {
+        checkedCount: function () {
+            let phoneGroupIdList = [];
+            for (let i in this.phoneGroupList) {
+                if (this.phoneGroupList[i].selected) {
+                    phoneGroupIdList.push(this.phoneGroupList[i].id);
+                }
+            }
+            return phoneGroupIdList.length
+        }
     },
     created: function () {
         console.log("created()...");
