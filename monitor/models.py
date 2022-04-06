@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.conf import settings
 from datetime import datetime, timedelta, timezone
+import random
 
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
@@ -167,6 +168,18 @@ class PhoneGroup(models.Model):
             return self.last_updated_dt.strftime("%H:%M")
         else:
             return ''
+
+    @property
+    def elapsed_time(self):
+        """경과시간(분)을 반환한다."""
+        if self.active:
+            # 실제 운영시에는 최종 위치보고시간과 현재시간과의 차이(분)을 반환하도록 해야 한다.
+            # daysDiff = (datetime.now() - self.last_updated_dt).days
+            # minutesDiff = daysDiff * 24 * 60
+            minutesDiff = random.randint(0, 10)
+            return minutesDiff
+        else:
+            return '-'
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.

@@ -108,6 +108,7 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     morphologyName = serializers.ReadOnlyField(source = 'morphology.morphology') # 모폴로지명
     p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조 (@property decorator)
     last_updated_time = serializers.ReadOnlyField() # 최종 측정위치보고 시간 (@property decorator) (예: 12:05)
+    elapsed_time = serializers.ReadOnlyField() # 경과시간(분) (@property decorator)
     class Meta:
         model = PhoneGroup
         fields = '__all__'

@@ -143,7 +143,7 @@
                         <td style="width: 7%" class="text-center">[[phoneGroup.uploadBandwidth]]</td>
                         <td style="width: 7%" class="text-center">[[phoneGroup.nr_percent]]</td>
                         <td style="width: 7%" class="text-center">[[phoneGroup.event_count]]</td>
-                        <td style="width: 7%" class="text-center">[[phoneGroup.last_updated_time]]</td>
+                        <td style="width: 7%" class="text-center">[[phoneGroup.last_updated_time]]([[phoneGroup.elapsed_time]])</td>
                         <td style="width: 7%" class="text-center" v-if="phoneGroup.active">측정 중</td>
                         <td style="width: 7%" class="text-center" v-else="phoneGroup.active">측정종료</td>
                         <td style="width: 7%" class="text-center" v-if="phoneGroup.active">
@@ -490,11 +490,11 @@ var vm = new Vue({
  * 전송 메시지 내용을 줄여서 표현하는 필터를 선언한다.
  * 사용법: <td class="col-md-6 text-left">[[ message.message | truncate(65, '...')]]</td>
  ---------------------------------------------------------------------------------------------------------------------*/
-var filter = function (text, length, clamp) {
+const filter = function (text, length, clamp) {
     clamp = clamp || '...';
-    var node = document.createElement('div');
+    const node = document.createElement('div');
     node.innerHTML = text;
-    var content = node.textContent;
+    const content = node.textContent;
     return content.length > length ? content.slice(0, length) + clamp : content;
 };
 
