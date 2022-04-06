@@ -130,7 +130,7 @@
                 <thead id = 'phoneGroupDetail_header' class="bg-light">
                 </thead>
                 <tbody id = 'phoneGroupDetail_body' class="table-hover" style="height:330px; overflow-y:auto; display:block">
-                    {% for phonegroup in phnoegroup %}
+                    {% comment %} {% for phonegroup in data %}
                         {% if phonegroup.manage == 1 %}
                         <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}' onclick='startTimer_messagedata(this.attributes["id"].value);'>
                             <td>{{phonegroup.center.centerName}}</td>
@@ -159,7 +159,7 @@
                             </td>
                         </tr>
                         {% endif %}
-                    {% endfor %}
+                    {% endfor %} {% endcomment %}
                 </tbody>
             </table> 
         </div>
@@ -257,6 +257,11 @@
 
 <!--스크립트 구문 -->
 <script>
+    //전역변수 구간
+    var group_list_check = 0 // 그룹개수 체크 글로벌
+
+</script>
+<script>
 
     //현재 날짜 확인
     let today = new Date();
@@ -267,7 +272,14 @@
     //document.getElementById("toDay").innerHTML = dateString;
     //현재날짜 이거 다시 넣어야된다.
     
+    //////////////////////////////
+    //전역변수 구간
+    // var group_list_check = 0 // 그룹개수 체크 글로벌
+    console.log(group_list_check)
+    var group_list_len = 0 // 그룹개수 글로벌
+    var toDayinfo = "" // 금일 날짜 변수 글로벌
 
+    /////////////////////////////
     //초기 금일 측정 그룹 TH 셋팅
     let phSetting = ['본부','조','측정지역','모폴로지','네트워크','DL콜수','DL속도','UL콜수','UL속도','전환율','이벤트','측정시간','상태','종료'];
     thappend = ""
@@ -289,6 +301,8 @@
             $('#phoneGroupDetail_header').append(thappend);
         }
     );
+
+
     ////////////////////////////////////////////////////////////////////////////
     //setinterval 관련 부분
     const GV = {
@@ -305,8 +319,8 @@
                 GV.isPause_startdata = false;
                 interval_startdata();  
                 GV.timer_startdata = setInterval(function(){ 
-                    interval_startdata(); 
-                }, 35000);          
+                interval_startdata(); 
+                }, 13000);          
     } 
 
     // listdata ajax실행 인터벌이 바로 실행하게 한다.
@@ -314,49 +328,76 @@
                 GV.isPause_listdata = false;
                 interval_listdata();  
                 GV.timer_listdata = setInterval(function(){ 
-                    interval_listdata(); 
+                interval_listdata(); 
                 }, 20000);          
     } 
     // messagedata ajax실행 인터벌이 바로 실행하게 한다.
-    const startTimer_messagedata = function(tr_id){
+    {% comment %} const startTimer_messagedata = function(tr_id){
         var list_tr_id =  tr_id
         GV.isPause_messagedata = false;
         interval_messagedata(list_tr_id);  
         GV.timer_messagedata = setInterval(function(){ 
             interval_messagedata(list_tr_id); 
         }, 60000);          
-    } 
+    }  {% endcomment %}
     
-    // ajax종료
+    // interval종료
     const stopTimer = function(){ 
-               clearInterval(GV.timer_listdata); 
-               GV.isPause_listdata = true; 
+        clearInterval(GV.timer_listdata); 
+        GV.isPause_listdata = true;
+        GV.timer_startdata = true;
+        GV.timer_messagedata = true;
+        group_list_check = 0 // 그룹개수 체크 글로벌 
     }    
     ////////////////////////////////////////////////////////////////////////////
-    var toDayinfo = "" // 금일 날짜 변수 글로벌
 
     function input() {
         toDayinfo = document.querySelector('input[type="date"]').value;
         console.log(toDayinfo);
     }
     ////////////////////////////////////////////////////////////////////////////
-
+    
     const interval_listdata = function(){
     if(!GV.isPause_listdata){
     //function interval_listdata(){
             $.ajaxSetup({
-                headers: { "X-CSRFToken": '{{csrf_token}}' }
+                headers: { "X-CSRFToken": '{{csrf_token}}'}
             });
 
             $.ajax({
                 type:'POST',
                 url: "{% url 'analysis:listview_phoneGroupData' %}",
                 dataType : 'text',
-                data : { 'date' : toDayinfo },
-                async:false,
+                data : {'date' : toDayinfo},
+                //async: false,
                 cache: false,
-                success: function(data){
-                    $('#phoneGroupDetail_body').replaceWith($('#phoneGroupDetail_body',data));
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function(ajax_data){
+                    //$('#phoneGroupDetail_body').replaceWith($('#phoneGroupDetail_body',data));
+                    console.log("불러오기성공")
+                    ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
+                    console.log("리스트체크")
+                    console.log(group_list_check)
+                    console.log("개수체크")
+                    console.log(group_list_len)
+                    console.log("그룹개수")
+                    console.log(ajax_data['data'].length)
+
+                    if(group_list_check == 0){
+                        console.log("처음은 여기")
+                        group_list_len = ajax_data['data'].length;
+                        console.log(group_list_check)
+                        startListData(ajax_data);
+                        group_list_check = 1;
+                        console.log(group_list_check)
+                    }else{
+                        console.log("나중은 여기")
+                        if(group_list_len !== ajax_data['data'].length){
+                            startListData(ajax_data);
+                        }
+                    }
+                    //1일 때는 웹페이지를 불러올때 , 0일때는 다음 시그널 
+                    //0일때 이전 Ajax 키값 숫자랑 비교해서 다를때만 추가되라 
                 },
                 error: function(error){
                     console.log("불러오기 실패")
@@ -364,11 +405,56 @@
 
                 }
             });
+            //group_list_check = 1;
         }
     }
     /////////////////////////////////////////////////////////////////////////
-    
-    
+    //금일측정그룹 생성
+    function startListData(ajax_data){
+        console.log("잘들어오나")
+        console.log(ajax_data)
+        console.log(Object.keys(ajax_data).length)
+        let measStatus // 초기화
+        
+        if (ajax_data[0] != 'nodata'){
+            //for(let i = 0; i < Object.keys(ajax_data).length; i++){
+            for(let i = 0; i < ajax_data['data'].length; i++){
+                measStatus += '<tr id = "' + ajax_data['data'][i]['id'] + '">';
+                for(var listdata_name of Object.keys(ajax_data['data'][i])){ 
+                    if(listdata_name !== 'id'){
+
+                        if(ajax_data['data'][i][listdata_name] == undefined){
+                            td_data = '-'
+                        }else if(ajax_data['data'][i][listdata_name] == true){
+                            td_data = "측정 중"
+                        }else if(ajax_data['data'][i][listdata_name] == false){
+                            td_data = "측정 종료"
+                        }else{
+                            td_data = ajax_data['data'][i][listdata_name]
+                        }
+
+                        //data null 체크
+                        if(listdata_name == 'userInfo1'){
+                            measStatus += '<td class="big_td">' + td_data + '</td>';
+                        }else{
+                            measStatus += '<td>' + td_data + '</td>';
+                        }
+                    }
+                }
+                measStatus += '<td onclick="event.cancelBubble=true;">'
+                if (ajax_data['data'][i]['active'] == 1){
+                    measStatus += '<img class="area_exit" id="img_' + ajax_data['data'][i]['id'] + '" src="{% static "admin/img/icon-yes.svg" %}" alt="종료">'
+                }else{
+                    measStatus += '<img class="area_exit" id="img_' + ajax_data['data'][i]['id'] + '" src="{% static "admin/img/icon-no.svg" %}" alt="종료">'
+                }
+                measStatus += '</tr>'
+            }
+        }        
+        //console.log(measStatus)
+        $('#phoneGroupDetail_body').append(measStatus);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
     //stratdata 부분
     //AJAX를 먼저 시작하고 딜레이
     //callback -> interval
@@ -391,7 +477,7 @@
             url: "{% url 'analysis:ajax_startdata' %}",
             dataType : 'text',
             data : {'date' : toDayinfo },
-            async:false,
+            //async:false,
             success: function(ajax_data){
                 ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
                 console.log(ajax_data)
@@ -412,7 +498,7 @@
         let measStatus = '<tr id = "toDayDetailTr">';
             measStatus += '<th id="Group" style="padding-right:15px">';
             measStatus += '<span><font size="3"> 금일 총 </font></span>';
-            measStatus += '<span id = "today_group" class="today_count"><font size="3"> 3조 </font></span>'
+            measStatus += '<span id = "today_group" class="today_count"><font size="3"> - </font></span>'
             measStatus += '</th>';
             measStatus += '<th id = "measure" style="padding-right:15px">';
             measStatus += '<span><font size="3"> 측정 중 </font></span>';
@@ -457,7 +543,7 @@
 
     ///////////////////////////////
     //event 내용 생성 ajax
-    const interval_messagedata = function(list_tr_id){
+    {% comment %} const interval_messagedata = function(list_tr_id){
         if(!GV.isPause_messagedata){
         //function interval_listdata(){
                 $.ajaxSetup({
@@ -469,7 +555,7 @@
                     url: "{% url 'analysis:listview_messageData' %}",
                     dataType : 'text',
                     data : { 'groupid' : list_tr_id },
-                    async:false,
+                    //async: false,
                     cache: false,
                     success: function(ajax_data){
                         ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
@@ -484,7 +570,7 @@
                     }
                 });
             }
-        }
+        } {% endcomment %}
 
 </script>
 {% endblock %}

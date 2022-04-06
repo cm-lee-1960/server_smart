@@ -9,6 +9,7 @@
 # import sys
 
 from multiprocessing.sharedctypes import Value
+from operator import mod
 from django.forms import CharField
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
@@ -30,6 +31,9 @@ from .ajax import *
 
 from django.views.generic import ListView
 from django.shortcuts import get_list_or_404
+from django.views.generic import TemplateView
+from monitor.serializers import PhoneGroupSerializer2
+
 
 ###################################################################################################
 # 분석 처리모듈
@@ -43,6 +47,64 @@ from django.shortcuts import get_list_or_404
 # -------------------------------------------------------------------------------------------------
 # 홈(Home) 페이지
 # -------------------------------------------------------------------------------------------------
+#FBV grouplist
+#global start_flag  ## 처음임을 확인
+#start_flag = 0
+
+def get_listview(request):
+    """함수기반 뷰 FBV 그룹데이터 호출 뷰"""
+    #global start_flag
+    data = {}
+    if request.method== "POST":
+        
+        toDate = request.POST['date'].split('-')
+        toDate_str = "".join(toDate)
+        print("여기들어왓다")
+        print(toDate_str)
+        
+            
+        phonegroup = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008',manage=1).order_by('-active')
+    
+        fields = ['p_center','measuringTeam','userInfo1','p_morpol','networkId','dl_count','downloadBandwidth', 
+                'ul_count','uploadBandwidth','nr_percent','event_count','active','last_updated_dt','id']
+                  ## id는 메세지를 불러오기위하여
+        #print(start_flag)
+
+        if len(phonegroup) != 0:
+            
+            #if start_flag == 0:
+            #print("0이다")
+            #for num in range(len(phonegroup)):
+            serializer = PhoneGroupSerializer2(phonegroup, fields = fields, many=True)
+            serializer_data = serializer.data ## 시리얼라이즈 데이터
+            data['data'] = serializer_data
+                #data['check'] = 1
+            
+            #else:
+                # print("1이다")
+                # serializer = PhoneGroupSerializer2(phonegroup[len(phonegroup)-1], fields=fields)
+                # serializer_data = serializer.data ## 시리얼라이즈 데이터
+                # data[0] = serializer_data
+                # data['check'] = 0
+                
+        else:
+            data['data'] = 'nodata'    
+            
+        
+    print(data)    
+    json_data_call = json.dumps(data)
+    #start_flag = start_flag + 1
+    
+    return HttpResponse(json_data_call, content_type="applications/json")    
+         
+        
+    # phnoegroup = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008')
+    # context = {
+    #         'phnoegroup' : phnoegroup
+    # }
+        
+    # return render(request,"analysis/dashboard_form.html",context)
+
 #FBV messagelist
 def get_listview_m(request):
     """함수기반 뷰 FBV 그룹데이터 호출 뷰"""
@@ -65,20 +127,32 @@ def get_listview_m(request):
     #return render(request,"analysis/dashboard_form.html",json_data_call)
     return HttpResponse(json_data_call, content_type="applications/json")
 
-#FBV grouplist
-def get_listview(request):
-    """함수기반 뷰 FBV 그룹데이터 호출 뷰"""
-    if request.method== "POST":
-        
-        toDate = request.POST['date'].split('-')
-        toDate_str = "".join(toDate)
-        
-        phnoegroup = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008')
-        context = {
-                'phnoegroup' : phnoegroup
-        }
-    return render(request,"analysis/dashboard_form.html",context)
+class PhoneGroupDetailView(TemplateView):
+    """클래스 기반 뷰 CBV 그룹데이터 호출 뷰"""
+    template_name = 'analysis/dashboard_form.html'
+    def post(self, request, **kwargs):
+        queryset = PhoneGroup.objects.all()
+        ctx = {
+            'data' :  queryset  
+        } 
+        return self.render_to_response(ctx)
     
+    # def post_context_data(self, *args, **kwargs):
+    #     context = super(PhoneGroupDetailView, self).post_context_data(*args, **kwargs)
+    #     context['phonegroup'] = PhoneGroup.objects.all()
+    #     return context
+    
+    # def get(self, request, *arg, **kwargs):
+    #     if request.is_ajax():
+    #         return super(PhoneGroupDetailView, self).get(request, *arg, **kwargs)
+    
+    # template_name = 'analysis/dashboard_form.html'
+    # model = PhoneGroup.objects.all()
+
+    
+
+    
+
 def get_startdata(request):
     """초기 데이터 호출 view 날짜를 전달받는다"""
     if request.method== "POST":

@@ -140,17 +140,23 @@ class PhoneGroup(models.Model):
         """측정조를 반환한다."""
         return self.measuringTeam if self.measuringTeam is not None else ''
 
-    # 최종 측정위치보고 시간을 반환한다.
+    # 측정센터를 반환한다.
     @property
-    def last_updated_time(self):
-        """최종 측정위치보고 시간을 반환한다."""
-        if self.last_updated_dt is not None:
-            return self.last_updated_dt.strftime("%H:%M")
-        else:
-            return ''
-
-
-
+    def p_center(self):
+        """측정센터를 반환한다."""
+        return Center.objects.get(id=self.center_id).centerName if self.center_id is not None else ''
+    
+    # 측정모폴를 반환한다.
+    @property
+    def p_morpol(self):
+        """측정모폴을 반환한다."""
+        return Morphology.objects.get(id=self.morphology_id).morphology if self.morphology_id is not None else ''
+    
+    # 측정주소를 반환한다.
+    @property
+    def p_userInfo1(self):
+        """측정주소를 반환한다."""
+        return self.userInfo1 if self.userInfo1 is not None else ''
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.
 # 2022.03.15 - 측정자 입력값(userInfo2)가 입력오류가 자주 발생하므로 모폴로지를 찾지 못하는 경우 "행정동"으로 초기화 함
@@ -706,7 +712,6 @@ class MeasureSecondData(models.Model):
 # 2022.03.29 - 전송 메시지 모델에 대한 흐름도 및 주석 추가
 #            - 전송유형(sendType) 추가
 #              . TELE: 텔레그램, XMCS: 크로샷, ALL: 텔레그램과 크로샷 모두 전송
-# 2022.04.03 - 전화번호(4자리), 메시지 생성시간, 전송시간을 가져올 수 있는 @property 함수를 추가함
 #
 ########################################################################################################################
 class Message(models.Model):
@@ -728,36 +733,8 @@ class Message(models.Model):
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
     sended = models.BooleanField(default=True) # 전송여부
     updated_at = models.DateTimeField(auto_now=True, verbose_name='생성일시')
-    sendTime = models.DateTimeField(auto_now=True, verbose_name='전송시간')
+    sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
-
-    # 전화번호 뒤에서 4자리를 반환한다.
-    @property
-    def phone_no_sht(self):
-        """전화번호 끝 4자리를 리턴한다."""
-        # 단말그룸으로 메시지가 생성되는 경우 어떻게 할 것인지에 대한 코드를 작성해야 함
-        if self.phone is not None:
-            return str(self.phone.phone_no)[-4:]
-        else:
-            return ''
-
-    # 메시지 생성시간을 반환한다.
-    @property
-    def create_time(self):
-        if self.updated_at is not None:
-            return self.updated_at.strftime("%H:%M")
-        else:
-            return ''
-
-    # 메시지 전송시간을 반환한다.
-    @property
-    def sended_time(self):
-        if self.sendTime is not None:
-            return self.sendTime.strftime("%H:%M")
-        else:
-            return ''
-
-
 
 
 # ----------------------------------------------------------------------------------------------------------------------
