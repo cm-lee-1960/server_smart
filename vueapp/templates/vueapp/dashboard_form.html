@@ -333,7 +333,7 @@ var vm = new Vue({
         messageEventList: [], // 이벤트 메시지 리스트
         messageSmsList: [], // 문자 메시지 리스트
         messageTeleList: [], // 텔레그램 메시지 리스트
-        message: null,
+        message: null, // 상세 메시지내역
         timer: null, // 타이머
         allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
         //checkedCount: 0,
@@ -350,7 +350,6 @@ var vm = new Vue({
         }
     },
     created: function () {
-        console.log("created()...");
         // 날짜타입의 측정일자를 스트링으로 변환한다(예: 20211101)
         //this.date = Date.now();
         const date = new Date("2021-11-01");
@@ -362,7 +361,6 @@ var vm = new Vue({
         // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
         this.fetch_all_phoneGroup();
         this.timer = setInterval(this.fetch_all_phoneGroup, 10000);
-        console.log("####...", this.centerList);
     },
 
     methods: {
@@ -370,14 +368,12 @@ var vm = new Vue({
          * 측정일자에 해당하는 측정단말 리스트를 가져온다.
          -------------------------------------------------------------------------------------------------------------*/
         async fetch_all_phoneGroup() {
-            console.log("fetch_all_phoneGroup()...");
             const res = await fetch("/api/phonegroup/list/" + this.date);
             const data = await res.json();
-            console.log("####", data);
             this.total_count = data['total_count'];
             this.centerList = data['centerList'];
             // 기존에 체크한 항목을 그대로 유지한다.
-
+            // 로직 고민중
             this.phoneGroupList = data['phoneGroupList'];
             //this.checkedCount = 0;
         },
@@ -385,7 +381,6 @@ var vm = new Vue({
          * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
          -------------------------------------------------------------------------------------------------------------*/
         clickPhoneGroupList: function (phoneGroup) {
-            console.log("clickPhoneGroupList()...");
             this.fetch_all_message(phoneGroup);
             this.message = null;
         },
@@ -393,27 +388,22 @@ var vm = new Vue({
          * 전송 메시지(이벤트/문자/텔레그랠) 리스트를 가져온다.
          -------------------------------------------------------------------------------------------------------------*/
         async fetch_all_message(phoneGroup) {
-            console.log("fetch_all_message()...");
             const res = await fetch("/api/message/list/" + phoneGroup.id)
             const data = await res.json();
             this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
             this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
             this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
-            console.log("#### message ####", data);
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 전송 메시지 내역을 클릭 했을 때 메시지 상세내역을 보여준다.
          -------------------------------------------------------------------------------------------------------------*/
         clickMessageList: function (message) {
-            console.log("clickMessageList()...");
-            console.log("##### message.id", message.message)
             this.message = message.message
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 단말그룹 리스트 체크박스 관련 함수
          -------------------------------------------------------------------------------------------------------------*/
         checkedAll(checked) {
-            console.log("#### checkedAll()")
             this.allChecked = checked
             for (let i in this.phoneGroupList) {
                 this.phoneGroupList[i].selected = this.allChecked;
@@ -452,7 +442,6 @@ var vm = new Vue({
         },
         // 2) 해당 일자에 대한 측정을 마감한다.
         async measuring_day_close() {
-            console.log(this.date)
             const res = await fetch("/monitor/day_close/" + this.date)
         },
         /* -------------------------------------------------------------------------------------------------------------
@@ -460,7 +449,6 @@ var vm = new Vue({
          -------------------------------------------------------------------------------------------------------------*/
         // 1) 측정종료 버튼을 클릭했을 때
         clickMeasuringEnd(e) {
-            console.log("## checkedCount: ", this.checkedCount)
             if (this.checkedCount > 0) {
                 $("#modal-btn-confirm").html('측정종료');
                 $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
@@ -479,8 +467,6 @@ var vm = new Vue({
         },
         // 3) 모달창에서 확인버튼(측정종료 또는 측정마감) 버튼을 클릭했을 때
         clickModalBtnConfirm(e) {
-            console.log(e)
-            console.log(e.target.innerText === "측정마감");
             if (e.target.innerText === "측정종료") {
                 // 선택된 단말그룹에 대한 측정을 종료한다.
                 this.measuring_end();
