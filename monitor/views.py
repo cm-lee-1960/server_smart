@@ -281,13 +281,18 @@ def measuring_end_view(request, phonegroup_id):
 ########################################################################################################################
 # 당일 측정을 마감한다.
 ########################################################################################################################
-def measuring_day_close_view(request):
+def measuring_day_close_view(request, measdate):
     """ 해당일자에 대한 측정마감을 처리하는 뷰 함수
         - 파라미터
           . date: 기준일자(예: 20211101)
         - 반환값: 없음(현재 페이지 유지)
     """
-    date = request.POST.get('date').replace('-','') # 기준일자
+    if request.method == 'GET':
+        date = measdate.replace('-', '')  # 기준일자
+    elif request.method == 'POST':
+        date = request.POST.get('date').replace('-','') # 기준일자
+
+
 
     # 1) 해당일자에 측정 이력이 없는 경우
     if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:

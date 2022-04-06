@@ -93,9 +93,11 @@
                 </div>
             </div>
             <div class="col-2">
-                <button type="button" class="btn btn-secondary btn-lg mt-lg-5 pt-3" id="btn-end-confirm"><h5>측정종료</h5>
+                <button type="button" class="btn btn-secondary btn-lg mt-lg-5 pt-3" v-on:click="clickMeasuringEnd()">
+                    <h5>측정종료</h5>
                 </button>
-                <button type="button" class="btn btn-danger btn-lg mt-lg-5 pt-3"><h5>측정마감</h5></button>
+                <button type="button" class="btn btn-danger btn-lg mt-lg-5 pt-3" v-on:click="clickMeasuringClose()">
+                    <h5>측정마감</h5></button>
             </div>
         </div>
 
@@ -289,28 +291,33 @@
             </div>
         </div>
 
-    </div>
 
-    <!-- Modal -->
-    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true"
-         id="mi-modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">확인</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                </div>
-                <div class="modal-body">
-                    <p id="modal_body"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="modal-btn-end">측정종료</button>
-                    <button type="button" class="btn btn-default" id="modal-btn-cancel">취소</button>
+        <!-- Modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true"
+             id="mi-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">확인</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="modal_body"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="modal-btn-confirm" v-on:click="clickModalBtnConfirm">측정종료</button>
+                        <button type="button" class="btn btn-default" id="modal-btn-cancel" v-on:click="clickModalBtnCancel">취소</button>
+                    </div>
                 </div>
             </div>
         </div>
+
+
+
     </div>
+
+
 
 {% endblock %}
 
@@ -340,6 +347,8 @@ var vm = new Vue({
         timer: '', // 타이머
         allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
         checkedCount: 0, // 선택된 단말그룹 건수
+        showModal: false,
+        httpStatus: null,
     },
     computed: {
         checkedCount: function () {
@@ -356,10 +365,10 @@ var vm = new Vue({
         console.log("created()...");
         // 날짜타입의 측정일자를 스트링으로 변환한다(예: 20211101)
         //this.date = Date.now();
-        var date = new Date("2021-11-01");
-        var year = date.getFullYear();
-        var month = ("0" + (1 + date.getMonth())).slice(-2);
-        var day = ("0" + date.getDate()).slice(-2);
+        const date = new Date("2021-11-01");
+        const year = date.getFullYear();
+        const month = ("0" + (1 + date.getMonth())).slice(-2);
+        const day = ("0" + date.getDate()).slice(-2);
         this.date = year + "-" + month + "-" + day;
 
         // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
@@ -448,8 +457,36 @@ var vm = new Vue({
                 }
             }
         },
+        async measuring_day_close() {
+            console.log(this.date)
+            const res = await fetch("/monitor/day_close/" + this.date)
+        },
+        clickMeasuringEnd(e) {
+            $("#modal-btn-confirm").html('측정종료');
+            $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
+            $("#mi-modal").modal('show');
+        },
+        clickMeasuringClose(e) {
+            $("#modal-btn-confirm").html('측정마감');
+            $("#modal_body").html("당일 측정을 마감하시겠습니까?");
+            $("#mi-modal").modal('show');
+        },
+        clickModalBtnConfirm(e) {
+            console.log(e)
+            console.log(e.target.innerText === "측정마감");
+            if (e.target.innerText === "측정종료") {
+                // 선택된 단말그룹에 대한 측정을 종료한다.
+                this.measuring_end();
+            } else if (e.target.innerText === "측정마감") {
+                // 해당일자에 대한 측정을 마감한다.
+                this.measuring_day_close()
+            }
+            $("#mi-modal").modal('hide');
+        },
+        clickModalBtnCancel(){
+            $("#mi-modal").modal('hide');
+        },
     },
-
 });
 
 /* ---------------------------------------------------------------------------------------------------------------------
@@ -481,11 +518,13 @@ $(".nav-link").on("show.bs.tab", function (e) {
 /* ---------------------------------------------------------------------------------------------------------------------
  * 측정종료 확인창(모달) 내 버튼을 위한 함수를 정의한다.
  ---------------------------------------------------------------------------------------------------------------------*/
+/*
 var modalConfirm = function (callback) {
 
-    $("#btn-end-confirm").on("click", function () {
+    $("#btn-end-confirm").on("click", function (e) {
         //const selectedRow = document.getElementsByClassName("phoneGroup.selected");
         //console.log(selectedRow)
+        console.log(e.target.outerText);
         vm.getSelected();
         if (vm.checkedCount > 0) {
             //$(".modal-body #modal-body-content").val("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
@@ -508,10 +547,11 @@ var modalConfirm = function (callback) {
         $("#mi-modal").modal('hide');
     });
 };
-
+*/
 /* ---------------------------------------------------------------------------------------------------------------------
  * 측정종료 확인창(모달) 내에서 '측정종료' 버튼을 클릭했을 때 측정종료를 실행한다.
  ---------------------------------------------------------------------------------------------------------------------*/
+/*
 modalConfirm(function (confirm) {
     if (confirm) {
         // 선택된 단말그룹에 대한 측정을 종료하는 함수를 호출한다.
@@ -522,6 +562,7 @@ modalConfirm(function (confirm) {
         // 선택된 단말그룹이 없는 경우 아무런 처리를 하지 않는다.
     }
 });
+*/
 
 </script>
 
