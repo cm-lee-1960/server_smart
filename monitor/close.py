@@ -205,7 +205,6 @@ def measuring_end(phoneGroup):
             if md.exists():
                 # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
                 md.update(**serializer.data)
-                md.update(total_count=total_count)
             else:
                 # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
                 MeasuringDayClose.objects.create(phoneGroup=phoneGroup, **serializer.data)
