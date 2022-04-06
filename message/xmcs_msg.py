@@ -52,7 +52,7 @@ def send_sms(message, receiver):
    .반환값:
     - Dict {status_code : 200, Body : 전송결과}'''
   url = "http://localhost:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
-  execute_sms_nodejs = os.popen('node ./message/sms_broadcast.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast2.js
+  execute_send_sms_nodejs = os.popen('node ./message/sms_broadcast.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast.js
 
   # 수신자 리스트를 적절한 형태로 변환한다.
   receivers = []
@@ -68,10 +68,10 @@ def send_sms(message, receiver):
       data = {'message': message, 'receiver': receivers}
       headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
       response = requests.post(url, data=json.dumps(data), headers=headers)
-      result = {'status_code' : response.status_code, 'Body': json.loads(response.text)}
+      result = {'status_code' : response.status_code, 'body': json.loads(response.text)}
       return result   # nodejs에서 받은 return값을 Dict로 변환한 값 : status code:200, Body:크로샷전송결과})
   except Exception as e:
-    raise Exception("Xroshot message send error: %s" % e) 
+    raise Exception("Xroshot message send error: %s" % e)
 
 
 # Queryset을 Input으로 받아 Xroshot 전송하는 함수
@@ -82,12 +82,42 @@ def send_sms_queryset(queryset, receiver):
    - receiver: 수신자 번호(str) 리스트
    .반환값: Dict {status_code : 200, Body : 전송결과} '''
   msg = queryset.message
-  result = send_sms(msg, receiver)
-  if result['status_code'] == 200:
-    queryset.sended = True if result['Body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
-    queryset.sendTime = datetime.strptime(result['Body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
+  result_sms = send_sms(msg, receiver)
+  if result_sms['status_code'] == 200:
+    queryset.sended = True if result_sms['body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
+    queryset.sendTime = datetime.strptime(result_sms['body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
     queryset.save()
+
+    # 크로샷 전송 결과 개별 조회 수행 (정상 전송되었는지 확인)
+    cnt = result_sms['body']['response']['Count']  # 전송 대상 수
+    SendDay = result_sms['body']['response']['SubmitTime'][:8]  # 보낸날짜
+    JobIDs = []  # 조회할 개별 JobID 리스트
+    for i in range(cnt):
+      JobIDs.append(result_sms['body']['response']['JobIDs'][i]['JobID'])
+      #print(rst['body']['response']['JobIDs'][i]['Index'])
+    report_result = report_sms(JobIDs, SendDay)  # 조회 결과
+    
+    # 반환할 Dict를 생성한다 : {수신자번호 : 결과}
+    result={'Count' : cnt}
+    for i in range(cnt):
+      result[report_result['body']['response']['JobIDs'][i]['ReceiveNumber']] = report_result['body']['response']['JobIDs'][i]['Result']
   else:
     print('Sending Xroshot Failed....')
 
+  return result  # 크로샷 전송 조회 결과를 반환
+
 # 크로샷 전송 결과 개별 조회 함수는 필요 시 작성
+def report_sms(JobIDs, SendDay):
+  ''' 크로샷 전송 결과 개별 조회 함수
+  .파라미터:
+   - JobIDs: 조회할 JobID(int) 리스트(크로샷 전송 후 크로샷 서버에서 회신받은 JobID)
+   - SendDay: 전송한 날짜(str, 8자리)
+  .반환값: Dict {JobID : 전송결과} '''
+  url = "http://localhost:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
+  execute_report_sms_nodejs = os.popen('node ./message/report.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/report.js
+  # nodejs에 전송할 data 생성 및 전송
+  data = {'JobIDs': JobIDs, 'SendDay': SendDay}
+  headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+  response = requests.post(url, data=json.dumps(data), headers=headers)
+  result = {'status_code' : response.status_code, 'body': json.loads(response.text)}
+  return result   # nodejs에서 받은 return값을 Dict로 변환한 값 : status code:200, Body:크로샷전송결과})
