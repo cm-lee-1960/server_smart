@@ -59,9 +59,9 @@ def send_sms(message, receiver):
   for i in range(len(receiver)):
     seq_num = {'Seq' : i+1, 'Number' : receiver[i]}
     receivers.append(seq_num)
-  receivers.sort(key=len)
+  receiver.sort(key=len)
   try:
-    if (message.isspace() == True) or receivers[0] == receivers[-1] != 11:  # 메시지가 공백이거나 or 수신자번호 11자리 아니면 오류
+    if (message.isspace() == True) or len(receiver[0]) == len(receiver[-1]) != 11:  # 메시지가 공백이거나 or 수신자번호 11자리 아니면 오류
       print('Error: 메시지 또는 수신자 번호를 확인해주세요.')
     # messages.warning(request, 'Error....')
     else:  # 보낼 Data 생성 후 nodejs로 post 전송한다 : 응답받은 후 리스닝 종료됨
@@ -81,30 +81,28 @@ def send_sms_queryset(queryset, receiver):
    - queryset: 메시지 쿼리셋(Message.objects.get)
    - receiver: 수신자 번호(str) 리스트
    .반환값: Dict {status_code : 200, Body : 전송결과} '''
-  msg = queryset.message
-  result_sms = send_sms(msg, receiver)
-  if result_sms['status_code'] == 200:
-    queryset.sended = True if result_sms['body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
-    queryset.sendTime = datetime.strptime(result_sms['body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
-    queryset.save()
+  try:
+    msg = queryset.message
+    result_sms = send_sms(msg, receiver)  # 크로샷 전송 함수
+    if result_sms['status_code'] == 200:
+      queryset.sended = True if result_sms['body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
+      queryset.sendTime = datetime.strptime(result_sms['body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
+      
+      # 크로샷 전송 결과 개별 조회 수행 (정상 전송되었는지 확인)
+      cnt = result_sms['body']['response']['Count']  # 전송 대상 수
+      SendDay = result_sms['body']['response']['SubmitTime'][:8]  # 보낸날짜
+      JobIDs = []  # 조회할 개별 JobID 리스트
+      for i in range(cnt):
+        JobIDs.append(result_sms['body']['response']['JobIDs'][i]['JobID'])
+        #print(rst['body']['response']['JobIDs'][i]['Index'])
+      result = report_sms(JobIDs, SendDay)  # 조회 결과 : Dict, {수신자번호 : 결과}
+      return result  # 크로샷 전송 조회 결과를 반환
+    else:
+      result = {'오류': '전송실패'}
+      return result
+  except Exception as e:
+    raise Exception("Xroshot queryset send error: %s" % e)
 
-    # 크로샷 전송 결과 개별 조회 수행 (정상 전송되었는지 확인)
-    cnt = result_sms['body']['response']['Count']  # 전송 대상 수
-    SendDay = result_sms['body']['response']['SubmitTime'][:8]  # 보낸날짜
-    JobIDs = []  # 조회할 개별 JobID 리스트
-    for i in range(cnt):
-      JobIDs.append(result_sms['body']['response']['JobIDs'][i]['JobID'])
-      #print(rst['body']['response']['JobIDs'][i]['Index'])
-    report_result = report_sms(JobIDs, SendDay)  # 조회 결과
-    
-    # 반환할 Dict를 생성한다 : {수신자번호 : 결과}
-    result={'Count' : cnt}
-    for i in range(cnt):
-      result[report_result['body']['response']['JobIDs'][i]['ReceiveNumber']] = report_result['body']['response']['JobIDs'][i]['Result']
-  else:
-    print('Sending Xroshot Failed....')
-
-  return result  # 크로샷 전송 조회 결과를 반환
 
 # 크로샷 전송 결과 개별 조회 함수는 필요 시 작성
 def report_sms(JobIDs, SendDay):
@@ -119,5 +117,31 @@ def report_sms(JobIDs, SendDay):
   data = {'JobIDs': JobIDs, 'SendDay': SendDay}
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
   response = requests.post(url, data=json.dumps(data), headers=headers)
-  result = {'status_code' : response.status_code, 'body': json.loads(response.text)}
-  return result   # nodejs에서 받은 return값을 Dict로 변환한 값 : status code:200, Body:크로샷전송결과})
+  cnt = len(JobIDs)
+  # 반환할 Dict를 생성한다 : {수신자번호 : 결과}
+  result={'Count' : cnt}
+  for i in range(cnt):
+    result[json.loads(response.text)['response']['JobIDs'][i]['ReceiveNumber']] = json.loads(response.text)['response']['JobIDs'][i]['Result']
+  return result
+
+
+
+
+
+# test용
+def send_sms_queryset_test(queryset, receiver):
+  try:
+    msg = queryset
+    result_sms = send_sms(msg, receiver)  # 크로샷 전송 함수
+    # 크로샷 전송 결과 개별 조회 수행 (정상 전송되었는지 확인)
+    cnt = result_sms['body']['response']['Count']  # 전송 대상 수
+    SendDay = result_sms['body']['response']['SubmitTime'][:8]  # 보낸날짜
+    JobIDs = []  # 조회할 개별 JobID 리스트
+    for i in range(cnt):
+      JobIDs.append(result_sms['body']['response']['JobIDs'][i]['JobID'])
+      #print(rst['body']['response']['JobIDs'][i]['Index'])
+    result = report_sms(JobIDs, SendDay)  # 조회 결과 : Dict, {수신자번호 : 결과}
+    print(result)
+    return result  # 크로샷 전송 조회 결과를 반환
+  except Exception as e:
+    raise Exception("Xroshot queryset send error: %s" % e)

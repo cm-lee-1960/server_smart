@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .tele_msg import TelegramBot
-from .xmcs_msg import send_sms
+from .xmcs_msg import send_sms, send_sms_queryset
 from monitor.models import Message
 from rest_framework.parsers import JSONParser
 import requests
@@ -58,8 +58,12 @@ def msg_send(request):
     if request.method=='POST':
         if request.POST['sendType'] == 'XMCS':
             receiver_list = request.POST['receiver'].replace(' ','').split(',')
-            result = send_sms(request.POST['message'], receiver_list)
-            return JsonResponse(result)
+            # result = send_sms(request.POST['message'], receiver_list)
+            # return JsonResponse(result)
+            from .xmcs_msg import send_sms_queryset_test
+            result_sms = send_sms_queryset_test(request.POST['message'], receiver_list)
+            result = {'result' : result_sms}
+            return render(request, 'message/xroshot_result.html', result)
 
         elif request.POST['sendType'] == 'TELE':
             try:

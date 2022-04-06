@@ -1,0 +1,36 @@
+<head>
+  <meta charset="UTF-8">
+</head>
+  {% csrf_token %}
+  
+  <div>
+    <style>
+      table {
+        width: 11%;
+        border: 1px solid #444444;
+        border-collapse: collapse;
+      }
+      th, td {
+        border: 1px solid #444444;
+        padding: 10px;
+        text-align: center;
+      }
+      th {
+        background-color: #bbdefb;
+      }
+      td {
+        background-color: #e3f2fd;
+      }
+    </style>
+    <table>
+      <th>구분</th>
+      <th>값</th>
+      {% for key, value in result.items %}
+      <tr>
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
