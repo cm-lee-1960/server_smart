@@ -48,16 +48,6 @@
             border-radius: 5px;
         }
 
-        .jumbotron {
-    position: relative;
-}
-.btnDiv {
-  width: 100%;
-  left: 0;
-  bottom: 10px;
-  position: absolute;
-}
-
     </style>
 
 {% endblock %}
@@ -102,8 +92,8 @@
         </div>
 
         <!-- 금일 측정그룹 -->
-        <div id="middle_phonegroup" class="mt-2 w-100 fixed-table-container mt-0 pt-0 px-1"
-             style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:380px">
+        <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
+             style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:350px">
             <!-- <h6><b>금일 측정그룹</b></h6> -->
             <div class="fixed-table-body">
                 <table id="groupWindow" class='table table-hover' style="display:block">
@@ -130,7 +120,7 @@
                     <th scope="col" style="width: 5%">종료</th>
                     </thead>
                     <tbody id='phoneGroupDetail_body' class="table-hover"
-                           style="height:310px; overflow-y:auto; display:block" class="d-flex">
+                           style="height:280px; overflow-y:auto; display:block" class="d-flex">
                     {# <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}' onclick='startTimer_messagedata(this.attributes["id"].value);'>#}
                     <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex"
                         v-on:click="clickPhoneGroupList(phoneGroup)">
@@ -144,8 +134,8 @@
                         </td>
                         <td style="width: 5%" class="text-center">[[phoneGroup.centerName]]</td>
                         <td style="width: 5%" class="text-center">[[phoneGroup.P_measuringTeam]]</td>
-                        <td style="width: 18%" class="text-center">[[phoneGroup.userInfo1]]</td>
-                        <td style="width: 10%" class="text-center">[[phoneGroup.morphologyName]]</td>
+                        <td style="width: 20%" class="text-center">[[phoneGroup.userInfo1 | truncate(15, '...')]]</td>
+                        <td style="width: 8%" class="text-center">[[phoneGroup.morphologyName]]</td>
                         <td style="width: 7%" class="text-center">[[phoneGroup.networkId]]</td>
                         <td style="width: 7%" class="text-center">[[phoneGroup.dl_count]]</td>
                         <td style="width: 7%" class="text-center">[[phoneGroup.downloadBandwidth]]</td>
@@ -171,7 +161,7 @@
         <div style="display:flex">
 
             <div id="bottom_body_left"
-                 style="border: 2px solid rgb(228, 223, 223); padding: 2px; height:270px; width:1100px;">
+                 style="border: 2px solid rgb(228, 223, 223); padding: 2px; height:300px; width:1100px;">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" id="event-tab" data-toggle="tab" href="#event" role="tab"
@@ -199,7 +189,7 @@
                             <th scope="col" class="text-center" style="width: 15%">전송여부</th>
                             </thead>
                             <tbody id='eventDetail_body' class="table-hover"
-                                   style="height:150px; overflow-y:auto; display:block">
+                                   style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageEventList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
@@ -227,7 +217,7 @@
                             <th scope="col" class="text-center" style="width: 15%">전송여부</th>
                             </thead>
                             <tbody id='xroshotDetail_body' class="table-hover"
-                                   style="height:150px; overflow-y:auto; display:block">
+                                   style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageSmsList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
@@ -253,7 +243,7 @@
                             <th scope="col" class="text-center" style="width: 15%">전송여부</th>
                             </thead>
                             <tbody id='teleDetail_body' class="table-hover"
-                                   style="height:150px; overflow-y:auto; display:block">
+                                   style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageTeleList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
@@ -274,18 +264,18 @@
             </div>
             <!-- /.container -->
 
-            <div style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">
+            <div style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:300px; width:780px;">
                 <h6> 상세 메시지내역 </h6>
                 <div style="text-align: center;">
                     <div class="mb-1">
-                        <textarea class="form-control mb-1" id="message_contents" rows="5">[[message]]</textarea>
+                        <textarea class="form-control mb-1" id="message_contents" rows="6">[[message]]</textarea>
                         <input class="form-control form-control-sm" id="formFileSm" type="file" />
                     </div>
                     <!--
                     <button type="button" class="btn btn-outline-primary btn-sm">전송</button>
                     <button type="button" class="btn btn-outline-danger btn-sm">회수</button>
                     -->
-                    <button type="button" class="btn btn-primary" v-on:click="getSelected()">전송</button>
+                    <button type="button" class="btn btn-primary">전송</button>
                     <button type="button" class="btn btn-danger">회수</button>
                 </div>
             </div>
@@ -343,8 +333,8 @@ var vm = new Vue({
         messageEventList: [], // 이벤트 메시지 리스트
         messageSmsList: [], // 문자 메시지 리스트
         messageTeleList: [], // 텔레그램 메시지 리스트
-        message: '',
-        timer: '', // 타이머
+        message: null,
+        timer: null, // 타이머
         allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
         //checkedCount: 0,
     },
@@ -386,6 +376,8 @@ var vm = new Vue({
             console.log("####", data);
             this.total_count = data['total_count'];
             this.centerList = data['centerList'];
+            // 기존에 체크한 항목을 그대로 유지한다.
+
             this.phoneGroupList = data['phoneGroupList'];
             //this.checkedCount = 0;
         },
@@ -395,6 +387,7 @@ var vm = new Vue({
         clickPhoneGroupList: function (phoneGroup) {
             console.log("clickPhoneGroupList()...");
             this.fetch_all_message(phoneGroup);
+            this.message = null;
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 전송 메시지(이벤트/문자/텔레그랠) 리스트를 가져온다.
@@ -446,8 +439,9 @@ var vm = new Vue({
             return phoneGroupIdList.length
         },
         /* -------------------------------------------------------------------------------------------------------------
-         * 단말그룹에 대한 측정을 종료한다.
+         * 측정종료 및 측정마감에 관련된 함수
          -------------------------------------------------------------------------------------------------------------*/
+        // 1) 해당 단말그룹에 대한 측정을 종료한다.
         async measuring_end() {
             for (let i in this.phoneGroupList) {
                 if (this.phoneGroupList[i].selected) {
@@ -456,10 +450,15 @@ var vm = new Vue({
                 }
             }
         },
+        // 2) 해당 일자에 대한 측정을 마감한다.
         async measuring_day_close() {
             console.log(this.date)
             const res = await fetch("/monitor/day_close/" + this.date)
         },
+        /* -------------------------------------------------------------------------------------------------------------
+         * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 모듈 관련 함수
+         -------------------------------------------------------------------------------------------------------------*/
+        // 1) 측정종료 버튼을 클릭했을 때
         clickMeasuringEnd(e) {
             console.log("## checkedCount: ", this.checkedCount)
             if (this.checkedCount > 0) {
@@ -472,11 +471,13 @@ var vm = new Vue({
                 $("#mi-modal").modal('show');
             }
         },
+        // 2) 측정마감 버튼을 클릭했을 때
         clickMeasuringClose(e) {
             $("#modal-btn-confirm").html('측정마감');
             $("#modal_body").html("당일 측정을 마감하시겠습니까?");
             $("#mi-modal").modal('show');
         },
+        // 3) 모달창에서 확인버튼(측정종료 또는 측정마감) 버튼을 클릭했을 때
         clickModalBtnConfirm(e) {
             console.log(e)
             console.log(e.target.innerText === "측정마감");
@@ -489,9 +490,13 @@ var vm = new Vue({
             }
             $("#mi-modal").modal('hide');
         },
+        // 4) 모달창에서 닫기 버튼을 클릭했을 때
         clickModalBtnCancel(){
             $("#mi-modal").modal('hide');
         },
+//        getKeyByValue(object, value) {
+//            return Object.keys(object).find(key => object[key] === value);
+//        }
     },
 });
 
@@ -520,55 +525,6 @@ $(".nav-link").on("show.bs.tab", function (e) {
     const tabPanelId = e.relatedTarget.getAttribute("href");
     $(tabPanelId).removeClass("active");
 });
-
-/* ---------------------------------------------------------------------------------------------------------------------
- * 측정종료 확인창(모달) 내 버튼을 위한 함수를 정의한다.
- ---------------------------------------------------------------------------------------------------------------------*/
-/*
-var modalConfirm = function (callback) {
-
-    $("#btn-end-confirm").on("click", function (e) {
-        //const selectedRow = document.getElementsByClassName("phoneGroup.selected");
-        //console.log(selectedRow)
-        console.log(e.target.outerText);
-        vm.getSelected();
-        if (vm.checkedCount > 0) {
-            //$(".modal-body #modal-body-content").val("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
-            $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
-            $("#mi-modal").modal('show');
-        } else {
-            //$(".modal-body #modal-body-content").val("선택된 단말그룹이 없습니다.");
-            $("#modal_body").html("선택된 단말그룹이 없습니다.");
-            $("#mi-modal").modal('show');
-        }
-    });
-
-    $("#modal-btn-end").on("click", function () {
-        callback(true);
-        $("#mi-modal").modal('hide');
-    });
-
-    $("#modal-btn-cancel").on("click", function () {
-        callback(false);
-        $("#mi-modal").modal('hide');
-    });
-};
-*/
-/* ---------------------------------------------------------------------------------------------------------------------
- * 측정종료 확인창(모달) 내에서 '측정종료' 버튼을 클릭했을 때 측정종료를 실행한다.
- ---------------------------------------------------------------------------------------------------------------------*/
-/*
-modalConfirm(function (confirm) {
-    if (confirm) {
-        // 선택된 단말그룹에 대한 측정을 종료하는 함수를 호출한다.
-        vm.measuring_end();
-        // 측정을 종료한 후 단말그룹 리스트를 다시 조회한다.
-        vm.fetch_all_phoneGroup()
-    } else {
-        // 선택된 단말그룹이 없는 경우 아무런 처리를 하지 않는다.
-    }
-});
-*/
 
 </script>
 

@@ -111,6 +111,7 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     class Meta:
         model = PhoneGroup
         fields = '__all__'
+
 class PhoneGroupSerializer2(IdModelSerializer, DynamicFieldsModelSerializer):
     # class PhoneGroupSerializer(DynamicFieldsModelSerializer):
     """단말그룹 직렬화 글래스2"""
