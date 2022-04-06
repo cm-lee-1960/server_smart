@@ -292,8 +292,6 @@ def measuring_day_close_view(request, measdate):
     elif request.method == 'POST':
         date = request.POST.get('date').replace('-','') # 기준일자
 
-
-
     # 1) 해당일자에 측정 이력이 없는 경우
     if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
         messages.add_message(request, messages.ERROR, '해당일자에 대한 측정중인 지역이 없습니다.')

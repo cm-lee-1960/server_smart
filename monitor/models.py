@@ -157,6 +157,17 @@ class PhoneGroup(models.Model):
     def p_userInfo1(self):
         """측정주소를 반환한다."""
         return self.userInfo1 if self.userInfo1 is not None else ''
+
+
+    # 최종 측정위치보고 시간을 반환한다.
+    @property
+    def last_updated_time(self):
+        """최종 측정위치보고 시간을 반환한다."""
+        if self.last_updated_dt is not None:
+            return self.last_updated_dt.strftime("%H:%M")
+        else:
+            return ''
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.
 # 2022.03.15 - 측정자 입력값(userInfo2)가 입력오류가 자주 발생하므로 모폴로지를 찾지 못하는 경우 "행정동"으로 초기화 함
@@ -736,6 +747,31 @@ class Message(models.Model):
     sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
 
+    # 전화번호 뒤에서 4자리를 반환한다.
+    @property
+    def phone_no_sht(self):
+        """전화번호 끝 4자리를 리턴한다."""
+        # 단말그룸으로 메시지가 생성되는 경우 어떻게 할 것인지에 대한 코드를 작성해야 함
+        if self.phone is not None:
+            return str(self.phone.phone_no)[-4:]
+        else:
+            return ''
+
+    # 메시지 생성시간을 반환한다.
+    @property
+    def create_time(self):
+        if self.updated_at is not None:
+            return self.updated_at.strftime("%H:%M")
+        else:
+            return ''
+
+    # 메시지 전송시간을 반환한다.
+    @property
+    def sended_time(self):
+        if self.sendTime is not None:
+            return self.sendTime.strftime("%H:%M")
+        else:
+            return ''
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 전송하는 함수

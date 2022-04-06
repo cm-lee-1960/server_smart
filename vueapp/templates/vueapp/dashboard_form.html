@@ -306,8 +306,8 @@
                         <p id="modal_body"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="modal-btn-confirm" v-on:click="clickModalBtnConfirm">측정종료</button>
-                        <button type="button" class="btn btn-default" id="modal-btn-cancel" v-on:click="clickModalBtnCancel">취소</button>
+                        <button type="button" class="btn btn-primary" id="modal-btn-confirm" v-if="checkedCount" v-on:click="clickModalBtnConfirm">측정종료</button>
+                        <button type="button" class="btn btn-default" id="modal-btn-cancel" v-on:click="clickModalBtnCancel">닫기</button>
                     </div>
                 </div>
             </div>
@@ -346,9 +346,7 @@ var vm = new Vue({
         message: '',
         timer: '', // 타이머
         allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
-        checkedCount: 0, // 선택된 단말그룹 건수
-        showModal: false,
-        httpStatus: null,
+        //checkedCount: 0,
     },
     computed: {
         checkedCount: function () {
@@ -389,7 +387,7 @@ var vm = new Vue({
             this.total_count = data['total_count'];
             this.centerList = data['centerList'];
             this.phoneGroupList = data['phoneGroupList'];
-            this.checkedCount = 0;
+            //this.checkedCount = 0;
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
@@ -422,6 +420,7 @@ var vm = new Vue({
          * 단말그룹 리스트 체크박스 관련 함수
          -------------------------------------------------------------------------------------------------------------*/
         checkedAll(checked) {
+            console.log("#### checkedAll()")
             this.allChecked = checked
             for (let i in this.phoneGroupList) {
                 this.phoneGroupList[i].selected = this.allChecked;
@@ -444,7 +443,7 @@ var vm = new Vue({
                     phoneGroupIdList.push(this.phoneGroupList[i].id);
                 }
             }
-            this.checkedCount = phoneGroupIdList.length
+            return phoneGroupIdList.length
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 단말그룹에 대한 측정을 종료한다.
@@ -462,9 +461,16 @@ var vm = new Vue({
             const res = await fetch("/monitor/day_close/" + this.date)
         },
         clickMeasuringEnd(e) {
-            $("#modal-btn-confirm").html('측정종료');
-            $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
-            $("#mi-modal").modal('show');
+            console.log("## checkedCount: ", this.checkedCount)
+            if (this.checkedCount > 0) {
+                $("#modal-btn-confirm").html('측정종료');
+                $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
+                $("#mi-modal").modal('show');
+            } else {
+                $("#modal-btn-confirm").html('측정종료');
+                $("#modal_body").html("선택된 단말그룹이 없습니다.");
+                $("#mi-modal").modal('show');
+            }
         },
         clickMeasuringClose(e) {
             $("#modal-btn-confirm").html('측정마감');
