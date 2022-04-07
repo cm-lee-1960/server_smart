@@ -296,7 +296,7 @@ def measuring_day_close(phoneGroup_list, measdate):
         measuring_end(phoneGroup)
  
     # 각 단말 그룹들의 종료 데이터(MeasuringDayClose)를 보충
-    for phoneGroup in PhoneGroup.objects.filter(ispId='45008', active=False, measdate=measdate):
+    for phoneGroup in PhoneGroup.objects.filter(ispId='45008', manage=True, active=False, measdate=measdate):
         try:
             phone_list = phoneGroup.phone_set.all()
             qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime") # 초데이터로 바꿔야함
@@ -388,7 +388,10 @@ def measuring_day_close(phoneGroup_list, measdate):
     except Exception as e:
         print("일일보고 메시지 수합, 생성:", str(e))
         raise Exception("measuring_day_close/message_report_all: %s" % e)
-
+    
+    # 모든 폰그룹들을 inactive 시킨다.
+    PhoneGroup.objects.filter(measdate=measdate).update(active=False)
+    
     # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
     return_value = {'measdate': measdate, 'message': message_report_all}
 
