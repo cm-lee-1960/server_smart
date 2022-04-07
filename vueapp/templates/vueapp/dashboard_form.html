@@ -268,7 +268,7 @@
                 <h6> 상세 메시지내역 </h6>
                 <div style="text-align: center;">
                     <div class="mb-1">
-                        <textarea class="form-control mb-1" id="message_contents" rows="6">[[message]]</textarea>
+                        <textarea class="form-control mb-1" id="message_contents" rows="6">[[message.message]]</textarea>
                         <input class="form-control form-control-sm" id="formFileSm" type="file" />
                     </div>
                     <!--
@@ -276,7 +276,7 @@
                     <button type="button" class="btn btn-outline-danger btn-sm">회수</button>
                     -->
                     <button type="button" class="btn btn-primary">전송</button>
-                    <button type="button" class="btn btn-danger">회수</button>
+                    <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage">회수</button>
                 </div>
             </div>
         </div>
@@ -296,14 +296,12 @@
                         <p id="modal_body"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="modal-btn-confirm" v-if="checkedCount" v-on:click="clickModalBtnConfirm">측정종료</button>
+                        <button type="button" class="btn btn-primary" id="modal-btn-confirm" v-if="isModelConfirmDisabled" v-on:click="clickModalBtnConfirm">측정종료</button>
                         <button type="button" class="btn btn-default" id="modal-btn-cancel" v-on:click="clickModalBtnCancel">닫기</button>
                     </div>
                 </div>
             </div>
         </div>
-
-
 
     </div>
 
@@ -333,10 +331,11 @@ var vm = new Vue({
         messageEventList: [], // 이벤트 메시지 리스트
         messageSmsList: [], // 문자 메시지 리스트
         messageTeleList: [], // 텔레그램 메시지 리스트
-        message: null, // 상세 메시지내역
+        message: {}, // 메시지 상세내역
         timer: null, // 타이머
         allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
         //checkedCount: 0,
+        isModelConfirmDisabled: true,
     },
     computed: {
         checkedCount: function () {
@@ -382,7 +381,7 @@ var vm = new Vue({
          -------------------------------------------------------------------------------------------------------------*/
         clickPhoneGroupList: function (phoneGroup) {
             this.fetch_all_message(phoneGroup);
-            this.message = null;
+            this.message = {};
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 전송 메시지(이벤트/문자/텔레그랠) 리스트를 가져온다.
@@ -398,7 +397,7 @@ var vm = new Vue({
          * 전송 메시지 내역을 클릭 했을 때 메시지 상세내역을 보여준다.
          -------------------------------------------------------------------------------------------------------------*/
         clickMessageList: function (message) {
-            this.message = message.message
+            this.message = message
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 단말그룹 리스트 체크박스 관련 함수
@@ -445,7 +444,7 @@ var vm = new Vue({
             const res = await fetch("/monitor/day_close/" + this.date)
         },
         /* -------------------------------------------------------------------------------------------------------------
-         * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 모듈 관련 함수
+         * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
          -------------------------------------------------------------------------------------------------------------*/
         // 1) 측정종료 버튼을 클릭했을 때
         clickMeasuringEnd(e) {
@@ -454,6 +453,7 @@ var vm = new Vue({
                 $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
                 $("#mi-modal").modal('show');
             } else {
+                this.isModelConfirmDisabled = false
                 $("#modal-btn-confirm").html('측정종료');
                 $("#modal_body").html("선택된 단말그룹이 없습니다.");
                 $("#mi-modal").modal('show');
@@ -461,6 +461,7 @@ var vm = new Vue({
         },
         // 2) 측정마감 버튼을 클릭했을 때
         clickMeasuringClose(e) {
+            this.isModelConfirmDisabled = true
             $("#modal-btn-confirm").html('측정마감');
             $("#modal_body").html("당일 측정을 마감하시겠습니까?");
             $("#mi-modal").modal('show');
@@ -473,12 +474,37 @@ var vm = new Vue({
             } else if (e.target.innerText === "측정마감") {
                 // 해당일자에 대한 측정을 마감한다.
                 this.measuring_day_close()
+            } else if (e.target.innerText === "회수") {
+                this.deleteMessage()
             }
             $("#mi-modal").modal('hide');
         },
         // 4) 모달창에서 닫기 버튼을 클릭했을 때
         clickModalBtnCancel(){
+            this.isModelConfirmDisabled = true
             $("#mi-modal").modal('hide');
+        },
+        /* -------------------------------------------------------------------------------------------------------------
+         * 메시지 전송 및 회수 관련 함수 관련 모듈
+         -------------------------------------------------------------------------------------------------------------*/
+        async deleteMessage() {
+            const res = await fetch("/api/message/delete/" + this.message.id);
+        },
+        clickDeleteMessage(e) {
+            console.log("### clickDeleteMessage", this.message)
+            console.log(this.message.id)
+            if (this.message.id === undefined) {
+                this.isModelConfirmDisabled = false
+                $("#modal-btn-confirm").html('회수');
+                $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
+                $("#mi-modal").modal('show');
+            } else {
+                this.isModelConfirmDisabled = true
+                $("#modal-btn-confirm").html('회수');
+                $("#modal_body").html("메시지를 정말 회수하시겠습니까?");
+                $("#mi-modal").modal('show');
+            }
+
         },
 //        getKeyByValue(object, value) {
 //            return Object.keys(object).find(key => object[key] === value);

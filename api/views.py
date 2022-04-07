@@ -187,7 +187,7 @@ class ApiMessageDV(ListView):
                 bot = TelegramBot()
                 message = qs[0]
                 # 전송된 메시지를 취소한다.
-                data = bot.delete_message(message.chat_id, message.chat_message_id)
+                data = bot.delete_message(message.channelId, message.telemessageId)
 
             except Exception as e:
                 # 오류 코드 및 내용을 반환한다.
