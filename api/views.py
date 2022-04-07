@@ -3,10 +3,13 @@ from django.http import JsonResponse
 from django.views.generic import ListView
 from django.db import connection
 from django.db.models import Q
+from django.db import models
 from datetime import datetime
+import json
 
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer
+from message.tele_msg import TelegramBot
 
 ########################################################################################################################
 # REST API 기능
@@ -26,6 +29,7 @@ from monitor.serializers import PhoneGroupSerializer, MessageSerializer
 #                           └----------------------------------------------------------------------┘
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.04.03 - 메시지 리스트 조회 API 추가
+# 2022.04.07 - 센터별 측정중인 건수와 측정종료 건수를 확인하기 위한 항목을 추가함
 #
 ########################################################################################################################
 
@@ -59,22 +63,47 @@ class ApiPhoneGroupLV(ListView):
                     phoneGroupList.append(data)
 
             # 센터별 측정진행 건수를 가져온다.
-            cursor = connection.cursor()
-            cursor.execute(" SELECT management_center.centerName AS centerName, COUNT(*) AS coun " + \
-                                "FROM monitor_phonegroup, management_center " + \
-                                "WHERE ( monitor_phonegroup.center_id = management_center.id ) " + \
-                                    f"AND monitor_phonegroup.measdate = '{measdate}' " + \
-                                    "AND monitor_phonegroup.ispId = '45008' " + \
-                                    "AND monitor_phonegroup.manage = true " + \
-                                "GROUP BY management_center.centerName "
-                           )
-
-            # 가저온 정보를 JSON 객체(centerList)로 작성한다.
-            summary = dict((x, y) for x, y in [row for row in cursor.fetchall()])
-            total_count = sum(summary.values())
-            centerList = [{'centerName': key, 'count': value} for key, value in summary.items()]
+            # cursor = connection.cursor()
+            # cursor.execute(" SELECT management_center.centerName AS centerName, COUNT(*) AS coun " + \
+            #                     "FROM monitor_phonegroup, management_center " + \
+            #                     "WHERE ( monitor_phonegroup.center_id = management_center.id ) " + \
+            #                         f"AND monitor_phonegroup.measdate = '{measdate}' " + \
+            #                         "AND monitor_phonegroup.ispId = '45008' " + \
+            #                         "AND monitor_phonegroup.manage = true " + \
+            #                     "GROUP BY management_center.centerName "
+            #                )
+            #
+            # # 가저온 정보를 JSON 객체(centerList)로 작성한다.
+            # summary = dict((x, y) for x, y in [row for row in cursor.fetchall()])
+            # total_count = sum(summary.values())
+            # centerList = [{'centerName': key, 'count': value} for key, value in summary.items()]
+            #
             # for i in range(5-len(centerList)):
             #     centerList.append( {'centerName': ' ', 'count': ' '})
+
+            # 2022.04.07 - 측정중인 건수와 측정종료된 건수를 확인하기 위해서 다시 작성함
+            centerList = []
+            total_count = 0
+            cursor = connection.cursor()
+            cursor.execute(
+                    " SELECT management_center.centerName AS centerName, COUNT( * ) AS count, " + \
+                    " CAST(SUM(IF(monitor_phonegroup.active = true, 0, 1)) AS UNSIGNED) AS end_count, " + \
+                    " CAST(SUM(IF(monitor_phonegroup.active = true, 1, 0)) AS UNSIGNED) AS measuring_count " + \
+                    " FROM monitor_phonegroup, management_center " + \
+                    " WHERE ( monitor_phonegroup.center_id = management_center.id ) " + \
+                    f" AND monitor_phonegroup.measdate = '{measdate}' " + \
+                    " AND monitor_phonegroup.ispId = '45008' " + \
+                    " AND monitor_phonegroup.manage = true " + \
+                    " GROUP BY management_center.centerName "
+                )
+            for centerInfo in cursor.fetchall():
+                centerList.append(
+                    {'centerName': centerInfo[0], # 센터명
+                     'count': centerInfo[1], # 총 측정건수
+                     'end_count': centerInfo[2], # 측정종료 건수
+                     'measuring_count': centerInfo[3], # 측정중인 건수
+                     })
+                total_count += centerInfo[1]
 
         except Exception as e:
             print("ApiPhoneGroupLV:", str(e))
@@ -138,5 +167,31 @@ class ApiMessageLV(ListView):
             except Exception as e:
                 print("ApiMessageLV:", str(e))
                 raise Exception("ApiMessageLV: %s" % e)
+
+        return JsonResponse(data=data, safe=False)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹 리스트 조회 API
+# ----------------------------------------------------------------------------------------------------------------------
+class ApiMessageDV(ListView):
+    model = Message
+
+    # 메시지 내역을 조회한다.
+    def get(self, request, *args, **kwargs):
+        data = {}
+        message_id = kwargs['message_id']
+        qs = Message.objects.filter(id=message_id)
+        if qs.exists():
+            try:
+                bot = TelegramBot()
+                message = qs[0]
+                # 전송된 메시지를 취소한다.
+                data = bot.delete_message(message.chat_id, message.chat_message_id)
+
+            except Exception as e:
+                # 오류 코드 및 내용을 반환한다.
+                print("delete_message_action():", str(e))
+                raise Exception("delete_message_action(): %s" % e)
 
         return JsonResponse(data=data, safe=False)
