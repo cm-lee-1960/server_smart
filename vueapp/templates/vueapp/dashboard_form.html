@@ -419,13 +419,13 @@ var vm = new Vue({
             }
         },
         getSelected() {
-            let phoneGroupIdList = [];
+            let phoneGroupList = [];
             for (let i in this.phoneGroupList) {
                 if (this.phoneGroupList[i].selected) {
-                    phoneGroupIdList.push(this.phoneGroupList[i].id);
+                    phoneGroupList.push(this.phoneGroupList[i]);
                 }
             }
-            return phoneGroupIdList
+            return phoneGroupList
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 측정종료 및 측정마감에 관련된 함수
@@ -451,17 +451,21 @@ var vm = new Vue({
             if (this.checkedCount > 0) {
                 // 선택된 단말그룹 리스트 중에서 측정이 종료된 건이 있는지 확인한다.
                 const selectedPhoneGroupList = this.getSelected();
-                console.log("###", selectedPhoneGroupList)
-                for (let i in selectedPhoneGroupList) {
-                    console.log("###", i)
-                    if (selectedPhoneGroupList[i].active) {
-
-                        break;
-                    }
-                };
-                $("#modal-btn-confirm").html('측정종료');
-                $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
-                $("#mi-modal").modal('show');
+                let isMeasuringEnd = false
+                selectedPhoneGroupList.forEach(phoneGroup => {
+                    console.log("####", phoneGroup.active);
+                    isMeasuringEnd = !phoneGroup.active;
+                });
+                if (isMeasuringEnd) {
+                    this.isModelConfirmDisabled = false
+                    $("#modal-btn-confirm").html('측정종료');
+                    $("#modal_body").html("선택한 단말그룹이 측정이 이미 종료되었습니다.");
+                    $("#mi-modal").modal('show');
+                } else {
+                   $("#modal-btn-confirm").html('측정종료');
+                    $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
+                    $("#mi-modal").modal('show');
+                }
             } else {
                 this.isModelConfirmDisabled = false
                 $("#modal-btn-confirm").html('측정종료');
