@@ -97,39 +97,18 @@ def measuring_end(phoneGroup):
             if qs_dlbw.exists():
                 avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
             else: avg_downloadBandwidth = 0
-            # if phoneGroup.downloadBandwidth != 0:
-            #     avg_downloadBandwidth = round(qs.exclude(Q(networkId='NR') | \
-            #                                             Q(downloadBandwidth__isnull=True) | \
-            #                                             Q(downloadBandwidth=0) \
-            #                                             ).aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
-            # else:
-            #     avg_downloadBandwidth = 0.0
             # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (calldata에서 uploadbandwidth 존재 유무로 판단)
             qs_ulbw = qs.exclude( Q(networkId='NR') | Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )
             if qs_ulbw.exists():
                 avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
             else: avg_uploadBandwidth = 0
-            # if phoneGroup.uploadBandwidth != 0:
-            #     avg_uploadBandwidth = round(qs.exclude(Q(networkId='NR') | \
-            #                                         Q(uploadBandwidth__isnull=True) | \
-            #                                         Q(uploadBandwidth=0)
-            #                                         ).aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
-            # else:
-            #     avg_uploadBandwidth = 0.0
-
             # DL/UL 5G->LTE전환율 : DL/UL 측정이 없을 경우 0으로 처리 (DL/UL 카운트가 0인 경우)
-            if phoneGroup.dl_count == 0:
-                dl_nr_percent = 0.0
-            else:
-                dl_nr_percent = round((phoneGroup.dl_nr_count / phoneGroup.dl_count * 100), 1)
-            if phoneGroup.ul_count == 0:
-                ul_nr_percent = 0.0
-            else:
-                ul_nr_percent = round((phoneGroup.ul_nr_count / phoneGroup.ul_count * 100), 1)
-
+            if phoneGroup.dl_count == 0: dl_nr_percent = 0.0
+            else: dl_nr_percent = round((phoneGroup.dl_nr_count / phoneGroup.dl_count * 100), 1)
+            if phoneGroup.ul_count == 0: ul_nr_percent = 0.0
+            else: ul_nr_percent = round((phoneGroup.ul_nr_count / phoneGroup.ul_count * 100), 1)
             # 총 콜카운트를 가져온다.
-            total_count = max(phoneGroup.dl_count, phoneGroup.ul_count)
-
+            total_count = max(phoneGroup.dl_count + phoneGroup.dl_nr_count, phoneGroup.ul_count + phoneGroup.ul_nr_count)
             # 측정시작 시간과 측정종료 시간을 확인한다.
             meastime_max_min = qs.aggregate(Max('meastime'), Min('meastime'))
             globals().update(meastime_max_min)
@@ -139,12 +118,10 @@ def measuring_end(phoneGroup):
             # 메시지를 작성한다.
             message = f"ㅇS-CXI {phoneGroup.measuringTeam} {phoneGroup.networkId} {phoneGroup.userInfo1} " + \
                     f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n"
-
             # 5G의 경우 메시지 내용에 LTE전환율 포함한다.
             if phoneGroup.networkId == '5G':
                 message += f"- LTE 전환율(DL/UL, %): {dl_nr_percent} / {ul_nr_percent}\n"
                 message += f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth} / {avg_uploadBandwidth}"
-
             # 메시지를 저장한다.
             try: # phonegroup과 foreign-key 로 묶인 center 의 channelId 를 가져온다.
                 chatId = phoneGroup.center.channelId
@@ -199,15 +176,21 @@ def measuring_end(phoneGroup):
             # 해당 단말그룹에 대한 측정종료 데이터가 있는지 확인한다.
             md = MeasuringDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
             # 직렬화 대상 필드를 지정한다.
-            fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'networkId', 'downloadBandwidth', 'uploadBandwidth', 
-                    'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count', 'dl_nr_percent', 'ul_nr_percent', 'total_count']
+            fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'networkId', \
+                    'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count']
             serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
             if md.exists():
                 # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
                 md.update(**serializer.data)
+                # 평균속도, 전환율, 총 콜 수는 새로이 계산한 값으로 저장한다.
+                md.update(downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, \
+                        dl_nr_percent=dl_nr_percent, ul_nr_percent=ul_nr_percent, total_count=total_count)
             else:
                 # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
-                MeasuringDayClose.objects.create(phoneGroup=phoneGroup, **serializer.data)
+                MeasuringDayClose.objects.create(phoneGroup=phoneGroup, \
+                                                downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, \
+                                                dl_nr_percent=dl_nr_percent, ul_nr_percent=ul_nr_percent, total_count=total_count, \
+                                                **serializer.data)
             
         except Exception as e:
             print("측정종료 메시지 및 데이터 저장: ", str(e))
