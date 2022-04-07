@@ -82,12 +82,7 @@
     width: 0;
     height: 0;
     }
-    #toDayWindow .mt-1{
-        display:none;
-    }
-    #toDayWindow .card:hover .mt-1{
-        display:block;
-    }
+
 </style>
 </head>
 
@@ -97,41 +92,113 @@
 {% load static %}
     
     <!-- 상단 내용 -->
+    <!--<div style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 5px; width:80vh; height:70px">
+        <div style="margin-top:5px; display: flex; justify-content: space-between;">
+            <div>
+                <div style="float:left; margin-bottom:0px">
+                    <h6> 오늘의 측정 </h6> 
+                </div>
+                <div style="float:left; margin-bottom:0px">
+                    <input style="height: 24px;" type="date" class="form-control" name="date" id="date" value=>
+                </div>
+                <div style="float:left; margin-bottom:0px">
+                    <button style="height: 24px;" id = "daychoice" onclick="input()">선택</button>
+                </div>
+                <div style="float:left; margin-bottom:0px">
+                    <button style="height: 24px;" id = "daychoice" onclick="startTimer_listdata()">시작</button>
+                </div>
+            </div> -->
+            {% comment %} <div>
+                <h6 style="display:inline; margin-bottom:0px"> 금일 총 </h6> <!--3개조 가져와야한다. -->
+                <h6 id="toDayGroup" style="display:inline; margin-bottom:0px"> 3개 조 </h6> <!--3개조 가져와야한다.이건 추후-->
+            </div> {% endcomment %} 
+        <!-- </div>   
+        <div class="output">
+            <table id="toDayWindow" sytle="border-spacing: 5px;">
+                <tbody id='toDayDetail'>
+                    <tr id='toDayDetailTr'>
+                    </tr>
+                </tbody>
+            </table>
+        </div> 
+    </div> -->
+
+    <!-- 상단 내용 -->
     <div class="row">
         <div class="col-10 px-2">
-            <div id = "toDayWindow" class="row text-center" style="margin-bottom: 10px;">
-                <div class="card text-white bg-primary mx-4" style="width: 12rem; height: 70px">
-                    <div class="card-header p-1" style="position:relative">오늘의 측정</div>
-                    <div class="mt-1" style="height: 20px; position: absolute;">
-                        <input style="height: 20px; margin-left: 2px" type="date" class="form-control" name="date" id="date" value=>
-                    </div>
-                    <div class="card-body mt-0 pt-0" style="padding-bottom:5px">
-                            <span style="font-size: 15px;">총 </span><span style="font-size: 20px;">3조</span>
-                            <span style="font-size: 15px;">/ 측정중 </span><span id = "measure_count_vues" style="font-size: 20px;"></span>
+            <div id = "toDayWindow" class="row text-center">
+                <div class="card text-white bg-primary mx-4" style="width: 12rem; height: 7em">
+                    <div class="card-header p-1">오늘의 측정</div>
+                    <div class="card-body mt-0 pt-0">
+                        <span style="font-size: 16px;">총 </span><span style="font-size: 24px;">3</span>
+                        <span style="font-size: 16px;">조 / 측정중 </span><span id = "measure_count_vues" style="font-size: 24px;">[[total_count]]</span>
+                        <div class="mt-1">
+                            <input style="height: 24px; width: 150px;" type="date" class="form-control" name="date" id="date" value=>
+                            {% comment %} <input style="height: 24px; width: 150px;" type="date" class="form-control" v-model="date"> {% endcomment %}
+                        </div>
                     </div>
                 </div>
-                <div id="area_cards">
+                <div v-for="(center, index) in centerList" class="card bg-light mb-1, mx-1"
+                        style="width: 10rem; height: 7em">
+                    <div class="card-header p-1">[[center.centerName]]</div>
+                    <div class="card-body p-2">
+                        <h3 class="card-title p-0 m-0">[[center.count]]</h3>
+                        <p class="card-text p-0 m-0">부가정보 표시</p>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg mt-lg-5 pt-3" v-on:click="clickMeasuringEnd()">
+                <h5>측정종료</h5>
+            </button>
+            <button type="button" class="btn btn-danger btn-lg mt-lg-5 pt-3" v-on:click="clickMeasuringClose()">
+                <h5>측정마감</h5></button>
         </div>
     </div>
     
     <!-- 중단 내용 -->
     <div id = "main_body" class="w-100 fixed-table-container" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">    
-        <div style = "display: flex; justify-content: space-between;">
-            <h6> <b>금일 측정그룹</b> </h6>
-            <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="리셋" onclick="listdata_reset()">
-        </div>
+        <h6> <b>금일 측정그룹</b> </h6>
         <div class="fixed-table-body" style="text-align: center;">
             <table id="groupWindow" class='table table-hover' style = "display:block">
                 <thead id = 'phoneGroupDetail_header' class="bg-light">
                 </thead>
                 <tbody id = 'phoneGroupDetail_body' class="table-hover" style="height:330px; overflow-y:auto; display:block">
+                    {% comment %} {% for phonegroup in data %}
+                        {% if phonegroup.manage == 1 %}
+                        <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}' onclick='startTimer_messagedata(this.attributes["id"].value);'>
+                            <td>{{phonegroup.center.centerName}}</td>
+                            <td>{{phonegroup.measuringTeam}}</td>
+                            <td class="big_td">{{phonegroup.userInfo1}}</td>
+                            <td>{{phonegroup.morphology.morphology}}</td>
+                            <td>{{phonegroup.networkId}}</td>
+                            <td>{{phonegroup.dl_count}}</td>
+                            <td>{{phonegroup.downloadBandwidth}}</td>
+                            <td>{{phonegroup.ul_count}}</td>
+                            <td>{{phonegroup.uploadBandwidth}}</td>
+                            <td>{{phonegroup.nr_percent}}</td>
+                            <td>{{phonegroup.event_count}}</td>
+                            <td>{{phonegroup.last_updated_dt|date:"TIME_FORMAT"}}</td>
+                            {% if phonegroup.active == 1 %}
+                            <td>측정 중</td>
+                            {% else %}
+                            <td>측정종료</td>
+                            {% endif %}
+                            <td onclick="event.cancelBubble=true;">
+                                {%  if phonegroup.active == 1  %}
+                                    <img class='area_exit' id='img_group_{{phonegroup.id}}' src="{% static "admin/img/icon-yes.svg" %}" alt="종료">
+                                {% else %}
+                                    <img class='area_exit' id='img_group_{{phonegroup.id}}' src="{% static "admin/img/icon-no.svg" %}" alt="종료">
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %} {% endcomment %}
                 </tbody>
             </table> 
         </div>
     </div>
-
     <!-- 하단 내용-->
     <div style="display:flex">
         <div id = "bottom_body_left"  style="margin-bottom:5px; margin-right:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:1100px;">    
@@ -236,8 +303,7 @@
     let year = today.getFullYear();
     let month = ('0' + (today.getMonth() + 1)).slice(-2);
     let day = ('0' + today.getDate()).slice(-2);
-    let dateString = year + '-' + month  + '-' + day;
-    console.log(dateString)
+    let dateString = '(' + year + '-' + month  + '-' + day + ')';
     //document.getElementById("toDay").innerHTML = dateString;
     //현재날짜 이거 다시 넣어야된다.
     
@@ -246,10 +312,7 @@
     // var group_list_check = 0 // 그룹개수 체크 글로벌
     console.log(group_list_check)
     var group_list_len = 0 // 그룹개수 글로벌
-    //var toDayinfo = "" // 금일 날짜 변수 글로벌
-    $('input[type="date"]').attr('value', dateString);
-    var toDayinfo = ''// 금일 날짜 변수 글로벌
-    console.log(toDayinfo);
+    var toDayinfo = "" // 금일 날짜 변수 글로벌
 
     /////////////////////////////
     //초기 금일 측정 그룹 TH 셋팅
@@ -315,36 +378,20 @@
     
     // interval종료
     const stopTimer = function(){ 
-        clearInterval(GV.timer_listdata);
-        clearInterval(GV.timer_startdata); 
-        clearInterval(GV.timer_messagedata);  
+        clearInterval(GV.timer_listdata); 
         GV.isPause_listdata = true;
         GV.timer_startdata = true;
         GV.timer_messagedata = true;
         group_list_check = 0 // 그룹개수 체크 글로벌 
     }    
-    
-    ////////////////////////////
-    //reset
-    function listdata_reset(){
-        clearInterval(GV.timer_listdata);
-        GV.isPause_listdata = true;
-        group_list_check = 0; // 리스트 체크 글로벌
-        console.log(document.querySelector('input[type="date"]').value)
-        console.log(toDayinfo)
-        //if(toDayinfo !== document.querySelector('input[type="date"]').value){//날짜 다르면 지운다
-        toDayinfo = document.querySelector('input[type="date"]').value
+    ////////////////////////////////////////////////////////////////////////////
 
-        const p_group_body = document.querySelector("#phoneGroupDetail_body");
-        while (p_group_body.hasChildNodes()) {	// 부모노드가 자식이 있는지 여부를 알아낸다
-            p_group_body.removeChild(
-                p_group_body.firstChild
-            );
-        }
-        startTimer_listdata(); // 재시작
+    function input() {
+        toDayinfo = document.querySelector('input[type="date"]').value;
+        console.log(toDayinfo);
     }
-
-    ///////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    
     const interval_listdata = function(){
     if(!GV.isPause_listdata){
     //function interval_listdata(){
@@ -364,42 +411,41 @@
                     //$('#phoneGroupDetail_body').replaceWith($('#phoneGroupDetail_body',data));
                     console.log("불러오기성공")
                     ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
-                    console.log(ajax_data)
                     console.log("리스트체크")
                     console.log(group_list_check)
-                    console.log("그룹 개수체크")
+                    console.log("개수체크")
                     console.log(group_list_len)
+                    console.log("그룹개수")
+                    console.log(ajax_data['data'].length)
 
-                    if(ajax_data['data'] !== 'nodata'){
-                        if(group_list_check == 0){
-                            console.log("처음은 여기")
-                            group_list_len = ajax_data['data'].length;
-                            console.log(group_list_check)
-                            startListData(ajax_data);
-                            group_list_check = 1;
-                        }else{
-                            console.log("나중은 여기")
-                            ajax_data2 = {}
-                            ajax_data_arr = []
-                            //$('phoneGroupDetail_body').remove();
-                            //$('#phoneGroupDetail_body').append(measStatus);
-                            change_check = ajax_data['data'].length - group_list_len //변화체 7 - 5 = 2
-                            group_list_len = ajax_data['data'].length;
-                            //if(group_list_len !== ajax_data['data'].length){
-                            if(change_check !== 0){
-                                /////////////////////////////
-                                //0123456 01234
-                                for(let i=0; i < change_check ; i++){
-                                    ajax_data2[i] = ajax_data['data'][ajax_data['data'].length-change_check]
-                                    ajax_data_arr[i] = ajax_data2[i]
-                                    change_check = change_check - 1;
-                                }
-                                ajax_data['data'] = ajax_data_arr 
-                                console.log(ajax_data)
-
-                                ////////////////////////////
-                                startListData(ajax_data);
+                    if(group_list_check == 0){
+                        console.log("처음은 여기")
+                        group_list_len = ajax_data['data'].length;
+                        console.log(group_list_check)
+                        startListData(ajax_data);
+                        group_list_check = 1;
+                    }else{
+                        console.log("나중은 여기")
+                        ajax_data2 = {}
+                        ajax_data_arr = []
+                        //$('phoneGroupDetail_body').remove();
+                        //$('#phoneGroupDetail_body').append(measStatus);
+                        change_check = ajax_data['data'].length - group_list_len //변화체 7 - 5 = 2
+                        group_list_len = ajax_data['data'].length;
+                        //if(group_list_len !== ajax_data['data'].length){
+                        if(change_check !== 0){
+                            /////////////////////////////
+                            //0123456 01234
+                            for(let i=0; i < change_check ; i++){
+                                ajax_data2[i] = ajax_data['data'][ajax_data['data'].length-change_check]
+                                ajax_data_arr[i] = ajax_data2[i]
+                                change_check = change_check - 1;
                             }
+                            ajax_data['data'] = ajax_data_arr 
+                            console.log(ajax_data)
+
+                            ////////////////////////////
+                            startListData(ajax_data);
                         }
                     }
                     //1일 때는 웹페이지를 불러올때 , 0일때는 다음 시그널 
@@ -422,7 +468,7 @@
         console.log(Object.keys(ajax_data).length)
         let measStatus // 초기화
         
-        if (ajax_data['data'] != 'nodata'){
+        if (ajax_data[0] != 'nodata'){
             //for(let i = 0; i < Object.keys(ajax_data).length; i++){
             for(let i = 0; i < ajax_data['data'].length; i++){
                 measStatus += '<tr id = "' + ajax_data['data'][i]['id'] + '">';
@@ -473,8 +519,7 @@
     //2분마다 주기적 요청(현재 테스트로 10초)
     //startInterval_startData(function(){
     const interval_startdata = function(){
-    if(!GV.isPause_startdata){
-        toDayinfo = document.querySelector('input[type="date"]').value   
+    if(!GV.isPause_startdata){    
         $.ajaxSetup({
             headers: { "X-CSRFToken": '{{csrf_token}}' }
         });
@@ -498,48 +543,77 @@
     }
 
     //오늘의 측정 테이블 생성
-    function startData_vues(ajax_data){
-        $('#area_cards').remove();
-        
-        var measStatus = '<div id = "area_cards">';
+    function startData(ajax_data){
+        $('#toDayDetailTr').remove();
 
+        //초기화
+        let measStatus = '<tr id = "toDayDetailTr">';
+            measStatus += '<th id="Group" style="padding-right:15px">';
+            measStatus += '<span><font size="3"> 금일 총 </font></span>';
+            measStatus += '<span id = "today_group" class="today_count"><font size="3"> - </font></span>'
+            measStatus += '</th>';
+            measStatus += '<th id = "measure" style="padding-right:15px">';
+            measStatus += '<span><font size="3"> 측정 중 </font></span>';
+            measStatus += '<span id = "measure_count" class="today_count"><font size="2"> 0 </font></span>'
+            measStatus += '</th>';
+            //measStatus += '<th id = "measure_close" style="padding-right:15px">';
+            //measStatus += '<span><font size="3"> 측정종료 </font></span>';
+            //measStatus += '<span id = "measure_close_count" class="today_count"><font size="2"> 0 </font></span>';
+            //measStatus += '</th>';
+        
         if (ajax_data['meas_area'] != 'nodata'){  // 데이터가 없으면 생성하지 않는다 지역
         //for(var meas_area of ajax_data['meas_area']){
-            for(var meas_area_name of Object.keys(ajax_data['meas_area'])){
-                let meas_area_name_split_1 = meas_area_name.split(',');
-                    measStatus += '<div class="card bg-light mb-1, mx-1" style="width: 10rem; height: 70px; margin-left: 15px;">';
-                    measStatus += '<div class="card-header p-1">';
-                    measStatus += '<span id ="' + meas_area_name_split_1[1] + '" ><span>';
-                    measStatus += '</div>';   
-                    measStatus += '<div class="card-body p-2">';
-                    measStatus += '<span id ="' + meas_area_name_split_1[1] + '_count" class="card-title p-0 m-0"><font size="20"></font></span>';    
-                    //measStatus += '<p class="card-text p-0 m-0">부가정보 표시</p>';
-                    measStatus += '</div>';
-                    measStatus += '</div>';
-                }
+        for(var meas_area_name of Object.keys(ajax_data['meas_area'])){
+            let meas_area_name_split_1 = meas_area_name.split(',');
+            measStatus += '<th id ="' + meas_area_name_split_1[1] + '" style="padding-right:15px">';
+            measStatus += '<span><font size="3">' + meas_area_name_split_1[0] + '</font></span>';
+            measStatus += '<span id ="' + meas_area_name_split_1[1] + '_count" class="today_count"><font size="3"> 0 </font></span>';
+            measStatus += '</th>';
+            }
         }
-        measStatus += '</div>'
+        measStatus += '</tr>';
+
+        //console.log(measStatus)
+        $('#toDayDetail').append(measStatus);
+
+    }
+
+    //오늘의 측정 테이블 생성
+    function startData_vues(ajax_data){
+        //$('#toDayDetailTr').remove();
+        
+        if (ajax_data['meas_area'] != 'nodata'){  // 데이터가 없으면 생성하지 않는다 지역
+        //for(var meas_area of ajax_data['meas_area']){
+        for(var meas_area_name of Object.keys(ajax_data['meas_area'])){
+            let meas_area_name_split_1 = meas_area_name.split(',');
+            let measStatus = '';
+            measStatus += '<div class="card bg-light mb-1, mx-1" style="width: 10rem; height: 7em">'
+            measStatus += '<div id ="' + meas_area_name_split_1[1] + '" class="card-header p-1"></div>'       
+            measStatus += '<div class="card-body p-2">'
+            measStatus += '<span id ="' + meas_area_name_split_1[1] + '_count" class="card-title p-0 m-0"><font size="3"> 0 </font></span>'    
+            measStatus += '<p class="card-text p-0 m-0">부가정보 표시</p>'
+            measStatus += '</div>'
+            measStatus += '</div>'
+            }
+        }
+        //console.log(measStatus)
         $('#toDayWindow').append(measStatus);
     }
 
     //오늘의 측정 테이블 값만 변경
     function startDataCount(ajax_data){
-        if(ajax_data){
-            document.querySelector('#measure_count_vues').innerHTML = ajax_data['measuing_count'];
+        document.querySelector('#measure_count_vues').innerHTML = ajax_data['measure_count'];
         //document.querySelector('#measure_close_count').innerHTML = ajax_data['end_count'];
-        }
+        
         if (ajax_data['meas_area'] != 'nodata'){ // 데이터가 없으면 생성하지 않는다 지역
             for(let [meas_area_name, meas_area_count] of Object.entries(ajax_data['meas_area'])){
                 let meas_area_name_split_2 = meas_area_name.split(',');
-                document.querySelector('#' + meas_area_name_split_2[1]).innerHTML = meas_area_name_split_2[0]
                 document.querySelector('#' + meas_area_name_split_2[1] + '_count').innerHTML = meas_area_count
             }
         }   
     }
     ///////////////////////////////
-    startTimer_startdata(); //start 그룹타이머 시작
-    startTimer_listdata(); //start 리스트타이머 시작
-    
+    startTimer_startdata(); //start타이머 시작
 
     ///////////////////////////////
     //event 내용 생성 ajax

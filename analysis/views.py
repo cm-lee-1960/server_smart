@@ -64,17 +64,17 @@ def get_listview(request):
         
             
         phonegroup = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008',manage=1).order_by('-active')
-    
+        print(phonegroup)
         fields = ['p_center','measuringTeam','userInfo1','p_morpol','networkId','dl_count','downloadBandwidth', 
                 'ul_count','uploadBandwidth','nr_percent','event_count','active','last_updated_dt','id']
                   ## id는 메세지를 불러오기위하여
         #print(start_flag)
 
         if len(phonegroup) != 0:
-            serializer = PhoneGroupSerializer2(phonegroup, fields = fields, many=True)
+            serializer = PhoneGroupSerializerOrder(phonegroup, fields = fields, many=True)
             serializer_data = serializer.data ## 시리얼라이즈 데이터
             data['data'] = serializer_data
-
+            print(serializer_data)
         else:
             data['data'] = 'nodata'    
             
@@ -145,6 +145,8 @@ def get_startdata(request):
         toDate = request.POST['date'].split('-')
         toDate_str = "".join(toDate)
 
+        print(toDate_str)
+        
         start_dict = ajax_startdata(toDate_str) 
         json_data_call = json.dumps(start_dict)
         
