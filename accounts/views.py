@@ -1,4 +1,5 @@
 from audioop import reverse
+from copyreg import constructor
 from django.contrib import auth
 from django.contrib.auth import authenticate
 from django.shortcuts import render, redirect
@@ -41,6 +42,7 @@ def login(request):
                                 'error' : error_message,
                                 'user_Name' : str_username
                             }
+                            print(data)
                             return render(request, 'accounts/login_boot.html', data)     
                        else:
                             return render(request, 'accounts/login_boot.html', {'error': error_message , 'user_Name' : [0]}) 

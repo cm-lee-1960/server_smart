@@ -73,6 +73,7 @@
   <script>
       if({{ user_Name | safe }} != 0){
         var test = {{ user_Name | safe }};
+        console.log(test)
         document.getElementById('floatingInput').value = test
       }
   </script>

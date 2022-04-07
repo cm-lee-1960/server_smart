@@ -71,30 +71,15 @@ def get_listview(request):
         #print(start_flag)
 
         if len(phonegroup) != 0:
-            
-            #if start_flag == 0:
-            #print("0이다")
-            #for num in range(len(phonegroup)):
             serializer = PhoneGroupSerializer2(phonegroup, fields = fields, many=True)
             serializer_data = serializer.data ## 시리얼라이즈 데이터
             data['data'] = serializer_data
-                #data['check'] = 1
-            
-            #else:
-                # print("1이다")
-                # serializer = PhoneGroupSerializer2(phonegroup[len(phonegroup)-1], fields=fields)
-                # serializer_data = serializer.data ## 시리얼라이즈 데이터
-                # data[0] = serializer_data
-                # data['check'] = 0
-                
+
         else:
             data['data'] = 'nodata'    
             
         
-    print(data)    
     json_data_call = json.dumps(data)
-    #start_flag = start_flag + 1
-    
     return HttpResponse(json_data_call, content_type="applications/json")    
          
         

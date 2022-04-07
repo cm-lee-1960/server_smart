@@ -329,7 +329,7 @@
                 interval_listdata();  
                 GV.timer_listdata = setInterval(function(){ 
                 interval_listdata(); 
-                }, 20000);          
+                }, 30000);          
     } 
     // messagedata ajax실행 인터벌이 바로 실행하게 한다.
     {% comment %} const startTimer_messagedata = function(tr_id){
@@ -389,10 +389,27 @@
                         console.log(group_list_check)
                         startListData(ajax_data);
                         group_list_check = 1;
-                        console.log(group_list_check)
                     }else{
                         console.log("나중은 여기")
-                        if(group_list_len !== ajax_data['data'].length){
+                        ajax_data2 = {}
+                        ajax_data_arr = []
+                        //$('phoneGroupDetail_body').remove();
+                        //$('#phoneGroupDetail_body').append(measStatus);
+                        change_check = ajax_data['data'].length - group_list_len //변화체 7 - 5 = 2
+                        group_list_len = ajax_data['data'].length;
+                        //if(group_list_len !== ajax_data['data'].length){
+                        if(change_check !== 0){
+                            /////////////////////////////
+                            //0123456 01234
+                            for(let i=0; i < change_check ; i++){
+                                ajax_data2[i] = ajax_data['data'][ajax_data['data'].length-change_check]
+                                ajax_data_arr[i] = ajax_data2[i]
+                                change_check = change_check - 1;
+                            }
+                            ajax_data['data'] = ajax_data_arr 
+                            console.log(ajax_data)
+
+                            ////////////////////////////
                             startListData(ajax_data);
                         }
                     }
@@ -448,10 +465,10 @@
                     measStatus += '<img class="area_exit" id="img_' + ajax_data['data'][i]['id'] + '" src="{% static "admin/img/icon-no.svg" %}" alt="종료">'
                 }
                 measStatus += '</tr>'
-            }
-        }        
+            }       
         //console.log(measStatus)
         $('#phoneGroupDetail_body').append(measStatus);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////

@@ -113,9 +113,9 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
         model = PhoneGroup
         fields = '__all__'
 
-class PhoneGroupSerializer2(IdModelSerializer, DynamicFieldsModelSerializer):
+class PhoneGroupSerializerOrder(IdModelSerializer, DynamicFieldsModelSerializer):
     # class PhoneGroupSerializer(DynamicFieldsModelSerializer):
-    """단말그룹 직렬화 글래스2"""
+    """단말그룹 직렬화 글래스 순서대로 출력"""
     p_center = serializers.ReadOnlyField() # 센터 (@property decorator)
     measuringTeam = serializers.CharField(max_length=100) # 금일 측정조 (@property decorator)
     userInfo1 = serializers.CharField() # 금일 주소조 (@property decorator)
