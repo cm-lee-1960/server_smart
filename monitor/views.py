@@ -281,7 +281,7 @@ def measuring_end_view(request, phonegroup_id):
 ########################################################################################################################
 # 당일 측정을 마감한다.
 ########################################################################################################################
-def measuring_day_close_view(request, measdate):
+def measuring_day_close_view(request):
     """ 해당일자에 대한 측정마감을 처리하는 뷰 함수
         - 파라미터
           . date: 기준일자(예: 20211101)
@@ -305,7 +305,7 @@ def measuring_day_close_view(request, measdate):
 
     # 3) 해당일자에 대한 측정마감을 처리한다.
     else:
-        phoneGroup_list = PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True)  # 측정마감 대상 단말그룹
+        phoneGroup_list = PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True, manage=True)  # 측정마감 대상 단말그룹
         # 해당일자의 대상 단말그룹 리스트에 대해서 측정마감을 처리한다.
         measuring_day_close(phoneGroup_list, date)
         messages.add_message(request, messages.INFO, '해당일자에 대한 측정마감이 처리완료 되었습니다.')
