@@ -91,25 +91,12 @@ def measuring_end(phoneGroup):
             # 1) 측정종료된 단말그룹에 대한 측정종료 메시지를 생성한다.
             # --------------------------------------------------------------------------------------------------------------
             phone_list = phoneGroup.phone_set.all()
-            qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
-            # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (calldata에서 downloadbandwidth 존재 유무로 판단)
-            qs_dlbw = qs.exclude( Q(networkId='NR') | Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )
-            if qs_dlbw.exists():
-                avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
-            else: avg_downloadBandwidth = 0
-            # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (calldata에서 uploadbandwidth 존재 유무로 판단)
-            qs_ulbw = qs.exclude( Q(networkId='NR') | Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )
-            if qs_ulbw.exists():
-                avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
-            else: avg_uploadBandwidth = 0
-            # DL/UL 5G->LTE전환율 : DL/UL 측정이 없을 경우 0으로 처리 (DL/UL 카운트가 0인 경우)
-            if phoneGroup.dl_count == 0: dl_nr_percent = 0.0
-            else: dl_nr_percent = round((phoneGroup.dl_nr_count / phoneGroup.dl_count * 100), 1)
-            if phoneGroup.ul_count == 0: ul_nr_percent = 0.0
-            else: ul_nr_percent = round((phoneGroup.ul_nr_count / phoneGroup.ul_count * 100), 1)
             # 총 콜카운트를 가져온다.
+            avg_bandwidth = cal_avg_bw_call(phoneGroup)  # 평균속도 계산
+            nr_percent = cal_nr_percent(phoneGroup)  # 5G -> LTE 전환율 계산
             total_count = max(phoneGroup.dl_count + phoneGroup.dl_nr_count, phoneGroup.ul_count + phoneGroup.ul_nr_count)
             # 측정시작 시간과 측정종료 시간을 확인한다.
+            qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
             meastime_max_min = qs.aggregate(Max('meastime'), Min('meastime'))
             globals().update(meastime_max_min)
             start_meastime = str(meastime__min)[8:10] + ':' + str(meastime__min)[10:12]
@@ -120,8 +107,9 @@ def measuring_end(phoneGroup):
                     f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n"
             # 5G의 경우 메시지 내용에 LTE전환율 포함한다.
             if phoneGroup.networkId == '5G':
-                message += f"- LTE 전환율(DL/UL, %): {dl_nr_percent} / {ul_nr_percent}\n"
-                message += f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth} / {avg_uploadBandwidth}"
+                message += f"- LTE 전환율(DL/UL, %): {nr_percent['dl_nr_percent']} / {nr_percent['ul_nr_percent']}\n"
+            # 평균 속도값을 메시지에 추가한다.
+            message += f"- 속도(DL/UL, Mbps): {avg_bandwidth['avg_downloadBandwidth']} / {avg_bandwidth['avg_uploadBandwidth']}"
             # 메시지를 저장한다.
             try: # phonegroup과 foreign-key 로 묶인 center 의 channelId 를 가져온다.
                 chatId = phoneGroup.center.channelId
@@ -140,8 +128,8 @@ def measuring_end(phoneGroup):
                     sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
                     userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
                     phone_no=None, # 측정단말 전화번호
-                    downloadBandwidth=avg_downloadBandwidth, # DL속도
-                    uploadBandwidth=avg_uploadBandwidth, # UL속도
+                    downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'], # DL속도
+                    uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], # UL속도
                     messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
                     message=message, # 메시지 내용
                     channelId=chatId, # 채널ID
@@ -155,8 +143,8 @@ def measuring_end(phoneGroup):
                     sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
                     userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
                     phone_no=None, # 측정단말 전화번호
-                    downloadBandwidth=avg_downloadBandwidth, # DL속도
-                    uploadBandwidth=avg_uploadBandwidth, # UL속도
+                    downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'], # DL속도
+                    uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], # UL속도
                     messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
                     message=message, # 메시지 내용
                     channelId=chatId, # 채널ID
@@ -183,13 +171,17 @@ def measuring_end(phoneGroup):
                 # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
                 md.update(**serializer.data)
                 # 평균속도, 전환율, 총 콜 수는 새로이 계산한 값으로 저장한다.
-                md.update(downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, \
-                        dl_nr_percent=dl_nr_percent, ul_nr_percent=ul_nr_percent, total_count=total_count)
+                md.update(downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'], \
+                        uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
+                        dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
+                        total_count=total_count)
             else:
                 # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
                 MeasuringDayClose.objects.create(phoneGroup=phoneGroup, \
-                                                downloadBandwidth=avg_downloadBandwidth, uploadBandwidth=avg_uploadBandwidth, \
-                                                dl_nr_percent=dl_nr_percent, ul_nr_percent=ul_nr_percent, total_count=total_count, \
+                                                downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'],
+                                                uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
+                                                dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
+                                                total_count=total_count, \
                                                 **serializer.data)
             
         except Exception as e:
@@ -298,20 +290,15 @@ def measuring_day_close(phoneGroup_list, measdate):
     # 각 단말 그룹들의 종료 데이터(MeasuringDayClose)를 보충
     for phoneGroup in PhoneGroup.objects.filter(ispId='45008', manage=True, active=False, measdate=measdate):
         try:
-            phone_list = phoneGroup.phone_set.all()
-            qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime") # 초데이터로 바꿔야함
             md = phoneGroup.measuringdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
     
             # !!--- 초데이터 기반, 데이터 가공 및 저장은 추후 데이터 확정 시 진행 예정 -- !!
-            # 1) 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!!(3.22)
-            if qs.filter(udpJitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
-                udpJitter = round(qs.exclude(Q(networkId='NR') | \
-                                            Q(downloadBandwidth=0) | \
-                                            Q(uploadBandwidth=0)).aggregate(Avg('udpJitter'))['udpJitter__avg'], 1)
-            else: udpJitter = 0.0
-            # 2) 전송 성공률 계산 : 전체 콜수에서 "전송실패" 이벤트 발생 건수 비율로 계산 (추후 정확한 계산식 대체 필요)
-            success_rate = round((1 - (Message.objects.filter(phone__in=phone_list, message__contains='전송실패').count() / md.total_count))*100,1)
-            # 3) 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 추후 업데이트
+            udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!
+            success_rate = cal_success_rate(phoneGroup) # 전송 성공률 계산 : 추후 정확한 계산식으로 대체 필요 !!
+            # 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 추후 업데이트
+            connect_time = cal_connect_time(phoneGroup)
+            lte_ca = cal_lte_ca(phoneGroup)
+            avg_bw = cal_avg_bw_second(phoneGroup)
         
             # 계산한 데이터 저장  - 속도/접속시간/CA률 추후 업데이트
             md.udpJitter, md.success_rate = udpJitter, success_rate
@@ -396,3 +383,118 @@ def measuring_day_close(phoneGroup_list, measdate):
     return_value = {'measdate': measdate, 'message': message_report_all}
 
     return return_value
+
+
+
+# 재마감 함수
+def measuring_day_close_again(measdate):
+    """해당 날짜 재마감 함수 : 해당 날짜 측정마감 데이터 재생성
+      - 파라미터
+        . phoneGroup_list: active=True인 단말그룹(PhoneGroup) 리스트
+        . measdate: 마감하고자 하는 날짜
+      - 반환값: string
+        . message_report: 일일보고용 메시지 내용
+    """  
+    # 해당날짜 phoneGroup에 대해 데이터 재생성
+    for phoneGroup in PhoneGroup.objects.filter(ispId='45008', manage=True, measdate=measdate):
+        try:
+            md = phoneGroup.measuringdayclose_set.all()  # 마감 데이터 호출
+            # serializer로 폰그룹 데이터 불러온다.
+            fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'networkId', \
+                    'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count']
+            serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
+            # 일부 데이터는 새로 계산한다
+            avg_bandwidth = cal_avg_bw_call(phoneGroup)  # 평균속도 계산 -> 초데이터로 변경 필요
+            nr_percent = cal_nr_percent(phoneGroup)  # LTE 전환율 계산
+            total_count = max(phoneGroup.dl_count + phoneGroup.dl_nr_count, phoneGroup.ul_count + phoneGroup.ul_nr_count) # 총 콜수
+            udpJitter = cal_udpJitter(phoneGroup)  # 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!
+            success_rate = cal_success_rate(phoneGroup)  # 전송 성공률 계산 : 추후 정확한 계산식으로 대체 필요 !!
+            connect_time = cal_connect_time(phoneGroup)  # 접속시간 : 추후 정확한 계산식으로 대체 필요 !!
+            #md.lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 : 추후 정확한 계산식으로 대체 필요 !!
+            #md.avg_bw = cal_avg_bw_second(phoneGroup)  # 평균속도(초데이터) : 추후 정확한 계산식으로 대체 필요 !!
+            
+            # 기존 데이터 삭제 후 새로운 데이터 저장
+            md.delete()
+            MeasuringDayClose.objects.create(phoneGroup=phoneGroup, \
+                                downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'],
+                                uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
+                                dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
+                                total_count=total_count, \
+                                udpJitter=udpJitter, success_rate=success_rate, connect_time=connect_time,
+                                **serializer.data)
+
+        except Exception as e:
+            print("재마감 데이터 계산, 저장:", str(e))
+            raise Exception("measuring_day_close_again/data_calculate : %s" % e)
+    
+    # 모든 폰그룹들을 inactive 시킬까? - 검토 중
+    # PhoneGroup.objects.filter(measdate=measdate).update(active=False)
+    
+    # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
+    return_value = {'result': 'ok'}
+    return return_value
+
+
+#####################################################################################################################
+####### 측정 종료 or 마감 시 필요한 데이터 계산 함수
+#######      - 평균 속도(콜데이터, 초데이터) / LTE전환율 / 평균지연시간 / 전송 성공률 / 접속시간 / LTE CA비율 등
+#####################################################################################################################
+def cal_avg_bw_call(phoneGroup):
+    ''' 평균속도 계산 함수 (콜데이터)
+     . 파라미터: phoneGroup
+     . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
+    phone_list = phoneGroup.phone_set.all()
+    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+    # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (calldata에서 downloadbandwidth 존재 유무로 판단)
+    qs_dlbw = qs.exclude( Q(networkId='NR') | Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )
+    if qs_dlbw.exists():
+        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
+    else: avg_downloadBandwidth = 0
+    # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (calldata에서 uploadbandwidth 존재 유무로 판단)
+    qs_ulbw = qs.exclude( Q(networkId='NR') | Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )
+    if qs_ulbw.exists():
+        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
+    else: avg_uploadBandwidth = 0
+    return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
+
+def cal_nr_percent(phoneGroup):
+    ''' 5G -> LTE 전환율 계산 함수 (콜데이터)
+     . 파라미터: phoneGroup
+     . 반환값: Dict {dl_nr_percent:DL전환율, ul_nr_percet:UL전환율} '''
+    # DL/UL 5G->LTE전환율 : DL/UL 측정이 없을 경우 0으로 처리 (DL/UL 카운트가 0인 경우)
+    if phoneGroup.dl_count == 0: dl_nr_percent = 0.0
+    else: dl_nr_percent = round((phoneGroup.dl_nr_count / phoneGroup.dl_count * 100), 1)
+    if phoneGroup.ul_count == 0: ul_nr_percent = 0.0
+    else: ul_nr_percent = round((phoneGroup.ul_nr_count / phoneGroup.ul_count * 100), 1)
+    return {'dl_nr_percent': dl_nr_percent, 'ul_nr_percent': ul_nr_percent}
+
+def cal_udpJitter(phoneGroup):
+    ''' 평균 지연시간 계산 함수 (초데이터)
+     . 파라미터: phoneGroup
+     . 반환값 : 평균 지연시간 (float) '''
+    # 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!!(3.22)
+    phone_list = phoneGroup.phone_set.all()
+    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")  # 초단위 데이터로 바꿔야함
+    if qs.filter(udpJitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
+        udpJitter = round(qs.exclude(Q(networkId='NR') | \
+                                    Q(downloadBandwidth=0) | \
+                                    Q(uploadBandwidth=0)).aggregate(Avg('udpJitter'))['udpJitter__avg'], 1)
+    else: udpJitter = 0.0
+    return udpJitter
+
+def cal_success_rate(phoneGroup):
+    ''' 전송성공률 계산 함수 (초데이터)
+     . 파라미터: phoneGroup
+     . 반환값 : 성공률 (float) '''
+    # 전송 성공률 계산 : 전체 콜수에서 "전송실패" 이벤트 발생 건수 비율로 계산 (추후 정확한 계산식 대체 필요)
+    phone_list = phoneGroup.phone_set.all()
+    md = phoneGroup.measuringdayclose_set.all().last()
+    success_rate = round((1 - (Message.objects.filter(phone__in=phone_list, message__contains='전송실패').count() / md.total_count))*100,1)
+
+###### 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 추후 업데이트
+def cal_connect_time(phoneGroup):
+    return 0
+def cal_lte_ca(phoneGroup):
+    return 0
+def cal_avg_bw_second(phoneGroup):
+    return 0

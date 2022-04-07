@@ -13,6 +13,7 @@
                     padding: 6px 14px;
                     font-weight: 600;
                     margin-bottom: 4px;
+                    margin-left: 30px
                 }
                 .closebutton:hover{
                     color:white;
@@ -35,7 +36,7 @@
                     padding: 6px 14px;
                     font-weight: 600;
                     margin-bottom: 4px;
-                    width: 400px;
+                    width: 530px;
 
                 }
             </style>
@@ -45,8 +46,11 @@
             <script>
                 document.getElementById('currentDate').value = new Date().toISOString().substring(0, 10);;
             </script>
-            <button class="closebutton" type="submit" style="cursor:pointer; height:30pt">
+            <button class="closebutton" name="close" value="ok" type="submit" style="cursor:pointer; height:30pt">
                 측정마감
+            </button>
+            <button class="closebutton" name="close_again" value="ok" type="submit" style="cursor:pointer; height:30pt">
+                재마감
             </button>
             </p>
         </form>
