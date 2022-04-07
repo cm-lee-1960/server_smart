@@ -425,7 +425,7 @@ var vm = new Vue({
                     phoneGroupIdList.push(this.phoneGroupList[i].id);
                 }
             }
-            return phoneGroupIdList.length
+            return phoneGroupIdList
         },
         /* -------------------------------------------------------------------------------------------------------------
          * 측정종료 및 측정마감에 관련된 함수
@@ -449,6 +449,16 @@ var vm = new Vue({
         // 1) 측정종료 버튼을 클릭했을 때
         clickMeasuringEnd(e) {
             if (this.checkedCount > 0) {
+                // 선택된 단말그룹 리스트 중에서 측정이 종료된 건이 있는지 확인한다.
+                const selectedPhoneGroupList = this.getSelected();
+                console.log("###", selectedPhoneGroupList)
+                for (let i in selectedPhoneGroupList) {
+                    console.log("###", i)
+                    if (selectedPhoneGroupList[i].active) {
+
+                        break;
+                    }
+                };
                 $("#modal-btn-confirm").html('측정종료');
                 $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
                 $("#mi-modal").modal('show');
