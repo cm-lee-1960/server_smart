@@ -32,7 +32,7 @@ from .ajax import *
 from django.views.generic import ListView
 from django.shortcuts import get_list_or_404
 from django.views.generic import TemplateView
-from monitor.serializers import PhoneGroupSerializer2
+from monitor.serializers import PhoneGroupSerializerOrder
 
 
 ###################################################################################################
