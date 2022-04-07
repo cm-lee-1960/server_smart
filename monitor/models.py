@@ -372,7 +372,7 @@ class Phone(models.Model):
         self.total_count = self.dl_count + self.ul_count + self.nr_count  # 전체 콜건수
 
         # 단말그룹 - 총 콜수
-        phoneGroup.total_count = min(phoneGroup.dl_count + phoneGroup.dl_nr_count, \
+        phoneGroup.total_count = max(phoneGroup.dl_count + phoneGroup.dl_nr_count, \
                                      phoneGroup.ul_count + phoneGroup.ul_nr_count)
 
         # 단말그룹 - DL LTE전환율, UL LTE전환율, LTE전환율
