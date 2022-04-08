@@ -41,11 +41,38 @@
 {% load static %}
 
 {% block extra-style %}
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         .counter {
             background-color: #f5f5f5;
             padding: 20px 0;
             border-radius: 5px;
+        }
+
+        .fa-spin-hover:hover {
+            animation: fa-spin 2s infinite linear;
+        }
+
+        @-webkit-keyframes fa-spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg)
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+                transform: rotate(359deg)
+            }
+        }
+
+        @keyframes fa-spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg)
+            }
+            100% {
+                -webkit-transfo rm: rotate(359deg);
+                transform: rotate(359deg)
+            }
         }
 
     </style>
@@ -117,7 +144,8 @@
                     <th style="width: 5%">이벤트</th>
                     <th style="width: 5%">측정시간</th>
                     <th style="width: 5%">상태</th>
-                    <th scope="col" style="width: 5%">종료</th>
+                    <th style="width: 5%">종료<i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-3"
+                                               style="font-size:24px; color:blue" v-on:click="fetch_all_phoneGroup"></i></th>
                     </thead>
                     <tbody id='phoneGroupDetail_body' class="table-hover"
                            style="height:280px; overflow-y:auto; display:block" class="d-flex">
