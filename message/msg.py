@@ -45,6 +45,7 @@ from monitor.geo import make_map_locations
 # 2022.03.16 - 측정진행 보고 메시지의 주기보고 시점에 대한 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트 및
 #              LTE전환 DL/UL 콜카운트를 가져감
 #            - 주기보고 시점은 단말그룸의 콜카운트 정보를 가지고 판단하게 수정함
+# 2022.04.08 - 메시지 모델에 단말그룹 추가에 따른 업데이트 코드 추가
 #
 # ----------------------------------------------------------------------------------------------------------------------
 def current_count_check(mdata: MeasureCallData) -> bool:
@@ -193,7 +194,9 @@ def make_message(mdata: MeasureCallData):
         # [측정시작 메시지] --------------------------------------------------------------------------------------------
         # 당일 측정조 메시지 내용을 가져온다.
 
+        sendType = 'TELE'
         if phone.status == 'START_F':
+            sendType = 'ALL' # 전송유형(문자 메시지와 텔레그램에 동시에 전송)
             measuringteam_msg = ''  # 당일 측정조 (데이터베이스에서 가져와야 함)
             meastime_str = str(mdata.meastime)
             measdate = datetime.strptime(meastime_str[:8], "%Y%m%d")
@@ -237,11 +240,12 @@ def make_message(mdata: MeasureCallData):
 
         # 전송 메시지를 생성한다.
         Message.objects.create(
+            phoneGroup=phone.phoneGroup, # 단말그룹
             phone=phone,  # 측정단말
             status=phone.status,
             # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료,END_LAST:마지막지역측정종료,REPORT:일일보고용,REPORT_ALL:일일보고용전체)
             measdate=str(mdata.meastime)[0:8],  # 측정일자
-            sendType='TELE',  # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
+            sendType=sendType,  # 전송유형(TELE: 텔레그램, XMCS: 크로샷)
             userInfo1=mdata.userInfo1,  # 측정자 입력값1
             currentCount=mdata.currentCount,  # 현재 콜카운트
             phone_no=mdata.phone_no,  # 측정단말 전화번호

@@ -138,7 +138,8 @@ class ApiMessageLV(ListView):
                 if qs.exists():
                     # 1) 이벤트 메시지 내역을 가져온다.
                     event_qs = qs.filter(messageType='EVENT')
-                    fields = ['id', 'phone_no_sht', 'create_time', 'message', 'sended_time', 'sended', 'sendType', 'telemessageId',]
+                    fields = ['id', 'phone_no_sht', 'create_time', 'message', 'sended_time', 'sended', 'sendType',
+                              'telemessageId', 'channelId',]
                     if event_qs.exists():
                         for message in event_qs:
                             serializer = MessageSerializer(message, fields=fields)
@@ -186,13 +187,14 @@ class ApiMessageDV(ListView):
             try:
                 bot = TelegramBot()
                 message = qs[0]
+                print(f"channelId: {message.channelId}, telemessageId: {message.telemessageId}")
                 # 전송된 메시지를 취소한다.
                 data = bot.delete_message(message.channelId, message.telemessageId)
 
             except Exception as e:
                 # 오류 코드 및 내용을 반환한다.
-                print("delete_message_action():", str(e))
-                raise Exception("delete_message_action(): %s" % e)
+                print("ApiMessageDV:", str(e))
+                raise Exception("ApiMessageDV: %s" % e)
 
         return JsonResponse(data=data, safe=False)
 
@@ -200,7 +202,26 @@ class ApiMessageDV(ListView):
 # 문자 메시지를 전송하는 API
 # ----------------------------------------------------------------------------------------------------------------------
 def sendMmessage(request, *args, **kwargs):
-    data = {}
-    print(json.loads(request.body))
+    data = json.loads(request.body)
+    result = {}
+    try:
+        if request.method == 'POST' and 'sendType' in data.keys():
+            sendType = data['sendType'] # 전송유형(sendType)
+            receiver_list = data['receiver_list'] # 수신자 리스트
+            message = data['message'] # 메시지 내용
+            channelId = data['channelId'] # 채널ID
 
-    return JsonResponse(data=data, safe=False)
+            if sendType == 'XMCS' or sendType == 'ALL':
+                from message.xmcs_msg import send_sms
+                result_sms = send_sms(message, receiver_list)
+                result = {'result': result_sms}
+            elif sendType == 'TELE':
+                bot = TelegramBot()
+                result = bot.send_message_bot(channelId, message)
+    except Exception as e:
+        # 오류 코드 및 내용을 반환한다.
+        print("sendMmessage():", str(e))
+        raise Exception("sendMmessage(): %s" % e)
+
+    return JsonResponse(data=result, safe=False)
+

@@ -27,6 +27,7 @@ from .models import MeasureCallData, Phone, Message
 #            - 두 개의 단말이 중복측정하고 있는지 확인하는 이벤트 모듈 추가
 # 2022.03.28 - 단말그룹의 이벤트발생 건수를 업데이트 하는 코드를 추가함
 # 2022.03.30 - 전송실패 이벤트 발생시 시 속도저하 이벤트를 체크하지 않음
+# 2022.04.08 - 메시지 모델에 단말그룹 추가에 따른 업데이트 코드 추가
 #
 ########################################################################################################################
 def event_occur_check(mdata: MeasureCallData):
@@ -411,7 +412,8 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
     if message:
         # 전송 메시지를 생성한다. 
         Message.objects.create(
-            phone=mdata.phone,  # 측정 단말기
+            phoneGroup=mdata.phone.phoneGroup, # 단말그룹
+            phone=mdata.phone,  # 측정단말
             status=mdata.phone.status,  # 측정단말 상태
             measdate=str(mdata.meastime)[0:8],  # 측정일자
             sendType='TELE',  # 메시지 전송유형(TELE: 텔레그램, XMCS: 크로샷)

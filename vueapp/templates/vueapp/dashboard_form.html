@@ -575,6 +575,7 @@
                 },
                 // 3) 모달창에서 확인버튼(측정종료 또는 측정마감) 버튼을 클릭했을 때
                 clickModalBtnConfirm(e) {
+                    console.log(e.target.innerText)
                     if (e.target.innerText === "측정종료") {
                         // 선택된 단말그룹에 대한 측정을 종료한다.
                         this.measuring_end();
@@ -583,6 +584,8 @@
                         this.measuring_day_close()
                     } else if (e.target.innerText === "회수") {
                         this.deleteMessage()
+                    } else if (e.target.innerText === "전송") {
+                        this.sendMessage()
                     }
                     $("#mi-modal").modal('hide');
                 },
@@ -636,14 +639,14 @@
                  clickSendMessage() {
                     if (this.message.id === undefined) {
                         this.isModelConfirmDisabled = false
-                        $("#modal-btn-confirm").html('회수');
-                        $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
+                        $("#modal-btn-confirm").html('전송');
+                        $("#modal_body").html("전송하고자 하는 메시지를 먼저 선택해 주세요.");
                         $("#mi-modal").modal('show');
                     } else {
-                     this.isModelConfirmDisabled = false
-                     $("#modal-btn-confirm").html('전송');
-                     $("#modal_body").html("해당 메시지를 전송하시겠습니까?");
-                     $("#mi-modal").modal('show');
+                         this.isModelConfirmDisabled = true
+                         $("#modal-btn-confirm").html('전송');
+                         $("#modal_body").html("해당 메시지를 전송하시겠습니까?");
+                         $("#mi-modal").modal('show');
                     }
                 },
                 async sendMessage() {
@@ -652,11 +655,16 @@
                     //headers: { "X-CSRFToken": '{{csrf_token}}'
                     const requestOptions = {
                         method: "POST",
-                        credentials: "same-origin",
                         headers: {
                             "X-CSRFToken": '{{csrf_token}}',
                             "Content-Type": "application/json" },
-                        body: JSON.stringify({'receiver': this.recipient_text, 'message': this.message.message})
+                        body: JSON.stringify({
+                            'receiver_list': this.recipient_text,
+                            'message': this.message.message,
+                            'id': this.message.id,
+                            'sendType': this.message.sendType,
+                            'channelId': this.message.channelId,
+                        })
                     };
                     const response = await fetch("/api/message/send/", requestOptions);
                     const data = await response.json();
