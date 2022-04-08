@@ -30,6 +30,8 @@ from message.tele_msg import TelegramBot
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.04.03 - 메시지 리스트 조회 API 추가
 # 2022.04.07 - 센터별 측정중인 건수와 측정종료 건수를 확인하기 위한 항목을 추가함
+# 2022.04.08 - 메시지 전송 및 회수 모듈 추가, 단말그룹 조회시 정열 순서 지정
+# 2022.08.09 - 문자 메시지의 경우 단말그룹이 지정되지 않아도 해당 측정일자와 동일한 모든 데이터를 조회하게 함
 #
 ########################################################################################################################
 
@@ -50,7 +52,7 @@ class ApiPhoneGroupLV(ListView):
         # print(measdate)
         try:
             # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
-            qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True)
+            qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
             phoneGroupList = []
             if qs.exists():
                 fields = ['id', 'centerName', 'p_measuringTeam', 'userInfo1', 'morphologyName', 'networkId', 'dl_count',
@@ -111,7 +113,7 @@ class ApiPhoneGroupLV(ListView):
 
         # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
         data = {'total_count': total_count, # 측정 총건수
-                'centerList': centerList, # 센터별 측정건ㅅ
+                'centerList': centerList, # 센터별 측정건수
                 'phoneGroupList': phoneGroupList} # 단말그룹 리스트
 
         return JsonResponse(data=data, safe=False)
@@ -133,8 +135,17 @@ class ApiMessageLV(ListView):
             messageSmsList = [] # 문자 메시지
             messageTeleList = [] # 텔레그램
             try:
+                # 단말그룹에 대한 측정일자를 조회한다(단말그룹을 찾지 못하는 경우는 당일을 지정한다).
+                qs = PhoneGroup.objects.filter(id=phonegroup_id)
+                if qs.exists():
+                    measdate = qs[0].measdate
+                else:
+                    measdate = datetime.now().strftime("%Y%m%d")
+
                 # 해당 단말그룹에 대한 모든 메시지를 가져온다.
-                qs = Message.objects.filter(phone__phoneGroup_id=phonegroup_id).order_by('-updated_at')
+                qs = Message.objects.filter(
+                    Q(phone__phoneGroup_id=phonegroup_id) | \
+                    Q(measdate=measdate, sendType='ALL')).order_by('-updated_at')
                 if qs.exists():
                     # 1) 이벤트 메시지 내역을 가져온다.
                     event_qs = qs.filter(messageType='EVENT')
