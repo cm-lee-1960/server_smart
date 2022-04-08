@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView
 from django.db import connection
 from django.db.models import Q
 from django.db import models
@@ -138,7 +138,7 @@ class ApiMessageLV(ListView):
                 if qs.exists():
                     # 1) 이벤트 메시지 내역을 가져온다.
                     event_qs = qs.filter(messageType='EVENT')
-                    fields = ['id', 'phone_no_sht', 'create_time', 'message', 'sended_time', 'sended', ]
+                    fields = ['id', 'phone_no_sht', 'create_time', 'message', 'sended_time', 'sended', 'sendType', 'telemessageId',]
                     if event_qs.exists():
                         for message in event_qs:
                             serializer = MessageSerializer(message, fields=fields)
@@ -195,3 +195,12 @@ class ApiMessageDV(ListView):
                 raise Exception("delete_message_action(): %s" % e)
 
         return JsonResponse(data=data, safe=False)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 문자 메시지를 전송하는 API
+# ----------------------------------------------------------------------------------------------------------------------
+def sendMmessage(request, *args, **kwargs):
+    data = {}
+    print(json.loads(request.body))
+
+    return JsonResponse(data=data, safe=False)

@@ -41,7 +41,7 @@
 {% load static %}
 
 {% block extra-style %}
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         .counter {
             background-color: #f5f5f5;
@@ -63,6 +63,7 @@
                 transform: rotate(359deg)
             }
         }
+
         @keyframes fa-spin {
             0% {
                 -webkit-transform: rotate(0deg);
@@ -144,8 +145,11 @@
                     <th style="width: 5%">이벤트</th>
                     <th style="width: 5%">측정시간</th>
                     <th style="width: 5%">상태</th>
-                    <th style="width: 5%">종료<i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-3"
-                                               style="font-size:24px; color:blue" v-on:click="fetch_all_phoneGroup"></i></th>
+                    <th style="width: 5%">종료
+                        <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-3"
+                           style="font-size:24px; color:blue" v-on:click="fetch_all_phoneGroup"
+                           data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
+                    </th>
                     </thead>
                     <tbody id='phoneGroupDetail_body' class="table-hover"
                            style="height:280px; overflow-y:auto; display:block" class="d-flex">
@@ -171,7 +175,9 @@
                         <td style="width: 7%" class="text-center">[[phoneGroup.uploadBandwidth]]</td>
                         <td style="width: 7%" class="text-center">[[phoneGroup.nr_percent]]</td>
                         <td style="width: 7%" class="text-center">[[phoneGroup.event_count]]</td>
-                        <td style="width: 7%" class="text-center">[[phoneGroup.last_updated_time]]([[phoneGroup.elapsed_time]])</td>
+                        <td style="width: 7%" class="text-center">
+                            [[phoneGroup.last_updated_time]]([[phoneGroup.elapsed_time]])
+                        </td>
                         <td style="width: 7%" class="text-center" v-if="phoneGroup.active">측정 중</td>
                         <td style="width: 7%" class="text-center" v-else="phoneGroup.active">측정종료</td>
                         <td style="width: 7%" class="text-center" v-if="phoneGroup.active">
@@ -192,7 +198,7 @@
                  style="border: 2px solid rgb(228, 223, 223); padding: 2px; height:300px; width:1100px;">
 
                 <!-- Tabs navs -->
-                <ul class="nav nav-tabs mb-3" id="msg" role="tablist">
+                <ul class="nav nav-tabs" id="msg" role="tablist">
                     <li class="nav-item" role="presentation">
                         <a
                                 class="nav-link active"
@@ -234,12 +240,8 @@
 
                 <!-- Tabs content -->
                 <div class="tab-content" id="msg-content">
-                    <div
-                            class="tab-pane fade show active m-0 p-0"
-                            id="msg-tabs-event"
-                            role="tabpanel"
-                            aria-labelledby="msg-tab-event"
-                    >
+                    <div class="tab-pane fade show active m-0 p-0" id="msg-tabs-event" role="tabpanel"
+                         aria-labelledby="msg-tab-event">
                         <table id="eventWindow" class='table table-hover' style="display:block">
                             <thead id='eventDetail_header'>
                             <th scope="col" class="text-center" style="width: 10%">생성시간</th>
@@ -326,294 +328,369 @@
             </div>
             <!-- /.container -->
 
+
             <div style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:300px; width:780px;">
-                <h6> 상세 메시지내역 </h6>
-                <div style="text-align: center;">
-                    <div class="mb-1">
-                        <textarea class="form-control mb-1" id="message_contents" rows="6">[[message.message]]</textarea>
-                        <input class="form-control form-control-sm" id="formFileSm" type="file" />
+
+                <!-- Tabs navs -->
+                <!-- source : https://getbootstrap.com/docs/4.0/components/tooltips/ -->
+                <ul class="nav nav-tabs mb-3" id="msgdtl" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="msgdtl-tab-message" data-mdb-toggle="tab"
+                           href="#msgdtl-tabs-message"
+                           role="tab" aria-controls="msgdtl-tabs-message" aria-selected="true">메시지 상세내용</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="msgdtl-tab-recipient" data-mdb-toggle="tab"
+                           href="#msgdtl-tabs-recipient"
+                           role="tab" aria-controls="msgdtl-tabs-recipient" aria-selected="false">수신자 리스트</a>
+                    </li>
+                </ul>
+                <!-- Tabs navs -->
+
+                <!-- Tabs content -->
+                <div class="tab-content" id="msgdtl-content">
+                    <div class="tab-pane fade show active" id="msgdtl-tabs-message" role="tabpanel"
+                         aria-labelledby="msgdtl-tab-message"
+                         style="text-align: center;">
+                        <textarea class="form-control mb-2" id="message_contents"
+                                  rows="6">[[message.message]]</textarea>
+                        <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
+                        <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage">회수</button>
                     </div>
-                    <!--
-                    <button type="button" class="btn btn-outline-primary btn-sm">전송</button>
-                    <button type="button" class="btn btn-outline-danger btn-sm">회수</button>
-                    -->
-                    <button type="button" class="btn btn-primary">전송</button>
-                    <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage">회수</button>
+                    <div class="tab-pane fade" id="msgdtl-tabs-recipient" role="tabpanel"
+                         aria-labelledby="msgdtl-tab-recipient">
+                            <textarea class="form-control mb-1" id="recipient_list"
+                                      rows="6" v-model="recipient_text"></textarea>
+                        <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
+                               @change="selectedFile"/>
+                    </div>
                 </div>
+                <!-- Tabs content -->
+
+                <!-- Modal -->
+                <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+                     aria-hidden="true"
+                     id="mi-modal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="myModalLabel">확인</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="modal_body"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="modal-btn-confirm"
+                                        v-if="isModelConfirmDisabled" v-on:click="clickModalBtnConfirm">측정종료
+                                </button>
+                                <button type="button" class="btn btn-default" id="modal-btn-cancel"
+                                        v-on:click="clickModalBtnCancel">닫기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-
-
-        <!-- Modal -->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true"
-             id="mi-modal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">확인</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="modal_body"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="modal-btn-confirm" v-if="isModelConfirmDisabled" v-on:click="clickModalBtnConfirm">측정종료</button>
-                        <button type="button" class="btn btn-default" id="modal-btn-cancel" v-on:click="clickModalBtnCancel">닫기</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
-
-
 
 {% endblock %}
 
-{% block extra-script   %}
-<script src="https://unpkg.com/vue@2.4.2"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+{% block extra-script %}
+    {% csrf_token %}
+    <script src="https://unpkg.com/vue@2.4.2"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-<script>
-/* =====================================================================================================================
- * 측정현황을 주기적으로 갱신하기 위한 모듈(Vue.js)
- * ---------------------------------------------------------------------------------------------------------------------
- * 2022.04.05 - 선택된 단말그룹 내역 건수를 계산하는 함수를 computed 속성으로 변환함
- *
- =====================================================================================================================*/
-var vm = new Vue({
-    delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
-    el: '#app',
-    data: {
-        date: "2021-11-01", // 측정일자
-        total_count: 0, // 총 측정건수
-        centerList: [], // 측정중인 센터수,
-        phoneGroupList: [], // 측정 단말그룹 리스트
-        messageEventList: [], // 이벤트 메시지 리스트
-        messageSmsList: [], // 문자 메시지 리스트
-        messageTeleList: [], // 텔레그램 메시지 리스트
-        message: {}, // 메시지 상세내역
-        timer: null, // 타이머
-        allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
-        //checkedCount: 0,
-        isModelConfirmDisabled: true,
-    },
-    computed: {
-        checkedCount: function () {
-            let phoneGroupIdList = [];
-            for (let i in this.phoneGroupList) {
-                if (this.phoneGroupList[i].selected) {
-                    phoneGroupIdList.push(this.phoneGroupList[i].id);
-                }
-            }
-            return phoneGroupIdList.length
-        }
-    },
-    created: function () {
-        // 날짜타입의 측정일자를 스트링으로 변환한다(예: 20211101)
-        //this.date = Date.now();
-        const date = new Date("2021-11-01");
-        const year = date.getFullYear();
-        const month = ("0" + (1 + date.getMonth())).slice(-2);
-        const day = ("0" + date.getDate()).slice(-2);
-        this.date = year + "-" + month + "-" + day;
+    <script>
+        /* =============================================================================================================
+         * 측정현황을 주기적으로 갱신하기 위한 모듈(Vue.js)
+         * -------------------------------------------------------------------------------------------------------------
+         * 2022.04.05 - 선택된 단말그룹 내역 건수를 계산하는 함수를 computed 속성으로 변환함
+         *
+         =============================================================================================================*/
+        var vm = new Vue({
+            delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
+            el: '#app',
+            data: {
+                date: "2021-11-01", // 측정일자
+                total_count: 0, // 총 측정건수
+                centerList: [], // 측정중인 센터수,
+                phoneGroupList: [], // 측정 단말그룹 리스트
+                messageEventList: [], // 이벤트 메시지 리스트
+                messageSmsList: [], // 문자 메시지 리스트
+                messageTeleList: [], // 텔레그램 메시지 리스트
+                message: {}, // 메시지 상세내역
+                timer: null, // 타이머
+                allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
+                //checkedCount: 0,
+                isModelConfirmDisabled: true,
+                recipient_text: null,
 
-        // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
-        this.fetch_all_phoneGroup();
-        this.timer = setInterval(this.fetch_all_phoneGroup, 10000);
-    },
+            },
+            computed: {
+                checkedCount: function () {
+                    let phoneGroupIdList = [];
+                    for (let i in this.phoneGroupList) {
+                        if (this.phoneGroupList[i].selected) {
+                            phoneGroupIdList.push(this.phoneGroupList[i].id);
+                        }
+                    }
+                    return phoneGroupIdList.length
+                }
+            },
+            created: function () {
+                // 날짜타입의 측정일자를 스트링으로 변환한다(예: 20211101)
+                //this.date = Date.now();
+                const date = new Date("2021-11-01");
+                const year = date.getFullYear();
+                const month = ("0" + (1 + date.getMonth())).slice(-2);
+                const day = ("0" + date.getDate()).slice(-2);
+                this.date = year + "-" + month + "-" + day;
 
-    methods: {
-        /* -------------------------------------------------------------------------------------------------------------
-         * 측정일자에 해당하는 측정단말 리스트를 가져온다.
-         -------------------------------------------------------------------------------------------------------------*/
-        async fetch_all_phoneGroup() {
-            const res = await fetch("/api/phonegroup/list/" + this.date);
-            const data = await res.json();
-            this.total_count = data['total_count'];
-            this.centerList = data['centerList'];
-            // 기존에 체크한 항목을 그대로 유지한다.
-            // 로직 고민중
-            this.phoneGroupList = data['phoneGroupList'];
-            //this.checkedCount = 0;
-        },
-        /* -------------------------------------------------------------------------------------------------------------
-         * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
-         -------------------------------------------------------------------------------------------------------------*/
-        clickPhoneGroupList: function (phoneGroup) {
-            this.fetch_all_message(phoneGroup);
-            this.message = {};
-        },
-        /* -------------------------------------------------------------------------------------------------------------
-         * 전송 메시지(이벤트/문자/텔레그랠) 리스트를 가져온다.
-         -------------------------------------------------------------------------------------------------------------*/
-        async fetch_all_message(phoneGroup) {
-            const res = await fetch("/api/message/list/" + phoneGroup.id)
-            const data = await res.json();
-            this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
-            this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
-            this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
-        },
-        /* -------------------------------------------------------------------------------------------------------------
-         * 전송 메시지 내역을 클릭 했을 때 메시지 상세내역을 보여준다.
-         -------------------------------------------------------------------------------------------------------------*/
-        clickMessageList: function (message) {
-            this.message = message
-        },
-        /* -------------------------------------------------------------------------------------------------------------
-         * 단말그룹 리스트 체크박스 관련 함수
-         -------------------------------------------------------------------------------------------------------------*/
-        checkedAll(checked) {
-            this.allChecked = checked
-            for (let i in this.phoneGroupList) {
-                this.phoneGroupList[i].selected = this.allChecked;
-            }
-        },
-        selected(e) {
-            for (let i in this.phoneGroupList) {
-                if (!this.phoneGroupList[i].selected) {
-                    this.allChecked = false;
-                    return;
-                } else {
-                    this.allChecked = true;
-                }
-            }
-        },
-        getSelected() {
-            let phoneGroupList = [];
-            for (let i in this.phoneGroupList) {
-                if (this.phoneGroupList[i].selected) {
-                    phoneGroupList.push(this.phoneGroupList[i]);
-                }
-            }
-            return phoneGroupList
-        },
-        /* -------------------------------------------------------------------------------------------------------------
-         * 측정종료 및 측정마감에 관련된 함수
-         -------------------------------------------------------------------------------------------------------------*/
-        // 1) 해당 단말그룹에 대한 측정을 종료한다.
-        async measuring_end() {
-            for (let i in this.phoneGroupList) {
-                if (this.phoneGroupList[i].selected) {
-                    // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
-                    const res = await fetch("/monitor/end/" + this.phoneGroupList[i].id)
-                }
-            }
-        },
-        // 2) 해당 일자에 대한 측정을 마감한다.
-        async measuring_day_close() {
-            const res = await fetch("/monitor/day_close/" + this.date)
-        },
-        /* -------------------------------------------------------------------------------------------------------------
-         * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
-         -------------------------------------------------------------------------------------------------------------*/
-        // 1) 측정종료 버튼을 클릭했을 때
-        clickMeasuringEnd(e) {
-            if (this.checkedCount > 0) {
-                // 선택된 단말그룹 리스트 중에서 측정이 종료된 건이 있는지 확인한다.
-                const selectedPhoneGroupList = this.getSelected();
-                let isMeasuringEnd = false
-                selectedPhoneGroupList.forEach(phoneGroup => {
-                    console.log("####", phoneGroup.active);
-                    isMeasuringEnd = !phoneGroup.active;
-                });
-                if (isMeasuringEnd) {
-                    this.isModelConfirmDisabled = false
-                    $("#modal-btn-confirm").html('측정종료');
-                    $("#modal_body").html("선택한 단말그룹이 측정이 이미 종료되었습니다.");
+                // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
+                this.fetch_all_phoneGroup();
+                this.timer = setInterval(this.fetch_all_phoneGroup, 10000);
+            },
+
+            methods: {
+                /* -----------------------------------------------------------------------------------------------------
+                 * 측정일자에 해당하는 측정단말 리스트를 가져온다.
+                 -----------------------------------------------------------------------------------------------------*/
+                async fetch_all_phoneGroup() {
+                    const res = await fetch("/api/phonegroup/list/" + this.date);
+                    const data = await res.json();
+                    this.total_count = data['total_count'];
+                    this.centerList = data['centerList'];
+                    // 기존에 체크한 항목을 그대로 유지한다.
+                    // 로직 고민중
+                    this.phoneGroupList = data['phoneGroupList'];
+                    //this.checkedCount = 0;
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
+                 -----------------------------------------------------------------------------------------------------*/
+                clickPhoneGroupList: function (phoneGroup) {
+                    this.fetch_all_message(phoneGroup);
+                    this.message = {};
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 전송 메시지(이벤트/문자/텔레그랠) 리스트를 가져온다.
+                 -----------------------------------------------------------------------------------------------------*/
+                async fetch_all_message(phoneGroup) {
+                    const res = await fetch("/api/message/list/" + phoneGroup.id)
+                    const data = await res.json();
+                    this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
+                    this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
+                    this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 전송 메시지 내역을 클릭 했을 때 메시지 상세내역을 보여준다.
+                 -----------------------------------------------------------------------------------------------------*/
+                clickMessageList: function (message) {
+                    this.message = message
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 단말그룹 리스트 체크박스 관련 함수
+                 -----------------------------------------------------------------------------------------------------*/
+                checkedAll(checked) {
+                    this.allChecked = checked
+                    for (let i in this.phoneGroupList) {
+                        this.phoneGroupList[i].selected = this.allChecked;
+                    }
+                },
+                selected(e) {
+                    for (let i in this.phoneGroupList) {
+                        if (!this.phoneGroupList[i].selected) {
+                            this.allChecked = false;
+                            return;
+                        } else {
+                            this.allChecked = true;
+                        }
+                    }
+                },
+                getSelected() {
+                    let phoneGroupList = [];
+                    for (let i in this.phoneGroupList) {
+                        if (this.phoneGroupList[i].selected) {
+                            phoneGroupList.push(this.phoneGroupList[i]);
+                        }
+                    }
+                    return phoneGroupList
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 측정종료 및 측정마감에 관련된 함수
+                 -----------------------------------------------------------------------------------------------------*/
+                // 1) 해당 단말그룹에 대한 측정을 종료한다.
+                async measuring_end() {
+                    for (let i in this.phoneGroupList) {
+                        if (this.phoneGroupList[i].selected) {
+                            // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
+                            const res = await fetch("/monitor/end/" + this.phoneGroupList[i].id)
+                        }
+                    }
+                },
+                // 2) 해당 일자에 대한 측정을 마감한다.
+                async measuring_day_close() {
+                    const res = await fetch("/monitor/day_close/" + this.date)
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
+                 -----------------------------------------------------------------------------------------------------*/
+                // 1) 측정종료 버튼을 클릭했을 때
+                clickMeasuringEnd(e) {
+                    if (this.checkedCount > 0) {
+                        // 선택된 단말그룹 리스트 중에서 측정이 종료된 건이 있는지 확인한다.
+                        const selectedPhoneGroupList = this.getSelected();
+                        let isMeasuringEnd = false
+                        selectedPhoneGroupList.forEach(phoneGroup => {
+                            console.log("####", phoneGroup.active);
+                            isMeasuringEnd = !phoneGroup.active;
+                        });
+                        if (isMeasuringEnd) {
+                            this.isModelConfirmDisabled = false
+                            $("#modal-btn-confirm").html('측정종료');
+                            $("#modal_body").html("선택한 단말그룹이 측정이 이미 종료되었습니다.");
+                            $("#mi-modal").modal('show');
+                        } else {
+                            $("#modal-btn-confirm").html('측정종료');
+                            $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
+                            $("#mi-modal").modal('show');
+                        }
+                    } else {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('측정종료');
+                        $("#modal_body").html("선택된 단말그룹이 없습니다.");
+                        $("#mi-modal").modal('show');
+                    }
+                },
+                // 2) 측정마감 버튼을 클릭했을 때
+                clickMeasuringClose(e) {
+                    this.isModelConfirmDisabled = true
+                    $("#modal-btn-confirm").html('측정마감');
+                    $("#modal_body").html("당일(" + this.date + ") 측정을 마감하시겠습니까?");
                     $("#mi-modal").modal('show');
-                } else {
-                   $("#modal-btn-confirm").html('측정종료');
-                    $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
-                    $("#mi-modal").modal('show');
-                }
-            } else {
-                this.isModelConfirmDisabled = false
-                $("#modal-btn-confirm").html('측정종료');
-                $("#modal_body").html("선택된 단말그룹이 없습니다.");
-                $("#mi-modal").modal('show');
-            }
-        },
-        // 2) 측정마감 버튼을 클릭했을 때
-        clickMeasuringClose(e) {
-            this.isModelConfirmDisabled = true
-            $("#modal-btn-confirm").html('측정마감');
-            $("#modal_body").html("당일(" + this.date + ") 측정을 마감하시겠습니까?");
-            $("#mi-modal").modal('show');
-        },
-        // 3) 모달창에서 확인버튼(측정종료 또는 측정마감) 버튼을 클릭했을 때
-        clickModalBtnConfirm(e) {
-            if (e.target.innerText === "측정종료") {
-                // 선택된 단말그룹에 대한 측정을 종료한다.
-                this.measuring_end();
-            } else if (e.target.innerText === "측정마감") {
-                // 해당일자에 대한 측정을 마감한다.
-                this.measuring_day_close()
-            } else if (e.target.innerText === "회수") {
-                this.deleteMessage()
-            }
-            $("#mi-modal").modal('hide');
-        },
-        // 4) 모달창에서 닫기 버튼을 클릭했을 때
-        clickModalBtnCancel(){
-            this.isModelConfirmDisabled = true
-            $("#mi-modal").modal('hide');
-        },
+                },
+                // 3) 모달창에서 확인버튼(측정종료 또는 측정마감) 버튼을 클릭했을 때
+                clickModalBtnConfirm(e) {
+                    if (e.target.innerText === "측정종료") {
+                        // 선택된 단말그룹에 대한 측정을 종료한다.
+                        this.measuring_end();
+                    } else if (e.target.innerText === "측정마감") {
+                        // 해당일자에 대한 측정을 마감한다.
+                        this.measuring_day_close()
+                    } else if (e.target.innerText === "회수") {
+                        this.deleteMessage()
+                    }
+                    $("#mi-modal").modal('hide');
+                },
+                // 4) 모달창에서 닫기 버튼을 클릭했을 때
+                clickModalBtnCancel() {
+                    this.isModelConfirmDisabled = true
+                    $("#mi-modal").modal('hide');
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 메시지 전송 및 회수 관련 함수 관련 모듈
+                 -----------------------------------------------------------------------------------------------------*/
+                async deleteMessage() {
+                    const res = await fetch("/api/message/delete/" + this.message.id);
+                },
+                clickDeleteMessage(e) {
+                    console.log("### clickDeleteMessage", this.message)
+                    console.log(this.message.id)
+                    if (this.message.id === undefined) {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('회수');
+                        $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
+                        $("#mi-modal").modal('show');
+                    } else {
+                        this.isModelConfirmDisabled = true
+                        $("#modal-btn-confirm").html('회수');
+                        $("#modal_body").html("메시지를 정말 회수하시겠습니까?");
+                        $("#mi-modal").modal('show');
+                    }
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 텍스트 파일 내용을 읽어 오는 함수(수신자 전화번호 리스트)
+                 * source: https://www.raymondcamden.com/2019/05/21/reading-client-side-files-for-validation-with-vuejs
+                 -----------------------------------------------------------------------------------------------------*/
+                selectedFile() {
+                    console.log('selected a file');
+                    console.log(this.$refs.myFile.files[0]);
+
+                    let file = this.$refs.myFile.files[0];
+                    if (!file || file.type !== 'text/plain') return;
+
+                    // Credit: https://stackoverflow.com/a/754398/52160
+                    let reader = new FileReader();
+                    reader.readAsText(file, "UTF-8");
+                    reader.onload = evt => {
+                        this.recipient_text = evt.target.result;
+                    }
+                    reader.onerror = evt => {
+                        console.error(evt);
+                    }
+                },
+                 clickSendMessage() {
+                    if (this.message.id === undefined) {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('회수');
+                        $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
+                        $("#mi-modal").modal('show');
+                    } else {
+                     this.isModelConfirmDisabled = false
+                     $("#modal-btn-confirm").html('전송');
+                     $("#modal_body").html("해당 메시지를 전송하시겠습니까?");
+                     $("#mi-modal").modal('show');
+                    }
+                },
+                async sendMessage() {
+                    //const data = { 'receiver': this.recipient_text, 'message': this.message };
+                    //const response = await axios.post("message/msg_send/", data);
+                    //headers: { "X-CSRFToken": '{{csrf_token}}'
+                    const requestOptions = {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: {
+                            "X-CSRFToken": '{{csrf_token}}',
+                            "Content-Type": "application/json" },
+                        body: JSON.stringify({'receiver': this.recipient_text, 'message': this.message.message})
+                    };
+                    const response = await fetch("/api/message/send/", requestOptions);
+                    const data = await response.json();
+                    console.log(data);
+                },
+            },
+        });
+
         /* -------------------------------------------------------------------------------------------------------------
-         * 메시지 전송 및 회수 관련 함수 관련 모듈
+         * 전송 메시지 내용을 줄여서 표현하는 필터를 선언한다.
+         * 사용법: <td class="col-md-6 text-left">[[ message.message | truncate(65, '...')]]</td>
          -------------------------------------------------------------------------------------------------------------*/
-        async deleteMessage() {
-            const res = await fetch("/api/message/delete/" + this.message.id);
-        },
-        clickDeleteMessage(e) {
-            console.log("### clickDeleteMessage", this.message)
-            console.log(this.message.id)
-            if (this.message.id === undefined) {
-                this.isModelConfirmDisabled = false
-                $("#modal-btn-confirm").html('회수');
-                $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
-                $("#mi-modal").modal('show');
-            } else {
-                this.isModelConfirmDisabled = true
-                $("#modal-btn-confirm").html('회수');
-                $("#modal_body").html("메시지를 정말 회수하시겠습니까?");
-                $("#mi-modal").modal('show');
-            }
+        const filter = function (text, length, clamp) {
+            clamp = clamp || '...';
+            const node = document.createElement('div');
+            node.innerHTML = text;
+            const content = node.textContent;
+            return content.length > length ? content.slice(0, length) + clamp : content;
+        };
 
-        },
-//        getKeyByValue(object, value) {
-//            return Object.keys(object).find(key => object[key] === value);
-//        }
-    },
-});
+        Vue.filter('truncate', filter);
 
-/* ---------------------------------------------------------------------------------------------------------------------
- * 전송 메시지 내용을 줄여서 표현하는 필터를 선언한다.
- * 사용법: <td class="col-md-6 text-left">[[ message.message | truncate(65, '...')]]</td>
- ---------------------------------------------------------------------------------------------------------------------*/
-const filter = function (text, length, clamp) {
-    clamp = clamp || '...';
-    const node = document.createElement('div');
-    node.innerHTML = text;
-    const content = node.textContent;
-    return content.length > length ? content.slice(0, length) + clamp : content;
-};
+        /* -------------------------------------------------------------------------------------------------------------
+         * 마우스를 텝위(이벤트/문자/텔레그램)에 울려 놓으면 해당 탭이 선택되게 한다.
+         -------------------------------------------------------------------------------------------------------------*/
+        $(".nav-link").mouseover(function () {
+            $(this).tab("show");
+        });
 
-Vue.filter('truncate', filter);
+        $(".nav-link").on("show.bs.tab", function (e) {
+            const tabPanelId = e.relatedTarget.getAttribute("href");
+            $(tabPanelId).removeClass("active");
+        });
 
-/* ---------------------------------------------------------------------------------------------------------------------
- * 마우스를 텝위(이벤트/문자/텔레그램)에 울려 놓으면 해당 탭이 선택되게 한다.
- ---------------------------------------------------------------------------------------------------------------------*/
-$(".nav-link").mouseover(function () {
-    $(this).tab("show");
-});
-
-$(".nav-link").on("show.bs.tab", function (e) {
-    const tabPanelId = e.relatedTarget.getAttribute("href");
-    $(tabPanelId).removeClass("active");
-});
-
-</script>
+    </script>
 
 {% endblock %}
