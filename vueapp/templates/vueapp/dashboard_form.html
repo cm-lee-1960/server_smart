@@ -101,10 +101,11 @@
                     </div>
                     <div v-for="(center, index) in centerList" class="card bg-light mb-1, mx-1"
                          style="width: 10rem; height: 100px">
-                        <div class="card-header p-1">[[center.centerName]]</div>
+                        <div class="card-header p-1" style="font-weight: bold;">[[center.centerName]]</div>
                         <div class="card-body p-2">
                             <h3 class="card-title p-0 m-0">[[center.count]]</h3>
-                            <p class="card-text p-0 m-0" style="font-size:14px;">(측정중: [[center.measuring_count]]/측정완료: [[center.end_count]])</p>
+                            <p class="card-text p-0 m-0" style="font-size:14px;">(측정중 <span style="font-size: 16px;">[[center.measuring_count]]</span>
+                                / 종료 <span style="font-size: 16px;">[[center.end_count]])</span></p>
                         </div>
                     </div>
                 </div>
@@ -505,7 +506,7 @@ var vm = new Vue({
         clickMeasuringClose(e) {
             this.isModelConfirmDisabled = true
             $("#modal-btn-confirm").html('측정마감');
-            $("#modal_body").html("당일 측정을 마감하시겠습니까?");
+            $("#modal_body").html("당일(" + this.date + ") 측정을 마감하시겠습니까?");
             $("#mi-modal").modal('show');
         },
         // 3) 모달창에서 확인버튼(측정종료 또는 측정마감) 버튼을 클릭했을 때
