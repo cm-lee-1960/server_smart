@@ -15,6 +15,7 @@ var app = require("express")();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 
+// Post 요청 받을 시
 app.use(bodyParser.json())
 app.post('/',function(req,res){
   var message_body = req.body.message;
@@ -52,9 +53,18 @@ app.post('/',function(req,res){
 
   // 리스닝 종료
   http.close();
-  // process.exit();
+  process.exit();
 });
 
-http.listen(3000, function(){
-  console.log('listening...');
+// 3000 포트로 Listen 시작
+http.listen(30000, function(){
+  console.log('listening for Xroshot post....');
 });
+
+
+// 10초 후 자동 종료
+setInterval(function() {
+  http.close();
+  console.log('server closed');
+  process.exit();
+}, 10000);
