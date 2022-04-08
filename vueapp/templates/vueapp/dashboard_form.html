@@ -414,7 +414,9 @@
          * 측정현황을 주기적으로 갱신하기 위한 모듈(Vue.js)
          * -------------------------------------------------------------------------------------------------------------
          * 2022.04.05 - 선택된 단말그룹 내역 건수를 계산하는 함수를 computed 속성으로 변환함
-         *
+         * 2022.04.09 - 텔레그램 및 문자 메시지 전송 기능 구현
+         *            - 문자 메시지 조회시 측정단말 및 단말그룹이 없는 경우 해당 측정일자에 생성된 건이 조회 추가
+         *              (전송유형: ALL)
          =============================================================================================================*/
         var vm = new Vue({
             delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
@@ -431,8 +433,8 @@
                 timer: null, // 타이머
                 allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
                 //checkedCount: 0,
-                isModelConfirmDisabled: true,
-                recipient_text: null,
+                isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
+                recipient_text: null, // 수신자 리스트
 
             },
             computed: {
@@ -602,45 +604,7 @@
                 /* -----------------------------------------------------------------------------------------------------
                  * 메시지 전송 및 회수 관련 함수 관련 모듈
                  -----------------------------------------------------------------------------------------------------*/
-                async deleteMessage() {
-                    const res = await fetch("/api/message/delete/" + this.message.id);
-                },
-                clickDeleteMessage(e) {
-                    console.log("### clickDeleteMessage", this.message)
-                    console.log(this.message.id)
-                    if (this.message.id === undefined) {
-                        this.isModelConfirmDisabled = false
-                        $("#modal-btn-confirm").html('회수');
-                        $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
-                        $("#mi-modal").modal('show');
-                    } else {
-                        this.isModelConfirmDisabled = true
-                        $("#modal-btn-confirm").html('회수');
-                        $("#modal_body").html("메시지를 정말 회수하시겠습니까?");
-                        $("#mi-modal").modal('show');
-                    }
-                },
-                /* -----------------------------------------------------------------------------------------------------
-                 * 텍스트 파일 내용을 읽어 오는 함수(수신자 전화번호 리스트)
-                 * source: https://www.raymondcamden.com/2019/05/21/reading-client-side-files-for-validation-with-vuejs
-                 -----------------------------------------------------------------------------------------------------*/
-                selectedFile() {
-                    console.log('selected a file');
-                    console.log(this.$refs.myFile.files[0]);
-
-                    let file = this.$refs.myFile.files[0];
-                    if (!file || file.type !== 'text/plain') return;
-
-                    // Credit: https://stackoverflow.com/a/754398/52160
-                    let reader = new FileReader();
-                    reader.readAsText(file, "UTF-8");
-                    reader.onload = evt => {
-                        this.recipient_text = evt.target.result;
-                    }
-                    reader.onerror = evt => {
-                        console.error(evt);
-                    }
-                },
+                // 1-1) 전송 버튼을 클릭했을 때 모달창을 띄운다.
                  clickSendMessage() {
                     if (this.message.id === undefined) {
                         this.isModelConfirmDisabled = false
@@ -648,7 +612,6 @@
                         $("#modal_body").html("전송하고자 하는 메시지를 먼저 선택해 주세요.");
                         $("#mi-modal").modal('show');
                     } else {
-                        console.log(this.recipient_text)
                         if (this.recipient_text === undefined | this.recipient_text === null |
                             this.recipient_text.length <= 0) {
                             this.isModelConfirmDisabled = false
@@ -664,6 +627,7 @@
                         }
                     }
                 },
+                // 1-2) 메시지 전송 모달창에서 확인 버튼을 클릭했을 때(메시지 전송)
                 async sendMessage() {
                     //const data = { 'receiver': this.recipient_text, 'message': this.message };
                     //const response = await axios.post("message/msg_send/", data);
@@ -684,6 +648,39 @@
                     const response = await fetch("/api/message/send/", requestOptions);
                     const data = await response.json();
                     console.log(data);
+                },
+                async deleteMessage() {
+                    const res = await fetch("/api/message/delete/" + this.message.id);
+                },
+                // 1-3) 텍스트 파일 내용을 읽어 오는 함수(수신자 전화번호 리스트)
+                // source: https://www.raymondcamden.com/2019/05/21/reading-client-side-files-for-validation-with-vuejs
+                selectedFile() {
+                    let file = this.$refs.myFile.files[0];
+                    if (!file || file.type !== 'text/plain') return;
+
+                    // Credit: https://stackoverflow.com/a/754398/52160
+                    let reader = new FileReader();
+                    reader.readAsText(file, "UTF-8");
+                    reader.onload = evt => {
+                        this.recipient_text = evt.target.result;
+                    }
+                    reader.onerror = evt => {
+                        console.error(evt);
+                    }
+                },
+                // 2) 회수 버튼을 클릭했을 때 모달창을 띄운다.
+                clickDeleteMessage(e) {
+                    if (this.message.id === undefined) {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('회수');
+                        $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
+                        $("#mi-modal").modal('show');
+                    } else {
+                        this.isModelConfirmDisabled = true
+                        $("#modal-btn-confirm").html('회수');
+                        $("#modal_body").html("메시지를 정말 회수하시겠습니까?");
+                        $("#mi-modal").modal('show');
+                    }
                 },
             },
         });
