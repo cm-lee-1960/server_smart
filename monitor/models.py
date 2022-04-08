@@ -759,6 +759,7 @@ class Message(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='생성일시')
     sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
+    isDel = models.BooleanField(default=False, verbose_name='회수여부')  # Telegram 메시지 회수 여부
 
     # 전화번호 뒤에서 4자리를 반환한다.
     @property
