@@ -63,14 +63,13 @@
                 transform: rotate(359deg)
             }
         }
-
         @keyframes fa-spin {
             0% {
                 -webkit-transform: rotate(0deg);
                 transform: rotate(0deg)
             }
             100% {
-                -webkit-transfo rm: rotate(359deg);
+                -webkit-transform: rotate(359deg);
                 transform: rotate(359deg)
             }
         }
@@ -191,24 +190,56 @@
 
             <div id="bottom_body_left"
                  style="border: 2px solid rgb(228, 223, 223); padding: 2px; height:300px; width:1100px;">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="event-tab" data-toggle="tab" href="#event" role="tab"
-                           aria-controls="home" aria-selected="true">이벤트</a>
+
+                <!-- Tabs navs -->
+                <ul class="nav nav-tabs mb-3" id="msg" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a
+                                class="nav-link active"
+                                id="msg-tab-event"
+                                data-mdb-toggle="tab"
+                                href="#msg-tabs-event"
+                                role="tab"
+                                aria-controls="msg-tabs-event"
+                                aria-selected="true"
+                        >이벤트</a
+                        >
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="sms-tab" data-toggle="tab" href="#sms" role="tab"
-                           aria-controls="profile" aria-selected="false">문자</a>
+                    <li class="nav-item" role="presentation">
+                        <a
+                                class="nav-link"
+                                id="msg-tab-sms"
+                                data-mdb-toggle="tab"
+                                href="#msg-tabs-sms"
+                                role="tab"
+                                aria-controls="msg-tabs-sms"
+                                aria-selected="false"
+                        >문자</a
+                        >
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="tele-tab" data-toggle="tab" href="#tele" role="tab"
-                           aria-controls="contact" aria-selected="false">텔레그램</a>
+                    <li class="nav-item" role="presentation">
+                        <a
+                                class="nav-link"
+                                id="msg-tab-tele"
+                                data-mdb-toggle="tab"
+                                href="#msg-tabs-tele"
+                                role="tab"
+                                aria-controls="msg-tabs-tele"
+                                aria-selected="false"
+                        >텔레그램</a
+                        >
                     </li>
                 </ul>
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active m-0 p-0" id="event" role="tabpanel"
-                         aria-labelledby="event-tab">
+                <!-- Tabs navs -->
 
+                <!-- Tabs content -->
+                <div class="tab-content" id="msg-content">
+                    <div
+                            class="tab-pane fade show active m-0 p-0"
+                            id="msg-tabs-event"
+                            role="tabpanel"
+                            aria-labelledby="msg-tab-event"
+                    >
                         <table id="eventWindow" class='table table-hover' style="display:block">
                             <thead id='eventDetail_header'>
                             <th scope="col" class="text-center" style="width: 10%">생성시간</th>
@@ -233,9 +264,8 @@
                             </tbody>
                         </table>
 
-
                     </div>
-                    <div class="tab-pane fade m-0 p-0" id="sms" role="tabpanel" aria-labelledby="sms-tab">
+                    <div class="tab-pane fade m-0 p-0" id="msg-tabs-sms" role="tabpanel" aria-labelledby="msg-tab-sms">
 
                         <table id="xroshotWindow" class='table table-hover' style="display:block">
                             <thead id='xroshotDetail_header'>
@@ -261,8 +291,10 @@
                             </tbody>
                         </table>
 
+
                     </div>
-                    <div class="tab-pane fade m-0 p-0" id="tele" role="tabpanel" aria-labelledby="tele-tab">
+                    <div class="tab-pane fade m-0 p-0" id="msg-tabs-tele" role="tabpanel"
+                         aria-labelledby="msg-tab-tele">
 
                         <table id="teleWindow" class='table table-hover' style="display:block">
                             <th scope="col" class="text-center" style="width: 10%">생성시간</th>
@@ -289,6 +321,7 @@
 
                     </div>
                 </div>
+                <!-- Tabs content -->
 
             </div>
             <!-- /.container -->
