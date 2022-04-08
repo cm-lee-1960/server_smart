@@ -461,7 +461,6 @@
                 this.fetch_all_phoneGroup();
                 this.timer = setInterval(this.fetch_all_phoneGroup, 10000);
             },
-
             methods: {
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정일자에 해당하는 측정단말 리스트를 가져온다.
@@ -469,10 +468,17 @@
                 async fetch_all_phoneGroup() {
                     const res = await fetch("/api/phonegroup/list/" + this.date);
                     const data = await res.json();
+                    const selectedPhoneGroup = this.getSelected();
+                    // 단말그룹을 재조회 해도 기존 화면상에서 체크박스 상태는 그대로 유지한다.
+                    selectedPhoneGroup.forEach(prePhoneGroup => {
+                        data['phoneGroupList'].forEach(phoneGroup => {
+                            if (prePhoneGroup.id === phoneGroup.id) {
+                               phoneGroup.selected = prePhoneGroup.selected
+                            }
+                        });
+                    });
                     this.total_count = data['total_count'];
                     this.centerList = data['centerList'];
-                    // 기존에 체크한 항목을 그대로 유지한다.
-                    // 로직 고민중
                     this.phoneGroupList = data['phoneGroupList'];
                     //this.checkedCount = 0;
                 },
