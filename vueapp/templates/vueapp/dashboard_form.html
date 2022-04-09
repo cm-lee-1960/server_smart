@@ -77,8 +77,6 @@
             }
         }
 
-
-
     </style>
 
 {% endblock %}
@@ -340,7 +338,7 @@
                          aria-labelledby="msgdtl-recipient-tab">
                              <textarea class="form-control mb-1" id="recipient_list"
                                        rows="6" v-model="recipient_text"
-                                       placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력가능합니다."></textarea>
+                                       placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다."></textarea>
                         <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
                                @change="selectedFile"/>
                     </div>
@@ -377,10 +375,6 @@
             </div>
         </div>
     </div>
-
-
-
-
 
 {% endblock %}
 
@@ -688,6 +682,7 @@
 
         /* -------------------------------------------------------------------------------------------------------------
          * 마우스를 텝위(이벤트/문자/텔레그램)에 울려 놓으면 해당 탭이 선택되게 한다.
+         * 마우스가 탭위에 위치할 때마다 자동으로 탭들이 변경되니 오히려 어지럽고, 불편감이 있어서 제거함
          -------------------------------------------------------------------------------------------------------------*/
         /*
         $(".nav-link").mouseover(function () {
