@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.generic import ListView, CreateView
 from django.db import connection
 from django.db.models import Q
@@ -31,7 +31,14 @@ from message.tele_msg import TelegramBot
 # 2022.04.03 - 메시지 리스트 조회 API 추가
 # 2022.04.07 - 센터별 측정중인 건수와 측정종료 건수를 확인하기 위한 항목을 추가함
 # 2022.04.08 - 메시지 전송 및 회수 모듈 추가, 단말그룹 조회시 정열 순서 지정
-# 2022.08.09 - 문자 메시지의 경우 단말그룹이 지정되지 않아도 해당 측정일자와 동일한 모든 데이터를 조회하게 함
+# 2022.04.09 - 문자 메시지의 경우 단말그룹이 지정되지 않아도 해당 측정일자와 동일한 모든 데이터를 조회하게 함
+#            - 텔레그램 메시지 재전송 후 텔레그램 메시지ID, 전송시간(보낸시간), 회수여부(초기화) 항목 업데이트 코드 추가
+#            - 텔레그램 메시지 회수 후 회수여부 항목 업데이트 코드 추가
+#           ** 메시지 전송/회수 시 메시지 모델에 업데이트 하는 코드를 해당 전담모듈(tele_msg.py)에서 했으면 좋겠는데,
+#              메시지 모델(monitor/models.py)와 순환참조가 발생하는 구조라서 불가함
+#           ** Message - post_save(SIGNAL) - TelegramBot
+#                                            (여기에 업데이트 코드를 넣으면) - Message 구조가 되어 순환참조 발생
+#           ** 전송된 메시지를 회수하는 경우는 많지 않으니 현재 구조를 유지해도 괜찮을 듯 함(다소 불편감은 있지만,..)
 #
 ########################################################################################################################
 
@@ -150,7 +157,7 @@ class ApiMessageLV(ListView):
                     # 1) 이벤트 메시지 내역을 가져온다.
                     event_qs = qs.filter(messageType='EVENT')
                     fields = ['id', 'phone_no_sht', 'create_time', 'message', 'sended_time', 'sended', 'sendType',
-                              'telemessageId', 'channelId',]
+                              'telemessageId', 'channelId', 'isDel']
                     if event_qs.exists():
                         for message in event_qs:
                             serializer = MessageSerializer(message, fields=fields)
@@ -193,6 +200,7 @@ class ApiMessageDV(ListView):
     def get(self, request, *args, **kwargs):
         data = {}
         message_id = kwargs['message_id']
+        print("##### message id:", message_id)
         qs = Message.objects.filter(id=message_id)
         if qs.exists():
             try:
@@ -201,6 +209,12 @@ class ApiMessageDV(ListView):
                 print(f"channelId: {message.channelId}, telemessageId: {message.telemessageId}")
                 # 전송된 메시지를 취소한다.
                 data = bot.delete_message(message.channelId, message.telemessageId)
+                # ##### message id: 158
+                # channelId: -736183270, telemessageId: 23052
+                # ApiMessageDV: Message to delete not found
+                # 메시지 회수가 완료되면 회수여부를 업데이트 한다.
+                message.isDel = False
+                message.save()
 
             except Exception as e:
                 # 오류 코드 및 내용을 반환한다.
@@ -208,6 +222,9 @@ class ApiMessageDV(ListView):
                 raise Exception("ApiMessageDV: %s" % e)
 
         return JsonResponse(data=data, safe=False)
+
+
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 문자 메시지를 전송하는 API
@@ -221,6 +238,7 @@ def sendMmessage(request, *args, **kwargs):
             receiver_list = data['receiver_list'] # 수신자 리스트
             message = data['message'] # 메시지 내용
             channelId = data['channelId'] # 채널ID
+            id = data['id'] # 메시지ID
 
             if sendType == 'XMCS' or sendType == 'ALL':
                 from message.xmcs_msg import send_sms
@@ -229,10 +247,22 @@ def sendMmessage(request, *args, **kwargs):
             elif sendType == 'TELE':
                 bot = TelegramBot()
                 result = bot.send_message_bot(channelId, message)
+                qs = Message.objects.filter(id=id)
+                if qs.exists():
+                    message = qs[0]
+                    message.telemessageId = result['message_id'] # 텔레그램 메시지ID
+                    message.sendTime = datetime.now() # 전송시간(보낸시간)
+                    message.isDel = False # 메시지 회수여부
+
+                    # 메시지를 저장한다.
+                    message.save()
+
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
         print("sendMmessage():", str(e))
         raise Exception("sendMmessage(): %s" % e)
 
-    return JsonResponse(data=result, safe=False)
+    print("##### sendMmessage() 정상처리")
 
+    # return JsonResponse(data=result, safe=False)
+    return HttpResponse(result)
