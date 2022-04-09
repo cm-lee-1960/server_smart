@@ -213,7 +213,7 @@ class ApiMessageDV(ListView):
                 # channelId: -736183270, telemessageId: 23052
                 # ApiMessageDV: Message to delete not found
                 # 메시지 회수가 완료되면 회수여부를 업데이트 한다.
-                message.isDel = False
+                message.isDel = True
                 message.save()
 
             except Exception as e:
