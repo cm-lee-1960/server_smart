@@ -266,3 +266,27 @@ def sendMmessage(request, *args, **kwargs):
 
     # return JsonResponse(data=result, safe=False)
     return HttpResponse(result)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹 측정조를 변경하는 API
+# ----------------------------------------------------------------------------------------------------------------------
+def updatePhoneGroup(request, *args, **kwargs):
+    data = json.loads(request.body)
+    result = {}
+    try:
+        if request.method == 'POST':
+            phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
+            measuringTeam = data['measuringTeam']
+            print("##### updatePhoneGroup:", phoneGroup_id, measuringTeam)
+            qs = PhoneGroup.objects.filter(id=phoneGroup_id)
+            if qs.exists():
+                phoneGroup = qs[0]
+                phoneGroup.measuringTeam = measuringTeam
+                phoneGroup.save()
+
+    except Exception as e:
+        # 오류 코드 및 내용을 반환한다.
+        print("sendMmessage():", str(e))
+        raise Exception("sendMmessage(): %s" % e)
+
+    return HttpResponse(result)
