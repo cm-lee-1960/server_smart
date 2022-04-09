@@ -202,50 +202,27 @@
                  style="border: 2px solid rgb(228, 223, 223); padding: 2px; height:300px; width:1100px;">
 
                 <!-- Tabs navs -->
-                <ul class="nav nav-pills" id="msg" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a
-                                class="nav-link active"
-                                id="msg-tab-event"
-                                data-mdb-toggle="tab"
-                                href="#msg-tabs-event"
-                                role="tab"
-                                aria-controls="msg-tabs-event"
-                                aria-selected="true"
-                        >이벤트</a
-                        >
+                <ul class="nav nav-tabs nav-pills" id="msg" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
+                           aria-controls="msg-event" aria-selected="true">이벤트</a>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <a
-                                class="nav-link"
-                                id="msg-tab-sms"
-                                data-mdb-toggle="tab"
-                                href="#msg-tabs-sms"
-                                role="tab"
-                                aria-controls="msg-tabs-sms"
-                                aria-selected="false"
-                        >문자</a
-                        >
+                    <li class="nav-item">
+                        <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
+                           aria-controls="msg-sms" aria-selected="false">문자</a>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <a
-                                class="nav-link"
-                                id="msg-tab-tele"
-                                data-mdb-toggle="tab"
-                                href="#msg-tabs-tele"
-                                role="tab"
-                                aria-controls="msg-tabs-tele"
-                                aria-selected="false"
-                        >텔레그램</a
-                        >
+                    <li class="nav-item">
+                        <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
+                           aria-controls="msg-tele" aria-selected="false">텔레그램</a>
                     </li>
                 </ul>
                 <!-- Tabs navs -->
 
                 <!-- Tabs content -->
-                <div class="tab-content" id="msg-content">
-                    <div class="tab-pane fade show active m-0 p-0" id="msg-tabs-event" role="tabpanel"
-                         aria-labelledby="msg-tab-event">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="msg-event" role="tabpanel"
+                         aria-labelledby="msg-event-tab">
+
                         <table id="eventWindow" class='table table-hover' style="display:block">
                             <thead id='eventDetail_header'>
                             <th scope="col" class="text-center" style="width: 10%">생성시간</th>
@@ -271,7 +248,8 @@
                         </table>
 
                     </div>
-                    <div class="tab-pane fade m-0 p-0" id="msg-tabs-sms" role="tabpanel" aria-labelledby="msg-tab-sms">
+
+                    <div class="tab-pane fade" id="msg-sms" role="tabpanel" aria-labelledby="msg-sms-tab">
 
                         <table id="xroshotWindow" class='table table-hover' style="display:block">
                             <thead id='xroshotDetail_header'>
@@ -297,10 +275,8 @@
                             </tbody>
                         </table>
 
-
                     </div>
-                    <div class="tab-pane fade m-0 p-0" id="msg-tabs-tele" role="tabpanel"
-                         aria-labelledby="msg-tab-tele">
+                    <div class="tab-pane fade" id="msg-tele" role="tabpanel" aria-labelledby="msg-tele-tab">
 
                         <table id="teleWindow" class='table table-hover' style="display:block">
                             <th scope="col" class="text-center" style="width: 10%">생성시간</th>
@@ -336,41 +312,41 @@
             <div style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:300px; width:780px;">
 
                 <!-- Tabs navs -->
-                <!-- source : https://getbootstrap.com/docs/4.0/components/tooltips/ -->
-                <ul class="nav nav-pills mb-3" id="msgdtl" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" id="msgdtl-tab-message" data-mdb-toggle="tab"
-                           href="#msgdtl-tabs-message"
-                           role="tab" aria-controls="msgdtl-tabs-message" aria-selected="true">메시지 상세내용</a>
+                <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
+                <ul class="nav nav-tabs nav-pills" id="msgdtl" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
+                           role="tab"
+                           aria-controls="msgdtl-message" aria-selected="true">메시지 상세내용</a>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="msgdtl-tab-recipient" data-mdb-toggle="tab"
-                           href="#msgdtl-tabs-recipient"
-                           role="tab" aria-controls="msgdtl-tabs-recipient" aria-selected="false">수신자 리스트</a>
+                    <li class="nav-item">
+                        <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
+                           role="tab"
+                           aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
                     </li>
                 </ul>
                 <!-- Tabs navs -->
 
                 <!-- Tabs content -->
-                <div class="tab-content" id="msgdtl-content">
-                    <div class="tab-pane fade show active" id="msgdtl-tabs-message" role="tabpanel"
-                         aria-labelledby="msgdtl-tab-message"
-                         style="text-align: center;">
-                        <textarea class="form-control mb-2" id="message_contents"
-                                  rows="6">[[message.message]]</textarea>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="msgdtl-message" role="tabpanel"
+                         aria-labelledby="msgdtl-message-tab">
+                         <textarea class="form-control mb-2" id="message_contents"
+                                   rows="6">[[message.message]]</textarea>
                         <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
                         <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage">회수</button>
                     </div>
-                    <div class="tab-pane fade" id="msgdtl-tabs-recipient" role="tabpanel"
-                         aria-labelledby="msgdtl-tab-recipient">
-                            <textarea class="form-control mb-1" id="recipient_list"
-                                      rows="6" v-model="recipient_text"
-                                      placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력가능합니다."></textarea>
+                    <div class="tab-pane fade" id="msgdtl-recipient" role="tabpanel"
+                         aria-labelledby="msgdtl-recipient-tab">
+                             <textarea class="form-control mb-1" id="recipient_list"
+                                       rows="6" v-model="recipient_text"
+                                       placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력가능합니다."></textarea>
                         <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
                                @change="selectedFile"/>
                     </div>
                 </div>
                 <!-- Tabs content -->
+
 
                 <!-- Modal -->
                 <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
@@ -402,7 +378,8 @@
         </div>
     </div>
 
-    </div>
+
+
 
 
 {% endblock %}
@@ -621,8 +598,9 @@
                         $("#modal_body").html("전송하고자 하는 메시지를 먼저 선택해 주세요.");
                         $("#mi-modal").modal('show');
                     } else {
-                        if (this.recipient_text === undefined | this.recipient_text === null |
-                            this.recipient_text.length <= 0) {
+                        // 문자 전송시에만 수신자 리스트 입력여부를 확인하도록 한다.
+                        if ((this.message.sendType === 'XMCS' || this.message.sendType === 'ALL') &&
+                            (this.recipient_text === undefined || this.recipient_text === null ||  this.recipient_text.length <= 0)) {
                             this.isModelConfirmDisabled = false
                             $("#modal-btn-confirm").html('전송');
                             $("#modal_body").html("수신자 리스트를 입력해 주세요.");
@@ -711,14 +689,19 @@
         /* -------------------------------------------------------------------------------------------------------------
          * 마우스를 텝위(이벤트/문자/텔레그램)에 울려 놓으면 해당 탭이 선택되게 한다.
          -------------------------------------------------------------------------------------------------------------*/
+        /*
         $(".nav-link").mouseover(function () {
             $(this).tab("show");
         });
 
         $(".nav-link").on("show.bs.tab", function (e) {
-            const tabPanelId = e.relatedTarget.getAttribute("href");
-            $(tabPanelId).removeClass("active");
+            console.log(e.relatedTarget);
+            if (e.relatedTarget !== undefined) {
+                const tabPanelId = e.relatedTarget.getAttribute("href");
+                $(tabPanelId).removeClass("active");
+            }
         });
+         */
 
     </script>
 
