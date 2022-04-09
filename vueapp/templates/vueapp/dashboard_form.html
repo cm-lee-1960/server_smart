@@ -1,6 +1,8 @@
 <!--
 ########################################################################################################################
 [ base.html 블럭구조 ]
+ * 처음부터 코드를 예쁘게 잘 작성하는 습관을 들이지 않으면 나 뿐만이 아니라 유지보수를 하는 주변 사람들까지 힘들게 한다(패스트캠퍼스).
+ * 내가 작성한 코드도 조금 시간이 지나면 이해하기 힘든 코드가 될 수 있다.
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -362,7 +364,8 @@
                     <div class="tab-pane fade" id="msgdtl-tabs-recipient" role="tabpanel"
                          aria-labelledby="msgdtl-tab-recipient">
                             <textarea class="form-control mb-1" id="recipient_list"
-                                      rows="6" v-model="recipient_text"></textarea>
+                                      rows="6" v-model="recipient_text"
+                                      placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력가능합니다."></textarea>
                         <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
                                @change="selectedFile"/>
                     </div>
@@ -399,7 +402,7 @@
         </div>
     </div>
 
-</div>
+    </div>
 
 
 {% endblock %}
