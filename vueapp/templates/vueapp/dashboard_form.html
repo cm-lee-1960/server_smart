@@ -727,14 +727,17 @@
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹에 대한 측정조를 입력하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/
+                // 1) 단말그룹 리스트에서 측정조 컬럼을 마우스 더블클릭 했을 때
                 doubleclickMeasuringTeam(phoneGroup) {
                     $("#measuringTeamModal").modal('show');
                 },
+                // 2) 측정조 변경 모달창에서 저장 버튼을 클릭했을 때
                 clickModalTeamConfirm() {
                     this.changeMeasuringTeam()
                     $("#measuringTeamModal").modal('hide');
 
                 },
+                // 3) 단말그룹의 측정조 변경을 서버에 요청한다.
                 async changeMeasuringTeam() {
                     const requestOptions = {
                         method: "POST",
@@ -749,14 +752,7 @@
                         })
                     };
                     const response = await fetch("/api/phonegroup/update/", requestOptions);
-                    // 아래 코드는 나중에 사용할 수 있어서 남겨둠
-                    // 처리결과를 기다렸다가 표시하면 좋을 듯 함
-                    //const data = await response.json();
                     console.log("send-received:", response);
-
-                    // 메시지 재전송 완료 후 메시지 리스트를 다시 조회한다.
-                    //await this.fetch_all_message(this.selectedPhoneGroup);
-                    //this.message = {};
                 },
             },
         });

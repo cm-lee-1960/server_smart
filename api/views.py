@@ -39,6 +39,7 @@ from message.tele_msg import TelegramBot
 #           ** Message - post_save(SIGNAL) - TelegramBot
 #                                            (여기에 업데이트 코드를 넣으면) - Message 구조가 되어 순환참조 발생
 #           ** 전송된 메시지를 회수하는 경우는 많지 않으니 현재 구조를 유지해도 괜찮을 듯 함(다소 불편감은 있지만,..)
+# 2022.04.10 - 단말그룹에 대한 측정조를 변경하는 기능 추가
 #
 ########################################################################################################################
 
@@ -125,6 +126,7 @@ class ApiPhoneGroupLV(ListView):
 
         return JsonResponse(data=data, safe=False)
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 리스트 조회 API
 # ----------------------------------------------------------------------------------------------------------------------
@@ -200,13 +202,13 @@ class ApiMessageDV(ListView):
     def get(self, request, *args, **kwargs):
         data = {}
         message_id = kwargs['message_id']
-        print("##### message id:", message_id)
+        # print("##### message id:", message_id)
         qs = Message.objects.filter(id=message_id)
         if qs.exists():
             try:
                 bot = TelegramBot()
                 message = qs[0]
-                print(f"channelId: {message.channelId}, telemessageId: {message.telemessageId}")
+                # print(f"channelId: {message.channelId}, telemessageId: {message.telemessageId}")
                 # 전송된 메시지를 취소한다.
                 data = bot.delete_message(message.channelId, message.telemessageId)
                 # ##### message id: 158
@@ -222,8 +224,6 @@ class ApiMessageDV(ListView):
                 raise Exception("ApiMessageDV: %s" % e)
 
         return JsonResponse(data=data, safe=False)
-
-
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -262,10 +262,9 @@ def sendMmessage(request, *args, **kwargs):
         print("sendMmessage():", str(e))
         raise Exception("sendMmessage(): %s" % e)
 
-    print("##### sendMmessage() 정상처리")
-
     # return JsonResponse(data=result, safe=False)
     return HttpResponse(result)
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 측정조를 변경하는 API
@@ -277,7 +276,6 @@ def updatePhoneGroup(request, *args, **kwargs):
         if request.method == 'POST':
             phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
             measuringTeam = data['measuringTeam']
-            print("##### updatePhoneGroup:", phoneGroup_id, measuringTeam)
             qs = PhoneGroup.objects.filter(id=phoneGroup_id)
             if qs.exists():
                 phoneGroup = qs[0]
