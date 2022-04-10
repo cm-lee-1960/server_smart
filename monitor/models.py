@@ -181,6 +181,11 @@ class PhoneGroup(models.Model):
         else:
             return '-'
 
+    @property
+    def phone_list(self):
+        """단말그룹에 대한 단만번호 리스트를 반환한다."""
+        return ','.join([str(phone.phone_no)[-4:] for phone in self.phone_set.all()])
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.
 # 2022.03.15 - 측정자 입력값(userInfo2)가 입력오류가 자주 발생하므로 모폴로지를 찾지 못하는 경우 "행정동"으로 초기화 함

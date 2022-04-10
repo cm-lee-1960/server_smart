@@ -64,8 +64,8 @@ def phonegroup_list(request, measdate):
         qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
         phoneGroupList = []
         if qs.exists():
-            fields = ['id', 'centerName', 'p_measuringTeam', 'userInfo1', 'morphologyName', 'networkId', 'dl_count',
-                      'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
+            fields = ['id', 'centerName', 'p_measuringTeam', 'phone_list', 'userInfo1', 'morphologyName', 'networkId',
+                      'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
                       'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active',]
             for phoneGroup in qs:
                 serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
