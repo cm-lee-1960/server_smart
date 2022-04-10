@@ -1,14 +1,9 @@
-from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from django.views.generic import ListView, CreateView
 from django.db import connection
 from django.db.models import Q
-from django.db import models
 from datetime import datetime
-import json
 
 from rest_framework.decorators import api_view
-from rest_framework.views import APIView
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer
 from message.tele_msg import TelegramBot
