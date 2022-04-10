@@ -81,6 +81,14 @@
             }
         }
 
+        .tooltip-primary ~ .tooltip > .tooltip-inner {
+            background-color: blue;
+        }
+
+        .tooltip-primary ~ .tooltip > .tooltip-arrow {
+            border-bottom-color: blue;
+        }
+
     </style>
 
 {% endblock %}
@@ -158,7 +166,7 @@
                     </th>
                     </thead>
                     <tbody id='phoneGroupDetail_body' class="table-hover"
-                           style="height:280px; overflow-y:auto; display:block" class="d-flex">
+                           style="height:300px; overflow-y:auto; display:block" class="d-flex">
                     {# <tr id = 'phoneGroupDetail_tr_{{phonegroup.id}}' onclick='startTimer_messagedata(this.attributes["id"].value);'>#}
                     <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex"
                         v-on:click="clickPhoneGroupList(phoneGroup)">
@@ -171,7 +179,8 @@
                             >
                         </td>
                         <td style="width: 5%" class="text-center">[[phoneGroup.centerName]]</td>
-                        <td style="width: 5%" class="text-center" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)">
+                        <td style="width: 5%" class="text-center" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
+                        data-toggle="tooltip" data-placement="top" class="tooltip-primary"  title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
                             [[phoneGroup.p_measuringTeam]]</td>
                         <td style="width: 20%" class="text-center">[[phoneGroup.userInfo1 | truncate(15, '...')]]</td>
                         <td style="width: 8%" class="text-center">[[phoneGroup.morphologyName]]</td>
@@ -793,6 +802,10 @@
             }
         });
          */
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
 
     </script>
 
