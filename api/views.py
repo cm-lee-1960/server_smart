@@ -98,8 +98,8 @@ def phonegroup_list(request, measdate):
             total_count += centerInfo[1]
 
     except Exception as e:
-        print("ApiPhoneGroupLV:", str(e))
-        raise Exception("ApiPhoneGroupLVt: %s" % e)
+        print("phonegroup_list():", str(e))
+        raise Exception("phonegroup_list(): %s" % e)
 
     # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
     data = {'total_count': total_count, # 측정 총건수
@@ -163,68 +163,65 @@ def message_list(request, phonegroup_id):
                         'messageTeleList': messageTeleList,} # 텔레그램 메시지 리스트
 
             except Exception as e:
-                print("ApiMessageLV:", str(e))
-                raise Exception("ApiMessageLV: %s" % e)
+                print("message_list():", str(e))
+                raise Exception("message_list(): %s" % e)
 
         return JsonResponse(data=data, safe=False)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# 단말그룹 리스트 조회 API
+# 텔레그램 메시지를 회수하는 API
 # ----------------------------------------------------------------------------------------------------------------------
-class ApiMessageDV(ListView):
-    model = Message
-
+@api_view(['GET'])
+def delete_message(request, message_id):
+    data = {}
     # 메시지 내역을 조회한다.
-    def get(self, request, *args, **kwargs):
-        data = {}
-        message_id = kwargs['message_id']
-        # print("##### message id:", message_id)
-        qs = Message.objects.filter(id=message_id)
-        if qs.exists():
-            try:
-                bot = TelegramBot()
-                message = qs[0]
-                # print(f"channelId: {message.channelId}, telemessageId: {message.telemessageId}")
-                # 전송된 메시지를 취소한다.
-                data = bot.delete_message(message.channelId, message.telemessageId)
-                # ##### message id: 158
-                # channelId: -736183270, telemessageId: 23052
-                # ApiMessageDV: Message to delete not found
-                # 메시지 회수가 완료되면 회수여부를 업데이트 한다.
-                message.isDel = True
-                message.save()
+    qs = Message.objects.filter(id=message_id)
+    if qs.exists():
+        try:
+            bot = TelegramBot()
+            message = qs[0]
+            print(f"message_id: {message_id}, channelId: {message.channelId}, telemessageId: {message.telemessageId}")
+            # 전송된 메시지를 취소한다.
+            data = bot.delete_message(message.channelId, message.telemessageId)
+            # 메시지 회수가 완료되면 회수여부를 업데이트 한다.
+            message.telemessageId = None # 텔레그램 메시지ID
+            message.isDel = True # 메지시 회수여부
+            message.save()
 
-            except Exception as e:
-                # 오류 코드 및 내용을 반환한다.
-                print("ApiMessageDV:", str(e))
-                raise Exception("ApiMessageDV: %s" % e)
+        except Exception as e:
+            # 오류 코드 및 내용을 반환한다.
+            print("delete_message():", str(e))
+            raise Exception("delete_message(): %s" % e)
 
-        return JsonResponse(data=data, safe=False)
+    return JsonResponse(data=data, safe=False)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 문자 메시지를 전송하는 API
 # ----------------------------------------------------------------------------------------------------------------------
-def sendMmessage(request, *args, **kwargs):
-    data = json.loads(request.body)
+@api_view(['POST'])
+def send_message(request):
+    data = request.data
     result = {}
     try:
-        if request.method == 'POST' and 'sendType' in data.keys():
+        if 'sendType' in data.keys():
             sendType = data['sendType'] # 전송유형(sendType)
             receiver_list = data['receiver_list'] # 수신자 리스트
             message = data['message'] # 메시지 내용
             channelId = data['channelId'] # 채널ID
-            id = data['id'] # 메시지ID
+            message_id = data['id'] # 메시지ID
 
+            # 1) 문자 메시지를 전송한다.
             if sendType == 'XMCS' or sendType == 'ALL':
                 from message.xmcs_msg import send_sms
                 result_sms = send_sms(message, receiver_list)
                 result = {'result': result_sms}
+            # 2) 텔레그램 메시지를 재전송 한다.
             elif sendType == 'TELE':
                 bot = TelegramBot()
                 result = bot.send_message_bot(channelId, message)
-                qs = Message.objects.filter(id=id)
+                qs = Message.objects.filter(id=message_id)
                 if qs.exists():
                     message = qs[0]
                     message.telemessageId = result['message_id'] # 텔레그램 메시지ID
@@ -236,32 +233,32 @@ def sendMmessage(request, *args, **kwargs):
 
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
-        print("sendMmessage():", str(e))
-        raise Exception("sendMmessage(): %s" % e)
+        print("send_message():", str(e))
+        raise Exception("send_message(): %s" % e)
 
     # return JsonResponse(data=result, safe=False)
     return HttpResponse(result)
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 측정조를 변경하는 API
 # ----------------------------------------------------------------------------------------------------------------------
-def updatePhoneGroup(request, *args, **kwargs):
-    data = json.loads(request.body)
+@api_view(['POST'])
+def update_phonegroup(request):
+    data = request.data
+    # print("data:", data)
     result = {}
     try:
-        if request.method == 'POST':
-            phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
-            measuringTeam = data['measuringTeam']
-            qs = PhoneGroup.objects.filter(id=phoneGroup_id)
-            if qs.exists():
-                phoneGroup = qs[0]
-                phoneGroup.measuringTeam = measuringTeam
-                phoneGroup.save()
+        phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
+        measuringTeam = data['measuringTeam'] # 측정조
+        qs = PhoneGroup.objects.filter(id=phoneGroup_id)
+        if qs.exists():
+            phoneGroup = qs[0]
+            phoneGroup.measuringTeam = measuringTeam # 측정조
+            phoneGroup.save()
 
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
-        print("sendMmessage():", str(e))
-        raise Exception("sendMmessage(): %s" % e)
+        print("update_phonegroup():", str(e))
+        raise Exception("update_phonegroup(): %s" % e)
 
     return HttpResponse(result)

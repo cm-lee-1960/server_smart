@@ -403,7 +403,7 @@
                     <div class="modal-body">
                         [[selectedPhoneGroup.userInfo1]]
                         <p class="mt-1"><label for="measuringTeam">측정 조</label>
-                            <input type="text" id="measuringTeam" v-model="selectedPhoneGroup.p_measuringTeam"/></p>
+                            <input type="text" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" v-on:click="clickModalTeamConfirm">저장</button>
@@ -710,10 +710,17 @@
                         $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
                         $("#mi-modal").modal('show');
                     } else {
-                        this.isModelConfirmDisabled = true
-                        $("#modal-btn-confirm").html('회수');
-                        $("#modal_body").html("메시지를 정말 회수하시겠습니까?");
-                        $("#mi-modal").modal('show');
+                        if (this.message.isDel === true) {
+                            this.isModelConfirmDisabled = false
+                            $("#modal-btn-confirm").html('회수');
+                            $("#modal_body").html("해당 메시지는 이미 회수된 메시지 입니다.");
+                            $("#mi-modal").modal('show');
+                        } else {
+                            this.isModelConfirmDisabled = true
+                            $("#modal-btn-confirm").html('회수');
+                            $("#modal_body").html("메시지를 정말 회수하시겠습니까?");
+                            $("#mi-modal").modal('show');
+                        }
                     }
                 },
                 // 2-2) 메시지 회수 모달창에서 확인 버튼을 클릭했을 때(메시지 회수)
@@ -752,6 +759,7 @@
                         })
                     };
                     const response = await fetch("/api/phonegroup/update/", requestOptions);
+                    // 단말그룹 리스트를 다시 조회한다.
                     console.log("send-received:", response);
                 },
             },
