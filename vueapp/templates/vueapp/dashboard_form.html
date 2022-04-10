@@ -558,6 +558,9 @@
                         if (this.phoneGroupList[i].selected) {
                             // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
                             const res = await fetch("/monitor/end/" + this.phoneGroupList[i].id)
+                            // 단말그룹을 재조회 해도 기존 화면상에서 체크박스 상태는 그대로 유지한다.
+                            const selectedPhoneGroup = this.getSelected();
+                            selectedPhoneGroup.forEach(phoneGroup => phoneGroup.selected = false);
                         }
                     }
                 },
