@@ -129,7 +129,7 @@
         <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
              style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:370px">
             <!-- <h6><b>금일 측정그룹</b></h6> -->
-            <div class="fixed-table-body">
+            <div class="table-responsive text-nowrap">
                 <table id="groupWindow" class='table table-hover' style="display:block">
                     <thead class="bg-light">
                     <th style="width: 4%" class="text-center">
@@ -228,7 +228,7 @@
                          aria-labelledby="msg-event-tab">
 
                         <table id="eventWindow" class='table table-hover' style="display:block">
-                            <thead id='eventDetail_header'>
+                            <thead id='eventDetail_header' class="bg-light">
                             <th scope="col" class="text-center" style="width: 10%">생성시간</th>
                             <th scope="col" class="text-center" style="width: 10%">측정단말</th>
                             <th scope="col" class="text-center" style="width: 55%">메세지</th>
@@ -256,7 +256,7 @@
                     <div class="tab-pane fade" id="msg-sms" role="tabpanel" aria-labelledby="msg-sms-tab">
 
                         <table id="xroshotWindow" class='table table-hover' style="display:block">
-                            <thead id='xroshotDetail_header'>
+                            <thead id='xroshotDetail_header' class="bg-light">
                             <th scope="col" class="text-center" style="width: 10%">생성시간</th>
                             <th scope="col" class="text-center" style="width: 10%">측정단말</th>
                             <th scope="col" class="text-center" style="width: 55%">메세지</th>
@@ -283,6 +283,7 @@
                     <div class="tab-pane fade" id="msg-tele" role="tabpanel" aria-labelledby="msg-tele-tab">
 
                         <table id="teleWindow" class='table table-hover' style="display:block">
+                            <thead id='teleDetail_header' class="bg-light">
                             <th scope="col" class="text-center" style="width: 10%">생성시간</th>
                             <th scope="col" class="text-center" style="width: 10%">측정단말</th>
                             <th scope="col" class="text-center" style="width: 55%">메세지</th>
@@ -332,7 +333,7 @@
                 <!-- Tabs navs End -->
 
                 <!-- Tabs content -->
-                <div class="tab-content" id="myTabContent">
+                <div class="tab-content text-center" id="myTabContent">
                     <div class="tab-pane fade show active mt-1" id="msgdtl-message" role="tabpanel"
                          aria-labelledby="msgdtl-message-tab">
                          <textarea class="form-control mb-2" id="message_contents"
@@ -381,13 +382,6 @@
         </div>
         <!-- Modal End-->
 
-
-
-
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#measuringTeamModal">
-            Launch demo modal
-        </button>
 
         <!-- Measuringteam Modal -->
         <div class="modal fade" id="measuringTeamModal" tabindex="-1" role="dialog"
