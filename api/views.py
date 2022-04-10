@@ -7,6 +7,8 @@ from django.db import models
 from datetime import datetime
 import json
 
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer
 from message.tele_msg import TelegramBot
@@ -17,7 +19,7 @@ from message.tele_msg import TelegramBot
 #
 #  /vueapp/dashboard                urls.py                            views.py
 # ┌---------------------┐           ┌----------------------┐           ┌----------------------┐
-# |      홈 페이지      |   ┌------>|         /api         |   ┌------>|         /api         |----┐
+# |      홈 페이지      |   ┌------>|         /api         |   ┌------>|        APIView       |----┐
 # |(dashboard_form.html)|   |       |(smartproject/urls.py)|   |       |    (api/views.py)    |    |
 # |                     |   |       └----------┳-----------┘   |       └----------------------┘    |
 # |  ┌ ------------┐    |   |                  |               |       - ApiPhoneGroupLV           |
@@ -40,106 +42,81 @@ from message.tele_msg import TelegramBot
 #                                            (여기에 업데이트 코드를 넣으면) - Message 구조가 되어 순환참조 발생
 #           ** 전송된 메시지를 회수하는 경우는 많지 않으니 현재 구조를 유지해도 괜찮을 듯 함(다소 불편감은 있지만,..)
 # 2022.04.10 - 단말그룹에 대한 측정조를 변경하는 기능 추가
+#            - 기존 Django View를 REST Framework APIView로 변경 (API 취지에 맞게 수정)
 #
 ########################################################################################################################
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 리스트 조회 API
 # ----------------------------------------------------------------------------------------------------------------------
-class ApiPhoneGroupLV(ListView):
-    model = PhoneGroup
-    # 반환값이 JSON 데이터이기 때문에 템플릿 지정이 필요 없다.
-    # template_name = ''
-    def get(self, request, *args, **kwargs):
-        # 측정일자가 파라미터로 넘어오지 않는 경우 현재 날짜로 측정일자를 설정한다.
-        if 'measdate' in kwargs.keys():
-            s = kwargs['measdate']
-            measdate = s[0:4] + s[5:7] + s[8:10]
-        else:
-           measdate = datetime.now().strftime("%Y%m%d")
-        # print(measdate)
-        try:
-            # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
-            qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
-            phoneGroupList = []
-            if qs.exists():
-                fields = ['id', 'centerName', 'p_measuringTeam', 'userInfo1', 'morphologyName', 'networkId', 'dl_count',
-                          'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
-                          'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active',]
-                for phoneGroup in qs:
-                    serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
-                    data = serializer.data
-                    data['selected'] = False
-                    phoneGroupList.append(data)
+@api_view(['GET'])
+def phonegroup_list(request, measdate):
+    # 측정일자가 파라미터로 넘어오지 않는 경우 현재 날짜로 측정일자를 설정한다.
+    if measdate is not None:
+        # 측정일자에서 데시(-)를 제거한다(2021-11-01 -> 20211101).
+        measdate = measdate.replace('-', '')
+    else:
+        # 측정일자를 널(Null)인 경우 현재 일자로 설정한다.
+       measdate = datetime.now().strftime("%Y%m%d")
 
-            # 센터별 측정진행 건수를 가져온다.
-            # cursor = connection.cursor()
-            # cursor.execute(" SELECT management_center.centerName AS centerName, COUNT(*) AS coun " + \
-            #                     "FROM monitor_phonegroup, management_center " + \
-            #                     "WHERE ( monitor_phonegroup.center_id = management_center.id ) " + \
-            #                         f"AND monitor_phonegroup.measdate = '{measdate}' " + \
-            #                         "AND monitor_phonegroup.ispId = '45008' " + \
-            #                         "AND monitor_phonegroup.manage = true " + \
-            #                     "GROUP BY management_center.centerName "
-            #                )
-            #
-            # # 가저온 정보를 JSON 객체(centerList)로 작성한다.
-            # summary = dict((x, y) for x, y in [row for row in cursor.fetchall()])
-            # total_count = sum(summary.values())
-            # centerList = [{'centerName': key, 'count': value} for key, value in summary.items()]
-            #
-            # for i in range(5-len(centerList)):
-            #     centerList.append( {'centerName': ' ', 'count': ' '})
+    try:
+        # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
+        qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
+        phoneGroupList = []
+        if qs.exists():
+            fields = ['id', 'centerName', 'p_measuringTeam', 'userInfo1', 'morphologyName', 'networkId', 'dl_count',
+                      'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
+                      'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active',]
+            for phoneGroup in qs:
+                serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
+                data = serializer.data
+                data['selected'] = False
+                phoneGroupList.append(data)
 
-            # 2022.04.07 - 측정중인 건수와 측정종료된 건수를 확인하기 위해서 다시 작성함
-            centerList = []
-            total_count = 0
-            cursor = connection.cursor()
-            cursor.execute(
-                    " SELECT management_center.centerName AS centerName, COUNT( * ) AS count, " + \
-                    " CAST(SUM(IF(monitor_phonegroup.active = true, 0, 1)) AS UNSIGNED) AS end_count, " + \
-                    " CAST(SUM(IF(monitor_phonegroup.active = true, 1, 0)) AS UNSIGNED) AS measuring_count " + \
-                    " FROM monitor_phonegroup, management_center " + \
-                    " WHERE ( monitor_phonegroup.center_id = management_center.id ) " + \
-                    f" AND monitor_phonegroup.measdate = '{measdate}' " + \
-                    " AND monitor_phonegroup.ispId = '45008' " + \
-                    " AND monitor_phonegroup.manage = true " + \
-                    " GROUP BY management_center.centerName "
-                )
-            for centerInfo in cursor.fetchall():
-                centerList.append(
-                    {'centerName': centerInfo[0], # 센터명
-                     'count': centerInfo[1], # 총 측정건수
-                     'end_count': centerInfo[2], # 측정종료 건수
-                     'measuring_count': centerInfo[3], # 측정중인 건수
-                     })
-                total_count += centerInfo[1]
+        # 2022.04.07 - 측정중인 건수와 측정종료된 건수를 확인하기 위해서 다시 작성함
+        centerList = []
+        total_count = 0
+        cursor = connection.cursor()
+        cursor.execute(
+                " SELECT management_center.centerName AS centerName, COUNT( * ) AS count, " + \
+                " CAST(SUM(IF(monitor_phonegroup.active = true, 0, 1)) AS UNSIGNED) AS end_count, " + \
+                " CAST(SUM(IF(monitor_phonegroup.active = true, 1, 0)) AS UNSIGNED) AS measuring_count " + \
+                " FROM monitor_phonegroup, management_center " + \
+                " WHERE ( monitor_phonegroup.center_id = management_center.id ) " + \
+                f" AND monitor_phonegroup.measdate = '{measdate}' " + \
+                " AND monitor_phonegroup.ispId = '45008' " + \
+                " AND monitor_phonegroup.manage = true " + \
+                " GROUP BY management_center.centerName "
+            )
+        for centerInfo in cursor.fetchall():
+            centerList.append(
+                {'centerName': centerInfo[0], # 센터명
+                 'count': centerInfo[1], # 총 측정건수
+                 'end_count': centerInfo[2], # 측정종료 건수
+                 'measuring_count': centerInfo[3], # 측정중인 건수
+                 })
+            total_count += centerInfo[1]
 
-        except Exception as e:
-            print("ApiPhoneGroupLV:", str(e))
-            raise Exception("ApiPhoneGroupLVt: %s" % e)
+    except Exception as e:
+        print("ApiPhoneGroupLV:", str(e))
+        raise Exception("ApiPhoneGroupLVt: %s" % e)
 
-        # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
-        data = {'total_count': total_count, # 측정 총건수
-                'centerList': centerList, # 센터별 측정건수
-                'phoneGroupList': phoneGroupList} # 단말그룹 리스트
+    # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
+    data = {'total_count': total_count, # 측정 총건수
+            'centerList': centerList, # 센터별 측정건수
+            'phoneGroupList': phoneGroupList} # 단말그룹 리스트
 
-        return JsonResponse(data=data, safe=False)
+    return JsonResponse(data=data, safe=False)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 리스트 조회 API
 # ----------------------------------------------------------------------------------------------------------------------
-class ApiMessageLV(ListView):
-    model = Message
-
-    # 메시지 내역을 조회한다.
-    def get(self, request, *args, **kwargs):
+@api_view(['GET'])
+def message_list(request, phonegroup_id):
         data = {}
         # 조회하고자 하는 메시지ID가 파라미터로 넘어 왔는지 확인한다.
-        if 'phonegroup_id' in kwargs.keys():
-            phonegroup_id = kwargs['phonegroup_id']
-
+        if phonegroup_id is not None:
             messageEventList = [] # 이벤트 메시지
             messageSmsList = [] # 문자 메시지
             messageTeleList = [] # 텔레그램
