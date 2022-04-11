@@ -454,25 +454,26 @@
          *            - 문자 메시지 조회시 측정단말 및 단말그룹이 없는 경우 해당 측정일자에 생성된 건이 조회 추가
          *              (전송유형: ALL)
          =============================================================================================================*/
-        var vm = new Vue({
+        const vm = new Vue({
             delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
             el: '#app',
-            data: {
-                date: "2021-11-01", // 측정일자
-                total_count: 0, // 총 측정건수
-                centerList: [], // 측정중인 센터수,
-                phoneGroupList: [], // 측정 단말그룹 리스트
-                messageEventList: [], // 이벤트 메시지 리스트
-                messageSmsList: [], // 문자 메시지 리스트
-                messageTeleList: [], // 텔레그램 메시지 리스트
-                message: {}, // 메시지 상세내역
-                timer: null, // 타이머
-                allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
-                //checkedCount: 0,
-                isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
-                recipient_text: null, // 수신자 리스트
-                selectedPhoneGroup: {},
-
+            data () {
+                return {
+                    date: "2021-11-01", // 측정일자
+                    total_count: 0, // 총 측정건수
+                    centerList: [], // 측정중인 센터수,
+                    phoneGroupList: [], // 측정 단말그룹 리스트
+                    messageEventList: [], // 이벤트 메시지 리스트
+                    messageSmsList: [], // 문자 메시지 리스트
+                    messageTeleList: [], // 텔레그램 메시지 리스트
+                    message: {}, // 메시지 상세내역
+                    timer: null, // 타이머
+                    allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
+                    //checkedCount: 0,
+                    isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
+                    recipient_text: null, // 수신자 리스트
+                    selectedPhoneGroup: {},
+                }
             },
             computed: {
                 checkedCount: function () {
