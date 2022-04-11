@@ -113,7 +113,7 @@ def get_listview_m(request):
             
         print(message_data)
         
-        fields = ['create_time','phone_no_sht','message','sended_time','sended','status']
+        fields = ['create_time','phone_no_sht','message','sended_time','sended','status','isDel']
         #fields = ['create_time','phone_no_sht','message','sended_time','sended','status','isDel']
 
         if len(message_data) != 0:

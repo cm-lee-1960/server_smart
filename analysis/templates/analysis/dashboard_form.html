@@ -58,15 +58,20 @@
         width:150px;
     }
     #bottom_body_left .table tbody td{
+        overflow:hidden;
+        white-space:nowrap;
+        text-overflow:ellipsis;
         width:150px;
-    }
-    #bottom_body_left .table tbody .big_td{
-        width:500px;
     }
     #bottom_body_left .table thead .big_th{
         width:500px;
     }
-
+    #bottom_body_left .table tbody .big_td{
+        overflow:hidden;
+        white-space:nowrap;
+        text-overflow:ellipsis;
+        max-width:500px;
+    }
     .table tbody::-webkit-scrollbar {
     height:auto;
     width:5px;
@@ -123,7 +128,7 @@
             <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="폰그룹 리셋" onclick="listdata_reset()">
         </div>
         <div class="fixed-table-body" style="text-align: center;">
-            <table id="groupWindow" class='table table-hover' style = "display:block">
+            <table id="groupWindow" class='table table-hover' style = "display:block; table-layout:fixed">
                 <thead id = 'phoneGroupDetail_header' class="bg-light">
                 </thead>
                 <tbody id = 'phoneGroupDetail_body' class="table-hover" style="height:330px; overflow-y:auto; display:block">
@@ -168,7 +173,7 @@
                                 </table> 
                             </div>
                             <div class="tab-pane fade active fixed-table-body" id="xroshot" style="text-align: center; position:absolute">
-                                <table id="xroshotWindow" class='table' style = "display:none">
+                                <table id="xroshotWindow" class='table' style = "display:none;">
                                     <thead id = 'xroshotDetail_header'>
                                         <th scope= "col">생성시간</th>
                                         <th scope= "col" class="big_th">메세지</th>
@@ -182,7 +187,7 @@
                                 </table> 
                             </div>
                             <div class="tab-pane fade active fixed-table-body" id="tele" style="text-align: center; position:absolute">
-                                <table id="teleWindow" class='table' style = "display:none">
+                                <table id="teleWindow" class='table' style = "display:none;">
                                     <thead id = 'teleDetail_header'>
                                         <th scope= "col">생성시간</th>
                                         <th scope= "col" class="big_th">메세지</th>
@@ -200,10 +205,33 @@
                 </div>
             </div>
         </div>
-        <div style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">    
-            <h6> 금일 측정그룹 </h6>
-            <div style="text-align: center;">
-            </div>
+        <div id = "bottom_body_right" style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">    
+              <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="tab" href="#qwe">메시지상세내용</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#asd">수신자리스트</a>
+                </li>
+              </ul>
+              <div class="tab-content">
+                <div class="tab-pane fade show active" id="qwe">
+                    <textarea class="form-control mb-2" id="message_contents" rows="6"></textarea>
+                    <div style="position:relative; display:block">
+                        <button type="button" class="btn btn-primary">전송</button>
+                        <button type="button" class="btn btn-primary">수정</button>
+                    </div>
+                    <div style="position:absolute; display:none">
+                        <button type="button" class="btn btn-primary">회수</button>
+                        <button type="button" class="btn btn-primary">재전송</button>
+                        <button type="button" class="btn btn-primary">수정</button>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="asd">
+                    <textarea class="form-control mb-1" id="recipient_list" rows="6" placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다."></textarea>
+                    <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile" @change="selectedFile"/>
+                </div>
+              </div>
         </div>
     </div>
 </body>
@@ -662,7 +690,7 @@
         if (ajax_data['data'] != 'nodata'){
             //for(let i = 0; i < Object.keys(ajax_data).length; i++){
             for(let i = 0; i < ajax_data['data'].length; i++){
-                measStatus += '<tr>';
+                measStatus += '<tr onclick="test(this)">';
                 measStatus += '<td>' + ajax_data['data'][i]['create_time'] + '</td>';
                 measStatus += '<td class="big_td">' + ajax_data['data'][i]['message'] + '</td>';
                 if(tab_check == 'event'){
@@ -670,14 +698,18 @@
                 }else if(tab_check == 'xroshot'){
                     measStatus += '<td>' + ajax_data['data'][i]['status'] + '</td>';
                 }else{
-                    measStatus += '<td> X </td>';
+                    if(ajax_data['data'][i]['isDel'] == 0){
+                        measStatus += '<td>미회수</td>';
+                    }else{
+                        measStatus += '<td>회수</td>';
+                    }        
                 }
                 measStatus += '<td>' + ajax_data['data'][i]['sended_time'] + '</td>';
                 if(ajax_data['data'][i]['sended'] == true){
                     measStatus += '<td> 전송완료 </td>';
                 }else{
                     measStatus += '<td> 미전송 </td>';
-                }``
+                }
                 measStatus += '</tr>'
             }
             if(message_list_check == 0){
@@ -686,6 +718,11 @@
                 $('#' + tab_check + '_Detail_body').prepend(measStatus);
             }
         }
+    }
+    //test
+    function test(aaa){
+        parent = aaa;
+        console.log(parent)
     }
 
     //메세지 탭클릭
