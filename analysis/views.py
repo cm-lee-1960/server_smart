@@ -32,7 +32,7 @@ from .ajax import *
 from django.views.generic import ListView
 from django.shortcuts import get_list_or_404
 from django.views.generic import TemplateView
-from monitor.serializers import PhoneGroupSerializerOrder
+from monitor.serializers import PhoneGroupSerializerOrder, MessageSerializer
 
 
 ###################################################################################################
@@ -64,7 +64,7 @@ def get_listview(request):
         
             
         phonegroup = PhoneGroup.objects.filter(measdate=toDate_str, ispId='45008',manage=1).order_by('-active')
-        print(phonegroup)
+        ##print(phonegroup)
         fields = ['p_center','measuringTeam','userInfo1','p_morpol','networkId','dl_count','downloadBandwidth', 
                 'ul_count','uploadBandwidth','nr_percent','event_count','active','last_updated_dt','id']
                   ## id는 메세지를 불러오기위하여
@@ -74,7 +74,7 @@ def get_listview(request):
             serializer = PhoneGroupSerializerOrder(phonegroup, fields = fields, many=True)
             serializer_data = serializer.data ## 시리얼라이즈 데이터
             data['data'] = serializer_data
-            print(serializer_data)
+            ##print(serializer_data)
         else:
             data['data'] = 'nodata'    
             
@@ -92,25 +92,41 @@ def get_listview(request):
 
 #FBV messagelist
 def get_listview_m(request):
-    """함수기반 뷰 FBV 그룹데이터 호출 뷰"""
+    """함수기반 뷰 FBV 메세지데이터 호출 뷰"""
+    data = {}
     if request.method== "POST":
         
-        group_id = request.POST['groupid'].split('_')[2]
-        ## ex) 1,2,3,4
+        group_id = request.POST['groupid']
+        tab_check = request.POST['tabcheck']
         print("이거잘나오나:", group_id)
-        # phone_group = PhoneGroup.objects.get(id = group_id)
-        # phones = phone_group.phone_set.all()
-        # #message_data = Message.objects.filters(phonegroup_id=group_id)
-        # message_data = Message.objects.filter(phone__in=phones)
-        # print(message_data)
-        # context = {
-        #         'message_data' : message_data
-        # }
-        message_dict = ajax_messagedata(group_id) 
-        json_data_call = json.dumps(message_dict)
+        ## ex) 1,2,3,4
+        phone_group = PhoneGroup.objects.get(id = group_id)
+        phones = phone_group.phone_set.all()
+        ## 메세지 모델에 그룹아이디생성 임시로 
         
-    #return render(request,"analysis/dashboard_form.html",json_data_call)
-    return HttpResponse(json_data_call, content_type="applications/json")
+        if tab_check == 'event':
+            message_data = Message.objects.filter(phone__in = phones, messageType='EVENT').order_by('-updated_at')
+        elif tab_check == 'tele':
+            message_data = Message.objects.filter(phone__in = phones, sendType='TELE', messageType='SMS').order_by('-updated_at')
+        else:
+            message_data = Message.objects.filter(phone__in = phones, sendType='XROSHOT').order_by('-updated_at')
+            
+        print(message_data)
+        
+        fields = ['create_time','phone_no_sht','message','sended_time','sended','status']
+        #fields = ['create_time','phone_no_sht','message','sended_time','sended','status','isDel']
+
+        if len(message_data) != 0:
+            serializer = MessageSerializer(message_data, fields = fields, many=True)
+            serializer_data = serializer.data ## 시리얼라이즈 데이터
+            data['data'] = serializer_data
+            #print(serializer_data)
+        else:
+            data['data'] = 'nodata'    
+            
+    json_data_call = json.dumps(data)
+    return HttpResponse(json_data_call, content_type="applications/json") 
+
 
 class PhoneGroupDetailView(TemplateView):
     """클래스 기반 뷰 CBV 그룹데이터 호출 뷰"""

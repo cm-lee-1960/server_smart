@@ -55,16 +55,16 @@
     }
 
     #bottom_body_left .table thead th{
-        width:200px;
+        width:150px;
     }
     #bottom_body_left .table tbody td{
-        width:200px;
+        width:150px;
     }
     #bottom_body_left .table tbody .big_td{
-        width:700px;
+        width:500px;
     }
     #bottom_body_left .table thead .big_th{
-        width:700px;
+        width:500px;
     }
 
     .table tbody::-webkit-scrollbar {
@@ -120,7 +120,7 @@
     <div id = "main_body" class="w-100 fixed-table-container" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">    
         <div style = "display: flex; justify-content: space-between;">
             <h6> <b>금일 측정그룹</b> </h6>
-            <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="리셋" onclick="listdata_reset()">
+            <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="폰그룹 리셋" onclick="listdata_reset()">
         </div>
         <div class="fixed-table-body" style="text-align: center;">
             <table id="groupWindow" class='table table-hover' style = "display:block">
@@ -138,75 +138,60 @@
              <div>
                 <div class="row">
                   <div class="col">
-                      <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                          <a class="nav-link active" data-toggle="tab" href="#event">이벤트</a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" data-toggle="tab" href="#xroshot">문자</a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" data-toggle="tab" href="#tele">텔레그램</a>
-                        </li>
-                      </ul>
+                      <div style = "display: flex; justify-content: space-between;">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#event" onclick='tabChange(this.attributes["value"].value)' value="event">이벤트</a>
+                            </li>
+                            <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#xroshot" onclick='tabChange(this.attributes["value"].value)' value="xroshot">문자</a>
+                            </li>
+                            <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tele" onclick='tabChange(this.attributes["value"].value)' value="tele">텔레그램</a>
+                            </li>
+                        </ul>
+                        <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="메세지 리셋" onclick="Messagedata_reset()">
+                      </div>
                       <div class="tab-content" style = "height:220px; position:relative;">
                             <div class="tab-pane fade show active fixed-table-body" id="event" style="text-align: center; position:absolute">
                                 <table id="eventWindow" class='table' style = "display:block">
                                     <thead id = 'eventDetail_header'>
-                                        <th scope= "col">전송시간</th>
+                                        <th scope= "col">생성시간</th>
                                         <th scope= "col" class="big_th">메세지</th>
+                                        <th scope= "col">측정단말</th>
+                                        <th scope= "col">전송시간</th>
                                         <th scope= "col">전송여부</th>
                                     </thead>
-                                    <tbody id = 'eventDetail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
-                                       {% for message in message_data %}
-                                            {% if message.messageType == 'EVENT' %}
-                                            <tr id = 'eventDetail_tr_{{message.id}}' >
-                                                <td>{{message.measdate}}</td>
-                                                <td class="big_td">{{message.message}}</td>
-                                                <td>{{message.sended}}</td>
-                                            </tr>
-                                            {% endif %}
-                                        {% endfor %}
+                                    <tbody id = 'event_Detail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
+                                    <!--이벤트 메세지 Tr 구역-->
                                     </tbody>
                                 </table> 
                             </div>
                             <div class="tab-pane fade active fixed-table-body" id="xroshot" style="text-align: center; position:absolute">
-                                <table id="xroshotWindow" class='table' style = "display:block">
+                                <table id="xroshotWindow" class='table' style = "display:none">
                                     <thead id = 'xroshotDetail_header'>
-                                        <th scope= "col">전송시간</th>
+                                        <th scope= "col">생성시간</th>
                                         <th scope= "col" class="big_th">메세지</th>
+                                        <th scope= "col">유형</th>
+                                        <th scope= "col">전송시간</th>
                                         <th scope= "col">전송여부</th>
                                     </thead>
-                                    <tbody id = 'xroshotDetail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
-                                        {% for message in message_data %}
-                                            {% if message.messageType == 'SMS' and message.sendType == 'XMCS'%}
-                                                <tr id = 'eventDetail_tr_{{message.id}}' >
-                                                    <td>{{message.measdate}}</td>
-                                                    <td class="big_td">{{message.message}}</td>
-                                                    <td>{{message.sended}}</td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
+                                    <tbody id = 'xroshot_Detail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
+                                    <!--크로샷 메세지 Tr 구역-->
                                     </tbody>
                                 </table> 
                             </div>
                             <div class="tab-pane fade active fixed-table-body" id="tele" style="text-align: center; position:absolute">
-                                <table id="teleWindow" class='table' style = "display:block">
+                                <table id="teleWindow" class='table' style = "display:none">
                                     <thead id = 'teleDetail_header'>
-                                        <th scope= "col">전송시간</th>
+                                        <th scope= "col">생성시간</th>
                                         <th scope= "col" class="big_th">메세지</th>
+                                        <th scope= "col">회수여부</th>
+                                        <th scope= "col">전송시간</th>
                                         <th scope= "col">전송여부</th>
                                     </thead>
-                                    <tbody id = 'teleDetail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
-                                        {% for message in message_data %}
-                                            {% if message.messageType == 'SMS' and message.sendType == 'TELE'%}
-                                                <tr id = 'eventDetail_tr_{{message.id}}' >
-                                                    <td>{{message.measdate}}</td>
-                                                    <td class="big_td">{{message.message}}</td>
-                                                    <td>{{message.sended}}</td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
+                                    <tbody id = 'tele_Detail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
+                                    <!--텔레 메세지 Tr 구역-->
                                     </tbody>
                                 </table> 
                             </div>
@@ -227,10 +212,14 @@
 <script>
     //전역변수 구간
     var group_list_check = 0 // 그룹개수 체크 글로벌
+    var group_list_len = 0 // 그룹개수 글로벌
+    var message_list_check = 0 // 메세지개수 체크 글로벌
+    var message_list_len = 0 // 메세지개수 글로벌
+    var tab_check // 메세지 현재 type체크
+    var list_tr_id = '' //그룹 아이디 메세지 검색에 활용 
 
 </script>
 <script>
-
     //현재 날짜 확인
     let today = new Date();
     let year = today.getFullYear();
@@ -242,10 +231,6 @@
     //현재날짜 이거 다시 넣어야된다.
     
     //////////////////////////////
-    //전역변수 구간
-    // var group_list_check = 0 // 그룹개수 체크 글로벌
-    console.log(group_list_check)
-    var group_list_len = 0 // 그룹개수 글로벌
     //var toDayinfo = "" // 금일 날짜 변수 글로벌
     $('input[type="date"]').attr('value', dateString);
     var toDayinfo = ''// 금일 날짜 변수 글로벌
@@ -304,14 +289,20 @@
                 }, 30000);          
     } 
     // messagedata ajax실행 인터벌이 바로 실행하게 한다.
-    {% comment %} const startTimer_messagedata = function(tr_id){
-        var list_tr_id =  tr_id
+    const startTimer_messagedata= function(tr_id, tab_value){
+        list_tr_id =  tr_id
+        console.log("나는이거보고싶어!!!" + tab_value);
+        if(!tab_value){
+            tab_check = $('#bottom_body_left .nav-item .active').attr('value'); //현재 메세지 타입 표시 *전역변수
+        }else{
+            tab_check = tab_value;
+        }
         GV.isPause_messagedata = false;
-        interval_messagedata(list_tr_id);  
+        interval_messagedata(list_tr_id, tab_check);  
         GV.timer_messagedata = setInterval(function(){ 
-            interval_messagedata(list_tr_id); 
-        }, 60000);          
-    }  {% endcomment %}
+            interval_messagedata(list_tr_id, tab_check); 
+        }, 30000);          
+    }
     
     // interval종료
     const stopTimer = function(){ 
@@ -319,8 +310,8 @@
         clearInterval(GV.timer_startdata); 
         clearInterval(GV.timer_messagedata);  
         GV.isPause_listdata = true;
-        GV.timer_startdata = true;
-        GV.timer_messagedata = true;
+        GV.isPause_startdata = true;
+        GV.isPause_messagedata = true;
         group_list_check = 0 // 그룹개수 체크 글로벌 
     }    
     
@@ -330,10 +321,7 @@
         clearInterval(GV.timer_listdata);
         GV.isPause_listdata = true;
         group_list_check = 0; // 리스트 체크 글로벌
-        console.log(document.querySelector('input[type="date"]').value)
-        console.log(toDayinfo)
         //if(toDayinfo !== document.querySelector('input[type="date"]').value){//날짜 다르면 지운다
-        toDayinfo = document.querySelector('input[type="date"]').value
 
         const p_group_body = document.querySelector("#phoneGroupDetail_body");
         while (p_group_body.hasChildNodes()) {	// 부모노드가 자식이 있는지 여부를 알아낸다
@@ -344,8 +332,33 @@
         startTimer_listdata(); // 재시작
     }
 
+    function Messagedata_reset(tab_value){
+        clearInterval(GV.timer_messagedata);
+        GV.isPause_messagedata = true;
+        message_list_check = 0; // 메세지 체크 글로벌
+        
+        if (list_tr_id !== ''){
+            const p_message_body = document.querySelector('#'+ tab_check +'_Detail_body');
+            while (p_message_body.hasChildNodes()) {	// 부모노드가 자식이 있는지 여부를 알아낸다
+                p_message_body.removeChild(
+                    p_message_body.firstChild
+                );
+            }
+        }else{
+            alert("폰그룹을 선택해주세요");
+        }
+        if(!tab_value){
+            tab_value = $('#bottom_body_left .nav-item .active').attr('value'); //현재 메세지 타입 표시 *전역변수
+            startTimer_messagedata(list_tr_id, tab_value); // 재시작
+        }else{
+            startTimer_messagedata(list_tr_id, tab_value); // 재시작
+        }
+    }
+
     ///////////////////////////
+
     const interval_listdata = function(){
+    toDayinfo = document.querySelector('input[type="date"]').value
     if(!GV.isPause_listdata){
     //function interval_listdata(){
             $.ajaxSetup({
@@ -386,13 +399,13 @@
                             change_check = ajax_data['data'].length - group_list_len //변화체 7 - 5 = 2
                             group_list_len = ajax_data['data'].length;
                             //if(group_list_len !== ajax_data['data'].length){
+                            
                             if(change_check !== 0){
-                                /////////////////////////////
+                                //새로운 데이터가 들어올때만 행 추가
                                 //0123456 01234
                                 for(let i=0; i < change_check ; i++){
-                                    ajax_data2[i] = ajax_data['data'][ajax_data['data'].length-change_check]
-                                    ajax_data_arr[i] = ajax_data2[i]
-                                    change_check = change_check - 1;
+                                    ajax_data2[i] = ajax_data['data'][ajax_data['data'].length-(change_check-i)]
+                                    ajax_data_arr[i] = ajax_data2[i];
                                 }
                                 ajax_data['data'] = ajax_data_arr 
                                 console.log(ajax_data)
@@ -400,6 +413,7 @@
                                 ////////////////////////////
                                 startListData(ajax_data);
                             }
+                            listDataCount(ajax_data);
                         }
                     }
                     //1일 때는 웹페이지를 불러올때 , 0일때는 다음 시그널 
@@ -425,7 +439,7 @@
         if (ajax_data['data'] != 'nodata'){
             //for(let i = 0; i < Object.keys(ajax_data).length; i++){
             for(let i = 0; i < ajax_data['data'].length; i++){
-                measStatus += '<tr id = "' + ajax_data['data'][i]['id'] + '">';
+                measStatus += '<tr id = "' + ajax_data['data'][i]['id'] + '" onclick=startTimer_messagedata(this.attributes["id"].value);>';
                 for(var listdata_name of Object.keys(ajax_data['data'][i])){ 
                     if(listdata_name !== 'id'){
 
@@ -441,9 +455,9 @@
 
                         //data null 체크
                         if(listdata_name == 'userInfo1'){
-                            measStatus += '<td class="big_td">' + td_data + '</td>';
+                            measStatus += '<td class="big_td '+ listdata_name + '">' + td_data + '</td>';
                         }else{
-                            measStatus += '<td>' + td_data + '</td>';
+                            measStatus += '<td class="'+ listdata_name + '">' + td_data + '</td>';
                         }
                     }
                 }
@@ -459,6 +473,30 @@
         $('#phoneGroupDetail_body').append(measStatus);
         }
     }
+
+    //데이터 값바꾸기
+    function listDataCount(ajax_data){
+        if (ajax_data['data'] != 'nodata'){
+            console.log("들어왓다");
+            for(let i = 0; i < ajax_data['data'].length; i++){
+                for(var listdata_name of Object.keys(ajax_data['data'][i])){ 
+                    if(listdata_name !== 'id'){
+                        if(ajax_data['data'][i][listdata_name] == undefined){
+                            td_data = '-'
+                        }else if(ajax_data['data'][i][listdata_name] == true){
+                            td_data = "측정 중"
+                        }else if(ajax_data['data'][i][listdata_name] == false){
+                            td_data = "측정 종료"
+                        }else{
+                            td_data = ajax_data['data'][i][listdata_name]
+                        }
+                        parent = document.getElementById(ajax_data['data'][i]['id']);
+                        parent.querySelector('.' + listdata_name).innerHTML = td_data
+                    }                    
+                }
+            }
+        }
+    } 
 
     ///////////////////////////////////////////////////////////////////////////////
     //stratdata 부분
@@ -542,35 +580,138 @@
     
 
     ///////////////////////////////
-    //event 내용 생성 ajax
-    {% comment %} const interval_messagedata = function(list_tr_id){
+    //메세지 내용 생성 ajax
+    const interval_messagedata = function(list_tr_id, tab_check){
+        //tab_check = $('#bottom_body_left .nav-item .active').attr('value'); //현재 메세지 타입 표시 *전역변수
+        //탭 벨류 체크
         if(!GV.isPause_messagedata){
         //function interval_listdata(){
-                $.ajaxSetup({
-                    headers: { "X-CSRFToken": '{{csrf_token}}' }
-                });
-    
-                $.ajax({
-                    type:'POST',
-                    url: "{% url 'analysis:listview_messageData' %}",
-                    dataType : 'text',
-                    data : { 'groupid' : list_tr_id },
-                    //async: false,
-                    cache: false,
-                    success: function(ajax_data){
-                        ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
-                        console.log(ajax_data)
-                        console.log("불러오기 성공")
-                        //$('#bottom_body_left').replaceWith($('#bottom_body_left',data));
-                    },
-                    error: function(error){
-                        console.log("불러오기 실패")
-                        console.log(error)
-    
+            $.ajaxSetup({
+                headers: { "X-CSRFToken": '{{csrf_token}}' }
+            });
+
+            $.ajax({
+                type:'POST',
+                url: "{% url 'analysis:listview_messageData' %}",
+                dataType : 'text',
+                data : { 'groupid' : list_tr_id,  
+                         'tabcheck': tab_check},
+                //type은 현재 활성화된 메세지탭의 value를 보고 무엇인지 보낸다. 
+                //event, xroshot, tele
+                //async: false,
+                cache: false,
+                success: function(ajax_data){
+                    ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
+                    console.log(ajax_data)
+                    console.log("불러오기 성공")
+                    
+                    if(ajax_data['data'] !== 'nodata'){
+                        if(message_list_check == 0){
+                            console.log("메세지 처음은 여기");
+                            console.log(message_list_check);
+                            message_list_len = ajax_data['data'].length;
+                            
+                            messageListData(ajax_data, tab_check);
+                            
+                            message_list_check = 1;
+                        }else{
+                            console.log("나중은 여기")
+                            ajax_data2 = {}
+                            ajax_data_arr = []
+                            //$('phoneGroupDetail_body').remove();
+                            //$('#phoneGroupDetail_body').append(measStatus);
+                            change_check = ajax_data['data'].length - message_list_len //변화체 7 - 5 = 2
+                            message_list_len = ajax_data['data'].length;
+                            //if(group_list_len !== ajax_data['data'].length){
+                            console.log("메세지 체인지 체크" + change_check)
+                            if(change_check !== 0){
+                                //새로운 데이터가 들어올때만 행 추가
+                                //0123456 01234
+                                for(let i=change_check; i > 0 ; i--){
+                                    //ajax_data2[i] = ajax_data['data'][i]
+                                    //ajax_data_arr[i] = ajax_data2[i]
+                                    ajax_data_arr[i-1] = ajax_data['data'][i-1];
+                                }
+                                ajax_data['data'] = ajax_data_arr; 
+                                console.log(ajax_data)
+
+                                ////////////////////////////
+                                messageListData(ajax_data, tab_check);
+                            }
+                        }
+                    
                     }
-                });
+                },
+                error: function(error){
+                    console.log("불러오기 실패")
+                    console.log(error)
+
+                }
+            });
+        }
+    }
+
+    //메세지 에어리어 생성
+    function messageListData(ajax_data, tab_check){
+        console.log("잘들어오나")
+        console.log(ajax_data)
+        console.log(Object.keys(ajax_data).length)
+
+        let measStatus // 초기화
+        
+        if (ajax_data['data'] != 'nodata'){
+            //for(let i = 0; i < Object.keys(ajax_data).length; i++){
+            for(let i = 0; i < ajax_data['data'].length; i++){
+                measStatus += '<tr>';
+                measStatus += '<td>' + ajax_data['data'][i]['create_time'] + '</td>';
+                measStatus += '<td class="big_td">' + ajax_data['data'][i]['message'] + '</td>';
+                if(tab_check == 'event'){
+                    measStatus += '<td>' + ajax_data['data'][i]['phone_no_sht'] + '</td>';
+                }else if(tab_check == 'xroshot'){
+                    measStatus += '<td>' + ajax_data['data'][i]['status'] + '</td>';
+                }else{
+                    measStatus += '<td> X </td>';
+                }
+                measStatus += '<td>' + ajax_data['data'][i]['sended_time'] + '</td>';
+                if(ajax_data['data'][i]['sended'] == true){
+                    measStatus += '<td> 전송완료 </td>';
+                }else{
+                    measStatus += '<td> 미전송 </td>';
+                }``
+                measStatus += '</tr>'
             }
-        } {% endcomment %}
+            if(message_list_check == 0){
+                $('#' + tab_check + '_Detail_body').append(measStatus);
+            }else{
+                $('#' + tab_check + '_Detail_body').prepend(measStatus);
+            }
+        }
+    }
+
+    //메세지 탭클릭
+    function tabChange(tab_value){
+        Messagedata_reset(tab_value); //메세지 리셋 인터벌 시작
+
+        //tab_check = tab.attributes('value'); //현재 메세지 타입 표시 this
+        console.log("난이게궁금해" + tab_value)
+        let event = document.getElementById('eventWindow');
+        let xroshot = document.getElementById('xroshotWindow');
+        let tele = document.getElementById('teleWindow');
+
+        if(tab_value=='event'){
+            event.style.display = 'block';
+            xroshot.style.display = 'none';
+            tele.style.display = 'none';
+        }else if(tab_value=='xroshot'){
+            event.style.display = 'none';
+            xroshot.style.display = 'block';
+            tele.style.display = 'none';
+        }else{
+            event.style.display = 'none';
+            xroshot.style.display = 'none';
+            tele.style.display = 'block';
+        }
+    }
 
 </script>
 {% endblock %}
