@@ -180,8 +180,10 @@
                         </td>
                         <td style="width: 5%" class="text-center">[[phoneGroup.centerName]]</td>
                         <td style="width: 5%" class="text-center" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
-                        data-toggle="tooltip" data-placement="top" class="tooltip-primary"  title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
-                            [[phoneGroup.p_measuringTeam]]</td>
+                            data-toggle="tooltip" data-placement="top" class="tooltip-primary"
+                            title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
+                            [[phoneGroup.p_measuringTeam]]
+                        </td>
                         <td style="width: 20%" class="text-center">[[phoneGroup.userInfo1 | truncate(15, '...')]]</td>
                         <td style="width: 8%" class="text-center">[[phoneGroup.morphologyName]]</td>
                         <td style="width: 7%" class="text-center">[[phoneGroup.networkId]]</td>
@@ -238,24 +240,30 @@
 
                         <table id="eventWindow" class='table table-hover' style="display:block">
                             <thead id='eventDetail_header' class="bg-light">
-                            <th scope="col" class="text-center" style="width: 10%">생성시간</th>
-                            <th scope="col" class="text-center" style="width: 10%">측정단말</th>
-                            <th scope="col" class="text-center" style="width: 55%">메세지</th>
-                            <th scope="col" class="text-center" style="width: 10%">전송시간</th>
-                            <th scope="col" class="text-center" style="width: 15%">전송여부</th>
+                            <th scope="col" class="text-center" style="width: 8%">생성시간</th>
+                            <th scope="col" class="text-center" style="width: 8%">측정단말</th>
+                            <th scope="col" class="text-center" style="width: 45%">메세지</th>
+                            <th scope="col" class="text-center" style="width: 8%">전송시간</th>
+                            <th scope="col" class="text-center" style="width: 8%">전송여부</th>
+                            <th scope="col" class="text-center" style="width: 8%">회수여부</th>
                             </thead>
                             <tbody id='eventDetail_body' class="table-hover"
                                    style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageEventList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
-                                <td class="col-md-1 text-center" style="width: 10%">[[ message.phone_no_sht ]]</td>
-                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80,
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.phone_no_sht">[[
+                                    message.phone_no_sht ]]
+                                </td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.phone_no_sht">-</td>
+                                <td class="col-md-7 text-left" style="width: 50%">[[ message.message | truncate(80,
                                     '...')]]
                                 </td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.sended_time ]]</td>
-                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.message">전송</td>
-                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.message">미전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.sended">전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.sended">미전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.isDel">회수</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.idDel">-</td>
                             </tr>
                             </tbody>
                         </table>
@@ -266,24 +274,30 @@
 
                         <table id="xroshotWindow" class='table table-hover' style="display:block">
                             <thead id='xroshotDetail_header' class="bg-light">
-                            <th scope="col" class="text-center" style="width: 10%">생성시간</th>
-                            <th scope="col" class="text-center" style="width: 10%">측정단말</th>
-                            <th scope="col" class="text-center" style="width: 55%">메세지</th>
-                            <th scope="col" class="text-center" style="width: 10%">전송시간</th>
-                            <th scope="col" class="text-center" style="width: 15%">전송여부</th>
+                            <th scope="col" class="text-center" style="width: 8%">생성시간</th>
+                            <th scope="col" class="text-center" style="width: 8%">측정단말</th>
+                            <th scope="col" class="text-center" style="width: 45%">메세지</th>
+                            <th scope="col" class="text-center" style="width: 8%">전송시간</th>
+                            <th scope="col" class="text-center" style="width: 8%">전송여부</th>
+                            <th scope="col" class="text-center" style="width: 8%">회수여부</th>
                             </thead>
                             <tbody id='xroshotDetail_body' class="table-hover"
                                    style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageSmsList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
-                                <td class="col-md-1 text-center" style="width: 10%">[[ message.phone_no_sht ]]</td>
-                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80,
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.phone_no_sht">[[
+                                    message.phone_no_sht ]]
+                                </td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.phone_no_sht">-</td>
+                                <td class="col-md-7 text-left" style="width: 50%">[[ message.message | truncate(80,
                                     '...')]]
                                 </td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.sended_time ]]</td>
-                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.message">전송</td>
-                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.message">미전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.sended">전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.sended">미전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.isDel">회수</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.idDel">-</td>
                             </tr>
                             </tbody>
                         </table>
@@ -293,28 +307,33 @@
 
                         <table id="teleWindow" class='table table-hover' style="display:block">
                             <thead id='teleDetail_header' class="bg-light">
-                            <th scope="col" class="text-center" style="width: 10%">생성시간</th>
-                            <th scope="col" class="text-center" style="width: 10%">측정단말</th>
-                            <th scope="col" class="text-center" style="width: 55%">메세지</th>
-                            <th scope="col" class="text-center" style="width: 10%">전송시간</th>
-                            <th scope="col" class="text-center" style="width: 15%">전송여부</th>
+                            <th scope="col" class="text-center" style="width: 8%">생성시간</th>
+                            <th scope="col" class="text-center" style="width: 8%">측정단말</th>
+                            <th scope="col" class="text-center" style="width: 45%">메세지</th>
+                            <th scope="col" class="text-center" style="width: 8%">전송시간</th>
+                            <th scope="col" class="text-center" style="width: 8%">전송여부</th>
+                            <th scope="col" class="text-center" style="width: 8%">회수여부</th>
                             </thead>
                             <tbody id='teleDetail_body' class="table-hover"
                                    style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageTeleList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.create_time ]]</td>
-                                <td class="col-md-1 text-center" style="width: 10%">[[ message.phone_no_sht ]]</td>
-                                <td class="col-md-7 text-left" style="width: 60%">[[ message.message | truncate(80,
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.phone_no_sht">[[
+                                    message.phone_no_sht ]]
+                                </td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.phone_no_sht">-</td>
+                                <td class="col-md-7 text-left" style="width: 50%">[[ message.message | truncate(80,
                                     '...')]]
                                 </td>
                                 <td class="col-md-1 text-center" style="width: 10%">[[ message.sended_time ]]</td>
-                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.message">전송</td>
-                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.message">미전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.sended">전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.sended">미전송</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-if="message.isDel">회수</td>
+                                <td class="col-md-1 text-center" style="width: 10%" v-else="message.idDel">-</td>
                             </tr>
                             </tbody>
                         </table>
-
                     </div>
                 </div>
                 <!-- Tabs content End -->
@@ -491,7 +510,7 @@
                     selectedPhoneGroup.forEach(prePhoneGroup => {
                         data['phoneGroupList'].forEach(phoneGroup => {
                             if (prePhoneGroup.id === phoneGroup.id) {
-                               phoneGroup.selected = prePhoneGroup.selected
+                                phoneGroup.selected = prePhoneGroup.selected
                             }
                         });
                     });
@@ -632,8 +651,8 @@
                  * 메시지 전송 및 회수 관련 함수 관련 모듈
                  -----------------------------------------------------------------------------------------------------*/
                 // 1-1) 전송 버튼을 클릭했을 때 모달창을 띄운다.
-                 clickSendMessage() {
-                     console.log(this.message)
+                clickSendMessage() {
+                    console.log(this.message)
                     if (this.message.id === undefined) {
                         this.isModelConfirmDisabled = false
                         $("#modal-btn-confirm").html('전송');
@@ -642,7 +661,7 @@
                     } else {
                         // 문자 전송시에만 수신자 리스트 입력여부를 확인하도록 한다.
                         if ((this.message.sendType === 'XMCS' || this.message.sendType === 'ALL') &&
-                            (this.recipient_text === undefined || this.recipient_text === null ||  this.recipient_text.length <= 0)) {
+                            (this.recipient_text === undefined || this.recipient_text === null || this.recipient_text.length <= 0)) {
                             this.isModelConfirmDisabled = false
                             $("#modal-btn-confirm").html('전송');
                             $("#modal_body").html("수신자 리스트를 입력해 주세요.");
