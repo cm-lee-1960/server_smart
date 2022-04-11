@@ -586,6 +586,8 @@
                             selectedPhoneGroup.forEach(phoneGroup => phoneGroup.selected = false);
                         }
                     }
+                    // 측정종료 처리후  단말그룹 리스트를 다시 조회한다.
+                    await this.fetch_all_phoneGroup();
                 },
                 // 2) 해당 일자에 대한 측정을 마감한다.
                 async measuring_day_close() {
@@ -693,6 +695,7 @@
                             "Content-Type": "application/json",
                             'Accept': 'application/json'
                         },
+                        credentials: 'same-orign',
                         body: JSON.stringify({
                             'receiver_list': this.recipient_text,
                             'message': this.message.message,
