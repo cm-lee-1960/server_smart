@@ -242,27 +242,27 @@
                         <table id="event-table" class='table table-hover'>
                             <thead id='event-header'>
                             <tr class="bg-light d-flex">
-                                <th style="width: 12%;">생성시간</th>
-                                <th style="width: 12%;">측정단말</th>
-                                <th style="width: 40%;">메세지</th>
-                                <th style="width: 12%;">전송시간</th>
-                                <th style="width: 12%;">전송여부</th>
-                                <th style="width: 12%;">회수여부</th>
+                                <th style="width: 11%;">생성시간</th>
+                                <th style="width: 11%;">측정단말</th>
+                                <th style="width: 45%;">메세지</th>
+                                <th style="width: 11%;">전송시간</th>
+                                <th style="width: 11%;">전송여부</th>
+                                <th style="width: 11%;">회수여부</th>
                             </tr>
                             </thead>
                             <tbody id='event-body' class="table-hover"
                                    style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageEventList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
-                                <td style="width: 12%;">[[ message.create_time ]]</td>
-                                <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                <td style="width: 12%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 40%;">[[ message.message | truncate(80,'...')]]</td>
-                                <td style="width: 12%;">[[ message.sended_time ]]</td>
-                                <td style="width: 12%;" v-if="message.sended">전송</td>
-                                <td style="width: 12%;" v-else="message.sended">미전송</td>
-                                <td style="width: 12%;" v-if="message.isDel">회수</td>
-                                <td style="width: 12%;" v-else="message.idDel">-</td>
+                                <td style="width: 11%;">[[ message.create_time ]]</td>
+                                <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                <td style="width: 45%;">[[ message.message | truncate(80,'...')]]</td>
+                                <td style="width: 11%;">[[ message.sended_time ]]</td>
+                                <td style="width: 11%;" v-if="message.sended">전송</td>
+                                <td style="width: 11%;" v-else="message.sended">미전송</td>
+                                <td style="width: 11%;" v-if="message.isDel">회수</td>
+                                <td style="width: 11%;" v-else="message.idDel">-</td>
                             </tr>
                             </tbody>
                         </table>
@@ -274,24 +274,24 @@
                         <table id="xroshot-table" class='table table-hover'>
                             <thead id='xroshot-header'>
                             <tr class="bg-light d-flex">
-                                <th style="width: 14%;">생성시간</th>
-                                <th style="width: 14%;">측정단말</th>
-                                <th style="width: 44%;">메세지</th>
-                                <th style="width: 14%;">전송시간</th>
-                                <th style="width: 14%;">전송여부</th>
+                                <th style="width: 12%;">생성시간</th>
+                                <th style="width: 12%;">측정단말</th>
+                                <th style="width: 52%;">메세지</th>
+                                <th style="width: 12%;">전송시간</th>
+                                <th style="width: 12%;">전송여부</th>
                             </tr>
                             </thead>
                             <tbody id='xroshotDetail_body' class="table-hover"
                                    style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageEventList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
-                                <td style="width: 14%;">[[ message.create_time ]]</td>
-                                <td style="width: 14%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                <td style="width: 14%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 44%;">[[ message.message | truncate(80,'...')]]</td>
-                                <td style="width: 14%;">[[ message.sended_time ]]</td>
-                                <td style="width: 14%;" v-if="message.sended">전송</td>
-                                <td style="width: 14%;" v-else="message.sended">미전송</td>
+                                <td style="width: 12%;">[[ message.create_time ]]</td>
+                                <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                <td style="width: 12%;" v-else="message.phone_no_sht">-</td>
+                                <td style="width: 52%;">[[ message.message | truncate(80,'...')]]</td>
+                                <td style="width: 12%;">[[ message.sended_time ]]</td>
+                                <td style="width: 12%;" v-if="message.sended">전송</td>
+                                <td style="width: 12%;" v-else="message.sended">미전송</td>
                             </tr>
                             </tbody>
                         </table>
@@ -302,27 +302,27 @@
                         <table id="tele-table" class='table table-hover'>
                             <thead id='tele-header'>
                             <tr class="bg-light d-flex">
-                                <th style="width: 12%;">생성시간</th>
-                                <th style="width: 12%;">측정단말</th>
-                                <th style="width: 40%;">메세지</th>
-                                <th style="width: 12%;">전송시간</th>
-                                <th style="width: 12%;">전송여부</th>
-                                <th style="width: 12%;">회수여부</th>
+                                <th style="width: 11%;">생성시간</th>
+                                <th style="width: 11%;">측정단말</th>
+                                <th style="width: 45%;">메세지</th>
+                                <th style="width: 11%;">전송시간</th>
+                                <th style="width: 11%;">전송여부</th>
+                                <th style="width: 11%;">회수여부</th>
                             </tr>
                             </thead>
                             <tbody id='teleDetail_body' class="table-hover"
                                    style="height:180px; overflow-y:auto; display:block">
                             <tr v-for="message in messageEventList" class="d-flex"
                                 v-on:click="clickMessageList(message)">
-                                <td style="width: 12%;">[[ message.create_time ]]</td>
-                                <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                <td style="width: 12%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 40%;">[[ message.message | truncate(80,'...')]]</td>
-                                <td style="width: 12%;">[[ message.sended_time ]]</td>
-                                <td style="width: 12%;" v-if="message.sended">전송</td>
-                                <td style="width: 12%;" v-else="message.sended">미전송</td>
-                                <td style="width: 12%;" v-if="message.isDel">회수</td>
-                                <td style="width: 12%;" v-else="message.idDel">-</td>
+                                <td style="width: 11%;">[[ message.create_time ]]</td>
+                                <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                <td style="width: 45%;">[[ message.message | truncate(80,'...')]]</td>
+                                <td style="width: 11%;">[[ message.sended_time ]]</td>
+                                <td style="width: 11%;" v-if="message.sended">전송</td>
+                                <td style="width: 11%;" v-else="message.sended">미전송</td>
+                                <td style="width: 11%;" v-if="message.isDel">회수</td>
+                                <td style="width: 11%;" v-else="message.idDel">-</td>
                             </tr>
                             </tbody>
                         </table>
