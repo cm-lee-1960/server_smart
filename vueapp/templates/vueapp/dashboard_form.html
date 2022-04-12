@@ -257,7 +257,7 @@
                                 <td style="width: 11%;">[[ message.create_time ]]</td>
                                 <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                 <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 45%;">[[ message.message | truncate(80,'...')]]</td>
+                                <td style="width: 45%;">[[ message.message | truncate(60,'...')]]</td>
                                 <td style="width: 11%;">[[ message.sended_time ]]</td>
                                 <td style="width: 11%;" v-if="message.sended">전송</td>
                                 <td style="width: 11%;" v-else="message.sended">미전송</td>
@@ -288,7 +288,7 @@
                                 <td style="width: 12%;">[[ message.create_time ]]</td>
                                 <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                 <td style="width: 12%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 52%;">[[ message.message | truncate(80,'...')]]</td>
+                                <td style="width: 52%;">[[ message.message | truncate(70,'...')]]</td>
                                 <td style="width: 12%;">[[ message.sended_time ]]</td>
                                 <td style="width: 12%;" v-if="message.sended">전송</td>
                                 <td style="width: 12%;" v-else="message.sended">미전송</td>
@@ -317,7 +317,7 @@
                                 <td style="width: 11%;">[[ message.create_time ]]</td>
                                 <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                 <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 45%;">[[ message.message | truncate(80,'...')]]</td>
+                                <td style="width: 45%;">[[ message.message | truncate(60,'...')]]</td>
                                 <td style="width: 11%;">[[ message.sended_time ]]</td>
                                 <td style="width: 11%;" v-if="message.sended">전송</td>
                                 <td style="width: 11%;" v-else="message.sended">미전송</td>
