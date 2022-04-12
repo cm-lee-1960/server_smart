@@ -300,13 +300,16 @@ def get_report_cntx():
 # [ 고민해야 하는 사항 ]
 #  - JSON형태의 컨텍스트를 만드는 코드 정규화
 # -------------------------------------------------------------------------------------------------
-def get_measresult_cntx():
+def get_measresult_cntx(request):
     """ 측정대상등록 페이지에 보여질 데이터를 조회해서 JSON으로 반환하는 함수
         - 파라미터:
           . year : 해당년도
         - 반환값: context (JSON형태)
     """
-    measplan = MeasPlan.objects.filter(planYear = "2022")
+    measplan = MeasPlan.objects.all()
+    
+    yy_text = request.GET.get('planYear')
+    yy_list = MeasPlan.objects.filter(planYear=yy_text)
     
     sregi = MeasResult.objects.all()
 
@@ -364,6 +367,7 @@ def get_measresult_cntx():
     'tregiLTE':tregiLTE,'sregiWiFi1':sregiWiFi1,'sregiWiFi2':sregiWiFi2,'sregiWiFi':sregiWiFi,'tregiWiFi1':tregiWiFi1,'tregiWiFi2':tregiWiFi2,'tregiWiFi':tregiWiFi,
     'sregiweak1':sregiweak1,'sregiweak2':sregiweak2,'sregiweak3':sregiweak3,'sregiweak4':sregiweak4,'sregiweak':sregiweak,'tregiweak1':tregiweak1,
     'tregiweak2':tregiweak2,'tregiweak3':tregiweak3,'tregiweak4':tregiweak4,'tregiweak':tregiweak,
+    'yy_text':yy_text,'yy_list':yy_list,
     }
 
     return context

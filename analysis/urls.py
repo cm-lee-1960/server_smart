@@ -1,11 +1,18 @@
 from django.urls import path
 from . import views
-
+from .views import *
 app_name = 'analysis'
 urlpatterns = [
                                         
     path('dashboard/',views.dashboard,name='dashboard'), # 홈 화면
     path("report/", views.report, name='report'), # 일일보고 페이지
+
+    # 추가사항(필요없는것은 삭제예정)
+    path("report/modify/", views.report_modifty, name='report_modify'), # 일일보고 메시지 수정페이지
+    path("report/measplan/", views.report_measplan, name='report_measplan'), # 측정대상등록 페이지
+    path("report/list/", views.report_list, name='report_list'), # 일일보고 리스트 페이지
+    path("report/measresult/", views.report_measresult, name='report_measresult'), # 측정결과현황 페이지
+    path('fileupload/', fileUpload, name="fileupload"),
 
     path('report/makereport/', views.register_measdata, name='register_measdata'), # 레포트정보등록페이지(측정대상, 측정완료, 전년도결과, 추가사항)
     path('measplan/create/',views.create_measplan,name='create_measplan'), # 측정대상 등록 및 수정

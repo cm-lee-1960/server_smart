@@ -67,7 +67,7 @@ urlpatterns = [
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # STATIC 파일
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.STATIC_ROOT) # MEDIA 파일
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # MEDIA 파일
 
 # 어드민 페이지 변경
 admin.site.index_title = "스마트 상황실"

@@ -34,7 +34,8 @@ from django.shortcuts import get_list_or_404
 from django.views.generic import TemplateView
 from monitor.serializers import PhoneGroupSerializerOrder, MessageSerializer
 
-
+from .forms import FileUploadForm
+from .models import FileUpload
 ###################################################################################################
 # 분석 처리모듈
 # -------------------------------------------------------------------------------------------------
@@ -167,6 +168,31 @@ def get_startdata(request):
         json_data_call = json.dumps(start_dict)
         
     return HttpResponse(json_data_call, content_type="applications/json")
+# -------------------------------------------------------------------------------------------------
+# 파일 업로드 뷰
+# -------------------------------------------------------------------------------------------------
+def fileUpload(request):
+    if request.method == 'POST':
+        date = request.POST['date']
+        title = request.POST['title']
+        
+        report = request.FILES["reportfile"]
+        fileupload = FileUpload(
+            date=date,
+            title=title,
+            
+            reportfile=report,
+        )
+        fileupload.save()
+        return redirect('fileupload')
+    else:
+        fileuploadForm = FileUploadForm
+        context = {
+            'fileuploadForm': fileuploadForm,
+        }
+        return render(request, "analysis/fileupload.html", context)
+
+
 
 # -------------------------------------------------------------------------------------------------
 # 홈페이지 페이지
@@ -187,6 +213,40 @@ def report(request):
     # 레포트에서 사용할 데이터(컨텍스트)를 가져온다.
     context = get_report_cntx()
     return render(request, "analysis/daily_report_form.html", context)
+
+# -------------------------------------------------------------------------------------------------
+# 일일보고 메시지 수정페이지
+# -------------------------------------------------------------------------------------------------
+def report_modifty(request):
+    """일일보고 메시지 수정페이지 뷰"""
+    context = get_report_cntx()
+    return render(request, "analysis/daily_report_modify.html", context)
+
+# -------------------------------------------------------------------------------------------------
+# 일일보고 대상등록 페이지
+# -------------------------------------------------------------------------------------------------
+def report_measplan(request):
+    """일일보고 대상등록 페이지 뷰"""
+    context = get_measresult_cntx(request)
+    return render(request, "analysis/register_measplan_form.html", context)
+
+# -------------------------------------------------------------------------------------------------
+# 일일보고 리스트 페이지
+# -------------------------------------------------------------------------------------------------
+def report_list(request):
+    """일일보고 대상등록 페이지 뷰"""
+    context = get_measresult_cntx(request)
+    return render(request, "analysis/daily_report_list.html", context)
+
+# -------------------------------------------------------------------------------------------------
+# 측정결과현황 페이지
+# -------------------------------------------------------------------------------------------------
+def report_measresult(request):
+    """일일보고 대상등록 페이지 뷰"""
+    context = get_measresult_cntx(request)
+    return render(request, "analysis/register_measresult_form.html", context)
+
+
 
 # -------------------------------------------------------------------------------------------------
 # 대상등록 페이지 - 측정대상, 측정완료, 전년도결과, 추가기입사항
@@ -211,7 +271,7 @@ def create_measplan(request):
         pass
 
     # return redirect("analysis:make_report")
-    return redirect("analysis:register_measdata")
+    return redirect("analysis:report_measplan")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -223,7 +283,7 @@ def delete_measplan(request):
        # 측정대상 등록정보를 삭제한다.
        MeasPlan.objects.all().delete()
 
-    return redirect("analysis:register_measdata")
+    return redirect("analysis:report_measplan")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -286,7 +346,7 @@ def create_reportmsg(request):
 
         reportmsg.save()
 
-    return redirect("analysis:register_measdata")
+    return redirect("analysis:report_modify")
 
 # -------------------------------------------------------------------------------------------------
 # 추가사항 삭제

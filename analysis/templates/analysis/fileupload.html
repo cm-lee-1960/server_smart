@@ -1,0 +1,13 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block contents %}
+<div class="container">
+    <form method="POST" action="{% url 'analysis:fileupload' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% bootstrap_form fileuploadForm %}
+        <input type="submit" class="btn btn-primary col-12" value="제출">
+    </form>
+</div>
+{% endblock %}

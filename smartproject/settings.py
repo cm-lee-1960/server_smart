@@ -189,7 +189,8 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-MEDIA_URL = 'media/'
+# 미디어  경로 지정 일일보고 파일 저장 및 다운을 위한 설정
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 # Default primary key field type

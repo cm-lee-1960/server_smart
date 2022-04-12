@@ -62,19 +62,18 @@
 <script type="text/javascript" defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script type="text/javascript" defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
 <script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script> -->
-
-<!-- pdf 출력 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
 <!-- 제이쿼리 -->
 <script defer src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script src="http://code.jquery.com/jquery-latest.js"></script> 
 <!-- CSS,JS 호출 -->
+
 <link rel="stylesheet" type="text/css" href="{% static "css/A4.css" %}">
 <script type="text/javascript" defer src="{% static "js/reportdata.js" %}"></script>
 <!-- 기본 라이브러리 -->
 <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">
 <link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+
 <!-- CSS호출 -->
 <link rel="stylesheet" type="text/css" href="{% static "css/report.css" %}">
 <link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
@@ -84,49 +83,43 @@
 </head>
 
 <body>
-	
 	<div style="display:flex; flex-flow: row nowrap;">
-		<!-- 사이드바 -->
-        <aside style="width:200px; border-right:1px solid rgb(226, 221, 221);">
-            <nav>
-                <div style="margin:40px 10px 10px 10px"> 
-                  <a href="http://127.0.0.1:8000/analysis/report/" style="text-decoration-line:none; text-decoration:none;color:grey;">당일 일일보고</a>
-                </div>
-                <div style="margin:10px" >
-                    <a href="http://127.0.0.1:8000/analysis/report/list/" style="text-decoration-line:none; text-decoration:none;color:grey">일일보고 리스트 </a>
-                </div>
-                <div style="margin:10px">
-                  <a href="http://127.0.0.1:8000/analysis/report/modify/" style="text-decoration-line:none; text-decoration:none;color:grey;">일일보고 수정/완료 </a>
-                </div>
-                <div style="margin:10px" >
-                  <a href="http://127.0.0.1:8000/analysis/report/measplan/" style="text-decoration-line:none; text-decoration:none;color:grey">측정대상등록 </a>
-                </div>
-                <div style="margin:10px" >
-                    <a href="http://127.0.0.1:8000/analysis/report/measresult/" style="text-decoration-line:none; text-decoration:none;color:grey">측정완료현황</a>
-                </div>  
-            </nav>
-        </aside>
-		
+			<!-- 사이드바 -->
+			<aside style="width:200px; border-right:1px solid rgb(226, 221, 221);">
+				<nav>
+					<div style="margin:40px 10px 10px 10px"> 
+					  <a href="http://127.0.0.1:8000/analysis/report/" style="text-decoration-line:none; text-decoration:none;color:grey;">당일 일일보고</a>
+					</div>
+					<div style="margin:10px" >
+						<a href="http://127.0.0.1:8000/analysis/report/list/" style="text-decoration-line:none; text-decoration:none;color:grey">일일보고 리스트 </a>
+					</div>
+					<div style="margin:10px">
+					  <a href="http://127.0.0.1:8000/analysis/report/modify/" style="text-decoration-line:none; text-decoration:none;color:grey;">일일보고 수정/완료 </a>
+					</div>
+					<div style="margin:10px" >
+					  <a href="http://127.0.0.1:8000/analysis/report/measplan/" style="text-decoration-line:none; text-decoration:none;color:grey">측정대상등록 </a>
+					</div>
+					<div style="margin:10px" >
+						<a href="http://127.0.0.1:8000/analysis/report/measresult/" style="text-decoration-line:none; text-decoration:none;color:grey">측정완료현황</a>
+					</div>  
+				</nav>
+			</aside>
 	<div class="page">
-	
-		<div name = btnzone>
-			<div style='text-align : right'>
-				<!-- 시험 -->
-				<button class="btn btn-primary" onclick="Export2Word('content','test');">워드다운</button>
-				<!-- 시험 -->
-				<div style="display: inline" id="editor"></div>
-				<button type="button" class="btn btn-primary" id="cmd">
-					PDF 다운
-				</button>
-			</div>
+	<div name = btnzone>
+		
+		<div style='text-align : right'>
+			<button class="btn btn-primary" style="display:inline;" id="modify" >수정</button>
+			<form action="{% url 'analysis:create_reportmsg' %}" method="POST" style="display:inline;">{% csrf_token %}
+			<button type="submit" class="btn btn-primary" style="display:inline; margin-left:5px;" id="complete" >완료</button>
 		</div>
-	
-		<div id='content' style = "position: relative;">
+	</div>
+	<div id='content' style = "position: relative;">
 		<div id='title' style="text-align:center;">
 			<h1>S-CXI 상황실 일일 보고</h1>
 			<h3 >(</h3>
 			<h3  id="current_date"></h3>
 			<h3>)</h3>
+			
 		</div>
 		<hr class="one" align="left">
 		<br> <br>
@@ -135,14 +128,25 @@
 			<h2>: 전국 </h2><h2 id="tt"></h2><h2> 지역 중 </h2><h2 id="ttf"></h2><h2> 완료</h2><h2 id="pcf"></h2>
 		</div>
 		<br> 
+
+		
+
 		<div>
 			<h2>&nbsp;&nbsp;○ 5G : 전국 </h2><h2 id="tt1"></h2><h2>{{sregi5G}}개 완료</h2><h2 id = pc1></h2>
+			
 			<h2 style="color: blue;" id='result1'>
+				
 				{% for reportmsg in reportmsg %}
 				{{reportmsg.msg5G}}
 				{% endfor %}
+			
 			</h2>
+		</br>	
+			<input style="display:inline"class="form-control" type="text" name="msg5G" id="textmod1"></input>
+			
 		</div>
+	
+		
 		<br>
 	
 		<div id="output">
@@ -193,11 +197,13 @@
 		
 		<div>
 			<h2>&nbsp;&nbsp;○ LTE : 전국 </h2><h2 id = "tt2"></h2><h2> {{sregiLTE}}개 완료</h2><h2 id = pc2></h2>
-			<h2 style="color: blue;" id='result1'>
+			<h2 style="color: blue;" id='result2' >
 				{% for reportmsg in reportmsg %}
 				{{reportmsg.msgLTE}}
 				{% endfor %}
 			</h2>
+		</br>	
+			<input style="display:inline" class="form-control"type="text" name="msgLTE" id="textmod2"></input>
 		</div>
 		<br>
 		<div id="output">
@@ -268,11 +274,13 @@
 		<br>
 		<div>
 			<h2>&nbsp;&nbsp;○ WiFi : 전국 </h2><h2 id="tt3"></h2><h2> {{sregiWiFi}}국소 완료</h2><h2 id = pc3></h2>
-			<h2 style="color: blue;" id='result1'>
+			<h2 style="color: blue;" id='result3'>
 				{% for reportmsg in reportmsg %}
 				{{reportmsg.msgWiFi}}
 				{% endfor %}
 			</h2>
+		</br>	
+			<input style="display:inline"class="form-control" type="text" name="msgWiFi" id="textmod3"></input>
 		</div>
 		<br>
 		<div id="output">
@@ -326,11 +334,13 @@
 		
 		<div>
 			<h2>&nbsp;&nbsp;○ 품질취약지역 : 전국 </h2><h2 id="tt4"></h2><h2> {{sregiweak}}개 완료</h2><h2 id = pc4></h2>
-			<h2 style="color: blue;" id='result1'>
+			<h2 style="color: blue;" id='result4'>
 				{% for reportmsg in reportmsg %}
 				{{reportmsg.msgWeak}}
 				{% endfor %}
 			</h2>
+		</br>	
+			<input style="display:inline"class="form-control" type="text" name="msgWeak" id="textmod4"></input>
 		</div>
 		<br>
 		<div id="output">
@@ -486,13 +496,15 @@
 	
 		<div>
 			<h2>&nbsp;&nbsp;※ 5G 사후 측정(DL 속도):</h2>
-			<h2 style="color: blue;" id='result1'>
-					
+			<h2 style="color: blue;" id='result5'>
+				
 				{% for reportmsg in reportmsg %}
 				{{reportmsg.msg5Gafter}}
 				{% endfor %}
 			
 			</h2>
+		</br>	
+			<input style="display:inline" class="form-control"type="text" name="msg5Gafter" id="textmod5"></input>
 		</div>
 		<br><div id="output1">
 			<table id="5Gsh" style="border: solid 1px black;" >
@@ -793,626 +805,580 @@
 				</tbody>
 			</table>
 		</div>
-		<div>
-			<h2>&nbsp;&nbsp;○ LTE : DL 속도</h2>
-			<h2 id="target5"></h2>
-			<h2>Mbps, UL 속도</h2>
-			<h2 id="target6"></h2>
-			<h2>Mbps, 전송성공률</h2>
-			<h2>(:</h2>
-			<h2 id='target3'></h2>
-			<h2>%)</h2>
-		</div>
-		<br><div id="output1">
-			<table id="5Ghh">
-				<thead>
-					<tr>
-						<th rowspan="2" colspan="2">구분<br/>('20년 결과)</th>
-						<th colspan="2">전송속도(Mbps)</th>
-						<th rowspan="2">전송성공률<br/>(%)</th>
-						<th rowspan="2">지연시간<br/>(ms)</th>
-					</tr>
-					<tr>
-						<th>DL</th>
-						<th>UL</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td rowspan="4">행정동</td>
-						<td>대도시</td>
-					   {% for measlastyearLTE in measlastyearLTE %}
-						<td >{{measlastyearLTE.bctDL}}</td>
-						<td >{{measlastyearLTE.bctUL}}</td>
+	</br>
+	<div>
+		<h2>&nbsp;&nbsp;○ LTE : DL 속도</h2>
+		<h2 id="target5"></h2>
+		<h2>Mbps, UL 속도</h2>
+		<h2 id="target6"></h2>
+		<h2>Mbps, 전송성공률</h2>
+		<h2>(:</h2>
+		<h2 id='target3'></h2>
+		<h2>%)</h2>
+	</div>
+	<br><div id="output1">
+		<table id="5Ghh">
+			<thead>
+				<tr>
+					<th rowspan="2" colspan="2">구분<br/>('20년 결과)</th>
+					<th colspan="2">전송속도(Mbps)</th>
+					<th rowspan="2">전송성공률<br/>(%)</th>
+					<th rowspan="2">지연시간<br/>(ms)</th>
+				</tr>
+				<tr>
+					<th>DL</th>
+					<th>UL</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td rowspan="4">행정동</td>
+					<td>대도시</td>
+				   {% for measlastyearLTE in measlastyearLTE %}
+					<td >{{measlastyearLTE.bctDL}}</td>
+					<td >{{measlastyearLTE.bctUL}}</td>
+					
+					<td >{{measlastyearLTE.bctsucc}}</td>
+					<td >{{measlastyearLTE.bctdelay}}</td>
+				   {% endfor %}
+				</tr>
+				<tr>
+					<td>중소도시</td>
+						{% for measlastyearLTE in measlastyearLTE %}
+						 <td >{{measlastyearLTE.mctDL}}</td>
+						 <td >{{measlastyearLTE.mctUL}}</td>
 						
-						<td >{{measlastyearLTE.bctsucc}}</td>
-						<td >{{measlastyearLTE.bctdelay}}</td>
-					   {% endfor %}
-					</tr>
-					<tr>
-						<td>중소도시</td>
-							{% for measlastyearLTE in measlastyearLTE %}
-							 <td >{{measlastyearLTE.mctDL}}</td>
-							 <td >{{measlastyearLTE.mctUL}}</td>
-							
-							 <td >{{measlastyearLTE.mctsucc}}</td>
-							 <td >{{measlastyearLTE.mctdelay}}</td>
-							{% endfor %}
-					</tr>
-					<tr>
-						<td>농어촌</td>                           
-						{% for measlastyearLTE in measlastyearLTE %}   
-						<td >{{measlastyearLTE.sctDL}}</td>
-						<td >{{measlastyearLTE.sctUL}}</td>                        
-											  
-						<td >{{measlastyearLTE.sctsucc}}</td>                       
-						<td >{{measlastyearLTE.sctdelay}}</td>
+						 <td >{{measlastyearLTE.mctsucc}}</td>
+						 <td >{{measlastyearLTE.mctdelay}}</td>
 						{% endfor %}
-					</tr>
-					<tr>
-						<td>계</td>
-						{% for measlastyearLTE in measlastyearLTE %}   
-						<td >{{measlastyearLTE.totalctDL}}</td>
-						<td >{{measlastyearLTE.totalctUL}}</td>                        
-											 
-						<td >{{measlastyearLTE.totalctsucc}}</td>                       
-						<td >{{measlastyearLTE.totalctdelay}}</td>
-						{% endfor %}
-					</tr>
-					<tr>
-						<td colspan="2">인빌딩</td>
-						{% for measlastyearLTE in measlastyearLTE %}   
-						<td >{{measlastyearLTE.ibDL}}</td>
-						<td >{{measlastyearLTE.ibUL}}</td>                        
-											  
-						<td >{{measlastyearLTE.ibsucc}}</td>                       
-						<td >{{measlastyearLTE.ibdelay}}</td>
-						{% endfor %}
-					</tr>
-					<tr>
-						<td colspan="2">테마</td>
-						{% for measlastyearLTE in measlastyearLTE %}   
-						<td >{{measlastyearLTE.tmDL}}</td>
-						<td >{{measlastyearLTE.tmUL}}</td>                        
-											  
-						<td >{{measlastyearLTE.tmsucc}}</td>                       
-						<td >{{measlastyearLTE.tmdelay}}</td>
-						{% endfor %}
-					</tr>
-					<tr>
-						<td colspan="2">종합</td>
-						{% for measlastyearLTE in measlastyearLTE %}   
-						<td >{{measlastyearLTE.areatotalDL}}</td>
-						<td >{{measlastyearLTE.areatotalUL}}</td>                        
-											   
-						<td >{{measlastyearLTE.areatotalsucc}}</td>                       
-						<td >{{measlastyearLTE.areatotaldelay}}</td>
-						{% endfor %}
-					</tr>
-		  
-				</tbody>
-			</table>
-		</div>
-		<p style="font-size: 10pt;">※서비스 가용률:</p>
-		
+				</tr>
+				<tr>
+					<td>농어촌</td>                           
+					{% for measlastyearLTE in measlastyearLTE %}   
+					<td >{{measlastyearLTE.sctDL}}</td>
+					<td >{{measlastyearLTE.sctUL}}</td>                        
+										  
+					<td >{{measlastyearLTE.sctsucc}}</td>                       
+					<td >{{measlastyearLTE.sctdelay}}</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td>계</td>
+					{% for measlastyearLTE in measlastyearLTE %}   
+					<td >{{measlastyearLTE.totalctDL}}</td>
+					<td >{{measlastyearLTE.totalctUL}}</td>                        
+										 
+					<td >{{measlastyearLTE.totalctsucc}}</td>                       
+					<td >{{measlastyearLTE.totalctdelay}}</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td colspan="2">인빌딩</td>
+					{% for measlastyearLTE in measlastyearLTE %}   
+					<td >{{measlastyearLTE.ibDL}}</td>
+					<td >{{measlastyearLTE.ibUL}}</td>                        
+										  
+					<td >{{measlastyearLTE.ibsucc}}</td>                       
+					<td >{{measlastyearLTE.ibdelay}}</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td colspan="2">테마</td>
+					{% for measlastyearLTE in measlastyearLTE %}   
+					<td >{{measlastyearLTE.tmDL}}</td>
+					<td >{{measlastyearLTE.tmUL}}</td>                        
+										  
+					<td >{{measlastyearLTE.tmsucc}}</td>                       
+					<td >{{measlastyearLTE.tmdelay}}</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td colspan="2">종합</td>
+					{% for measlastyearLTE in measlastyearLTE %}   
+					<td >{{measlastyearLTE.areatotalDL}}</td>
+					<td >{{measlastyearLTE.areatotalUL}}</td>                        
+										   
+					<td >{{measlastyearLTE.areatotalsucc}}</td>                       
+					<td >{{measlastyearLTE.areatotaldelay}}</td>
+					{% endfor %}
+				</tr>
+	  
+			</tbody>
+		</table>
+	</div>
+	<p style="font-size: 10pt;">※서비스 가용률:</p>
 	
-	
+
+
+<br>
 	<br>
-		<br>
+
+	<div>
+		<h2>&nbsp;&nbsp;※ LTE 사후 측정(지하철 품질 포함):</h2>
+		<h2 style="color: blue;" id='result6'>
+				
+			{% for reportmsg in reportmsg %}
+			{{reportmsg.msgLTEafter}}
+			{% endfor %}
+		
+		</h2>
+	</br>	
+		<input style="display:inline"class="form-control" type="text" name="msgLTEafter" id="textmod6"></input>
+	</div>
+</form>
+	<br><div id="output1">
+		<table id="5Gsh" style="border: solid 1px black;" >
+			<thead>
+				<tr>
+					<th rowspan = "2">지역<br>(측정수)</th>
+					<th rowspan = "2">20년<br>결과</th>
+					<th colspan = "4">DL 속도(Mbps)</th>
+					<th colspan = "4">UL 속도(Mbps)</th>
+					
+				</tr>
+				<tr >
+					<th>KT<br>(본)</th>
+					<th>KT<br>(사후)</th>
+					<th>S사<br>(사후)</th>
+					<th>L사<br>(사후)</th>
+					
+					<th>KT<br>(본)</th>
+					<th>KT<br>(사후)</th>
+					<th>S사<br>(사후)</th>
+					<th>L사<br>(사후)</th>
+					
+					
+					
+					
+			</thead>
+			<tbody id="graph" >
+				<tr>
+					<td >종합</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					
+					
+				</tr>
+				<tr>
+					<td >서울</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+				
+				</tr>
+				<tr>
+					<td >인천</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+				
+					
+				</tr>
+				<tr>
+					<td >울산</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+				
+					
+				</tr>
+				<tr>
+					<td >대구</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+				
+					
+				</tr>
+				<tr>
+					<td >광주</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					
+					
+				</tr>
+				<tr>
+					<td >대전</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					
+				
+				</tr>
+				<tr>
+					<td >경기</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					
+					
+				</tr>
+				<tr>
+					<td >경북</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+				
+				
+				</tr>
+				<tr>
+					<td >전남</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+				
+					
+				</tr>
+				<tr>
+					<td >전북</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					
+					
+				</tr>
+				<tr>
+					<td >충남</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+				
+					
+				</tr>
+				<tr>
+					<td >충북</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					
+				
+				</tr>
+				<tr>
+					<td >세종</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					<td >0</td>
+					
+					
+				</tr>
+					
+			</tbody>
+		</table>
+	</div>
+</br>
+	<div>
+		<h2>&nbsp;&nbsp;○ WiFi</h2></br></br>
+		<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;종합</h2>
+	</div>
+
+	<div id="output1">
+		<table id="5Ghh">
+			<thead>
+				<tr>
+					<th rowspan="2">구분<br/>('20년 결과)</th>
+					<th colspan="3">DL(Mbps)</th>
+					<th colspan="3">UL(Mbps)</th>
+				</tr>
+				<tr>
+					<th>계</th>
+					<th>상용</th>
+					<th>개방</th>
+					<th>계</th>
+					<th>상용</th>
+					<th>개방</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>누적</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+				</tr>
+				
+	  
+			</tbody>
+		</table>
+	</div>
+</br>
+	<div>
+		
+		<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;센터별(지하철 제외)</h2>
+	</div>
+
+	<div id="output1">
+		<table id="5Ghh">
+			<thead>
+				<tr>
+					<th rowspan="2">구분</th>
+					<th colspan="2">서울강북</th>
+					<th colspan="2">강원</th>
+					<th colspan="2">경기북부</th>
+					<th colspan="2">서울강남</th>
+					<th colspan="2">경기남부</th>
+					<th colspan="2">경기서부</th>
+				</tr>
+				<tr>
+					
+					<th>상용</th>
+					<th>개방</th>
+					
+					<th>상용</th>
+					<th>개방</th>
+
+					<th>상용</th>
+					<th>개방</th>
+					<th>상용</th>
+					<th>개방</th>
+					
+					<th>상용</th>
+					<th>개방</th>
+
+					<th>상용</th>
+					<th>개방</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>DL</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+				</tr>
+				<tr>
+					<td>UL</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+				</tr>
+	  
+			</tbody>
+		</table>
+	</div>
+</br>
+	<div>
+		
+		<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;지역별(지하철 객차)</h2>
+	</div>
+
+	<div id="output1">
+		<table id="5Ghh">
+			<thead>
+				<tr>
+					<th rowspan>구분</th>
+					<th colspan>계</th>
+					<th colspan>수도권</th>
+					<th colspan>부산</th>
+					<th colspan>대구</th>
+					<th colspan>광주</th>
+					<th colspan>대전</th>
+				</tr>
+				
+			</thead>
+			<tbody>
+				<tr>
+					<td>DL</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+				
+				</tr>
+				<tr>
+					<td>UL</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					<td>0</td>
+					
+				</tr>
+	  
+			</tbody>
+		</table>
+	</div>
+
+
+		</div>
+		
+</div>	
 	
-		<div>
-			<h2>&nbsp;&nbsp;※ LTE 사후 측정(지하철 품질 포함):</h2>
-			<h2 style="color: blue;" id='result1'>
-					
-				{% for reportmsg in reportmsg %}
-				{{reportmsg.msgLTEafter}}
-				{% endfor %}
-			
-			</h2>
-			
-		</div>
-
-		<br><div id="output1">
-			<table id="5Gsh" style="border: solid 1px black;" >
-				<thead>
-					<tr>
-						<th rowspan = "2">지역<br>(측정수)</th>
-						<th rowspan = "2">20년<br>결과</th>
-						<th colspan = "4">DL 속도(Mbps)</th>
-						<th colspan = "4">UL 속도(Mbps)</th>
-						
-					</tr>
-					<tr >
-						<th>KT<br>(본)</th>
-						<th>KT<br>(사후)</th>
-						<th>S사<br>(사후)</th>
-						<th>L사<br>(사후)</th>
-						
-						<th>KT<br>(본)</th>
-						<th>KT<br>(사후)</th>
-						<th>S사<br>(사후)</th>
-						<th>L사<br>(사후)</th>
-						
-						
-						
-						
-				</thead>
-				<tbody id="graph" >
-					<tr>
-						<td >종합</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						
-						
-					</tr>
-					<tr>
-						<td >서울</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					
-					</tr>
-					<tr>
-						<td >인천</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					
-						
-					</tr>
-					<tr>
-						<td >울산</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					
-						
-					</tr>
-					<tr>
-						<td >대구</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					
-						
-					</tr>
-					<tr>
-						<td >광주</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						
-						
-					</tr>
-					<tr>
-						<td >대전</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						
-					
-					</tr>
-					<tr>
-						<td >경기</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						
-						
-					</tr>
-					<tr>
-						<td >경북</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					
-					
-					</tr>
-					<tr>
-						<td >전남</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					
-						
-					</tr>
-					<tr>
-						<td >전북</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						
-						
-					</tr>
-					<tr>
-						<td >충남</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-					
-						
-					</tr>
-					<tr>
-						<td >충북</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						
-					
-					</tr>
-					<tr>
-						<td >세종</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						<td >0</td>
-						
-						
-					</tr>
-						
-				</tbody>
-			</table>
-		</div>
-	</br>
-		<div>
-			<h2>&nbsp;&nbsp;○ WiFi</h2></br></br>
-			<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;종합</h2>
-		</div>
-	
-		<div id="output1">
-			<table id="5Ghh">
-				<thead>
-					<tr>
-						<th rowspan="2">구분<br/>('20년 결과)</th>
-						<th colspan="3">DL(Mbps)</th>
-						<th colspan="3">UL(Mbps)</th>
-					</tr>
-					<tr>
-						<th>계</th>
-						<th>상용</th>
-						<th>개방</th>
-						<th>계</th>
-						<th>상용</th>
-						<th>개방</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>누적</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-					</tr>
-					
-		  
-				</tbody>
-			</table>
-		</div>
-	</br>
-		<div>
-			
-			<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;센터별(지하철 제외)</h2>
-		</div>
-	
-		<div id="output1">
-			<table id="5Ghh">
-				<thead>
-					<tr>
-						<th rowspan="2">구분</th>
-						<th colspan="2">서울강북</th>
-						<th colspan="2">강원</th>
-						<th colspan="2">경기북부</th>
-						<th colspan="2">서울강남</th>
-						<th colspan="2">경기남부</th>
-						<th colspan="2">경기서부</th>
-					</tr>
-					<tr>
-						
-						<th>상용</th>
-						<th>개방</th>
-						
-						<th>상용</th>
-						<th>개방</th>
-	
-						<th>상용</th>
-						<th>개방</th>
-						<th>상용</th>
-						<th>개방</th>
-						
-						<th>상용</th>
-						<th>개방</th>
-	
-						<th>상용</th>
-						<th>개방</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>DL</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-					</tr>
-					<tr>
-						<td>UL</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-					</tr>
-		  
-				</tbody>
-			</table>
-		</div>
-	</br>
-		<div>
-			
-			<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;지역별(지하철 객차)</h2>
-		</div>
-	
-		<div id="output1">
-			<table id="5Ghh">
-				<thead>
-					<tr>
-						<th rowspan>구분</th>
-						<th colspan>계</th>
-						<th colspan>수도권</th>
-						<th colspan>부산</th>
-						<th colspan>대구</th>
-						<th colspan>광주</th>
-						<th colspan>대전</th>
-					</tr>
-					
-				</thead>
-				<tbody>
-					<tr>
-						<td>DL</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-					
-					</tr>
-					<tr>
-						<td>UL</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						
-					</tr>
-		  
-				</tbody>
-			</table>
-		</div>
-		</div>
-
-</div>
-<!-- 시험	 -->
-<script>
-// PDF 출력 버튼 이벤트
-$('#cmd').click(
-			function() {
-				var doc = new jsPDF();
-				var specialElementHandlers = {
-					'#editor' : function(element, renderer) {
-						return true;
-					}
-				};
-				html2canvas($('#content'), {
-
-					onrendered : function(canvas) {
-						var imgData = canvas.toDataURL('jpeg');
-						var imgWidth = 210; // 이미지 가로 길이(mm) A4 기준
-						var pageHeight = imgWidth * 1.414; // 출력 페이지 세로 길이 계산 A4 기준
-						var imgHeight = canvas.height * imgWidth / canvas.width;
-						var heightLeft = imgHeight;
-						var margin = 20; // 출력 페이지 여백설정
-						var position = 10;
-						var doc = new jsPDF("p", "mm");
-
-						doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-						heightLeft -= pageHeight;
-						// 한 페이지 이상일 경우 루프 돌면서 출력
-						while (heightLeft >= 0) {
-							position += heightLeft - imgHeight;
-							doc.addPage();
-							doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-							heightLeft -= pageHeight;
-						}
-						doc.save('test.pdf');
-
-					}
-				});
-			});
-
-
-</script>
-<!-- 시험 -->
-<script>
-
-function Export2Word(element, filename = ''){
-    var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
-    var postHtml = "</body></html>";
-    var html = preHtml+document.getElementById(element).innerHTML+postHtml;
-
-    var blob = new Blob(['\ufeff', html], {
-        type: 'application/msword'
-    });
-    
-    // Specify link url
-    var url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
-    
-    // Specify file name
-    filename = filename?filename+'.doc':'document.doc';
-    
-    // Create download link element
-    var downloadLink = document.createElement("a");
-
-    document.body.appendChild(downloadLink);
-    
-    if(navigator.msSaveOrOpenBlob ){
-        navigator.msSaveOrOpenBlob(blob, filename);
-    }else{
-        // Create a link to the file
-        downloadLink.href = url;
-        
-        // Setting the file name
-        downloadLink.download = filename;
-        
-        //triggering the function
-        downloadLink.click();
-    }
-    
-    document.body.removeChild(downloadLink);
-}
-// function Export2Doc(element,filename = ''){
-// 	var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:scemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML to doc</title></head><body>";
-// 	var postHtml = "</body></html>";
-// 	var html = preHtml+document.getElementById(element).innerHTML+postHtml;
-	
-// 	var blob = new Blob(['\ufeff',html],{
-// 		type: 'application/msword'
-// 	});
-// 	var url ='data:application/vnd.ms-word; charset=utf-8,'+encodeURIComponent(html)
-
-// 	filename = filename?filename+'.doc' : 'document.doc'
-
-// 	var downloadLink = document.createElement("a");
-
-// 	document.body.appendChild(downloadLink);
-
-// 	if(navigator.msSaveOrOpenBlob){
-// 		navigator.msSaveOrOpenBlob(blob, filename);
-// 	}else{
-// 		downloadLink.href = url;
-
-// 		downloadLink.download = filename;
-
-// 		downloadLink.click();
-
-// 	}
-
-// 	document.body.removeChild(downloadLink);
-// }
-
-
-</script>
 <!-- 자바스크립트 호출 -->
 <script defer src="https://code.jquery.com/jquery-3.4.1.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>        
 <script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>	
+<script>
 
+// 일일보고 수정
+function printName1() {
+	const textmod = document.getElementById('textmod1').value;
+	document.getElementById("result1").innerText = textmod;
+}
+function printName2() {
+	const textmod = document.getElementById('textmod2').value;
+	document.getElementById("result2").innerText = textmod;
+}
+function printName3() {
+	const textmod = document.getElementById('textmod3').value;
+	document.getElementById("result3").innerText = textmod;
+}
+function printName4() {
+	const textmod = document.getElementById('textmod4').value;
+	document.getElementById("result4").innerText = textmod;
+}
+function printName5() {
+	const textmod = document.getElementById('textmod5').value;
+	document.getElementById("result5").innerText = textmod;
+}
+function printName6() {
+	const textmod = document.getElementById('textmod6').value;
+	document.getElementById("result6").innerText = textmod;
+}
+</script>
+<script>
+// 수정 완료 이벤트
+$(document).ready(function() {
+	$("#textmod1").hide();
+	$("#textmod2").hide();
+	$("#textmod3").hide();
+	$("#textmod4").hide();
+	$("#textmod5").hide();
+	$("#textmod6").hide();
+
+	$('#modify').click(function() {
+
+		$("#textmod1").toggle();
+		$("#textmod2").toggle();
+		$("#textmod3").toggle();
+		$("#textmod4").toggle();
+		$("#textmod5").toggle();
+		$("#textmod6").toggle();
+	});
+	$('#complete').click(function() {
+
+		$("#textmod1").hide();
+		$("#textmod2").hide();
+		$("#textmod3").hide();
+		$("#textmod4").hide();
+		$("#textmod5").hide();
+		$("#textmod6").hide();
+
+	});
+
+});
+</script>
 
 </body>
 </html>

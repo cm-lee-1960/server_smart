@@ -1,5 +1,18 @@
 from django import forms
 from .models import MeasLastyear5G, MeasLastyearLTE
+from django.forms import ModelForm
+from .models import FileUpload
+
+
+# -------------------------------------------------------------------------------------------------
+# 파일 업로드 모델 폼
+# -------------------------------------------------------------------------------------------------
+#모델폼
+class FileUploadForm(ModelForm):
+    class Meta:
+        model = FileUpload
+        fields = ['date', 'title', 'reportfile']
+
 
 # -------------------------------------------------------------------------------------------------
 # 전년도 결과 등록 및 수정(5G) 하기 위한 폼
