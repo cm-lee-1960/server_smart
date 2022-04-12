@@ -89,6 +89,7 @@
             border-bottom-color: blue;
         }
 
+
     </style>
 
 {% endblock %}
@@ -338,20 +339,29 @@
 
             <div style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:300px; width:40%;">
 
-                <!-- Tabs navs -->
-                <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
-                <ul class="nav nav-tabs nav-pills" id="msgdtl" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
-                           role="tab"
-                           aria-controls="msgdtl-message" aria-selected="true">메시지 상세내용</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
-                           role="tab"
-                           aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
-                    </li>
-                </ul>
+                <!-- 출처: https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content -->
+                <div style="display:flex;justify-content:space-between;">
+                    <!-- Tabs navs -->
+                    <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
+                    <ul class="nav nav-tabs nav-pills" id="msgdtl" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
+                               role="tab"
+                               aria-controls="msgdtl-message" aria-selected="true">메시지 상세내용</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
+                               role="tab"
+                               aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
+                        </li>
+                    </ul>
+                    <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
+                        <i id="message-trash"
+                           class="fa fa-trash-o mt-2"
+                           style="font-size:24px;"
+                           v-on:click="clickClearMessage"></i></button>
+
+                </div>
                 <!-- Tabs navs End -->
 
                 <!-- Tabs content -->
@@ -431,6 +441,7 @@
         <!-- Measuringteam Modal End -->
 
     </div>
+
 
 {% endblock %}
 
@@ -835,6 +846,11 @@
                     console.log("send-received:", response);
                     // 단말그룹 리스트를 다시 조회한다.
                     await this.fetch_all_phoneGroup();
+                },
+                clickClearMessage() {
+                    this.message = {};
+                    this.recipient_text = null;
+
                 },
             },
         });
