@@ -55,8 +55,6 @@ def send_sms(message, receiver):
   execute_send_sms_nodejs = os.popen('node ./message/sms_broadcast.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast.js
 
   # 수신자 리스트를 적절한 형태로 변환한다.
-  if type(receiver) == str:  # 4.11 수정예정
-    receiver = receiver.replace(' ','').split(',')
   receivers = []
   for i in range(len(receiver)):
     seq_num = {'Seq' : i+1, 'Number' : receiver[i]}

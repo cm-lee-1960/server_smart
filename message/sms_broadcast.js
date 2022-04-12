@@ -53,11 +53,11 @@ app.post('/',function(req,res){
 
   // 리스닝 종료
   http.close();
-  process.exit();
+  // process.exit();
 });
 
 // 3000 포트로 Listen 시작
-http.listen(30000, function(){
+http.listen(3000, function(){
   console.log('listening for Xroshot post....');
 });
 
@@ -66,5 +66,5 @@ http.listen(30000, function(){
 setInterval(function() {
   http.close();
   console.log('server closed');
-  process.exit();
+  // process.exit();
 }, 10000);
