@@ -51,7 +51,7 @@ def send_sms(message, receiver):
     - receiver: 보낼 수신자(str) 리스트 (List) 
    .반환값:
     - Dict {status_code : 200, Body : 전송결과}'''
-  url = "http://localhost:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
+  url = "http://0.0.0.0:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
   execute_send_sms_nodejs = os.popen('node ./message/sms_broadcast.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast.js
 
   # 수신자 리스트를 적절한 형태로 변환한다.
