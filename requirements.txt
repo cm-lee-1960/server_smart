@@ -26,7 +26,7 @@ telethon==1.24.0
 #######################################################
 # npm install request
 # npm install mysql
-
+# npm install express
 
 #######################################################
 # MySQL 설정
