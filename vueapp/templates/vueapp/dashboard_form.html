@@ -540,6 +540,16 @@
                     return phoneGroupIdList.length
                 }
             },
+            watch: {
+                date() {
+                   // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
+                    this.fetch_all_phoneGroup(); // 단말그룹 리스트
+                    this.messageEventList = []; // 이벤트 메시지 리스트
+                    this.messageSmsList = []; // 문자 메시지 리스트
+                    this.messageTeleList = []; // 텔레그램 메시지 리스트
+                    this.message = {}; // 메시지 상세내역
+                },
+            },
             created: function () {
                 // 날짜타입의 측정일자를 스트링으로 변환한다(예: 20211101)
                 //this.date = Date.now();
@@ -552,6 +562,11 @@
                 // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
                 this.fetch_all_phoneGroup();
                 this.timer = setInterval(this.fetch_all_phoneGroup, 10000);
+                this.messageEventList = []; // 이벤트 메시지 리스트
+                this.messageSmsList = []; // 문자 메시지 리스트
+                this.messageTeleList = []; // 텔레그램 메시지 리스트
+                this.message = {}; // 메시지 상세내역
+
             },
             methods: {
                 /* -----------------------------------------------------------------------------------------------------
