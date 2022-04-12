@@ -108,7 +108,7 @@
                 <div class="card text-white bg-primary mx-4" style="width: 12rem; height: 70px">
                     <div class="card-header p-1" style="position:relative">오늘의 측정</div>
                     <div class="mt-1" style="height: 20px; position: absolute;">
-                        <input style="height: 20px; margin-left: 2px" type="date" class="form-control" name="date" id="date" value=>
+                        <input style="height: 20px; margin-left: 2px" type="date" class="form-control" name="date" id="date" onchange="changeDate(event)" value=>
                     </div>
                     <div class="card-body mt-0 pt-0" style="padding-bottom:5px">
                             <span style="font-size: 15px;">총 </span><span style="font-size: 20px;">3조</span>
@@ -125,7 +125,10 @@
     <div id = "main_body" class="w-100 fixed-table-container" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">    
         <div style = "display: flex; justify-content: space-between;">
             <h6> <b>금일 측정그룹</b> </h6>
-            <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="폰그룹 리셋" onclick="listdata_reset()">
+            <div>
+                <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="폰그룹 리셋" onclick="listdata_reset()">
+                <button style = "margin-bottom:10px;" type="button" class="btn btn-danger">일일마감</button>
+            </div>
         </div>
         <div class="fixed-table-body" style="text-align: center;">
             <table id="groupWindow" class='table table-hover' style = "display:block; table-layout:fixed">
@@ -146,13 +149,13 @@
                       <div style = "display: flex; justify-content: space-between;">
                         <ul class="nav nav-tabs">
                             <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#event" onclick='tabChange(this.attributes["value"].value)' value="event">이벤트</a>
+                                <a class="nav-link active" data-toggle="tab" href="#event" onclick='left_tabChange(this.attributes["value"].value)' value="event">이벤트</a>
                             </li>
                             <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#xroshot" onclick='tabChange(this.attributes["value"].value)' value="xroshot">문자</a>
+                                <a class="nav-link" data-toggle="tab" href="#xroshot" onclick='left_tabChange(this.attributes["value"].value)' value="xroshot">문자</a>
                             </li>
                             <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tele" onclick='tabChange(this.attributes["value"].value)' value="tele">텔레그램</a>
+                                <a class="nav-link" data-toggle="tab" href="#tele" onclick='left_tabChange(this.attributes["value"].value)' value="tele">텔레그램</a>
                             </li>
                         </ul>
                         <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="메세지 리셋" onclick="Messagedata_reset()">
@@ -205,34 +208,37 @@
                 </div>
             </div>
         </div>
-        <div id = "bottom_body_right" style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">    
-              <ul class="nav nav-tabs">
-                <li class="nav-item">
-                  <a class="nav-link active" data-toggle="tab" href="#qwe">메시지상세내용</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" data-toggle="tab" href="#asd">수신자리스트</a>
-                </li>
-              </ul>
-              <div class="tab-content">
-                <div class="tab-pane fade show active" id="qwe">
-                    <textarea class="form-control mb-2" id="message_contents" rows="6"></textarea>
-                    <div style="position:relative; display:block">
-                        <button type="button" class="btn btn-primary">전송</button>
-                        <button type="button" class="btn btn-primary">수정</button>
-                    </div>
-                    <div style="position:absolute; display:none">
-                        <button type="button" class="btn btn-primary">회수</button>
-                        <button type="button" class="btn btn-primary">재전송</button>
-                        <button type="button" class="btn btn-primary">수정</button>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="asd">
-                    <textarea class="form-control mb-1" id="recipient_list" rows="6" placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다."></textarea>
-                    <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile" @change="selectedFile"/>
-                </div>
+        <div id = "bottom_body_right" style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">     
+              <div style = "display: flex; justify-content: space-between;">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#mtext" onclick='right_tabChange(this.attributes["value"].value)' value="mtext">메시지상세내용</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#phonetext" onclick='right_tabChange(this.attributes["value"].value)' value="phonetext">수신자리스트</a>
+                    </li>
+                </ul>
+                <img id = "text_delete" style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" src="{% static "images/delete.png" %}" alt="메세지 삭제" onclick='document.querySelector("#message_contents").value=""'>
               </div>
-        </div>
+              <div class="tab-content">
+                    <div class="tab-pane fade show active" id="mtext">
+                        <textarea class="form-control mb-2" id="message_contents" rows="6"></textarea>
+                        <div id = "message_button_sms" style="position:relative; display:block">
+                            <button type="button" class="btn btn-primary">전송</button>
+                            <button type="button" class="btn btn-primary">수정</button>
+                        </div>
+                        <div id = "message_button_tele" style="position:absolute; display:none">
+                            <button type="button" class="btn btn-primary">회수</button>
+                            <button type="button" class="btn btn-primary">재전송</button>
+                            <button type="button" class="btn btn-primary">수정</button>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="phonetext">
+                        <textarea class="form-control mb-1" id="recipient_list" rows="6" placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다."></textarea>
+                        <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile" @change="selectedFile"/>
+                    </div>
+              </div>
+         </div>
     </div>
 </body>
 
@@ -314,11 +320,17 @@
                 interval_listdata();  
                 GV.timer_listdata = setInterval(function(){ 
                 interval_listdata(); 
-                }, 30000);          
+                }, 10000);          
     } 
     // messagedata ajax실행 인터벌이 바로 실행하게 한다.
     const startTimer_messagedata= function(tr_id, tab_value){
-        list_tr_id =  tr_id
+        if(list_tr_id == '' || list_tr_id == tr_id){  //현재 list_tr_id와 tr_id가 다른경우 다른것을 눌럿을 경우
+            list_tr_id = tr_id;
+        }else{
+            list_tr_id = tr_id;
+            Messagedata_reset();
+        }
+        //같은 경우 아래로 시작
         console.log("나는이거보고싶어!!!" + tab_value);
         if(!tab_value){
             tab_check = $('#bottom_body_left .nav-item .active').attr('value'); //현재 메세지 타입 표시 *전역변수
@@ -366,7 +378,7 @@
         message_list_check = 0; // 메세지 체크 글로벌
         
         if (list_tr_id !== ''){
-            const p_message_body = document.querySelector('#'+ tab_check +'_Detail_body');
+            const p_message_body = document.querySelector('#'+ tab_check +'_Detail_body'); //tab_check는 starttimer에잇다
             while (p_message_body.hasChildNodes()) {	// 부모노드가 자식이 있는지 여부를 알아낸다
                 p_message_body.removeChild(
                     p_message_body.firstChild
@@ -384,7 +396,10 @@
     }
 
     ///////////////////////////
-
+    function changeDate(e){
+        listdata_reset();
+    }
+    ///////////////////////////
     const interval_listdata = function(){
     toDayinfo = document.querySelector('input[type="date"]').value
     if(!GV.isPause_listdata){
@@ -459,7 +474,7 @@
     /////////////////////////////////////////////////////////////////////////
     //금일측정그룹 생성
     function startListData(ajax_data){
-        console.log("잘들어오나")
+        console.log("잘들어오나 리스트데이터")
         console.log(ajax_data)
         console.log(Object.keys(ajax_data).length)
         let measStatus // 초기화
@@ -553,6 +568,7 @@
             //async:false,
             success: function(ajax_data){
                 ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
+                console.log("리스트데이터")
                 console.log(ajax_data)
                 
                 startData_vues(ajax_data); //초기데이터 세팅
@@ -690,18 +706,18 @@
         if (ajax_data['data'] != 'nodata'){
             //for(let i = 0; i < Object.keys(ajax_data).length; i++){
             for(let i = 0; i < ajax_data['data'].length; i++){
-                measStatus += '<tr onclick="test(this)">';
+                measStatus += '<tr onclick="textshow(this)">';
                 measStatus += '<td>' + ajax_data['data'][i]['create_time'] + '</td>';
                 measStatus += '<td class="big_td">' + ajax_data['data'][i]['message'] + '</td>';
                 if(tab_check == 'event'){
-                    measStatus += '<td>' + ajax_data['data'][i]['phone_no_sht'] + '</td>';
+                    measStatus += '<td class="check_td_sms">' + ajax_data['data'][i]['phone_no_sht'] + '</td>';
                 }else if(tab_check == 'xroshot'){
-                    measStatus += '<td>' + ajax_data['data'][i]['status'] + '</td>';
+                    measStatus += '<td class="check_td_sms">' + ajax_data['data'][i]['status'] + '</td>';
                 }else{
                     if(ajax_data['data'][i]['isDel'] == 0){
-                        measStatus += '<td>미회수</td>';
+                        measStatus += '<td class="check_td_tele">미회수</td>';
                     }else{
-                        measStatus += '<td>회수</td>';
+                        measStatus += '<td class="check_td_tele">회수</td>';
                     }        
                 }
                 measStatus += '<td>' + ajax_data['data'][i]['sended_time'] + '</td>';
@@ -719,14 +735,29 @@
             }
         }
     }
-    //test
-    function test(aaa){
-        parent = aaa;
+
+    //test 메세지 넘기기
+    function textshow(tr_info){
+        parent = tr_info;  // 클릭한 메세지 tr정보
+    
+        text = parent.querySelector(".big_td").innerHTML;
+        message_contents = document.querySelector("#message_contents");
+        message_contents.innerHTML = text;
         console.log(parent)
+        tdcheck = parent.querySelector(".check_td_tele");
+        sms_button = document.querySelector("#message_button_sms");
+        tele_button = document.querySelector("#message_button_tele");
+        if(tdcheck){
+            sms_button.style.display = "none"
+            tele_button.style.display = "block"
+        }else{
+            sms_button.style.display = "block"
+            tele_button.style.display = "none"
+        }
     }
 
     //메세지 탭클릭
-    function tabChange(tab_value){
+    function left_tabChange(tab_value){
         Messagedata_reset(tab_value); //메세지 리셋 인터벌 시작
 
         //tab_check = tab.attributes('value'); //현재 메세지 타입 표시 this
@@ -750,5 +781,14 @@
         }
     }
 
+    function right_tabChange(tab_value){
+        delete_button = document.getElementById('text_delete');
+        console.log(delete_button)
+        if(tab_value == 'mtext'){
+            delete_button.setAttribute("onclick", 'document.querySelector("#message_contents").value=""');
+        }else{
+            delete_button.setAttribute("onclick", 'document.querySelector("#recipient_list").value=""');
+        }
+    }
 </script>
 {% endblock %}
