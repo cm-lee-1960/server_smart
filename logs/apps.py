@@ -32,6 +32,7 @@ from django.apps import AppConfig
 #
 #   db_logger.info('info message')
 #   db_logger.warning('warning message')
+#   db_logger.error('error message')
 #
 #   try:
 #       1/0
