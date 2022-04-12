@@ -87,7 +87,7 @@ def send_sms_queryset(queryset, receiver):
     if result_sms['status_code'] == 200:
       queryset.sended = True if result_sms['body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
       queryset.sendTime = datetime.strptime(result_sms['body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
-      
+      queryset.save()
       # 크로샷 전송 결과 개별 조회 수행 (정상 전송되었는지 확인)
       cnt = result_sms['body']['response']['Count']  # 전송 대상 수
       SendDay = result_sms['body']['response']['SubmitTime'][:8]  # 보낸날짜
@@ -119,13 +119,14 @@ def report_sms(JobIDs, SendDay):
   response = requests.post(url, data=json.dumps(data), headers=headers)
   cnt = len(JobIDs)
   # 반환할 Dict를 생성한다 : {수신자번호 : 결과}
-  result={'Count' : cnt}
+  result={'전체 건수' : cnt, '성공 건수' : 0, '실패 건수' : 0, '실패 상세' : {}}
   for i in range(cnt):
-    result[json.loads(response.text)['response']['JobIDs'][i]['ReceiveNumber']] = json.loads(response.text)['response']['JobIDs'][i]['Result']
+    if json.loads(response.text)['response']['JobIDs'][i]['Result'] == 0:
+      result['성공 건수'] += 1
+    else:  # 실패일 경우 수신자 번호 추가
+      result['실패 건수'] += 1
+      result['실패 상세'][json.loads(response.text)['response']['JobIDs'][i]['ReceiveNumber']] = json.loads(response.text)['response']['JobIDs'][i]['Result']
   return result
-
-
-
 
 
 # test용

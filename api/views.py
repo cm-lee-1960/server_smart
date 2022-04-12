@@ -231,19 +231,20 @@ def send_message(request):
             message = data['message'] # 메시지 내용
             channelId = data['channelId'] # 채널ID
             message_id = data['id'] # 메시지ID
+            message_queryset = Message.objects.get(id=message_id)
 
             # 1) 문자 메시지를 전송한다.
             if sendType == 'XMCS' or sendType == 'ALL':
-                from message.xmcs_msg import send_sms
-                result_sms = send_sms(message, receiver_list)
+                from message.xmcs_msg import send_sms_queryset
+                receiver_list = receiver_list.replace(' ','').replace('\n','').split(',')
+                result_sms = send_sms_queryset(message_queryset, receiver_list)
                 result = {'result': result_sms}
             # 2) 텔레그램 메시지를 재전송 한다.
             elif sendType == 'TELE':
                 bot = TelegramBot()
                 result = bot.send_message_bot(channelId, message)
-                qs = Message.objects.filter(id=message_id)
-                if qs.exists():
-                    message = qs[0]
+                if message_queryset.exists():
+                    message = message_queryset[0]
                     message.telemessageId = result['message_id'] # 텔레그램 메시지ID
                     message.sendTime = datetime.now() # 전송시간(보낸시간)
                     message.isDel = False # 메시지 회수여부
