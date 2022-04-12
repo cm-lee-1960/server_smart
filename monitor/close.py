@@ -393,7 +393,7 @@ def measuring_day_close(phoneGroup_list, measdate):
 
 
 # 재마감 함수
-def measuring_day_close_again(measdate):
+def measuring_day_reclose(measdate):
     """해당 날짜 재마감 함수 : 해당 날짜 측정마감 데이터 재생성
       - 파라미터
         . phoneGroup_list: active=True인 단말그룹(PhoneGroup) 리스트
@@ -431,7 +431,7 @@ def measuring_day_close_again(measdate):
 
         except Exception as e:
             print("재마감 데이터 계산, 저장:", str(e))
-            raise Exception("measuring_day_close_again/data_calculate : %s" % e)
+            raise Exception("measuring_day_reclose/data_calculate : %s" % e)
     
     # 모든 폰그룹들을 inactive 시킬까? - 검토 중
     # PhoneGroup.objects.filter(measdate=measdate).update(active=False)
