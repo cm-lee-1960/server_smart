@@ -93,14 +93,31 @@ def phonegroup_list(request, measdate):
                  })
             total_count += centerInfo[1]
 
+        # 측정조 건수에 대한 정보를 가저온다.
+        measuringTeam_count = 0
+        cursor.execute(
+            "SELECT COUNT(*) As measuringTeam_count " + \
+            "    FROM ( " + \
+        	"           SELECT measuringTeam AS count FROM smart.monitor_phonegroup " + \
+        	"               WHERE ispId = '45008' " + \
+        	"	                AND manage = True " + \
+        	f"	                AND measdate = '{measdate}' " + \
+        	"               GROUP BY measuringTeam " + \
+            "           ) AS measuringTeam "
+        )
+        if cursor.rowcount >= 0:
+            measuringTeam_count = cursor.fetchall()[0][0]
+
     except Exception as e:
         print("phonegroup_list():", str(e))
         raise Exception("phonegroup_list(): %s" % e)
 
     # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
-    data = {'total_count': total_count, # 측정 총건수
+    data = {'measuringTeam_count': measuringTeam_count, # 측정조건수
+            'total_count': total_count, # 측정 총건수
             'centerList': centerList, # 센터별 측정건수
-            'phoneGroupList': phoneGroupList} # 단말그룹 리스트
+            'phoneGroupList': phoneGroupList, # 단말그룹 리스트
+            }
 
     return JsonResponse(data=data, safe=False)
 

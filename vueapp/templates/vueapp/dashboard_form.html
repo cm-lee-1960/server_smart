@@ -104,9 +104,12 @@
                         <!-- 출저: https://getbootstrap.com/docs/4.0/components/card/#background-and-color -->
                         <div class="card-header p-0">오늘의 측정</div>
                         <div class="card-body mt-0 pt-0 pb-0">
-                            <span style="font-size: 16px;">총 </span><span style="font-size: 24px;">3</span>
-                            <span style="font-size: 16px;">조 / 측정 </span><span
-                                style="font-size: 24px;">[[total_count]]</span>
+                            <span style="font-size: 16px;">총 </span>
+                            <span style="font-size: 24px;" v-if="measuringTeam_count > 0">[[measuringTeam_count]]</span>
+                            <span style="font-size: 24px;" v-else="measuringTeam_count > 0">-</span>
+                            <span style="font-size: 16px;">조 / 측정 </span>
+                            <span style="font-size: 24px;" v-if="total_count > 0">[[total_count]]</span>
+                            <span style="font-size: 24px;" v-else="total_count > 0">-</span>
                             <div class="mt-1">
                                 <input style="height: 24px; width: 150px;" type="date" class="form-control"
                                        v-model="date">
@@ -452,6 +455,7 @@
             data() {
                 return {
                     date: "2021-11-01", // 측정일자
+                    measuringTeam_count: 0, // 측정조 건수
                     total_count: 0, // 총 측정건수
                     centerList: [], // 측정중인 센터수,
                     phoneGroupList: [], // 측정 단말그룹 리스트
@@ -507,9 +511,10 @@
                             }
                         });
                     });
-                    this.total_count = data['total_count'];
-                    this.centerList = data['centerList'];
-                    this.phoneGroupList = data['phoneGroupList'];
+                    this.measuringTeam_count = data['measuringTeam_count']; // 측정조 건수
+                    this.total_count = data['total_count']; // 전체 측정건수
+                    this.centerList = data['centerList']; // 센터별 측정현황
+                    this.phoneGroupList = data['phoneGroupList']; // 단말그룹 리스트
                     //this.checkedCount = 0;
                 },
                 /* -----------------------------------------------------------------------------------------------------
@@ -780,8 +785,9 @@
                         })
                     };
                     const response = await fetch("/api/phonegroup/update/", requestOptions);
-                    // 단말그룹 리스트를 다시 조회한다.
                     console.log("send-received:", response);
+                    // 단말그룹 리스트를 다시 조회한다.
+                    await this.fetch_all_phoneGroup();
                 },
             },
         });
