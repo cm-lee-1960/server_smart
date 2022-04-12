@@ -294,6 +294,7 @@ def measuring_day_close_view(request, measdate):
 
     # 1) 해당일자에 측정 이력이 없는 경우
     if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
+        pass
         # messages.add_message(request, messages.ERROR, '해당일자에 대한 측정중인 지역이 없습니다.')
     
     # 2) 해당일자에 측정마감이 기처리된 경우 -
@@ -301,6 +302,7 @@ def measuring_day_close_view(request, measdate):
     #    - 측정마감 메시지가 이미 생성되어 있는 경우(status='REPORT_ALL')
     elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
         Message.objects.filter(status='REPORT_ALL', measdate=date).count() is not 0:
+        pass
         # messages.add_message(request, messages.ERROR, '해당일자에 대한 측정마감이 이미 처리되었습니다.')
 
     # 3) 해당일자에 대한 측정마감을 처리한다.
@@ -327,6 +329,7 @@ def measuring_day_reclose_view(request, measdate):
 
     # 1) 해당일자에 측정 이력이 없는 경우
     if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
+        pass
         # messages.add_message(request, messages.ERROR, '해당일자에 대한 측정 이력이 없습니다.')
     
     # 2) 해당일자에 측정마감이 기처리된 경우에 재마감 실행
@@ -337,7 +340,7 @@ def measuring_day_reclose_view(request, measdate):
 
     # 3) 해당일자에 측정마감이 되지 않은 경우
     else:
-        phoneGroup_list = PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True, manage=True)  # 측정마감 대상 단말그룹
+        pass
         # messages.add_message(request, messages.ERROR, '해당일자에 아직 마감이 완료되지 않았습니다. 먼저 측정마감 처리해주세요.')
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
