@@ -122,6 +122,7 @@ def measuring_end(phoneGroup):
             if message_end.exists():
                 message_end.delete()  # 메시지는 생성될 때에만 전송되기때문에 이전 메시지는 삭제
                 message_end = Message.objects.create(
+                    phoneGroup=phoneGroup,
                     phone=None, # 측정단말
                     status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
                     measdate=phoneGroup.measdate, # 측정일자
@@ -137,6 +138,7 @@ def measuring_end(phoneGroup):
                 )
             else:
                 message_end = Message.objects.create(
+                    phoneGroup=phoneGroup,
                     phone=None, # 측정단말
                     status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
                     measdate=phoneGroup.measdate, # 측정일자
@@ -228,6 +230,7 @@ def measuring_end(phoneGroup):
                 if message_last_exists.exists():
                     message_last_exists.delete()  # 메시지는 생성될 때에만 전송되기때문에 이전 메시지는 삭제
                     message_last_exists = Message.objects.create(
+                        phoneGroup=phoneGroup,
                         phone=None, # 측정단말
                         status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
                         measdate=phoneGroup.measdate, # 측정일자
@@ -243,6 +246,7 @@ def measuring_end(phoneGroup):
                         )
                 else:
                     message_last_exists = Message.objects.create(
+                        phoneGroup=phoneGroup,
                         phone=None, # 측정단말
                         status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
                         measdate=phoneGroup.measdate, # 측정일자
@@ -327,6 +331,7 @@ def measuring_day_close(phoneGroup_list, measdate):
                 message_exists.update(downloadBandwidth=md.downloadBandwidth, uploadBandwidth=md.uploadBandwidth, message=message_report, updated_at=datetime.now(), sended=False)
             else:
                 Message.objects.create(
+                    phoneGroup=phoneGroup,
                     phone=None,
                     status='REPORT',  # REPORT : 일일보고용 메시지
                     measdate=measdate,
@@ -359,6 +364,7 @@ def measuring_day_close(phoneGroup_list, measdate):
                 message_all_exists.update(message=message_report_all)
             else:
                 Message.objects.create(
+                    phoneGroup=None,
                     phone=None,
                     status='REPORT_ALL',  # REPORT_ALL : 일일보고용 메시지 전체 수합
                     measdate=measdate,
