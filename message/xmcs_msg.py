@@ -39,7 +39,7 @@ def send_sms(message, receiver):
     if (message.isspace() == True) or not(len(receiver[0]) == len(receiver[-1]) == 11):  # 메시지가 공백이거나 or 수신자번호 11자리 아니면 오류
       print('Error: 메시지 또는 수신자 번호를 확인해주세요.')
     else:  # 보낼 Data 생성 후 nodejs로 post 전송한다
-      data = {'message': message, 'receiver': receivers}
+      data = {'type': 'send', 'message': message, 'receiver': receivers}
       headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
       response = requests.post(url, data=json.dumps(data), headers=headers)
       result = {'status_code' : response.status_code, 'body': json.loads(response.text)}
@@ -87,7 +87,7 @@ def report_sms(JobIDs, SendDay):
   .반환값: Dict {JobID : 전송결과} '''
   # nodejs에 전송할 data 생성 및 전송
   url = "http://127.0.0.1:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
-  data = {'JobIDs': JobIDs, 'SendDay': SendDay}
+  data = {'type':'report', 'JobIDs': JobIDs, 'SendDay': SendDay}
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
   response = requests.post(url, data=json.dumps(data), headers=headers)
   cnt = len(JobIDs)
