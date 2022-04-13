@@ -114,7 +114,7 @@ def phonegroup_list(request, measdate):
 
     except Exception as e:
         print("phonegroup_list():", str(e))
-        db_logger.error("phonegroup_list(): %s" % e)
+        # db_logger.error("phonegroup_list(): %s" % e)
         raise Exception("phonegroup_list(): %s" % e)
 
     # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
@@ -182,7 +182,7 @@ def message_list(request, phonegroup_id):
 
             except Exception as e:
                 print("message_list():", str(e))
-                db_logger.error("message_list(): %s" % e)
+                # db_logger.error("message_list(): %s" % e)
                 raise Exception("message_list(): %s" % e)
 
         return JsonResponse(data=data, safe=False)
@@ -211,7 +211,8 @@ def delete_message(request, message_id):
         except Exception as e:
             # 오류 코드 및 내용을 반환한다.
             print("delete_message():", str(e))
-            db_logger.error("delete_message(): %s" % e)
+            # db_logger.error("delete_message(): %s" % e
+            # db_logger.exception(e)
             raise Exception("delete_message(): %s" % e)
 
     return JsonResponse(data=data, safe=False)
@@ -254,7 +255,8 @@ def send_message(request):
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
         print("send_message():", str(e))
-        db_logger.error("send_message(): %s" % e)
+        # db_logger.error("send_message(): %s" % e)
+        # db_logger.exception(e)
         raise Exception("send_message(): %s" % e)
 
     # return JsonResponse(data=result, safe=False)
@@ -280,7 +282,7 @@ def update_phonegroup(request):
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
         print("update_phonegroup():", str(e))
-        db_logger.error("update_phonegroup(): %s" % e)
+        # db_logger.error("update_phonegroup(): %s" % e)
         raise Exception("update_phonegroup(): %s" % e)
 
     return HttpResponse(result)
