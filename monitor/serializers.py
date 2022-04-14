@@ -114,25 +114,6 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
         model = PhoneGroup
         fields = '__all__'
 
-class PhoneGroupSerializerOrder(IdModelSerializer, DynamicFieldsModelSerializer):
-    # class PhoneGroupSerializer(DynamicFieldsModelSerializer):
-    """단말그룹 직렬화 글래스 순서대로 출력"""
-    p_center = serializers.ReadOnlyField() # 센터 (@property decorator)
-    measuringTeam = serializers.CharField(max_length=100) # 금일 측정조 (@property decorator)
-    userInfo1 = serializers.CharField() # 금일 주소조 (@property decorator)
-    p_morpol = serializers.ReadOnlyField() # 모폴 (@property decorator)
-    networkId = serializers.CharField(max_length=100)
-    dl_count = serializers.IntegerField()
-    downloadBandwidth = serializers.FloatField()
-    ul_count = serializers.IntegerField()  # 업로드 콜수
-    uploadBandwidth = serializers.FloatField()
-    nr_percent = serializers.FloatField()  # LTE전환율
-    event_count = serializers.IntegerField()  # 이벤트발생건수
-    last_updated_dt = serializers.DateTimeField() # 최종 측정위치보고 시간 (@property decorator) (예: 12:05)
-    active = serializers.BooleanField()
-    class Meta:
-        model = PhoneGroup
-        fields = '__all__'
 
 ########################################################################################################################
 # 측정단말 직렬화 클래스

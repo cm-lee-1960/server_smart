@@ -111,54 +111,6 @@ class PhoneGroup(models.Model):
         # 단말그룹 정보를 업데이트 한다.
         self.save()
 
-    # # 다운로드(DL) 콜카운트를 하나 증가시킨다.
-    # def add_dl_count(self):
-    #     """DL 콜카운트를 증가시킨다."""
-    #     self.dl_count += 1
-    #     self.save()
-    #
-    # # 업로드(UL) 콜카운트를 하나 증가시킨다.
-    # def add_ul_count(self):
-    #     """UL 콜카운트를 증가시킨다."""
-    #     self.ul_count += 1
-    #     self.save()
-    #
-    # # 다운로드(DL) LTE전환 콜카운트를 하나 증가시킨다.
-    # def add_dl_nr_count(self):
-    #     """LTE전환 DL 콜카운트를 증가시킨다."""
-    #     self.dl_nr_count += 1
-    #     self.save()
-    #
-    # # 다운로드(UL) LTE전환 콜카운트를 하나 증가시킨다.
-    # def add_ul_nr_count(self):
-    #     """LTE전환 UL 콜카운트를 증가시킨다."""
-    #     self.ul_nr_count += 1
-    #     self.save()
-
-    # 측정조를 반환한다.
-    @property
-    def p_measuringTeam(self):
-        """측정조를 반환한다."""
-        return self.measuringTeam if self.measuringTeam is not None else ''
-
-    # 측정센터를 반환한다.
-    @property
-    def p_center(self):
-        """측정센터를 반환한다."""
-        return Center.objects.get(id=self.center_id).centerName if self.center_id is not None else ''
-    
-    # 측정모폴를 반환한다.
-    @property
-    def p_morpol(self):
-        """측정모폴을 반환한다."""
-        return Morphology.objects.get(id=self.morphology_id).morphology if self.morphology_id is not None else ''
-    
-    # 측정주소를 반환한다.
-    @property
-    def p_userInfo1(self):
-        """측정주소를 반환한다."""
-        return self.userInfo1 if self.userInfo1 is not None else ''
-
 
     # 최종 측정위치보고 시간을 반환한다.
     @property
