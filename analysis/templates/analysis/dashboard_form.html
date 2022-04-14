@@ -1,794 +1,910 @@
-{% extends "analysis/base.html" %}
-{% load static %}
-{% block contents %}
+<!--
+########################################################################################################################
+[ base.html 블럭구조 ]
+ * 처음부터 코드를 예쁘게 잘 작성하는 습관을 들이지 않으면 나 뿐만이 아니라 유지보수를 하는 주변 사람들까지 힘들게 한다 -패스트캠퍼스-
+ * 내가 작성한 코드도 조금 시간이 지나면 이해하기 힘든 코드가 될 수 있다.
+ *
+ * 무작정 타이핑만 치는 것만이 개발이 아닙니다.
+ * 탄탄한 이해와 설계 아래 탄탄한 애플리케이션이 갖춰집니다 -인프런 장고 강좌-
+ * 프레임워크를 쓴다는 것은 그 프레임워크가 제시하는 길을 명확히 이해하고, 존중하는 것에서 시작합니다.
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>일일보고 데이터 등록</title>
-
-
-<!-- 쿠키보안 -->
-<script>
-    document.cookie = "safeCookie1=foo;SameSite=Lax";
-    document.cookie = "safeCookie2=foo";
-    document.cookie = "crossCookie=bar;SameSite=None;Secure";
-</script>
-
-<!-- 모달 기본 라이브러리 -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
-<script defer src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-<script type="text/javascript" defer src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-<script type="text/javascript" defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-<!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>-->
-
-
-<!-- CSS,JS 호출 -->
-<!-- <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}"> -->
-<link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
-<script type="text/javascript" defer src="{% static "js/modal.js" %}"></script>
-<script type="text/javascript" defer src="{% static "js/jquery-3.4.1.min.js" %}"></script>
-
-<style>
-    .today_count{ color: red; }
-    p { margin:20px 0px; }
-    .area_exit{  width:30px; height:30px; }
-
-    {% comment %} #phoneGroupDetail_header{ width:2000px; display: flex; justify-content: space-between; }
-    #phoneGroupDetail_body{ width:2000px; display: flex; justify-content: space-between; height: 320px; overflow-y: auto; } {% endcomment %}
-    #main_body .table thead th{
-        width:125px;
-    }
-    #main_body .table tbody td{
-        width:125px;
-    }
-    #main_body .table tbody .big_td{
-        width:270px;
-    }
-    #main_body .table thead .big_th{
-        width:270px;
-    }
-
-    #bottom_body_left .table thead th{
-        width:150px;
-    }
-    #bottom_body_left .table tbody td{
-        overflow:hidden;
-        white-space:nowrap;
-        text-overflow:ellipsis;
-        width:150px;
-    }
-    #bottom_body_left .table thead .big_th{
-        width:500px;
-    }
-    #bottom_body_left .table tbody .big_td{
-        overflow:hidden;
-        white-space:nowrap;
-        text-overflow:ellipsis;
-        max-width:500px;
-    }
-    .table tbody::-webkit-scrollbar {
-    height:auto;
-    width:5px;
-    }
-    .table tbody::-webkit-scrollbar-track {
-    background-color: transparent;
-    }
-    .table tbody::-webkit-scrollbar-thumb {
-    border-radius: 3px; 
-    background-color: gray;
-    }
-    .table tbody::-webkit-scrollbar-button {
-    width: 0;
-    height: 0;
-    }
-    #toDayWindow .mt-1{
-        display:none;
-    }
-    #toDayWindow .card:hover .mt-1{
-        display:block;
-    }
-</style>
+    <meta charset="utf-8">
+    ....
+    ┌ ---------------------------┐
+    | block title                |
+    └--------------------------- ┘
+    <link rel="stylesheet" href="....">
+    ....
+    ┌ ---------------------------┐
+    | block extra-style          |
+    └--------------------------- ┘
 </head>
-
-<!--진자로 데이터 넘기기-->
-<body>    
-{% csrf_token %}
+<body style="..">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-primary fixed-top">
+    ....
+    </nav>
+    <div class="container">
+    ┌ ---------------------------┐
+    | block content              |
+    └--------------------------- ┘
+    </div>
+    ┌ ---------------------------┐
+    | block footer               |
+    └--------------------------- ┘
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    ....
+    ┌ ---------------------------┐
+    | block extra-script         |
+    └--------------------------- ┘
+</body>
+</html>
+########################################################################################################################
+-->
+{% extends "analysis/base.html" %}
 {% load static %}
-    
-    <!-- 상단 내용 -->
-    <div class="row">
-        <div class="col-10 px-2">
-            <div id = "toDayWindow" class="row text-center" style="margin-bottom: 10px;">
-                <div class="card text-white bg-primary mx-4" style="width: 12rem; height: 70px">
-                    <div class="card-header p-1" style="position:relative">오늘의 측정</div>
-                    <div class="mt-1" style="height: 20px; position: absolute;">
-                        <input style="height: 20px; margin-left: 2px" type="date" class="form-control" name="date" id="date" onchange="changeDate(event)" value=>
-                    </div>
-                    <div class="card-body mt-0 pt-0" style="padding-bottom:5px">
-                            <span style="font-size: 15px;">총 </span><span style="font-size: 20px;">3조</span>
-                            <span style="font-size: 15px;">/ 측정중 </span><span id = "measure_count_vues" style="font-size: 20px;"></span>
-                    </div>
-                </div>
-                <div id="area_cards">
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 중단 내용 -->
-    <div id = "main_body" class="w-100 fixed-table-container" style="margin-bottom:10px;border: 2px solid rgb(228, 223, 223); padding: 10px; height:435px">    
-        <div style = "display: flex; justify-content: space-between;">
-            <h6> <b>금일 측정그룹</b> </h6>
-            <div>
-                <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="폰그룹 리셋" onclick="listdata_reset()">
-                <button style = "margin-bottom:10px;" type="button" class="btn btn-danger">일일마감</button>
-            </div>
-        </div>
-        <div class="fixed-table-body" style="text-align: center;">
-            <table id="groupWindow" class='table table-hover' style = "display:block; table-layout:fixed">
-                <thead id = 'phoneGroupDetail_header' class="bg-light">
-                </thead>
-                <tbody id = 'phoneGroupDetail_body' class="table-hover" style="height:330px; overflow-y:auto; display:block">
-                </tbody>
-            </table> 
-        </div>
-    </div>
 
-    <!-- 하단 내용-->
-    <div style="display:flex">
-        <div id = "bottom_body_left"  style="margin-bottom:5px; margin-right:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:1100px;">    
-             <div>
-                <div class="row">
-                  <div class="col">
-                      <div style = "display: flex; justify-content: space-between;">
-                        <ul class="nav nav-tabs">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-toggle="tab" href="#event" onclick='left_tabChange(this.attributes["value"].value)' value="event">이벤트</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#xroshot" onclick='left_tabChange(this.attributes["value"].value)' value="xroshot">문자</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tele" onclick='left_tabChange(this.attributes["value"].value)' value="tele">텔레그램</a>
-                            </li>
-                        </ul>
-                        <img style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" id = "list_reset" src="{% static "images/restart.png" %}" alt="메세지 리셋" onclick="Messagedata_reset()">
-                      </div>
-                      <div class="tab-content" style = "height:220px; position:relative;">
-                            <div class="tab-pane fade show active fixed-table-body" id="event" style="text-align: center; position:absolute">
-                                <table id="eventWindow" class='table' style = "display:block">
-                                    <thead id = 'eventDetail_header'>
-                                        <th scope= "col">생성시간</th>
-                                        <th scope= "col" class="big_th">메세지</th>
-                                        <th scope= "col">측정단말</th>
-                                        <th scope= "col">전송시간</th>
-                                        <th scope= "col">전송여부</th>
-                                    </thead>
-                                    <tbody id = 'event_Detail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
-                                    <!--이벤트 메세지 Tr 구역-->
-                                    </tbody>
-                                </table> 
+{% block extra-style %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .counter {
+            background-color: #f5f5f5;
+            padding: 20px 0;
+            border-radius: 5px;
+        }
+
+        .fa-spin-hover:hover {
+            animation: fa-spin 2s infinite linear;
+        }
+
+        @-webkit-keyframes fa-spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg)
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+                transform: rotate(359deg)
+            }
+        }
+
+        @keyframes fa-spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg)
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+                transform: rotate(359deg)
+            }
+        }
+
+        .tooltip-primary ~ .tooltip > .tooltip-inner {
+            background-color: blue;
+        }
+
+        .tooltip-primary ~ .tooltip > .tooltip-arrow {
+            border-bottom-color: blue;
+        }
+
+
+    </style>
+
+{% endblock %}
+
+{% block contents %}
+    <div id="app">
+
+        <!-- 상단 내용 -->
+        <div class="row" style="height:10%;">
+            <div class="col-10 px-2">
+                <div class="row text-center">
+                    <div class="card text-white bg-primary mx-4" style="width: 12rem; height: 100px">
+                        <!-- 출저: https://getbootstrap.com/docs/4.0/components/card/#background-and-color -->
+                        <div class="card-header p-0">오늘의 측정</div>
+                        <div class="card-body mt-0 pt-0 pb-0">
+                            <span style="font-size: 16px;">총 </span>
+                            <span style="font-size: 24px;" v-if="measuringTeam_count > 0">[[measuringTeam_count]]</span>
+                            <span style="font-size: 24px;" v-else="measuringTeam_count > 0">-</span>
+                            <span style="font-size: 16px;">조 / 측정 </span>
+                            <span style="font-size: 24px;" v-if="total_count > 0">[[total_count]]</span>
+                            <span style="font-size: 24px;" v-else="total_count > 0">-</span>
+                            <div class="mt-1">
+                                <input style="height: 24px; width: 150px;" type="date" class="form-control"
+                                       v-model="date">
                             </div>
-                            <div class="tab-pane fade active fixed-table-body" id="xroshot" style="text-align: center; position:absolute">
-                                <table id="xroshotWindow" class='table' style = "display:none;">
-                                    <thead id = 'xroshotDetail_header'>
-                                        <th scope= "col">생성시간</th>
-                                        <th scope= "col" class="big_th">메세지</th>
-                                        <th scope= "col">유형</th>
-                                        <th scope= "col">전송시간</th>
-                                        <th scope= "col">전송여부</th>
-                                    </thead>
-                                    <tbody id = 'xroshot_Detail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
-                                    <!--크로샷 메세지 Tr 구역-->
-                                    </tbody>
-                                </table> 
-                            </div>
-                            <div class="tab-pane fade active fixed-table-body" id="tele" style="text-align: center; position:absolute">
-                                <table id="teleWindow" class='table' style = "display:none;">
-                                    <thead id = 'teleDetail_header'>
-                                        <th scope= "col">생성시간</th>
-                                        <th scope= "col" class="big_th">메세지</th>
-                                        <th scope= "col">회수여부</th>
-                                        <th scope= "col">전송시간</th>
-                                        <th scope= "col">전송여부</th>
-                                    </thead>
-                                    <tbody id = 'tele_Detail_body' class="table-hover" style="height:150px; overflow-y:auto; display:block">
-                                    <!--텔레 메세지 Tr 구역-->
-                                    </tbody>
-                                </table> 
-                            </div>
-                      </div>
-                   </div>
+                        </div>
+                    </div>
+                    <div v-for="(center, index) in centerList" class="card bg-light mb-1, mx-1"
+                         style="width: 10rem; height: 100px">
+                        <div class="card-header p-1" style="font-weight: bold;">[[center.centerName]]</div>
+                        <div class="card-body p-2">
+                            <h3 class="card-title p-0 m-0">[[center.count]]</h3>
+                            <p class="card-text p-0 m-0" style="font-size:14px;">(측정중 <span style="font-size: 16px;">[[center.measuring_count]]</span>
+                                / 종료 <span style="font-size: 16px;">[[center.end_count]])</span></p>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div class="col-2">
+                <button type="button" class="btn btn-secondary btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringEnd()">
+                    <h5>측정종료</h5>
+                </button>
+                <button type="button" class="btn btn-danger btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringClose()">
+                    <h5>측정마감</h5></button>
+            </div>
         </div>
-        <div id = "bottom_body_right" style="margin-bottom:5px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:270px; width:780px;">     
-              <div style = "display: flex; justify-content: space-between;">
-                <ul class="nav nav-tabs">
+
+        <!-- 금일 측정그룹 -->
+        <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
+             style="margin-bottom:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:50%">
+            <!-- <h6><b>금일 측정그룹</b></h6> -->
+            <div class="table-responsive text-nowrap">
+                <table id="phonegroup-table" class='table table-hover'>
+                    <thead id='phonegroup-header'>
+                    <tr class="bg-light d-flex">
+                        <th style="width: 5%" class="text-center">
+                            <input type="checkbox"
+                                   v-model="allChecked"
+                                   @click="checkedAll($event.target.checked)"
+                            >
+                        </th>
+                        <th style="width: 5%;">본부</th>
+                        <th style="width: 6%;">조</th>
+                        <th style="width: 16%;">측정지역</th>
+                        <th style="width: 7%;" class="text-center">모폴로지</th>
+                        <th style="width: 7%;" class="text-center">네트워크</th>
+                        <th style="width: 6%;" class="text-center">DL콜수</th>
+                        <th style="width: 6%;" class="text-center">DL속도</th>
+                        <th style="width: 6%;" class="text-center">UL콜수</th>
+                        <th style="width: 6%;" class="text-center">UL속도</th>
+                        <th style="width: 6%;" class="text-center">전환율</th>
+                        <th style="width: 6%;" class="text-center">이벤트</th>
+                        <th style="width: 7%;">측정시간</th>
+                        <th style="width: 7%;">상태</th>
+                        <th style="width: 8%;">종료
+                            <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
+                               style="font-size:24px; color:blue" v-on:click="fetch_all_phoneGroup"
+                               data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id='phonegroup-body' class="table-hover"
+                           style="height:300px; overflow-y:auto; display:block" class="d-flex">
+                    <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex"
+                        v-on:click="clickPhoneGroupList(phoneGroup)">
+                        <td style="width: 5%;" class="text-center">
+                            <input type="checkbox"
+                                   :id="'check_' + phoneGroup.id"
+                                   :value="phoneGroup.id"
+                                   v-model="phoneGroup.selected"
+                                   @change="selected($event)"
+                            >
+                        </td>
+                        <td style="width: 5%;">[[phoneGroup.centerName]]</td>
+                        <td style="width: 5%;" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
+                            data-toggle="tooltip" data-placement="top" class="tooltip-primary"
+                            title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
+                            [[phoneGroup.p_measuringTeam]]
+                        </td>
+                        <td style="width: 16%;">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
+                        <td style="width: 7%;" class="text-center">[[phoneGroup.morphologyName]]</td>
+                        <td style="width: 7%;" class="text-center">[[phoneGroup.networkId]]</td>
+                        <td style="width: 6%;" class="text-center">[[phoneGroup.dl_count]]</td>
+                        <td style="width: 6%;" class="text-center">[[phoneGroup.downloadBandwidth]]</td>
+                        <td style="width: 6%;" class="text-center">[[phoneGroup.ul_count]]</td>
+                        <td style="width: 6%;" class="text-center">[[phoneGroup.uploadBandwidth]]</td>
+                        <td style="width: 6%;" class="text-center">[[phoneGroup.nr_percent]]</td>
+                        <td style="width: 6%;" class="text-center">[[phoneGroup.event_count]]</td>
+                        <td style="width: 7%;">
+                            [[phoneGroup.last_updated_time]]([[phoneGroup.elapsed_time]])
+                        </td>
+                        <td style="width: 7%;" v-if="phoneGroup.active">측정 중</td>
+                        <td style="width: 7%;" v-else="phoneGroup.active">측정종료</td>
+                        <td style="width: 7%;" v-if="phoneGroup.active">
+                            <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료" width="20">
+                        </td>
+                        <td style="width: 7%;" v-else="phoneGroup.active">
+                            <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료" width="20">
+                        </td>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 메시지/문자/텔레그램 -->
+        <div class="fixed-table-container" style="display:flex">
+            <div id="bottom_body_left"
+                 style="border: 2px solid rgb(228, 223, 223); padding: 2px; height:40%; width:60%;">
+
+                <!-- Tabs navs -->
+                <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
+                <ul class="nav nav-tabs nav-pills" id="msg" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#mtext" onclick='right_tabChange(this.attributes["value"].value)' value="mtext">메시지상세내용</a>
+                        <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
+                           aria-controls="msg-event" aria-selected="true">이벤트</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#phonetext" onclick='right_tabChange(this.attributes["value"].value)' value="phonetext">수신자리스트</a>
+                        <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
+                           aria-controls="msg-sms" aria-selected="false">문자</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
+                           aria-controls="msg-tele" aria-selected="false">텔레그램</a>
                     </li>
                 </ul>
-                <img id = "text_delete" style = "width:30px; height:30px; margin-right:15px; margin-bottom:10px;" src="{% static "images/delete.png" %}" alt="메세지 삭제" onclick='document.querySelector("#message_contents").value=""'>
-              </div>
-              <div class="tab-content">
-                    <div class="tab-pane fade show active" id="mtext">
-                        <textarea class="form-control mb-2" id="message_contents" rows="6"></textarea>
-                        <div id = "message_button_sms" style="position:relative; display:block">
-                            <button type="button" class="btn btn-primary">전송</button>
-                            <button type="button" class="btn btn-primary">수정</button>
-                        </div>
-                        <div id = "message_button_tele" style="position:absolute; display:none">
-                            <button type="button" class="btn btn-primary">회수</button>
-                            <button type="button" class="btn btn-primary">재전송</button>
-                            <button type="button" class="btn btn-primary">수정</button>
-                        </div>
+                <!-- Tabs navs End -->
+
+                <!-- Tabs content -->
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="msg-event" role="tabpanel"
+                         aria-labelledby="msg-event-tab">
+
+                        <table id="event-table" class='table table-hover'>
+                            <thead id='event-header'>
+                            <tr class="bg-light d-flex">
+                                <th style="width: 11%;">생성시간</th>
+                                <th style="width: 11%;">측정단말</th>
+                                <th style="width: 45%;">메세지</th>
+                                <th style="width: 11%;">전송시간</th>
+                                <th style="width: 11%;">전송여부</th>
+                                <th style="width: 11%;">회수여부</th>
+                            </tr>
+                            </thead>
+                            <tbody id='event-body' class="table-hover"
+                                   style="height:180px; overflow-y:auto; display:block">
+                            <tr v-for="message in messageEventList" class="d-flex"
+                                v-on:click="clickMessageList(message)">
+                                <td style="width: 11%;">[[ message.create_time ]]</td>
+                                <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                <td style="width: 45%;">[[ message.message | truncate(65,'...')]]</td>
+                                <td style="width: 11%;">[[ message.sended_time ]]</td>
+                                <td style="width: 11%;" v-if="message.sended">전송</td>
+                                <td style="width: 11%;" v-else="message.sended">미전송</td>
+                                <td style="width: 11%;" v-if="message.isDel">회수</td>
+                                <td style="width: 11%;" v-else="message.idDel">-</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
                     </div>
-                    <div class="tab-pane fade" id="phonetext">
-                        <textarea class="form-control mb-1" id="recipient_list" rows="6" placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다."></textarea>
-                        <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile" @change="selectedFile"/>
+
+                    <div class="tab-pane fade" id="msg-sms" role="tabpanel" aria-labelledby="msg-sms-tab">
+
+                        <table id="xroshot-table" class='table table-hover'>
+                            <thead id='xroshot-header'>
+                            <tr class="bg-light d-flex">
+                                <th style="width: 12%;">생성시간</th>
+                                <th style="width: 12%;">측정단말</th>
+                                <th style="width: 52%;">메세지</th>
+                                <th style="width: 12%;">전송시간</th>
+                                <th style="width: 12%;">전송여부</th>
+                            </tr>
+                            </thead>
+                            <tbody id='xroshotDetail_body' class="table-hover"
+                                   style="height:180px; overflow-y:auto; display:block">
+                            <tr v-for="message in messageSmsList" class="d-flex"
+                                v-on:click="clickMessageList(message)">
+                                <td style="width: 12%;">[[ message.create_time ]]</td>
+                                <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                <td style="width: 12%;" v-else="message.phone_no_sht">-</td>
+                                <td style="width: 52%;">[[ message.message | truncate(80,'...')]]</td>
+                                <td style="width: 12%;">[[ message.sended_time ]]</td>
+                                <td style="width: 12%;" v-if="message.sended">전송</td>
+                                <td style="width: 12%;" v-else="message.sended">미전송</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
                     </div>
-              </div>
-         </div>
+                    <div class="tab-pane fade" id="msg-tele" role="tabpanel" aria-labelledby="msg-tele-tab">
+
+                        <table id="tele-table" class='table table-hover'>
+                            <thead id='tele-header'>
+                            <tr class="bg-light d-flex">
+                                <th style="width: 11%;">생성시간</th>
+                                <th style="width: 11%;">측정단말</th>
+                                <th style="width: 45%;">메세지</th>
+                                <th style="width: 11%;">전송시간</th>
+                                <th style="width: 11%;">전송여부</th>
+                                <th style="width: 11%;">회수여부</th>
+                            </tr>
+                            </thead>
+                            <tbody id='teleDetail_body' class="table-hover"
+                                   style="height:180px; overflow-y:auto; display:block">
+                            <tr v-for="message in messageTeleList" class="d-flex"
+                                v-on:click="clickMessageList(message)">
+                                <td style="width: 11%;">[[ message.create_time ]]</td>
+                                <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                <td style="width: 45%;">[[ message.message | truncate(65,'...')]]</td>
+                                <td style="width: 11%;">[[ message.sended_time ]]</td>
+                                <td style="width: 11%;" v-if="message.sended">전송</td>
+                                <td style="width: 11%;" v-else="message.sended">미전송</td>
+                                <td style="width: 11%;" v-if="message.isDel">회수</td>
+                                <td style="width: 11%;" v-else="message.idDel">-</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Tabs content End -->
+
+            </div>
+            <!-- /.container -->
+
+
+            <div style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:300px; width:40%;">
+
+                <!-- 출처: https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content -->
+                <div style="display:flex;justify-content:space-between;">
+                    <!-- Tabs navs -->
+                    <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
+                    <ul class="nav nav-tabs nav-pills" id="msgdtl" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
+                               role="tab"
+                               aria-controls="msgdtl-message" aria-selected="true">메시지 상세내용</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
+                               role="tab"
+                               aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
+                        </li>
+                    </ul>
+                    <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
+                        <i id="message-trash"
+                           class="fa fa-trash-o mt-2"
+                           style="font-size:24px;"
+                           v-on:click="clickClearMessage"></i></button>
+
+                </div>
+                <!-- Tabs navs End -->
+
+                <!-- Tabs content -->
+                <div class="tab-content text-center" id="myTabContent">
+                    <div class="tab-pane fade show active mt-1" id="msgdtl-message" role="tabpanel"
+                         aria-labelledby="msgdtl-message-tab">
+                         <textarea class="form-control mb-2" id="message_contents"
+                                   rows="6">[[message.message]]</textarea>
+                        <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
+                        <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage">회수</button>
+                    </div>
+                    <div class="tab-pane fade mt-1" id="msgdtl-recipient" role="tabpanel"
+                         aria-labelledby="msgdtl-recipient-tab">
+                             <textarea class="form-control mb-1" id="recipient_list"
+                                       rows="6" v-model="recipient_text"
+                                       placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다."></textarea>
+                        <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
+                               @change="selectedFile"/>
+                    </div>
+                </div>
+                <!-- Tabs content End-->
+
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+             aria-hidden="true"
+             id="mi-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">확인</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="modal_body"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="modal-btn-confirm"
+                                v-if="isModelConfirmDisabled" v-on:click="clickModalBtnConfirm">측정종료
+                        </button>
+                        <button type="button" class="btn btn-default" id="modal-btn-cancel"
+                                v-on:click="clickModalBtnCancel">닫기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal End-->
+
+
+        <!-- Measuringteam Modal -->
+        <div class="modal fade" id="measuringTeamModal" tabindex="-1" role="dialog"
+             aria-labelledby="measuringTeamModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="measuringTeamModalLabel">측정조 변경</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        [[selectedPhoneGroup.userInfo1]]
+                        <p class="mt-1"><label for="measuringTeam" class="m-lg-1">측정 조</label>
+                            <input type="text" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" v-on:click="clickModalTeamConfirm">저장</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Measuringteam Modal End -->
+
     </div>
-</body>
 
-<!--스크립트 구문 -->
-<script>
-    //전역변수 구간
-    var group_list_check = 0 // 그룹개수 체크 글로벌
-    var group_list_len = 0 // 그룹개수 글로벌
-    var message_list_check = 0 // 메세지개수 체크 글로벌
-    var message_list_len = 0 // 메세지개수 글로벌
-    var tab_check // 메세지 현재 type체크
-    var list_tr_id = '' //그룹 아이디 메세지 검색에 활용 
 
-</script>
-<script>
-    //현재 날짜 확인
-    let today = new Date();
-    let year = today.getFullYear();
-    let month = ('0' + (today.getMonth() + 1)).slice(-2);
-    let day = ('0' + today.getDate()).slice(-2);
-    let dateString = year + '-' + month  + '-' + day;
-    console.log(dateString)
-    //document.getElementById("toDay").innerHTML = dateString;
-    //현재날짜 이거 다시 넣어야된다.
-    
-    //////////////////////////////
-    //var toDayinfo = "" // 금일 날짜 변수 글로벌
-    $('input[type="date"]').attr('value', dateString);
-    var toDayinfo = ''// 금일 날짜 변수 글로벌
-    console.log(toDayinfo);
+{% endblock %}
 
-    /////////////////////////////
-    //초기 금일 측정 그룹 TH 셋팅
-    let phSetting = ['본부','조','측정지역','모폴로지','네트워크','DL콜수','DL속도','UL콜수','UL속도','전환율','이벤트','측정시간','상태','종료'];
-    thappend = ""
-    $(document).ready(
-        function PhoneGroupSetting(){ 
-            for(let phSetting_name of phSetting){
-                if(phSetting_name == "측정지역"){
-                    thappend += '<th scope= "' + 'col" class="big_th">'
-                    thappend += phSetting_name
-                    thappend += "</th>"
+{% block extra-script %}
+    {% csrf_token %}
+    <script src="https://unpkg.com/vue@2.4.2"></script>
+
+    <script>
+        /* =============================================================================================================
+         * 측정현황을 주기적으로 갱신하기 위한 모듈(Vue.js)
+         *
+         * 홈(데시보드) - dashboard_form.html
+         * ┌-----------------------------------------┐
+         * | [ 1.HTML Conntents ]                    |              *date: 측정일자
+         * | ┌------------┐ ┌------------┐           |              *measuringTeam_count: 측정조 건수
+         * | |오늘의 측정 | |센터별 현황 |.... <-----╂------------┐ *total_count: 총 측정건수
+         * | |            | |            |           |            | *centerList: 센터별 측정현황
+         * | └------------┘ └------------┘           |            |
+         * | ┌-------------------------------------┐ |            |
+         * | | 단말그룹 현황                       |<╂------------┨ *phoneGroupList: 단말그룹 리스트
+         * | |                                     | |            |
+         * | └-------------------------------------┘ |            |
+         * | ┌-----------------┐ ┌-----------------┐ |            |
+         * | |이벤트/문자/텔레 | |메시지 상세내용  |<╂------------┨ *messageEventList: 이벤트 리스트
+         * | |                 | |                 | |            | *messageSmsList: 문자 리스트
+         * | └-----------------┘ └-----------------┘ |            | *messageTeleList: 텔레그램 리스트
+         * | --------------------------------------- |            | *message: 메시지 상세내역
+         * | [ 2.Vue.js Code ]                       |            |
+         * | ┌------------------------------┐        |            |
+         * | | data:                        |        |            |
+         * | | * date                       |        |            |
+         * | | * measuringTeam_count        |        |            |
+         * | | * total_count                |        |            |
+         * | | * centerList                 |        |            |
+         * | | * phoneGroupList             |--------╂------------┘
+         * | | * messageEventList           |        |
+         * | | * messageSmsList             |<-------╂------------┐ *data change & update
+         * | | * messageTeleList            |        |            |
+         * | | * message                    |        |            |
+         * | | * timer                      |        |            |
+         * | | * allChecked                 |        |            |
+         * | | * isModelConfirmDisabled     |        |            |
+         * | | * recipient_text             |        |            |
+         * | | * selectedPhoneGroup         |        |            |
+         * | |                              |        |            |
+         * | └------------------------------┘        |            |
+         * | - created: 화면조회시 한번 수행         |            |
+         * | - method:                               |            |
+         * |   * fetch_all_phoneGroup()              |            |
+         * |   * fetch_all_message()                 |            |
+         * |   * measuring_end()        -------------╂------------┘
+         * |   * measuring_day_close()               |
+         * |   * sendMessage()                       |
+         * |   * deleteMessage()                     |
+         * |   * clickXXXXXXX()                      |
+         * |   .....                                 |
+         * └-----------------------------------------┘
+         * -------------------------------------------------------------------------------------------------------------
+         * 2022.04.05 - 선택된 단말그룹 내역 건수를 계산하는 함수를 computed 속성으로 변환함
+         * 2022.04.09 - 텔레그램 및 문자 메시지 전송 기능 구현
+         *            - 문자 메시지 조회시 측정단말 및 단말그룹이 없는 경우 해당 측정일자에 생성된 건이 조회 추가
+         *              (전송유형: ALL)
+         * 2022.04.12 - 화면처리 흐름도 및 주석 추가
+         =============================================================================================================*/
+        const vm = new Vue({
+            delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
+            el: '#app',
+            data() {
+                return {
+                    date: "2021-11-01", // 측정일자
+                    measuringTeam_count: 0, // 측정조 건수
+                    total_count: 0, // 총 측정건수
+                    centerList: [], // 측정중인 센터수,
+                    phoneGroupList: [], // 측정 단말그룹 리스트
+                    messageEventList: [], // 이벤트 메시지 리스트
+                    messageSmsList: [], // 문자 메시지 리스트
+                    messageTeleList: [], // 텔레그램 메시지 리스트
+                    message: {}, // 메시지 상세내역
+                    timer: null, // 타이머
+                    allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
+                    //checkedCount: 0,
+                    isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
+                    recipient_text: null, // 수신자 리스트
+                    selectedPhoneGroup: {},
                 }
-                else{
-                    thappend += '<th scope= "' + 'col">'
-                    thappend += phSetting_name
-                    thappend += "</th>"
-                }
-                //document.querySelector('#' + meas_area_name_split_2[1] + '_count').innerHTML = meas_area_count
-            }
-            $('#phoneGroupDetail_header').append(thappend);
-        }
-    );
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    //setinterval 관련 부분
-    const GV = {
-                isPause_startdata: false, 
-                timer_startdata: null, 
-                isPause_listdata: false, 
-                timer_listdata: null,
-                isPause_messagedata: false, 
-                timer_messagedata: null,  
-            } 
-    // setinter isPauser true false로 false일때만 인터벌이 돌게끔 한다 인터벌이 큐에 쌓이는걸방지
-    
-    const startTimer_startdata = function(){ 
-                GV.isPause_startdata = false;
-                interval_startdata();  
-                GV.timer_startdata = setInterval(function(){ 
-                interval_startdata(); 
-                }, 13000);          
-    } 
-
-    // listdata ajax실행 인터벌이 바로 실행하게 한다.
-    const startTimer_listdata = function(){ 
-                GV.isPause_listdata = false;
-                interval_listdata();  
-                GV.timer_listdata = setInterval(function(){ 
-                interval_listdata(); 
-                }, 10000);          
-    } 
-    // messagedata ajax실행 인터벌이 바로 실행하게 한다.
-    const startTimer_messagedata= function(tr_id, tab_value){
-        if(list_tr_id == '' || list_tr_id == tr_id){  //현재 list_tr_id와 tr_id가 다른경우 다른것을 눌럿을 경우
-            list_tr_id = tr_id;
-        }else{
-            list_tr_id = tr_id;
-            Messagedata_reset();
-        }
-        //같은 경우 아래로 시작
-        console.log("나는이거보고싶어!!!" + tab_value);
-        if(!tab_value){
-            tab_check = $('#bottom_body_left .nav-item .active').attr('value'); //현재 메세지 타입 표시 *전역변수
-        }else{
-            tab_check = tab_value;
-        }
-        GV.isPause_messagedata = false;
-        interval_messagedata(list_tr_id, tab_check);  
-        GV.timer_messagedata = setInterval(function(){ 
-            interval_messagedata(list_tr_id, tab_check); 
-        }, 30000);          
-    }
-    
-    // interval종료
-    const stopTimer = function(){ 
-        clearInterval(GV.timer_listdata);
-        clearInterval(GV.timer_startdata); 
-        clearInterval(GV.timer_messagedata);  
-        GV.isPause_listdata = true;
-        GV.isPause_startdata = true;
-        GV.isPause_messagedata = true;
-        group_list_check = 0 // 그룹개수 체크 글로벌 
-    }    
-    
-    ////////////////////////////
-    //reset
-    function listdata_reset(){
-        clearInterval(GV.timer_listdata);
-        GV.isPause_listdata = true;
-        group_list_check = 0; // 리스트 체크 글로벌
-        //if(toDayinfo !== document.querySelector('input[type="date"]').value){//날짜 다르면 지운다
-
-        const p_group_body = document.querySelector("#phoneGroupDetail_body");
-        while (p_group_body.hasChildNodes()) {	// 부모노드가 자식이 있는지 여부를 알아낸다
-            p_group_body.removeChild(
-                p_group_body.firstChild
-            );
-        }
-        startTimer_listdata(); // 재시작
-    }
-
-    function Messagedata_reset(tab_value){
-        clearInterval(GV.timer_messagedata);
-        GV.isPause_messagedata = true;
-        message_list_check = 0; // 메세지 체크 글로벌
-        
-        if (list_tr_id !== ''){
-            const p_message_body = document.querySelector('#'+ tab_check +'_Detail_body'); //tab_check는 starttimer에잇다
-            while (p_message_body.hasChildNodes()) {	// 부모노드가 자식이 있는지 여부를 알아낸다
-                p_message_body.removeChild(
-                    p_message_body.firstChild
-                );
-            }
-        }else{
-            alert("폰그룹을 선택해주세요");
-        }
-        if(!tab_value){
-            tab_value = $('#bottom_body_left .nav-item .active').attr('value'); //현재 메세지 타입 표시 *전역변수
-            startTimer_messagedata(list_tr_id, tab_value); // 재시작
-        }else{
-            startTimer_messagedata(list_tr_id, tab_value); // 재시작
-        }
-    }
-
-    ///////////////////////////
-    function changeDate(e){
-        listdata_reset();
-    }
-    ///////////////////////////
-    const interval_listdata = function(){
-    toDayinfo = document.querySelector('input[type="date"]').value
-    if(!GV.isPause_listdata){
-    //function interval_listdata(){
-            $.ajaxSetup({
-                headers: { "X-CSRFToken": '{{csrf_token}}'}
-            });
-
-            $.ajax({
-                type:'POST',
-                url: "{% url 'analysis:listview_phoneGroupData' %}",
-                dataType : 'text',
-                data : {'date' : toDayinfo},
-                //async: false,
-                cache: false,
-                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-                success: function(ajax_data){
-                    //$('#phoneGroupDetail_body').replaceWith($('#phoneGroupDetail_body',data));
-                    console.log("불러오기성공")
-                    ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
-                    console.log(ajax_data)
-                    console.log("리스트체크")
-                    console.log(group_list_check)
-                    console.log("그룹 개수체크")
-                    console.log(group_list_len)
-
-                    if(ajax_data['data'] !== 'nodata'){
-                        if(group_list_check == 0){
-                            console.log("처음은 여기")
-                            group_list_len = ajax_data['data'].length;
-                            console.log(group_list_check)
-                            startListData(ajax_data);
-                            group_list_check = 1;
-                        }else{
-                            console.log("나중은 여기")
-                            ajax_data2 = {}
-                            ajax_data_arr = []
-                            //$('phoneGroupDetail_body').remove();
-                            //$('#phoneGroupDetail_body').append(measStatus);
-                            change_check = ajax_data['data'].length - group_list_len //변화체 7 - 5 = 2
-                            group_list_len = ajax_data['data'].length;
-                            //if(group_list_len !== ajax_data['data'].length){
-                            
-                            if(change_check !== 0){
-                                //새로운 데이터가 들어올때만 행 추가
-                                //0123456 01234
-                                for(let i=0; i < change_check ; i++){
-                                    ajax_data2[i] = ajax_data['data'][ajax_data['data'].length-(change_check-i)]
-                                    ajax_data_arr[i] = ajax_data2[i];
-                                }
-                                ajax_data['data'] = ajax_data_arr 
-                                console.log(ajax_data)
-
-                                ////////////////////////////
-                                startListData(ajax_data);
-                            }
-                            listDataCount(ajax_data);
+            },
+            computed: {
+                checkedCount: function () {
+                    let phoneGroupIdList = [];
+                    for (let i in this.phoneGroupList) {
+                        if (this.phoneGroupList[i].selected) {
+                            phoneGroupIdList.push(this.phoneGroupList[i].id);
                         }
                     }
-                    //1일 때는 웹페이지를 불러올때 , 0일때는 다음 시그널 
-                    //0일때 이전 Ajax 키값 숫자랑 비교해서 다를때만 추가되라 
+                    return phoneGroupIdList.length
+                }
+            },
+            watch: {
+                date() {
+                   // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
+                    this.fetch_all_phoneGroup(); // 단말그룹 리스트
+                    this.messageEventList = []; // 이벤트 메시지 리스트
+                    this.messageSmsList = []; // 문자 메시지 리스트
+                    this.messageTeleList = []; // 텔레그램 메시지 리스트
+                    this.message = {}; // 메시지 상세내역
                 },
-                error: function(error){
-                    console.log("불러오기 실패")
-                    console.log(error)
+            },
+            created: function () {
+                // 날짜타입의 측정일자를 스트링으로 변환한다(예: 20211101)
+                //this.date = Date.now();
+                const date = new Date("2021-11-01");
+                const year = date.getFullYear();
+                const month = ("0" + (1 + date.getMonth())).slice(-2);
+                const day = ("0" + date.getDate()).slice(-2);
+                this.date = year + "-" + month + "-" + day;
 
-                }
-            });
-            //group_list_check = 1;
-        }
-    }
-    /////////////////////////////////////////////////////////////////////////
-    //금일측정그룹 생성
-    function startListData(ajax_data){
-        console.log("잘들어오나 리스트데이터")
-        console.log(ajax_data)
-        console.log(Object.keys(ajax_data).length)
-        let measStatus // 초기화
-        
-        if (ajax_data['data'] != 'nodata'){
-            //for(let i = 0; i < Object.keys(ajax_data).length; i++){
-            for(let i = 0; i < ajax_data['data'].length; i++){
-                measStatus += '<tr id = "' + ajax_data['data'][i]['id'] + '" onclick=startTimer_messagedata(this.attributes["id"].value);>';
-                for(var listdata_name of Object.keys(ajax_data['data'][i])){ 
-                    if(listdata_name !== 'id'){
+                // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
+                this.fetch_all_phoneGroup();
+                this.timer = setInterval(this.fetch_all_phoneGroup, 10000);
+                this.messageEventList = []; // 이벤트 메시지 리스트
+                this.messageSmsList = []; // 문자 메시지 리스트
+                this.messageTeleList = []; // 텔레그램 메시지 리스트
+                this.message = {}; // 메시지 상세내역
 
-                        if(ajax_data['data'][i][listdata_name] == undefined){
-                            td_data = '-'
-                        }else if(ajax_data['data'][i][listdata_name] == true){
-                            td_data = "측정 중"
-                        }else if(ajax_data['data'][i][listdata_name] == false){
-                            td_data = "측정 종료"
-                        }else{
-                            td_data = ajax_data['data'][i][listdata_name]
-                        }
-
-                        //data null 체크
-                        if(listdata_name == 'userInfo1'){
-                            measStatus += '<td class="big_td '+ listdata_name + '">' + td_data + '</td>';
-                        }else{
-                            measStatus += '<td class="'+ listdata_name + '">' + td_data + '</td>';
+            },
+            methods: {
+                /* -----------------------------------------------------------------------------------------------------
+                 * 측정일자에 해당하는 측정단말 리스트를 가져온다.
+                 -----------------------------------------------------------------------------------------------------*/
+                async fetch_all_phoneGroup() {
+                    const res = await fetch("/api/phonegroup/list/" + this.date);
+                    const data = await res.json();
+                    const selectedPhoneGroup = this.getSelected();
+                    // 단말그룹을 재조회 해도 기존 화면상에서 체크박스 상태는 그대로 유지한다.
+                    selectedPhoneGroup.forEach(prePhoneGroup => {
+                        data['phoneGroupList'].forEach(phoneGroup => {
+                            if (prePhoneGroup.id === phoneGroup.id) {
+                                phoneGroup.selected = prePhoneGroup.selected
+                            }
+                        });
+                    });
+                    this.measuringTeam_count = data['measuringTeam_count']; // 측정조 건수
+                    this.total_count = data['total_count']; // 전체 측정건수
+                    this.centerList = data['centerList']; // 센터별 측정현황
+                    this.phoneGroupList = data['phoneGroupList']; // 단말그룹 리스트
+                    //this.checkedCount = 0;
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
+                 -----------------------------------------------------------------------------------------------------*/
+                clickPhoneGroupList: function (phoneGroup) {
+                    this.selectedPhoneGroup = phoneGroup;
+                    this.fetch_all_message(phoneGroup);
+                    this.message = {};
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 전송 메시지(이벤트/문자/텔레그랠) 리스트를 가져온다.
+                 -----------------------------------------------------------------------------------------------------*/
+                async fetch_all_message(phoneGroup) {
+                    const res = await fetch("/api/message/list/" + phoneGroup.id)
+                    const data = await res.json();
+                    this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
+                    this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
+                    this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 전송 메시지 내역을 클릭 했을 때 메시지 상세내역을 보여준다.
+                 -----------------------------------------------------------------------------------------------------*/
+                clickMessageList: function (message) {
+                    this.message = message
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 단말그룹 리스트 체크박스 관련 함수
+                 -----------------------------------------------------------------------------------------------------*/
+                checkedAll(checked) {
+                    this.allChecked = checked
+                    for (let i in this.phoneGroupList) {
+                        this.phoneGroupList[i].selected = this.allChecked;
+                    }
+                },
+                selected(e) {
+                    for (let i in this.phoneGroupList) {
+                        if (!this.phoneGroupList[i].selected) {
+                            this.allChecked = false;
+                            return;
+                        } else {
+                            this.allChecked = true;
                         }
                     }
-                }
-                measStatus += '<td onclick="event.cancelBubble=true;">'
-                if (ajax_data['data'][i]['active'] == 1){
-                    measStatus += '<img class="area_exit" id="img_' + ajax_data['data'][i]['id'] + '" src="{% static "admin/img/icon-yes.svg" %}" alt="종료">'
-                }else{
-                    measStatus += '<img class="area_exit" id="img_' + ajax_data['data'][i]['id'] + '" src="{% static "admin/img/icon-no.svg" %}" alt="종료">'
-                }
-                measStatus += '</tr>'
-            }       
-        //console.log(measStatus)
-        $('#phoneGroupDetail_body').append(measStatus);
-        }
-    }
-
-    //데이터 값바꾸기
-    function listDataCount(ajax_data){
-        if (ajax_data['data'] != 'nodata'){
-            console.log("들어왓다");
-            for(let i = 0; i < ajax_data['data'].length; i++){
-                for(var listdata_name of Object.keys(ajax_data['data'][i])){ 
-                    if(listdata_name !== 'id'){
-                        if(ajax_data['data'][i][listdata_name] == undefined){
-                            td_data = '-'
-                        }else if(ajax_data['data'][i][listdata_name] == true){
-                            td_data = "측정 중"
-                        }else if(ajax_data['data'][i][listdata_name] == false){
-                            td_data = "측정 종료"
-                        }else{
-                            td_data = ajax_data['data'][i][listdata_name]
+                },
+                getSelected() {
+                    let phoneGroupList = [];
+                    for (let i in this.phoneGroupList) {
+                        if (this.phoneGroupList[i].selected) {
+                            phoneGroupList.push(this.phoneGroupList[i]);
                         }
-                        parent = document.getElementById(ajax_data['data'][i]['id']);
-                        parent.querySelector('.' + listdata_name).innerHTML = td_data
-                    }                    
-                }
-            }
-        }
-    } 
+                    }
+                    return phoneGroupList
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 측정종료 및 측정마감에 관련된 함수
+                 -----------------------------------------------------------------------------------------------------*/
+                // 1) 해당 단말그룹에 대한 측정을 종료한다.
+                async measuring_end() {
+                    for (let i in this.phoneGroupList) {
+                        if (this.phoneGroupList[i].selected) {
+                            // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
+                            const res = await fetch("/monitor/end/" + this.phoneGroupList[i].id)
+                                .then(respone => {
+                                    // 측정종료 처리후  단말그룹 리스트를 다시 조회한다.
+                                    this.fetch_all_phoneGroup();
+                            });
+                            // 측정종료 처리후 선택된 단말그룹의 체크박스를 해제 한다.
+                            this.phoneGroupList[i].selected = false;
+                        }
+                    }
+                },
+                // 2) 해당 일자에 대한 측정을 마감한다.
+                async measuring_day_close() {
+                    const res = await fetch("/monitor/day_close/" + this.date)
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
+                 -----------------------------------------------------------------------------------------------------*/
+                // 1) 측정종료 버튼을 클릭했을 때
+                clickMeasuringEnd(e) {
+                    if (this.checkedCount > 0) {
+                        // 선택된 단말그룹 리스트 중에서 측정이 종료된 건이 있는지 확인한다.
+                        const selectedPhoneGroupList = this.getSelected();
+                        let isMeasuringEnd = false
+                        selectedPhoneGroupList.forEach(phoneGroup => {
+                            console.log("####", phoneGroup.active);
+                            isMeasuringEnd = !phoneGroup.active;
+                        });
+                        if (isMeasuringEnd) {
+                            this.isModelConfirmDisabled = false
+                            $("#modal-btn-confirm").html('측정종료');
+                            $("#modal_body").html("선택한 단말그룹이 측정이 이미 종료되었습니다.");
+                            $("#mi-modal").modal('show');
+                        } else {
+                            $("#modal-btn-confirm").html('측정종료');
+                            $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
+                            $("#mi-modal").modal('show');
+                        }
+                    } else {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('측정종료');
+                        $("#modal_body").html("선택된 단말그룹이 없습니다.");
+                        $("#mi-modal").modal('show');
+                    }
+                },
+                // 2) 측정마감 버튼을 클릭했을 때
+                clickMeasuringClose(e) {
+                    this.isModelConfirmDisabled = true
+                    $("#modal-btn-confirm").html('측정마감');
+                    $("#modal_body").html("당일(" + this.date + ") 측정을 마감하시겠습니까?");
+                    $("#mi-modal").modal('show');
+                },
+                // 3) 모달창에서 확인버튼(측정종료 또는 측정마감) 버튼을 클릭했을 때
+                clickModalBtnConfirm(e) {
+                    if (e.target.innerText === "측정종료") {
+                        // 선택된 단말그룹에 대한 측정을 종료한다.
+                        this.measuring_end();
+                    } else if (e.target.innerText === "측정마감") {
+                        // 해당일자에 대한 측정을 마감한다.
+                        this.measuring_day_close()
+                    } else if (e.target.innerText === "회수") {
+                        this.deleteMessage()
+                    } else if (e.target.innerText === "전송") {
+                        this.sendMessage()
+                    }
+                    $("#mi-modal").modal('hide');
+                },
+                // 4) 모달창에서 닫기 버튼을 클릭했을 때
+                clickModalBtnCancel() {
+                    this.isModelConfirmDisabled = true
+                    $("#mi-modal").modal('hide');
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 메시지 전송 및 회수 관련 함수 관련 모듈
+                 -----------------------------------------------------------------------------------------------------*/
+                // 1-1) 전송 버튼을 클릭했을 때 모달창을 띄운다.
+                clickSendMessage() {
+                    console.log(this.message)
+                    if (this.message.id === undefined) {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('전송');
+                        $("#modal_body").html("전송하고자 하는 메시지를 먼저 선택해 주세요.");
+                        $("#mi-modal").modal('show');
+                    } else {
+                        // 문자 전송시에만 수신자 리스트 입력여부를 확인하도록 한다.
+                        if ((this.message.sendType === 'XMCS' || this.message.sendType === 'ALL') &&
+                            (this.recipient_text === undefined || this.recipient_text === null || this.recipient_text.length <= 0)) {
+                            this.isModelConfirmDisabled = false
+                            $("#modal-btn-confirm").html('전송');
+                            $("#modal_body").html("수신자 리스트를 입력해 주세요.");
+                            $("#mi-modal").modal('show');
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //stratdata 부분
-    //AJAX를 먼저 시작하고 딜레이
-    //callback -> interval
-    //function startInterval_startData(callback, seconds){ 
-    //    callback(); 
-    //    return setInterval(callback, seconds * 1000); 
-    //}
+                        } else if (this.message.sendType === 'TELE' && this.message.isDel === false) {
+                            this.isModelConfirmDisabled = false
+                            $("#modal-btn-confirm").html('전송');
+                            $("#modal_body").html("해당 메시지를 재전송하시려면 먼저 회수를 진행해 주세요.");
+                            $("#mi-modal").modal('show');
+                        } else {
+                            this.isModelConfirmDisabled = true
+                            $("#modal-btn-confirm").html('전송');
+                            $("#modal_body").html("해당 메시지를 전송하시겠습니까?");
+                            $("#mi-modal").modal('show');
+                        }
+                    }
+                },
+                // 1-2) 메시지 전송 모달창에서 확인 버튼을 클릭했을 때(메시지 전송)
+                async sendMessage() {
+                    //const data = { 'receiver': this.recipient_text, 'message': this.message };
+                    //const response = await axios.post("message/msg_send/", data);
+                    //headers: { "X-CSRFToken": '{{csrf_token}}'
+                    const requestOptions = {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": '{{csrf_token}}',
+                            "Content-Type": "application/json",
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            'receiver_list': this.recipient_text,
+                            'message': this.message.message,
+                            'id': this.message.id,
+                            'sendType': this.message.sendType,
+                            'channelId': this.message.channelId,
+                        })
+                    };
+                    const response = await fetch("/api/message/send/", requestOptions);
+                    // 아래 코드는 나중에 사용할 수 있어서 남겨둠
+                    // 처리결과를 기다렸다가 표시하면 좋을 듯 함
+                    //const data = await response.json();
+                    console.log("send-received:", response);
 
-    //비동기통신
-    //2분마다 주기적 요청(현재 테스트로 10초)
-    //startInterval_startData(function(){
-    const interval_startdata = function(){
-    if(!GV.isPause_startdata){
-        toDayinfo = document.querySelector('input[type="date"]').value   
-        $.ajaxSetup({
-            headers: { "X-CSRFToken": '{{csrf_token}}' }
+                    // 메시지 재전송 완료 후 메시지 리스트를 다시 조회한다.
+                    await this.fetch_all_message(this.selectedPhoneGroup);
+                    this.message = {};
+
+                },
+                // 1-3) 텍스트 파일 내용을 읽어 오는 함수(수신자 전화번호 리스트)
+                // source: https://www.raymondcamden.com/2019/05/21/reading-client-side-files-for-validation-with-vuejs
+                selectedFile() {
+                    let file = this.$refs.myFile.files[0];
+                    if (!file || file.type !== 'text/plain') return;
+
+                    // Credit: https://stackoverflow.com/a/754398/52160
+                    let reader = new FileReader();
+                    reader.readAsText(file, "UTF-8");
+                    reader.onload = evt => {
+                        this.recipient_text = evt.target.result;
+                    }
+                    reader.onerror = evt => {
+                        console.error(evt);
+                    }
+                },
+                // 2-1) 회수 버튼을 클릭했을 때 모달창을 띄운다.
+                clickDeleteMessage(e) {
+                    if (this.message.id === undefined) {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('회수');
+                        $("#modal_body").html("회수하고자 하는 메시지를 먼저 선택해 주세요.");
+                        $("#mi-modal").modal('show');
+                    } else {
+                        if (this.message.isDel === true) {
+                            this.isModelConfirmDisabled = false
+                            $("#modal-btn-confirm").html('회수');
+                            $("#modal_body").html("해당 메시지는 이미 회수된 메시지 입니다.");
+                            $("#mi-modal").modal('show');
+                        } else {
+                            this.isModelConfirmDisabled = true
+                            $("#modal-btn-confirm").html('회수');
+                            $("#modal_body").html("메시지를 정말 회수하시겠습니까?");
+                            $("#mi-modal").modal('show');
+                        }
+                    }
+                },
+                // 2-2) 메시지 회수 모달창에서 확인 버튼을 클릭했을 때(메시지 회수)
+                async deleteMessage() {
+                    const res = await fetch("/api/message/delete/" + this.message.id);
+
+                    // 메시지 회수 완료 후 메시지 리스트를 다시 조회한다.
+                    await this.fetch_all_message(this.selectedPhoneGroup);
+                    this.message = {};
+                },
+                /* -----------------------------------------------------------------------------------------------------
+                 * 단말그룹에 대한 측정조를 입력하는 모듈 관련 함수
+                 -----------------------------------------------------------------------------------------------------*/
+                // 1) 단말그룹 리스트에서 측정조 컬럼을 마우스 더블클릭 했을 때
+                doubleclickMeasuringTeam(phoneGroup) {
+                    $("#measuringTeamModal").modal('show');
+                },
+                // 2) 측정조 변경 모달창에서 저장 버튼을 클릭했을 때
+                clickModalTeamConfirm() {
+                    this.changeMeasuringTeam()
+                    $("#measuringTeamModal").modal('hide');
+
+                },
+                // 3) 단말그룹의 측정조 변경을 서버에 요청한다.
+                async changeMeasuringTeam() {
+                    const requestOptions = {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": '{{csrf_token}}',
+                            "Content-Type": "application/json",
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            'phoneGroup_id': this.selectedPhoneGroup.id,
+                            'measuringTeam': this.selectedPhoneGroup.measuringTeam,
+                        })
+                    };
+                    const response = await fetch("/api/phonegroup/update/", requestOptions);
+                    console.log("send-received:", response);
+                    // 단말그룹 리스트를 다시 조회한다.
+                    await this.fetch_all_phoneGroup();
+                },
+                clickClearMessage() {
+                    this.message = {};
+                    this.recipient_text = null;
+
+                },
+            },
         });
-        
-        $.ajax({  
-            type:'POST',
-            url: "{% url 'analysis:ajax_startdata' %}",
-            dataType : 'text',
-            data : {'date' : toDayinfo },
-            //async:false,
-            success: function(ajax_data){
-                ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
-                console.log("리스트데이터")
-                console.log(ajax_data)
-                
-                startData_vues(ajax_data); //초기데이터 세팅
-                startDataCount(ajax_data); //초기데이터 값바꾸기          
+
+        /* -------------------------------------------------------------------------------------------------------------
+         * 전송 메시지 내용을 줄여서 표현하는 필터를 선언한다.
+         * 사용법: <td class="col-md-6 text-left">[[ message.message | truncate(65, '...')]]</td>
+         -------------------------------------------------------------------------------------------------------------*/
+        const filter = function (text, length, clamp) {
+            clamp = clamp || '...';
+            const node = document.createElement('div');
+            node.innerHTML = text;
+            const content = node.textContent;
+            return content.length > length ? content.slice(0, length) + clamp : content;
+        };
+
+        Vue.filter('truncate', filter);
+
+        /* -------------------------------------------------------------------------------------------------------------
+         * 마우스를 텝위(이벤트/문자/텔레그램)에 울려 놓으면 해당 탭이 선택되게 한다.
+         * 마우스가 탭위에 위치할 때마다 자동으로 탭들이 변경되니 오히려 어지럽고, 불편감이 있어서 제거함
+         -------------------------------------------------------------------------------------------------------------*/
+        /*
+        $(".nav-link").mouseover(function () {
+            $(this).tab("show");
+        });
+
+        $(".nav-link").on("show.bs.tab", function (e) {
+            console.log(e.relatedTarget);
+            if (e.relatedTarget !== undefined) {
+                const tabPanelId = e.relatedTarget.getAttribute("href");
+                $(tabPanelId).removeClass("active");
             }
-            });
-        //}, 30)
-        }
-    }
+        });
+         */
 
-    //오늘의 측정 테이블 생성
-    function startData_vues(ajax_data){
-        $('#area_cards').remove();
-        
-        var measStatus = '<div id = "area_cards">';
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
 
-        if (ajax_data['meas_area'] != 'nodata'){  // 데이터가 없으면 생성하지 않는다 지역
-        //for(var meas_area of ajax_data['meas_area']){
-            for(var meas_area_name of Object.keys(ajax_data['meas_area'])){
-                let meas_area_name_split_1 = meas_area_name.split(',');
-                    measStatus += '<div class="card bg-light mb-1, mx-1" style="width: 10rem; height: 70px; margin-left: 15px;">';
-                    measStatus += '<div class="card-header p-1">';
-                    measStatus += '<span id ="' + meas_area_name_split_1[1] + '" ><span>';
-                    measStatus += '</div>';   
-                    measStatus += '<div class="card-body p-2">';
-                    measStatus += '<span id ="' + meas_area_name_split_1[1] + '_count" class="card-title p-0 m-0"><font size="20"></font></span>';    
-                    //measStatus += '<p class="card-text p-0 m-0">부가정보 표시</p>';
-                    measStatus += '</div>';
-                    measStatus += '</div>';
-                }
-        }
-        measStatus += '</div>'
-        $('#toDayWindow').append(measStatus);
-    }
+    </script>
 
-    //오늘의 측정 테이블 값만 변경
-    function startDataCount(ajax_data){
-        if(ajax_data){
-            document.querySelector('#measure_count_vues').innerHTML = ajax_data['measuing_count'];
-        //document.querySelector('#measure_close_count').innerHTML = ajax_data['end_count'];
-        }
-        if (ajax_data['meas_area'] != 'nodata'){ // 데이터가 없으면 생성하지 않는다 지역
-            for(let [meas_area_name, meas_area_count] of Object.entries(ajax_data['meas_area'])){
-                let meas_area_name_split_2 = meas_area_name.split(',');
-                document.querySelector('#' + meas_area_name_split_2[1]).innerHTML = meas_area_name_split_2[0]
-                document.querySelector('#' + meas_area_name_split_2[1] + '_count').innerHTML = meas_area_count
-            }
-        }   
-    }
-    ///////////////////////////////
-    startTimer_startdata(); //start 그룹타이머 시작
-    startTimer_listdata(); //start 리스트타이머 시작
-    
-
-    ///////////////////////////////
-    //메세지 내용 생성 ajax
-    const interval_messagedata = function(list_tr_id, tab_check){
-        //tab_check = $('#bottom_body_left .nav-item .active').attr('value'); //현재 메세지 타입 표시 *전역변수
-        //탭 벨류 체크
-        if(!GV.isPause_messagedata){
-        //function interval_listdata(){
-            $.ajaxSetup({
-                headers: { "X-CSRFToken": '{{csrf_token}}' }
-            });
-
-            $.ajax({
-                type:'POST',
-                url: "{% url 'analysis:listview_messageData' %}",
-                dataType : 'text',
-                data : { 'groupid' : list_tr_id,  
-                         'tabcheck': tab_check},
-                //type은 현재 활성화된 메세지탭의 value를 보고 무엇인지 보낸다. 
-                //event, xroshot, tele
-                //async: false,
-                cache: false,
-                success: function(ajax_data){
-                    ajax_data = JSON.parse(ajax_data); //데이터넘어온다.
-                    console.log(ajax_data)
-                    console.log("불러오기 성공")
-                    
-                    if(ajax_data['data'] !== 'nodata'){
-                        if(message_list_check == 0){
-                            console.log("메세지 처음은 여기");
-                            console.log(message_list_check);
-                            message_list_len = ajax_data['data'].length;
-                            
-                            messageListData(ajax_data, tab_check);
-                            
-                            message_list_check = 1;
-                        }else{
-                            console.log("나중은 여기")
-                            ajax_data2 = {}
-                            ajax_data_arr = []
-                            //$('phoneGroupDetail_body').remove();
-                            //$('#phoneGroupDetail_body').append(measStatus);
-                            change_check = ajax_data['data'].length - message_list_len //변화체 7 - 5 = 2
-                            message_list_len = ajax_data['data'].length;
-                            //if(group_list_len !== ajax_data['data'].length){
-                            console.log("메세지 체인지 체크" + change_check)
-                            if(change_check !== 0){
-                                //새로운 데이터가 들어올때만 행 추가
-                                //0123456 01234
-                                for(let i=change_check; i > 0 ; i--){
-                                    //ajax_data2[i] = ajax_data['data'][i]
-                                    //ajax_data_arr[i] = ajax_data2[i]
-                                    ajax_data_arr[i-1] = ajax_data['data'][i-1];
-                                }
-                                ajax_data['data'] = ajax_data_arr; 
-                                console.log(ajax_data)
-
-                                ////////////////////////////
-                                messageListData(ajax_data, tab_check);
-                            }
-                        }
-                    
-                    }
-                },
-                error: function(error){
-                    console.log("불러오기 실패")
-                    console.log(error)
-
-                }
-            });
-        }
-    }
-
-    //메세지 에어리어 생성
-    function messageListData(ajax_data, tab_check){
-        console.log("잘들어오나")
-        console.log(ajax_data)
-        console.log(Object.keys(ajax_data).length)
-
-        let measStatus // 초기화
-        
-        if (ajax_data['data'] != 'nodata'){
-            //for(let i = 0; i < Object.keys(ajax_data).length; i++){
-            for(let i = 0; i < ajax_data['data'].length; i++){
-                measStatus += '<tr onclick="textshow(this)">';
-                measStatus += '<td>' + ajax_data['data'][i]['create_time'] + '</td>';
-                measStatus += '<td class="big_td">' + ajax_data['data'][i]['message'] + '</td>';
-                if(tab_check == 'event'){
-                    measStatus += '<td class="check_td_sms">' + ajax_data['data'][i]['phone_no_sht'] + '</td>';
-                }else if(tab_check == 'xroshot'){
-                    measStatus += '<td class="check_td_sms">' + ajax_data['data'][i]['status'] + '</td>';
-                }else{
-                    if(ajax_data['data'][i]['isDel'] == 0){
-                        measStatus += '<td class="check_td_tele">미회수</td>';
-                    }else{
-                        measStatus += '<td class="check_td_tele">회수</td>';
-                    }        
-                }
-                measStatus += '<td>' + ajax_data['data'][i]['sended_time'] + '</td>';
-                if(ajax_data['data'][i]['sended'] == true){
-                    measStatus += '<td> 전송완료 </td>';
-                }else{
-                    measStatus += '<td> 미전송 </td>';
-                }
-                measStatus += '</tr>'
-            }
-            if(message_list_check == 0){
-                $('#' + tab_check + '_Detail_body').append(measStatus);
-            }else{
-                $('#' + tab_check + '_Detail_body').prepend(measStatus);
-            }
-        }
-    }
-
-    //test 메세지 넘기기
-    function textshow(tr_info){
-        parent = tr_info;  // 클릭한 메세지 tr정보
-    
-        text = parent.querySelector(".big_td").innerHTML;
-        message_contents = document.querySelector("#message_contents");
-        message_contents.innerHTML = text;
-        console.log(parent)
-        tdcheck = parent.querySelector(".check_td_tele");
-        sms_button = document.querySelector("#message_button_sms");
-        tele_button = document.querySelector("#message_button_tele");
-        if(tdcheck){
-            sms_button.style.display = "none"
-            tele_button.style.display = "block"
-        }else{
-            sms_button.style.display = "block"
-            tele_button.style.display = "none"
-        }
-    }
-
-    //메세지 탭클릭
-    function left_tabChange(tab_value){
-        Messagedata_reset(tab_value); //메세지 리셋 인터벌 시작
-
-        //tab_check = tab.attributes('value'); //현재 메세지 타입 표시 this
-        console.log("난이게궁금해" + tab_value)
-        let event = document.getElementById('eventWindow');
-        let xroshot = document.getElementById('xroshotWindow');
-        let tele = document.getElementById('teleWindow');
-
-        if(tab_value=='event'){
-            event.style.display = 'block';
-            xroshot.style.display = 'none';
-            tele.style.display = 'none';
-        }else if(tab_value=='xroshot'){
-            event.style.display = 'none';
-            xroshot.style.display = 'block';
-            tele.style.display = 'none';
-        }else{
-            event.style.display = 'none';
-            xroshot.style.display = 'none';
-            tele.style.display = 'block';
-        }
-    }
-
-    function right_tabChange(tab_value){
-        delete_button = document.getElementById('text_delete');
-        console.log(delete_button)
-        if(tab_value == 'mtext'){
-            delete_button.setAttribute("onclick", 'document.querySelector("#message_contents").value=""');
-        }else{
-            delete_button.setAttribute("onclick", 'document.querySelector("#recipient_list").value=""');
-        }
-    }
-</script>
 {% endblock %}

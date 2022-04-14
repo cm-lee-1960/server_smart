@@ -26,10 +26,10 @@ urlpatterns = [
     path('measlastyearLTE/create/',views.create_measlastyearLTE,name='create_measlastyearLTE'), # 전년도 결과 등록 및 수정(LTE)
     path('measlastyearLTE/delete/',views.delete_measlastyearLTE,name='delete_measlastyearLTE'), # 전년도 결과 삭제(LTE)
     
-    #ajax url
-    path('ajax/getstartdata/', views.get_startdata, name='ajax_startdata'), ## 초기데이터 가져온다(오늘의 측정)
-    path('listview/phoneGroupData/', views.get_listview, name='listview_phoneGroupData'), ## ## 측정그룹데이터가져온다(금일 측정그룹)
-    path('listview/messageData/', views.get_listview_m, name='listview_messageData')
+    # #ajax url
+    # path('ajax/getstartdata/', views.get_startdata, name='ajax_startdata'), ## 초기데이터 가져온다(오늘의 측정)
+    # path('listview/phoneGroupData/', views.get_listview, name='listview_phoneGroupData'), ## ## 측정그룹데이터가져온다(금일 측정그룹)
+    # path('listview/messageData/', views.get_listview_m, name='listview_messageData')
     
     #view url
     ## ## 측정그룹데이터가져온다(금일 측정그룹)
