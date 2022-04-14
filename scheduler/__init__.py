@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from .cron import measuring_end_check
+from .cron import measuring_end_check, delete_logs_before_week
 
 ########################################################################################################################
 # 스케쥴러 백그라운드 작업을 등록하고, 실행한다.
@@ -14,5 +14,7 @@ def start():
     sched = BackgroundScheduler()
     # sched.add_job(XXXX, "cron", hour=1, minute=1) # 특정시간에 수행
     # sched.add_job(telegram_command_handler, 'interval', seconds=5) # 정해진 시간간격으로 수행
-    sched.add_job(measuring_end_check, 'interval', seconds=5)
+    # sched.add_job(measuring_end_check, 'interval', seconds=5)
+    sched.add_job(delete_logs_before_week, "cron", hour=11, minute=0)
+    # sched.add_job(delete_logs_before_week, 'interval', seconds=5)
     sched.start()

@@ -1,4 +1,7 @@
 from monitor.models import Phone
+from logs.models import StatusLog
+from datetime import datetime, timedelta
+
 
 ########################################################################################################################
 # 백그라운드 스케쥴러 작업을 관리하는 모듈
@@ -16,11 +19,22 @@ def measuring_end_check():
         - (행정동) 콜 카운트가 54콜 이상이고, 최종 위치보고시간 이후 2~3분이 지났을 경우
         - (인빌딩) 요구사항 세부내역 확인
     """
+    pass
     # qs = Phone.objects.all()
     # for phone in qs:
     #     print(phone)
-    print("Scheduler...")
+
 
 # @db_auto_reconnect
 # def telegram_command_handler():
 #     command_handler()
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 2주전 로그내역을 삭제한다.
+# ----------------------------------------------------------------------------------------------------------------------
+def delete_logs_before_week():
+    """2주전 로그내역을 삭제하는 함수"""
+    base_date = datetime.today() - timedelta(days=7)
+    qs = StatusLog.objects.filter(create_datetime__lt=base_date)
+    if qs.exists():
+        qs.delete()
