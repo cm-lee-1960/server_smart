@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q
 from django.db import connection
-from .models import Phone, PhoneGroup, MeasureCallData, Message, MeasuringDayClose
+from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose
 from management.models import Center
 from .serializers import PhoneGroupSerializer
 from message.tele_msg import TelegramBot
@@ -297,12 +297,12 @@ def measuring_day_close(phoneGroup_list, measdate):
             md = phoneGroup.measuringdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
     
             # !!--- 초데이터 기반, 데이터 가공 및 저장은 추후 데이터 확정 시 진행 예정 -- !!
-            udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!
-            success_rate = cal_success_rate(phoneGroup) # 전송 성공률 계산 : 추후 정확한 계산식으로 대체 필요 !!
-            # 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 추후 업데이트
-            connect_time = cal_connect_time(phoneGroup)
-            lte_ca = cal_lte_ca(phoneGroup)
-            avg_bw = cal_avg_bw_second(phoneGroup)
+            udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산
+            success_rate = cal_success_rate(phoneGroup) # 전송 성공률 계산
+            # 접속시간, LTE CA비율은 계산식 확인 후 추후 추가 업데이트 예정
+            connect_time = cal_connect_time(phoneGroup)  # 접속시간 계산
+            lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 계산
+            avg_bw = cal_avg_bw_second(phoneGroup)  # 평균 속도(초데이터)
         
             # 계산한 데이터 저장  - 속도/접속시간/CA률 추후 업데이트
             md.udpJitter, md.success_rate = udpJitter, success_rate
@@ -317,10 +317,10 @@ def measuring_day_close(phoneGroup_list, measdate):
             if phoneGroup.networkId == '5G':
                 message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
                                   f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,접속시간계산(업데이트예정)/{md.udpJitter}ms"
-            # LTE일 경우 CA비율 추가 - CA비율은 추후 정확한 계산식 확인 후 업데이트
+            # LTE일 경우 CA비율 추가
             elif phoneGroup.networkId == 'LTE':
                 message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
-                                  f"  .CA비율계산값들(업데이트예정)"
+                                  f"  .{lte_ca[0]}/{lte_ca[1]}/{lte_ca[2]}/{lte_ca[3]}"
             # WiFi일 경우 및 음성호일 경우 : 계산식 확인 후 업데이트 예정
             elif phoneGroup.networkId == "WiFi":
                 pass
@@ -478,13 +478,11 @@ def cal_udpJitter(phoneGroup):
     ''' 평균 지연시간 계산 함수 (초데이터)
      . 파라미터: phoneGroup
      . 반환값 : 평균 지연시간 (float) '''
-    # 평균 지연시간 계산  :  추후 정확한 계산식으로 대체 필요 !!!(3.22)
+    # 평균 지연시간 계산  :  testNetworkType이 latency인 데이터들의 udpJitter 평균값
     phone_list = phoneGroup.phone_set.all()
-    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")  # 초단위 데이터로 바꿔야함
+    qs = MeasureSecondData.objects.filter(phone__in=phone_list, testNetworkType='latency').order_by("meastime")  # 초단위 데이터로 바꿔야함
     if qs.filter(udpJitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
-        udpJitter = round(qs.exclude(Q(networkId='NR') | \
-                                    Q(downloadBandwidth=0) | \
-                                    Q(uploadBandwidth=0)).aggregate(Avg('udpJitter'))['udpJitter__avg'], 1)
+        udpJitter = round(qs.exclude(udpJitter__isnull=True).aggregate(Avg('udpJitter'))['udpJitter__avg'], 1)
     else: udpJitter = 0.0
     return udpJitter
 
@@ -492,15 +490,45 @@ def cal_success_rate(phoneGroup):
     ''' 전송성공률 계산 함수 (초데이터)
      . 파라미터: phoneGroup
      . 반환값 : 성공률 (float) '''
-    # 전송 성공률 계산 : 전체 콜수에서 "전송실패" 이벤트 발생 건수 비율로 계산 (추후 정확한 계산식 대체 필요)
-    phone_list = phoneGroup.phone_set.all()
+    # 전송 성공률 계산 : 전체 콜수에서 "전송실패" + "속도저하" 이벤트 발생 건수 비율로 계산 (추후 정확한 계산식 대체 필요)
     md = phoneGroup.measuringdayclose_set.all().last()
-    success_rate = round((1 - (Message.objects.filter(phone__in=phone_list, message__contains='전송실패').count() / md.total_count))*100,1)
+    success_rate = round((1 - (Message.objects.filter(phoneGroup=phoneGroup, status='EVENT').filter( \
+                            Q(message__contains='전송실패') | Q(message__contains='속도저하')).count() / md.total_count))*100,1)
+    return success_rate
 
 ###### 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 추후 업데이트
 def cal_connect_time(phoneGroup):
     return 0
+
 def cal_lte_ca(phoneGroup):
-    return 0
-def cal_avg_bw_second(phoneGroup):
-    return 0
+    ''' LTE CA비율 계산 함수 (콜데이터)
+     . 파라미터: phoneGroup
+     . 반환값: CA비율(list) [4/3/2/1] '''
+    phone_list = phoneGroup.phone_set.all()
+    md = phoneGroup.measuringdayclose_set.all().last()
+    qs = MeasureSecondData.objects.filter(phone__in=phone_list, testNetworkType='speed')
+    # s1~s4 earfcn 값 카운트
+    # ca_4 = qs.exclude( Q(s4_EARFCN__isnull=True) | Q(s4_EARFCN=0) ).count() / md.total_count # s4는 제외??
+    ca_4 = qs.exclude( Q(s3_EARFCN__isnull=True) | Q(s3_EARFCN=0) ).count() / md.total_count
+    ca_3 = qs.exclude( Q(s2_dl_earfcn__isnull=True) | Q(s2_dl_earfcn=0) ).count() / md.total_count
+    ca_2 = qs.exclude( Q(s1_dl_earfcn__isnull=True) | Q(s1_dl_earfcn=0) ).count() / md.total_count
+    lte_ca = [round(ca_4), round(ca_4+ca_3), round(ca_4+ca_3+ca_2), 100]
+    return lte_ca
+    
+def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 체크 필요??  (4.14) -> 업데이트 예정
+    ''' 평균속도 계산 함수 (초데이터)
+     . 파라미터: phoneGroup
+     . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
+    phone_list = phoneGroup.phone_set.all()
+    qs = MeasureSecondData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+    # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (data에서 downloadbandwidth 존재 유무로 판단)
+    qs_dlbw = qs.exclude( Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )  # Q(networkId='NR')
+    if qs_dlbw.exists():
+        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
+    else: avg_downloadBandwidth = 0
+    # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (data에서 uploadbandwidth 존재 유무로 판단)
+    qs_ulbw = qs.exclude( Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )  # Q(networkId='NR')
+    if qs_ulbw.exists():
+        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
+    else: avg_uploadBandwidth = 0
+    return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
