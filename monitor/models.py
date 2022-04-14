@@ -247,6 +247,8 @@ def get_morphology(userInfo2: str) -> Morphology:
 # 2022.03.19 - 관할센터(Center) 외래키 항목 추가
 # 2022.03.28 - 단말그룹의 이벤트발생 건수를 업데이트 하는 코드를 추가함
 # 2022.03.30 - DL속도, UL속도 소숫점 첫째자리까지 표현(둘째자리에서 반올림)
+# 2022.04.14 - 관할지역센터 찾는 모듈 예외처리 추가(세종특별자치시인 경우 구/군 값이 없음)
+#            - 센터별 관할지역 정보에는 시/도 = 구/군 동일한 값이 들어가 있음
 #
 ########################################################################################################################
 class Phone(models.Model):
@@ -477,7 +479,12 @@ class Phone(models.Model):
             self.manage = morphology.manage # 관리대상 여부
 
             # 센터별 관할구역 매핑정보를 통해 관할센터를 업데이트 한다.
-            qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)
+            # 2022.04.14 - 세종특별자치시인 경우 구/군 값이 없음
+            #            - 센터별 관할지역 정보에는 시/도 = 구/군 동일한 값이 들어가 있음
+            if self.guGun is None or self.guGun == "":
+                qs = CenterManageArea.objects.filter(siDo=self.siDo)
+            else:
+                qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)
             if qs.exists():
                 self.center = qs[0].center  # 관할센터
 
