@@ -62,7 +62,6 @@ urlpatterns = [
     path("analysis/", include("analysis.urls")), # 분석
     path("message/", include("message.urls")), # 전송 메시지
     path("accounts/", include("accounts.urls")), # 계정
-    path("vueapp/", include("vueapp.urls")),  # Vue.js 테스트 앱
     path("api/", include("api.urls")),  # API
 ]
 

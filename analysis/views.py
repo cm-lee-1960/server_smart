@@ -32,7 +32,7 @@ from .ajax import *
 from django.views.generic import ListView
 from django.shortcuts import get_list_or_404
 from django.views.generic import TemplateView
-from monitor.serializers import PhoneGroupSerializerOrder, MessageSerializer
+from monitor.serializers import MessageSerializer
 
 from .forms import FileUploadForm
 from .models import FileUpload
@@ -129,15 +129,15 @@ def get_listview_m(request):
     return HttpResponse(json_data_call, content_type="applications/json") 
 
 
-class PhoneGroupDetailView(TemplateView):
-    """클래스 기반 뷰 CBV 그룹데이터 호출 뷰"""
-    template_name = 'analysis/dashboard_form.html'
-    def post(self, request, **kwargs):
-        queryset = PhoneGroup.objects.all()
-        ctx = {
-            'data' :  queryset  
-        } 
-        return self.render_to_response(ctx)
+# class PhoneGroupDetailView(TemplateView):
+#     """클래스 기반 뷰 CBV 그룹데이터 호출 뷰"""
+#     template_name = 'analysis/dashboard_form.html'
+#     def post(self, request, **kwargs):
+#         queryset = PhoneGroup.objects.all()
+#         ctx = {
+#             'data' :  queryset
+#         }
+#         return self.render_to_response(ctx)
     
     # def post_context_data(self, *args, **kwargs):
     #     context = super(PhoneGroupDetailView, self).post_context_data(*args, **kwargs)
