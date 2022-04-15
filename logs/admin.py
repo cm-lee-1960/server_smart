@@ -14,6 +14,8 @@ DJANGO_DB_LOGGER_ADMIN_LIST_PER_PAGE = 10
 ########################################################################################################################
 # 디버깅 로그 관리자 페이지 설정
 # ----------------------------------------------------------------------------------------------------------------------
+# 2022.04.15 - 로그내용 축약(80자...)
+#
 ########################################################################################################################
 class StatusLogAdmin(admin.ModelAdmin):
     """어드민 페이지에 디버깅 로그 정보를 보여주기 위한 클래스"""
@@ -30,7 +32,7 @@ class StatusLogAdmin(admin.ModelAdmin):
             color = 'orange'
         else:
             color = 'red'
-        return format_html('<span style="color: {color};">{msg}</span>', color=color, msg=instance.msg)
+        return format_html('<span style="color: {color};">{msg}</span>', color=color, msg=Truncator(instance.msg).chars(80))
     colored_msg.short_description = '로그내용'
 
     # 추적내용 중에 태그가 포함되는 경우 브라우저에 의해서 해석되지 않고 그래로 보여준다.
