@@ -1,5 +1,5 @@
 {% load static %}
-<!doctype html>>
+<!DOCTYPE html>
 
 <head>
   <meta charset="utf-8">
@@ -18,48 +18,65 @@
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="{% static "css/nav.css" %}">
 
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    {% comment %} <script src="http://code.jquery.com/jquery.min.js"></script> {% endcomment %}
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    {% comment %} <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script> {% endcomment %}
+    <script src = "{% static "js/jquery-ui.min.js" %}"></script>
+    <script>
+      $( document ).ready(function() {
+          $('#bottom_body_left').resizable({ grid: [1, 10000] });
+          $('#middle_phonegroup').resizable({ grid: [10000, 1] });
+          console.log(jbInnerWidth1);
+          console.log($('#bottom_body').innerWidth());
+          console.log($('#bottom_body').innerWidth() - $( '#bottom_body_left' ).innerWidth());
+
+      //출처: https://offbyone.tistory.com/353 [쉬고 싶은 개발자]
+      });
+    </script>
+    <style>
+      #bottom_body_right{
+        border: 2px solid rgb(228, 223, 223);
+        margin-left:30px; 
+        padding: 10px; 
+        height:300px;
+        width:40%;
+      }
+    </style>
     {% block extra-style %}{% endblock %}
 
 </head>
 
 <body>
-
     <!-- Fixed navbar -->
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <a class="navbar-brand" href="{% url 'analysis:dashboard' %}">KT 스마트상황실</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
+      <div id = "head" class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="{% url 'analysis:dashboard' %}">Home
+            <a class="nav-link" href="{% url 'analysis:dashboard' %}">실시간감시
               <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'analysis:report' %}">일일보고</a>
+            <a class="nav-link" href="{% url 'analysis:report' %}" @click="timerEnd">일일보고</a>
           </li>
           <li class="nav-item">       
-            <a class="nav-link" href="{% url 'admin:index' %}">관리자페이지</a>
+            <a class="nav-link" href="{% url 'admin:index' %}" @click="timerEnd">관리자페이지</a>
           </li>
         </ul>
             <form class="form-inline mt-2 mt-md-0">
                 <!-- <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search"> <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
-                <input type="button" class="btn btn-danger" value="로그아웃" onclick=" logout()">
-                <script>
-                    function logout() {
-                        //stopTimer();
-                        location.href = "{% url 'accounts:logout' %}";
-                    }
-                </script>
-
+                  <input type="button" class="btn btn-danger" value="로그아웃" @click="logOut">
             </form>
-        </div>
+      </div>
     </nav>
 
 
 <!-- main -->
-<main role="main" class="container-fluid" style="margin-top: -10px">
+<main role="main" class="container-fluid" style="margin-top: 20px">
     {% block contents %}{% endblock %}
 </main>
 
@@ -70,12 +87,12 @@
 <!-- Bootstrap core JavaScript ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+{% comment %} <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> {% endcomment %}
 <script src="https://getbootstrap.com/docs/4.0/assets/js/vendor/popper.min.js"></script>
 <script src="https://getbootstrap.com/docs/4.0/dist/js/bootstrap.min.js"></script>
 
+
 {% block extra-script %}{% endblock %}
-
+  
 </body>
-
 </html>

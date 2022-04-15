@@ -96,7 +96,6 @@
 
 {% block contents %}
     <div id="app">
-
         <!-- 상단 내용 -->
         <div class="row" style="height:10%;">
             <div class="col-10 px-2">
@@ -175,12 +174,13 @@
                            style="height:300px; overflow-y:auto; display:block" class="d-flex">
                     <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex"
                         v-on:click="clickPhoneGroupList(phoneGroup)">
-                        <td style="width: 5%;" class="text-center">
-                            <input type="checkbox"
+                        <td style="width: 5%;" class="text-center" onclick="event.cancelBubble=true">
+                            <input type="checkbox" 
                                    :id="'check_' + phoneGroup.id"
                                    :value="phoneGroup.id"
                                    v-model="phoneGroup.selected"
                                    @change="selected($event)"
+                                   
                             >
                         </td>
                         <td style="width: 5%;">[[phoneGroup.centerName]]</td>
@@ -199,7 +199,7 @@
                         <td style="width: 6%;" class="text-center">[[phoneGroup.nr_percent]]</td>
                         <td style="width: 6%;" class="text-center">[[phoneGroup.event_count]]</td>
                         <td style="width: 7%;">
-                            [[phoneGroup.last_updated_time]]([[phoneGroup.elapsed_time]])
+                            [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
                         </td>
                         <td style="width: 7%;" v-if="phoneGroup.active">측정 중</td>
                         <td style="width: 7%;" v-else="phoneGroup.active">측정종료</td>
@@ -215,9 +215,8 @@
         </div>
 
         <!-- 메시지/문자/텔레그램 -->
-        <div class="fixed-table-container" style="display:flex">
-            <div id="bottom_body_left"
-                 style="border: 2px solid rgb(228, 223, 223); padding: 2px; height:40%; width:60%;">
+        <div id = "bottom_body" class="fixed-table-container" style="display:flex; width:100%">
+            <div id="bottom_body_left" style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:300px; width:60%;">
 
                 <!-- Tabs navs -->
                 <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
@@ -335,9 +334,7 @@
 
             </div>
             <!-- /.container -->
-
-
-            <div style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:300px; width:40%;">
+            <div id="bottom_body_right">
 
                 <!-- 출처: https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content -->
                 <div style="display:flex;justify-content:space-between;">
@@ -520,7 +517,7 @@
                     messageSmsList: [], // 문자 메시지 리스트
                     messageTeleList: [], // 텔레그램 메시지 리스트
                     message: {}, // 메시지 상세내역
-                    timer: null, // 타이머
+                    timer: null, // 폰그룹 타이머
                     allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
                     //checkedCount: 0,
                     isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
@@ -867,6 +864,21 @@
 
                 },
             },
+        });
+
+        const hm = new Vue({
+            el: '#head',
+            methods: {
+                logOut() {
+                    vm.timer = '';
+                    location.href = "{% url 'accounts:logout' %}";
+                },
+                timerEnd() {
+                    vm.timer = '';
+                }
+                //인터벌종료
+
+            }
         });
 
         /* -------------------------------------------------------------------------------------------------------------
