@@ -89,6 +89,22 @@
             border-bottom-color: blue;
         }
 
+        .table tbody::-webkit-scrollbar {
+            height:auto;
+            width:5px;
+        }
+        .table tbody::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+        .table tbody::-webkit-scrollbar-thumb {
+            border-radius: 3px; 
+            background-color: gray;
+        }
+        .table tbody::-webkit-scrollbar-button {
+            width: 0;
+            height: 0;
+        }
+
 
     </style>
 
@@ -97,10 +113,10 @@
 {% block contents %}
     <div id="app">
         <!-- 상단 내용 -->
-        <div class="row" style="height:10%;">
+        <div class="row" style="height:100px;">
             <div class="col-10 px-2">
                 <div class="row text-center">
-                    <div class="card text-white bg-primary mx-4" style="width: 12rem; height: 100px">
+                    <div class="card text-white bg-primary mx-4" style="width: 12rem; height: 100px;">
                         <!-- 출저: https://getbootstrap.com/docs/4.0/components/card/#background-and-color -->
                         <div class="card-header p-0">오늘의 측정</div>
                         <div class="card-body mt-0 pt-0 pb-0">
@@ -111,7 +127,7 @@
                             <span style="font-size: 24px;" v-if="total_count > 0">[[total_count]]</span>
                             <span style="font-size: 24px;" v-else="total_count > 0">-</span>
                             <div class="mt-1">
-                                <input style="height: 24px; width: 150px;" type="date" class="form-control"
+                                <input style="height: 24px; width:160px;" type="date" class="form-control"
                                        v-model="date">
                             </div>
                         </div>
@@ -127,7 +143,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-2" align="right">
                 <button type="button" class="btn btn-secondary btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringEnd()">
                     <h5>측정종료</h5>
                 </button>
@@ -137,253 +153,254 @@
         </div>
 
         <!-- 금일 측정그룹 -->
-        <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
-             style="margin-bottom:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:50%">
-            <!-- <h6><b>금일 측정그룹</b></h6> -->
-            <div class="table-responsive text-nowrap">
-                <table id="phonegroup-table" class='table table-hover'>
-                    <thead id='phonegroup-header'>
-                    <tr class="bg-light d-flex">
-                        <th style="width: 5%" class="text-center">
-                            <input type="checkbox"
-                                   v-model="allChecked"
-                                   @click="checkedAll($event.target.checked)"
-                            >
-                        </th>
-                        <th style="width: 5%;">본부</th>
-                        <th style="width: 6%;">조</th>
-                        <th style="width: 16%;">측정지역</th>
-                        <th style="width: 7%;" class="text-center">모폴로지</th>
-                        <th style="width: 7%;" class="text-center">네트워크</th>
-                        <th style="width: 6%;" class="text-center">DL콜수</th>
-                        <th style="width: 6%;" class="text-center">DL속도</th>
-                        <th style="width: 6%;" class="text-center">UL콜수</th>
-                        <th style="width: 6%;" class="text-center">UL속도</th>
-                        <th style="width: 6%;" class="text-center">전환율</th>
-                        <th style="width: 6%;" class="text-center">이벤트</th>
-                        <th style="width: 7%;">측정시간</th>
-                        <th style="width: 7%;">상태</th>
-                        <th style="width: 8%;">종료
-                            <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
-                               style="font-size:24px; color:blue" v-on:click="fetch_all_phoneGroup"
-                               data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody id='phonegroup-body' class="table-hover"
-                           style="height:300px; overflow-y:auto; display:block" class="d-flex">
-                    <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex"
-                        v-on:click="clickPhoneGroupList(phoneGroup)">
-                        <td style="width: 5%;" class="text-center" onclick="event.cancelBubble=true">
-                            <input type="checkbox" 
-                                   :id="'check_' + phoneGroup.id"
-                                   :value="phoneGroup.id"
-                                   v-model="phoneGroup.selected"
-                                   @change="selected($event)"
-                                   
-                            >
-                        </td>
-                        <td style="width: 5%;">[[phoneGroup.centerName]]</td>
-                        <td style="width: 5%;" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
-                            data-toggle="tooltip" data-placement="top" class="tooltip-primary"
-                            title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
-                            [[phoneGroup.p_measuringTeam]]
-                        </td>
-                        <td style="width: 16%;">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
-                        <td style="width: 7%;" class="text-center">[[phoneGroup.morphologyName]]</td>
-                        <td style="width: 7%;" class="text-center">[[phoneGroup.networkId]]</td>
-                        <td style="width: 6%;" class="text-center">[[phoneGroup.dl_count]]</td>
-                        <td style="width: 6%;" class="text-center">[[phoneGroup.downloadBandwidth]]</td>
-                        <td style="width: 6%;" class="text-center">[[phoneGroup.ul_count]]</td>
-                        <td style="width: 6%;" class="text-center">[[phoneGroup.uploadBandwidth]]</td>
-                        <td style="width: 6%;" class="text-center">[[phoneGroup.nr_percent]]</td>
-                        <td style="width: 6%;" class="text-center">[[phoneGroup.event_count]]</td>
-                        <td style="width: 7%;">
-                            [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
-                        </td>
-                        <td style="width: 7%;" v-if="phoneGroup.active">측정 중</td>
-                        <td style="width: 7%;" v-else="phoneGroup.active">측정종료</td>
-                        <td style="width: 7%;" v-if="phoneGroup.active">
-                            <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료" width="20">
-                        </td>
-                        <td style="width: 7%;" v-else="phoneGroup.active">
-                            <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료" width="20">
-                        </td>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 메시지/문자/텔레그램 -->
-        <div id = "bottom_body" class="fixed-table-container" style="display:flex; width:100%">
-            <div id="bottom_body_left" style="border: 2px solid rgb(228, 223, 223); padding: 10px; height:300px; width:60%;">
-
-                <!-- Tabs navs -->
-                <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
-                <ul class="nav nav-tabs nav-pills" id="msg" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
-                           aria-controls="msg-event" aria-selected="true">이벤트</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
-                           aria-controls="msg-sms" aria-selected="false">문자</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
-                           aria-controls="msg-tele" aria-selected="false">텔레그램</a>
-                    </li>
-                </ul>
-                <!-- Tabs navs End -->
-
-                <!-- Tabs content -->
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="msg-event" role="tabpanel"
-                         aria-labelledby="msg-event-tab">
-
-                        <table id="event-table" class='table table-hover'>
-                            <thead id='event-header'>
-                            <tr class="bg-light d-flex">
-                                <th style="width: 11%;">생성시간</th>
-                                <th style="width: 11%;">측정단말</th>
-                                <th style="width: 45%;">메세지</th>
-                                <th style="width: 11%;">전송시간</th>
-                                <th style="width: 11%;">전송여부</th>
-                                <th style="width: 11%;">회수여부</th>
-                            </tr>
-                            </thead>
-                            <tbody id='event-body' class="table-hover"
-                                   style="height:180px; overflow-y:auto; display:block">
-                            <tr v-for="message in messageEventList" class="d-flex"
-                                v-on:click="clickMessageList(message)">
-                                <td style="width: 11%;">[[ message.create_time ]]</td>
-                                <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 45%;">[[ message.message | truncate(65,'...')]]</td>
-                                <td style="width: 11%;">[[ message.sended_time ]]</td>
-                                <td style="width: 11%;" v-if="message.sended">전송</td>
-                                <td style="width: 11%;" v-else="message.sended">미전송</td>
-                                <td style="width: 11%;" v-if="message.isDel">회수</td>
-                                <td style="width: 11%;" v-else="message.idDel">-</td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-
-                    <div class="tab-pane fade" id="msg-sms" role="tabpanel" aria-labelledby="msg-sms-tab">
-
-                        <table id="xroshot-table" class='table table-hover'>
-                            <thead id='xroshot-header'>
-                            <tr class="bg-light d-flex">
-                                <th style="width: 12%;">생성시간</th>
-                                <th style="width: 12%;">측정단말</th>
-                                <th style="width: 52%;">메세지</th>
-                                <th style="width: 12%;">전송시간</th>
-                                <th style="width: 12%;">전송여부</th>
-                            </tr>
-                            </thead>
-                            <tbody id='xroshotDetail_body' class="table-hover"
-                                   style="height:180px; overflow-y:auto; display:block">
-                            <tr v-for="message in messageSmsList" class="d-flex"
-                                v-on:click="clickMessageList(message)">
-                                <td style="width: 12%;">[[ message.create_time ]]</td>
-                                <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                <td style="width: 12%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 52%;">[[ message.message | truncate(80,'...')]]</td>
-                                <td style="width: 12%;">[[ message.sended_time ]]</td>
-                                <td style="width: 12%;" v-if="message.sended">전송</td>
-                                <td style="width: 12%;" v-else="message.sended">미전송</td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-                    <div class="tab-pane fade" id="msg-tele" role="tabpanel" aria-labelledby="msg-tele-tab">
-
-                        <table id="tele-table" class='table table-hover'>
-                            <thead id='tele-header'>
-                            <tr class="bg-light d-flex">
-                                <th style="width: 11%;">생성시간</th>
-                                <th style="width: 11%;">측정단말</th>
-                                <th style="width: 45%;">메세지</th>
-                                <th style="width: 11%;">전송시간</th>
-                                <th style="width: 11%;">전송여부</th>
-                                <th style="width: 11%;">회수여부</th>
-                            </tr>
-                            </thead>
-                            <tbody id='teleDetail_body' class="table-hover"
-                                   style="height:180px; overflow-y:auto; display:block">
-                            <tr v-for="message in messageTeleList" class="d-flex"
-                                v-on:click="clickMessageList(message)">
-                                <td style="width: 11%;">[[ message.create_time ]]</td>
-                                <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
-                                <td style="width: 45%;">[[ message.message | truncate(65,'...')]]</td>
-                                <td style="width: 11%;">[[ message.sended_time ]]</td>
-                                <td style="width: 11%;" v-if="message.sended">전송</td>
-                                <td style="width: 11%;" v-else="message.sended">미전송</td>
-                                <td style="width: 11%;" v-if="message.isDel">회수</td>
-                                <td style="width: 11%;" v-else="message.idDel">-</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <div id= "row_middle" style="height:700px; position: relative;">
+            <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
+                style="margin-bottom:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:65%;">
+                <!-- <h6><b>금일 측정그룹</b></h6> -->
+                <div class="table-responsive text-nowrap">
+                    <table id="phonegroup-table" class='table table-hover'>
+                        <thead id='phonegroup-header'>
+                        <tr class="bg-light d-flex">
+                            <th style="width: 5%" class="text-center">
+                                <input type="checkbox"
+                                    v-model="allChecked"
+                                    @click="checkedAll($event.target.checked)"
+                                >
+                            </th>
+                            <th style="width: 5%;" class="text-center">본부</th>
+                            <th style="width: 6%;" class="text-center">조</th>
+                            <th style="width: 16%;"class="text-center">측정지역</th>
+                            <th style="width: 7%;" class="text-center">모폴로지</th>
+                            <th style="width: 7%;" class="text-center">네트워크</th>
+                            <th style="width: 6%;" class="text-center">DL콜수</th>
+                            <th style="width: 6%;" class="text-center">DL속도</th>
+                            <th style="width: 6%;" class="text-center">UL콜수</th>
+                            <th style="width: 6%;" class="text-center">UL속도</th>
+                            <th style="width: 6%;" class="text-center">전환율</th>
+                            <th style="width: 6%;" class="text-center">이벤트</th>
+                            <th style="width: 7%;">측정시간</th>
+                            <th style="width: 7%;">상태</th>
+                            <th style="width: 8%;">종료
+                                <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
+                                style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
+                                data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody id='phonegroup-body' class="table-hover"
+                            style="height:300px; overflow-y:auto; display:block" class="d-flex">
+                        <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex"
+                            v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="click_Tr"/>
+                            <td style="width: 5%;" class="text-center" onclick="event.cancelBubble=true">
+                                <input type="checkbox" 
+                                    :id="'check_' + phoneGroup.id"
+                                    :value="phoneGroup.id"
+                                    v-model="phoneGroup.selected"
+                                    @change="selected($event)"
+                                    
+                                >
+                            </td>
+                            <td style="width: 5%;" class="text-center">[[phoneGroup.centerName]]</td>
+                            <td style="width: 5%;" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
+                                data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
+                                title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
+                                [[phoneGroup.measuringTeam]]
+                            </td>
+                            <td style="width: 16%;"class="text-center">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
+                            <td style="width: 7%;" class="text-center">[[phoneGroup.morphologyName]]</td>
+                            <td style="width: 7%;" class="text-center">[[phoneGroup.networkId]]</td>
+                            <td style="width: 6%;" class="text-center">[[phoneGroup.dl_count]]</td>
+                            <td style="width: 6%;" class="text-center">[[phoneGroup.downloadBandwidth]]</td>
+                            <td style="width: 6%;" class="text-center">[[phoneGroup.ul_count]]</td>
+                            <td style="width: 6%;" class="text-center">[[phoneGroup.uploadBandwidth]]</td>
+                            <td style="width: 6%;" class="text-center">[[phoneGroup.nr_percent]]</td>
+                            <td style="width: 6%;" class="text-center">[[phoneGroup.event_count]]</td>
+                            <td style="width: 7%;">
+                                [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
+                            </td>
+                            <td style="width: 7%;" v-if="phoneGroup.active">측정 중</td>
+                            <td style="width: 7%;" v-else="phoneGroup.active">측정종료</td>
+                            <td style="width: 7%;" v-if="phoneGroup.active">
+                                <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료" width="20">
+                            </td>
+                            <td style="width: 7%;" v-else="phoneGroup.active">
+                                <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료" width="20">
+                            </td>
+                        </tbody>
+                    </table>
                 </div>
-                <!-- Tabs content End -->
-
             </div>
-            <!-- /.container -->
-            <div id="bottom_body_right">
 
-                <!-- 출처: https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content -->
-                <div style="display:flex;justify-content:space-between;">
+            <!-- 메시지/문자/텔레그램 -->
+            <div id = "bottom_body" class="fixed-table-container" style="display:flex; width:100%; height:35%;" ref="bottom_body">
+                <div id="bottom_body_left" style ="border: 2px solid rgb(228, 223, 223); padding: 10px; height:100%; width:60%;" ref="bottom_body_left">
+
                     <!-- Tabs navs -->
                     <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
-                    <ul class="nav nav-tabs nav-pills" id="msgdtl" role="tablist">
+                    <ul class="nav nav-tabs nav-pills" id="msg" role="tablist" style="height:44px">
                         <li class="nav-item">
-                            <a class="nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
-                               role="tab"
-                               aria-controls="msgdtl-message" aria-selected="true">메시지 상세내용</a>
+                            <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
+                            aria-controls="msg-event" aria-selected="true">이벤트</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
-                               role="tab"
-                               aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
+                            <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
+                            aria-controls="msg-sms" aria-selected="false">문자</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
+                            aria-controls="msg-tele" aria-selected="false">텔레그램</a>
                         </li>
                     </ul>
-                    <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
-                        <i id="message-trash"
-                           class="fa fa-trash-o mt-2"
-                           style="font-size:24px;"
-                           v-on:click="clickClearMessage"></i></button>
+                    <!-- Tabs navs End -->
+
+                    <!-- Tabs content -->
+                    <div class="tab-content" id="myTabContent" style="height:180px;">
+                        <div class="tab-pane fade show active" id="msg-event" role="tabpanel"
+                            aria-labelledby="msg-event-tab">
+
+                            <table id="event-table" class='table table-hover' style="height:100%;">
+                                <thead id='event-header' style="height:50px;">
+                                <tr class="bg-light d-flex text-center">
+                                    <th style="width: 11%;">생성시간</th>
+                                    <th style="width: 11%;">측정단말</th>
+                                    <th style="width: 45%;">메세지</th>
+                                    <th style="width: 11%;">전송시간</th>
+                                    <th style="width: 11%;">전송여부</th>
+                                    <th style="width: 11%;">회수여부</th>
+                                </tr>
+                                </thead>
+                                <tbody id='eventDetail_body' class="table-hover"
+                                    style="height:130px; overflow-y:auto; display:block">
+                                <tr v-for="message in messageEventList" class="d-flex text-center"
+                                    v-on:click="clickMessageList(message)">
+                                    <td style="width: 11%;">[[ message.create_time ]]</td>
+                                    <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                    <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                    <td style="width: 45%;">[[ message.message | truncate(75,'...')]]</td>
+                                    <td style="width: 11%;">[[ message.sended_time ]]</td>
+                                    <td style="width: 11%;" v-if="message.sended">전송</td>
+                                    <td style="width: 11%;" v-else="message.sended">미전송</td>
+                                    <td style="width: 11%;" v-if="message.isDel">회수</td>
+                                    <td style="width: 11%;" v-else="message.idDel">-</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                        <div class="tab-pane fade" id="msg-sms" role="tabpanel" aria-labelledby="msg-sms-tab" style="height:100%;">
+
+                            <table id="xroshot-table" class='table table-hover'>
+                                <thead id='xroshot_header' style="height:50px;">
+                                <tr class="bg-light d-flex text-center">
+                                    <th style="width: 12%;">생성시간</th>
+                                    <th style="width: 12%;">측정단말</th>
+                                    <th style="width: 52%;">메세지</th>
+                                    <th style="width: 12%;">전송시간</th>
+                                    <th style="width: 12%;">전송여부</th>
+                                </tr>
+                                </thead>
+                                <tbody id='xroshotDetail_body' class="table-hover"
+                                    style="height:130px; overflow-y:auto; display:block">
+                                <tr v-for="message in messageSmsList" class="d-flex text-center"
+                                    v-on:click="clickMessageList(message)">
+                                    <td style="width: 12%;">[[ message.create_time ]]</td>
+                                    <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                    <td style="width: 12%;" v-else="message.phone_no_sht">-</td>
+                                    <td style="width: 52%;">[[ message.message | truncate(90,'...')]]</td>
+                                    <td style="width: 12%;">[[ message.sended_time ]]</td>
+                                    <td style="width: 12%;" v-if="message.sended">전송</td>
+                                    <td style="width: 12%;" v-else="message.sended">미전송</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                        <div class="tab-pane fade" id="msg-tele" role="tabpanel" aria-labelledby="msg-tele-tab" style="height:100%;">
+
+                            <table id="tele_table" class='table table-hover'>
+                                <thead id='tele-header' style="height:50px;">
+                                <tr class="bg-light d-flex text-center">
+                                    <th style="width: 11%;">생성시간</th>
+                                    <th style="width: 11%;">측정단말</th>
+                                    <th style="width: 45%;">메세지</th>
+                                    <th style="width: 11%;">전송시간</th>
+                                    <th style="width: 11%;">전송여부</th>
+                                    <th style="width: 11%;">회수여부</th>
+                                </tr>
+                                </thead>
+                                <tbody id='teleDetail_body' class="table-hover"
+                                    style="height:130px; overflow-y:auto; display:block">
+                                <tr v-for="message in messageTeleList" class="d-flex text-center"
+                                    v-on:click="clickMessageList(message)">
+                                    <td style="width: 11%;">[[ message.create_time ]]</td>
+                                    <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                    <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                    <td style="width: 45%;">[[ message.message | truncate(75,'...')]]</td>
+                                    <td style="width: 11%;">[[ message.sended_time ]]</td>
+                                    <td style="width: 11%;" v-if="message.sended">전송</td>
+                                    <td style="width: 11%;" v-else="message.sended">미전송</td>
+                                    <td style="width: 11%;" v-if="message.isDel">회수</td>
+                                    <td style="width: 11%;" v-else="message.idDel">-</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Tabs content End -->
 
                 </div>
-                <!-- Tabs navs End -->
+                <!-- /.container -->
+                <div id="bottom_body_right" style ="border: 2px solid rgb(228, 223, 223); padding: 10px; margin-left:30px; height:100%; width:40%" ref="bottom_body_right">
 
-                <!-- Tabs content -->
-                <div class="tab-content text-center" id="myTabContent">
-                    <div class="tab-pane fade show active mt-1" id="msgdtl-message" role="tabpanel"
-                         aria-labelledby="msgdtl-message-tab">
-                         <textarea class="form-control mb-2" id="message_contents"
-                                   rows="6">[[message.message]]</textarea>
-                        <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
-                        <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage">회수</button>
+                    <!-- 출처: https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content -->
+                    <div style="display:flex;justify-content:space-between;">
+                        <!-- Tabs navs -->
+                        <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
+                        <ul class="nav nav-tabs nav-pills" id="msgdtl" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
+                                role="tab"
+                                aria-controls="msgdtl-message" aria-selected="true">메시지 상세내용</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
+                                role="tab"
+                                aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
+                            </li>
+                        </ul>
+                        <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
+                            <i id="message-trash"
+                            class="fa fa-trash-o mt-2"
+                            style="font-size:24px;"
+                            v-on:click="clickClearMessage"></i></button>
+
                     </div>
-                    <div class="tab-pane fade mt-1" id="msgdtl-recipient" role="tabpanel"
-                         aria-labelledby="msgdtl-recipient-tab">
-                             <textarea class="form-control mb-1" id="recipient_list"
-                                       rows="6" v-model="recipient_text"
-                                       placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다."></textarea>
-                        <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
-                               @change="selectedFile"/>
+                    <!-- Tabs navs End -->
+
+                    <!-- Tabs content -->
+                    <div class="tab-content text-center" id="myTabContent">
+                        <div class="tab-pane fade show active mt-1" id="msgdtl-message" role="tabpanel"
+                            aria-labelledby="msgdtl-message-tab">
+                            <textarea class="form-control mb-2" id="message_contents"
+                                    rows="5">[[message.message]]</textarea>
+                            <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
+                            <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage">회수</button>
+                        </div>
+                        <div class="tab-pane fade mt-1" id="msgdtl-recipient" role="tabpanel"
+                            aria-labelledby="msgdtl-recipient-tab">
+                                <textarea class="form-control mb-1" id="recipient_list"
+                                        rows="5" v-model="recipient_text"
+                                        placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다." ref = "phoneNumberArea" value></textarea>
+                            <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
+                                @change="selectedFile"/>
+                        </div>
                     </div>
+                    <!-- Tabs content End-->
+
                 </div>
-                <!-- Tabs content End-->
-
             </div>
         </div>
-
         <!-- Modal -->
         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
              aria-hidden="true"
@@ -502,6 +519,8 @@
          *            - 문자 메시지 조회시 측정단말 및 단말그룹이 없는 경우 해당 측정일자에 생성된 건이 조회 추가
          *              (전송유형: ALL)
          * 2022.04.12 - 화면처리 흐름도 및 주석 추가
+
+         * 2022.04.18 - 
          =============================================================================================================*/
         const vm = new Vue({
             delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
@@ -523,6 +542,12 @@
                     isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
                     recipient_text: null, // 수신자 리스트
                     selectedPhoneGroup: {},
+
+                    /////////폰그룹선택확인 변수
+                    clickSignal:false,
+                    pnoClick:'phonegroup-noclick',
+                    pClick:'phonegroup-click',
+            
                 }
             },
             computed: {
@@ -534,7 +559,7 @@
                         }
                     }
                     return phoneGroupIdList.length
-                }
+                },
             },
             watch: {
                 date() {
@@ -557,13 +582,27 @@
 
                 // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
                 this.fetch_all_phoneGroup();
-                this.timer = setInterval(this.fetch_all_phoneGroup, 10000);
+                this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
                 this.messageEventList = []; // 이벤트 메시지 리스트
                 this.messageSmsList = []; // 문자 메시지 리스트
                 this.messageTeleList = []; // 텔레그램 메시지 리스트
                 this.message = {}; // 메시지 상세내역
-
             },
+
+            mounted() {
+                this.$nextTick(function () {
+                    bottom_body = this.$refs.bottom_body.clientWidth
+                    bottom_body_right = this.$refs.bottom_body_right.clientWidth;
+                    bottom_body_left = this.$refs.bottom_body_left.clientWidth;
+                    bottomBodyRight = bottom_body - bottom_body_left - 30 + 'px'
+                    console.log(bottom_body_right)
+                    console.log(bottom_body_left);
+                    console.log(bottom_body - bottom_body_right - 30);
+                    console.log(bottomBodyRight)
+                  // 전체 화면내용이 렌더링된 후에 아래의 코드가 실행됩니다.
+                })
+            },
+
             methods: {
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정일자에 해당하는 측정단말 리스트를 가져온다.
@@ -589,13 +628,20 @@
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
                  -----------------------------------------------------------------------------------------------------*/
-                clickPhoneGroupList: function (phoneGroup) {
+                clickPhoneGroupList: function (phoneGroup, event) {
                     this.selectedPhoneGroup = phoneGroup;
                     this.fetch_all_message(phoneGroup);
                     this.message = {};
+
+                    tr_len = this.$refs.click_Tr.length //테이블의 tr의 개수
+                    for(let i=0; i< tr_len; i++){
+                        this.$refs.click_Tr[i].style.backgroundColor='white';
+                    } 
+                    event.currentTarget.style.backgroundColor='#96FFFF';
+
                 },
                 /* -----------------------------------------------------------------------------------------------------
-                 * 전송 메시지(이벤트/문자/텔레그랠) 리스트를 가져온다.
+                 * 전송 메시지(이벤트/문자/텔레그램) 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
                 async fetch_all_message(phoneGroup) {
                     const res = await fetch("/api/message/list/" + phoneGroup.id)
@@ -709,6 +755,7 @@
                         this.deleteMessage()
                     } else if (e.target.innerText === "전송") {
                         this.sendMessage()
+                        this.recipient_text = null; //수신자 리스트 제거
                     }
                     $("#mi-modal").modal('hide');
                 },
@@ -722,7 +769,6 @@
                  -----------------------------------------------------------------------------------------------------*/
                 // 1-1) 전송 버튼을 클릭했을 때 모달창을 띄운다.
                 clickSendMessage() {
-                    console.log(this.message)
                     if (this.message.id === undefined) {
                         this.isModelConfirmDisabled = false
                         $("#modal-btn-confirm").html('전송');
@@ -914,7 +960,53 @@
          */
 
         $(document).ready(function () {
+            var bottom_body_left_size
+            var bottom_body_right_size
+            var bottom_body_size
+            var bottom_body_height_size
+            var row_middle_size
+            var middle_phonegroup_size
+
             $('[data-toggle="tooltip"]').tooltip()
+
+            $('#bottom_body_left').resize(function() {
+
+                bottom_body_left_rightsize = $('#bottom_body_left').innerWidth();
+                bottom_body_size = $('#bottom_body').innerWidth();
+                bottom_body_right_size = bottom_body_size - bottom_body_left_rightsize - 30;
+        
+                document.getElementById('bottom_body_right').style.width = bottom_body_right_size + 'px'
+                
+              });
+        
+            $('#middle_phonegroup').resize(function() {
+
+                middle_phonegroup_size = $('#middle_phonegroup').innerHeight();
+                console.log(middle_phonegroup_size)
+                row_middle_size = $('#row_middle').innerHeight();
+                bottom_body_height_size = row_middle_size - middle_phonegroup_size - 10;
+                message_height_size = bottom_body_height_size - 115;
+                document.getElementById('bottom_body').style.height = bottom_body_height_size + 'px'
+                document.getElementById('eventDetail_body').style.height = message_height_size + 'px'
+                document.getElementById('xroshotDetail_body').style.height = message_height_size + 'px'
+                document.getElementById('teleDetail_body').style.height = message_height_size + 'px'
+
+                if(bottom_body_height_size < 250){
+                    document.getElementById('message_contents').rows = 5
+                }else if(bottom_body_height_size > 300 & bottom_body_height_size < 350){
+                    document.getElementById('message_contents').rows = 7
+                }else if(bottom_body_height_size > 350 & bottom_body_height_size < 441){
+                    document.getElementById('message_contents').rows = 9
+                }else if(bottom_body_height_size > 441){
+                    document.getElementById('message_contents').rows = 11
+                }
+            
+            });
+
+            $('#bottom_body_left').resizable({ grid: [1, 10000] });  //좌우만 크기조정
+            $('#middle_phonegroup').resizable({ grid: [10000, 1], maxHeight: 450 }); //상하만 크기조정
+  
+            //출처: https://offbyone.tistory.com/353 [쉬고 싶은 개발자]
         });
 
     </script>

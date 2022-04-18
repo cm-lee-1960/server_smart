@@ -72,6 +72,7 @@ def phonegroup_list(request, measdate):
                 data = serializer.data
                 data['selected'] = False
                 phoneGroupList.append(data)
+                # print(data)
 
         # 2022.04.07 - 측정중인 건수와 측정종료된 건수를 확인하기 위해서 다시 작성함
         centerList = []

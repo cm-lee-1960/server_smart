@@ -19,30 +19,10 @@
     <link rel="stylesheet" type="text/css" href="{% static "css/nav.css" %}">
 
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
-    {% comment %} <script src="http://code.jquery.com/jquery.min.js"></script> {% endcomment %}
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
-    {% comment %} <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script> {% endcomment %}
     <script src = "{% static "js/jquery-ui.min.js" %}"></script>
-    <script>
-      $( document ).ready(function() {
-          $('#bottom_body_left').resizable({ grid: [1, 10000] });
-          $('#middle_phonegroup').resizable({ grid: [10000, 1] });
-          console.log(jbInnerWidth1);
-          console.log($('#bottom_body').innerWidth());
-          console.log($('#bottom_body').innerWidth() - $( '#bottom_body_left' ).innerWidth());
+    <script src="//layout.jquery-dev.com/lib/js/jquery.layout-latest.js"></script>
 
-      //출처: https://offbyone.tistory.com/353 [쉬고 싶은 개발자]
-      });
-    </script>
-    <style>
-      #bottom_body_right{
-        border: 2px solid rgb(228, 223, 223);
-        margin-left:30px; 
-        padding: 10px; 
-        height:300px;
-        width:40%;
-      }
-    </style>
     {% block extra-style %}{% endblock %}
 
 </head>
