@@ -178,9 +178,9 @@
                             <th style="width: 6%;" class="text-center">UL속도</th>
                             <th style="width: 6%;" class="text-center">전환율</th>
                             <th style="width: 6%;" class="text-center">이벤트</th>
-                            <th style="width: 7%;">측정시간</th>
-                            <th style="width: 7%;">상태</th>
-                            <th style="width: 8%;">종료
+                            <th style="width: 7%;" class="text-center">측정시간</th>
+                            <th style="width: 7%;" class="text-center">상태</th>
+                            <th style="width: 8%;" class="text-center">종료
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                                 data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -189,8 +189,8 @@
                         </thead>
                         <tbody id='phonegroup-body' class="table-hover"
                             style="height:300px; overflow-y:auto; display:block" class="d-flex">
-                        <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex"
-                            v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="click_Tr"/>
+                        <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex" v-bind:id="phoneGroup.id"
+                            v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="clickphone_Tr"/>
                             <td style="width: 5%;" class="text-center" onclick="event.cancelBubble=true">
                                 <input type="checkbox" 
                                     :id="'check_' + phoneGroup.id"
@@ -215,15 +215,15 @@
                             <td style="width: 6%;" class="text-center">[[phoneGroup.uploadBandwidth]]</td>
                             <td style="width: 6%;" class="text-center">[[phoneGroup.nr_percent]]</td>
                             <td style="width: 6%;" class="text-center">[[phoneGroup.event_count]]</td>
-                            <td style="width: 7%;">
+                            <td style="width: 7%;" class="text-center">
                                 [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
                             </td>
-                            <td style="width: 7%;" v-if="phoneGroup.active">측정 중</td>
-                            <td style="width: 7%;" v-else="phoneGroup.active">측정종료</td>
-                            <td style="width: 7%;" v-if="phoneGroup.active">
+                            <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">측정 중</td>
+                            <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">측정종료</td>
+                            <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">
                                 <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료" width="20">
                             </td>
-                            <td style="width: 7%;" v-else="phoneGroup.active">
+                            <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">
                                 <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료" width="20">
                             </td>
                         </tbody>
@@ -244,7 +244,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
-                            aria-controls="msg-sms" aria-selected="false">문자</a>
+                            aria-controls="msg-sms" aria-selected="false" v-on:click="endmessageColor()">문자</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
@@ -263,7 +263,7 @@
                                 <tr class="bg-light d-flex text-center">
                                     <th style="width: 11%;">생성시간</th>
                                     <th style="width: 11%;">측정단말</th>
-                                    <th style="width: 45%;">메세지</th>
+                                    <th style="width: 46%;">메세지</th>
                                     <th style="width: 11%;">전송시간</th>
                                     <th style="width: 11%;">전송여부</th>
                                     <th style="width: 11%;">회수여부</th>
@@ -271,12 +271,13 @@
                                 </thead>
                                 <tbody id='eventDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block">
-                                <tr v-for="message in messageEventList" class="d-flex text-center"
-                                    v-on:click="clickMessageList(message)">
-                                    <td style="width: 11%;">[[ message.create_time ]]</td>
+                                <tr v-for="(message,index) in messageEventList" class="d-flex text-center clickEvent" 
+                                    v-on:click="clickMessageList(message, $event)" ref = "clickevent_Tr">
+                                    <td style="width: 11%;" >[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
-                                    <td style="width: 45%;">[[ message.message | truncate(75,'...')]]</td>
+                                    <td style="width: 46%;" v-html="messageEventListsplit[index]"></td>
+                                    {% comment %} <td style="width: 46%;">[[ message.message | truncate(75,'...')]]</td> {% endcomment %}
                                     <td style="width: 11%;">[[ message.sended_time ]]</td>
                                     <td style="width: 11%;" v-if="message.sended">전송</td>
                                     <td style="width: 11%;" v-else="message.sended">미전송</td>
@@ -303,10 +304,10 @@
                                 <tbody id='xroshotDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block">
                                 <tr v-for="message in messageSmsList" class="d-flex text-center"
-                                    v-on:click="clickMessageList(message)">
+                                    v-on:click="clickMessageList(message, $event)" >
                                     <td style="width: 12%;">[[ message.create_time ]]</td>
                                     <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                    <td style="width: 12%;" v-else="message.phone_no_sht">-</td>
+                                    <td style="width: 12%;" v-else="message.phone_no_sht" ref="endmessage_td">-</td>
                                     <td style="width: 52%;">[[ message.message | truncate(90,'...')]]</td>
                                     <td style="width: 12%;">[[ message.sended_time ]]</td>
                                     <td style="width: 12%;" v-if="message.sended">전송</td>
@@ -331,8 +332,8 @@
                                 </thead>
                                 <tbody id='teleDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block">
-                                <tr v-for="message in messageTeleList" class="d-flex text-center"
-                                    v-on:click="clickMessageList(message)">
+                                <tr v-for="message in messageTeleList" class="d-flex text-center clickTele"
+                                    v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
                                     <td style="width: 11%;">[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
@@ -533,6 +534,7 @@
                     centerList: [], // 측정중인 센터수,
                     phoneGroupList: [], // 측정 단말그룹 리스트
                     messageEventList: [], // 이벤트 메시지 리스트
+                    messageEventListsplit: [], // 이벤트 메시지 유형 리스트
                     messageSmsList: [], // 문자 메시지 리스트
                     messageTeleList: [], // 텔레그램 메시지 리스트
                     message: {}, // 메시지 상세내역
@@ -547,7 +549,10 @@
                     clickSignal:false,
                     pnoClick:'phonegroup-noclick',
                     pClick:'phonegroup-click',
-            
+
+                    ///////폰그룹 내용 변경 확인 사전
+                    phoneGroupListChangeCheck : {},
+                    
                 }
             },
             computed: {
@@ -569,6 +574,8 @@
                     this.messageSmsList = []; // 문자 메시지 리스트
                     this.messageTeleList = []; // 텔레그램 메시지 리스트
                     this.message = {}; // 메시지 상세내역
+    
+                    this.phoneGroupListChangeCheck = {};//폰그룹 변경 체크 초기화
                 },
             },
             created: function () {
@@ -587,20 +594,7 @@
                 this.messageSmsList = []; // 문자 메시지 리스트
                 this.messageTeleList = []; // 텔레그램 메시지 리스트
                 this.message = {}; // 메시지 상세내역
-            },
 
-            mounted() {
-                this.$nextTick(function () {
-                    bottom_body = this.$refs.bottom_body.clientWidth
-                    bottom_body_right = this.$refs.bottom_body_right.clientWidth;
-                    bottom_body_left = this.$refs.bottom_body_left.clientWidth;
-                    bottomBodyRight = bottom_body - bottom_body_left - 30 + 'px'
-                    console.log(bottom_body_right)
-                    console.log(bottom_body_left);
-                    console.log(bottom_body - bottom_body_right - 30);
-                    console.log(bottomBodyRight)
-                  // 전체 화면내용이 렌더링된 후에 아래의 코드가 실행됩니다.
-                })
             },
 
             methods: {
@@ -624,6 +618,42 @@
                     this.centerList = data['centerList']; // 센터별 측정현황
                     this.phoneGroupList = data['phoneGroupList']; // 단말그룹 리스트
                     //this.checkedCount = 0;
+                    //for(let i=0; i < this.phoneGroupList.length; i++){
+                    //    this.testfunction(this.phoneGroupList[i].id)
+                    //}
+                    
+
+                    if(Object.keys(this.phoneGroupListChangeCheck).length > 0){ //체인지 체크에 데이터가 있어야한다.
+                        console.log(Object.keys(this.phoneGroupListChangeCheck))
+                        for(p_c_Id of Object.keys(this.phoneGroupListChangeCheck)){   //52 - phnoeGroup.id
+                            for(p_Id in Object.keys(this.phoneGroupList)){
+                                console.log(this.phoneGroupList[p_Id].id)
+                                console.log(p_c_Id)
+                                if(this.phoneGroupList[p_Id].id == p_c_Id){
+                                    console.log("잘드어왔다.")
+                                    if(this.phoneGroupList[p_Id].last_updated_dt !== this.phoneGroupListChangeCheck[p_c_Id]){
+                                        console.log("잘들어왔따.")
+                                        this.colorChange(p_c_Id)
+                                    }
+                                }
+                            }
+                        }
+                    }
+        
+                    for(let p_Id in Object.keys(this.phoneGroupList)){
+                        this.phoneGroupListChangeCheck[this.phoneGroupList[p_Id].id] = this.phoneGroupList[p_Id].last_updated_dt
+                    }
+                    //다시 딕셔너리에 넣는다.         
+                    //console.log(this.phoneGroupListChangeCheck)
+                    //dic
+                },
+                async colorChange(p_c_Id) {
+                    console.log(p_c_Id)
+                    console.log($("#"+p_c_Id))
+                    $("#" + p_c_Id).stop().animate({"background-color":"#D4D4D4","color":"black"},1000,function() {
+                        $("#" + p_c_Id).stop().animate({"background-color":"#FFFFFF","color":"black"},1000);
+                    });
+                    
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
@@ -633,12 +663,35 @@
                     this.fetch_all_message(phoneGroup);
                     this.message = {};
 
-                    tr_len = this.$refs.click_Tr.length //테이블의 tr의 개수
+                    ////////폰그룹 선택한놈 색상 바꾸기
+                    tr_len = this.$refs.clickphone_Tr.length //테이블의 tr의 개수
+
                     for(let i=0; i< tr_len; i++){
-                        this.$refs.click_Tr[i].style.backgroundColor='white';
+                        this.$refs.clickphone_Tr[i].style.backgroundColor='white';
                     } 
                     event.currentTarget.style.backgroundColor='#96FFFF';
 
+
+                    $("#msg-event-tab").addClass('active')
+                    $("#msg-event").removeClass('fade')
+                    $("#msg-event").addClass('active')
+
+                    
+                    $("#msg-sms-tab").removeClass('active')
+                    $("#msg-sms").removeClass('active')
+
+                    $("#msg-tele-tab").removeClass('active')
+                    $("#msg-tele").removeClass('active')
+
+                },
+
+                endmessageColor: function(){
+                    if(this.$refs.endmessage_td){
+                        console.log("잘들어왓다 엔드메세지")
+                        for(let i=0; i < this.$refs.endmessage_td.length; i++){
+                            this.$refs.endmessage_td[i].parentNode.style.backgroundColor='#96FFFF';
+                        }
+                    }
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 전송 메시지(이벤트/문자/텔레그램) 리스트를 가져온다.
@@ -649,12 +702,37 @@
                     this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
                     this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
                     this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
+
+                    this.messageEventListsplit = []
+                    for(let i=0 ; i < this.messageEventList.length; i++){
+                        startPosition = this.messageEventList[i].message.indexOf('*')
+                        //endPosition = this.messageEventList[i].message.lastIndexOf('(')
+                        this.messageEventListsplit.push(this.messageEventList[i].message.substring(startPosition))
+                    }
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 전송 메시지 내역을 클릭 했을 때 메시지 상세내역을 보여준다.
                  -----------------------------------------------------------------------------------------------------*/
-                clickMessageList: function (message) {
+                clickMessageList: function (message, event) {
                     this.message = message
+                    console.log(event.currentTarget.classList)
+                    
+                    event_tr_len = this.$refs.clickevent_Tr.length //event테이블의 tr의 개수
+                    tele_tr_len = this.$refs.clicktele_Tr.length //event테이블의 tr의 개수
+                    
+                    event_classlist = event.currentTarget.classList;
+  
+                    if(event_classlist.contains("clickEvent")){
+                        for(let i=0; i< event_tr_len; i++){
+                            this.$refs.clickevent_Tr[i].style.backgroundColor='white';
+                        } 
+                    }else if(event_classlist.contains("clickTele")){
+                        for(let i=0; i< tele_tr_len; i++){
+                            this.$refs.clicktele_Tr[i].style.backgroundColor='white';
+                        } 
+                    }
+
+                    event.currentTarget.style.backgroundColor='#96FFFF';
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹 리스트 체크박스 관련 함수
@@ -662,10 +740,10 @@
                 checkedAll(checked) {
                     this.allChecked = checked
                     for (let i in this.phoneGroupList) {
-                        this.phoneGroupList[i].selected = this.allChecked;
+                        this.phoneGroupList[i].selected = this.allChecked; // selected에 전부 true가들어간다.
                     }
                 },
-                selected(e) {
+                selected(e) {  //하나라도 체크빠져있으면 allcheck 해제
                     for (let i in this.phoneGroupList) {
                         if (!this.phoneGroupList[i].selected) {
                             this.allChecked = false;
@@ -701,6 +779,8 @@
                             this.phoneGroupList[i].selected = false;
                         }
                     }
+
+                    //console.log(res)
                 },
                 // 2) 해당 일자에 대한 측정을 마감한다.
                 async measuring_day_close() {
@@ -748,9 +828,35 @@
                     if (e.target.innerText === "측정종료") {
                         // 선택된 단말그룹에 대한 측정을 종료한다.
                         this.measuring_end();
+
+                        clearTimeout(alertTimer);
+                        var alertTimer = setTimeout(function() {
+                           
+                            Swal.fire({
+                                icon: 'info',
+                                title: '측정이 종료되었습니다.',
+                                text: '해당지역의 종료문자를 확인해주세요',
+                            });
+
+                          }, 3000);
+                          
+
                     } else if (e.target.innerText === "측정마감") {
                         // 해당일자에 대한 측정을 마감한다.
                         this.measuring_day_close()
+
+                            Swal.fire({
+                                toast: true,
+                                icon: 'success',
+                                title: '일일마감이 처리중입니다.',
+                                animation: false,
+                                position: 'center',
+                                showConfirmButton: false,
+                                timer: 10000,
+                                timerProgressBar: true,
+                            });
+                            
+                            //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
                     } else if (e.target.innerText === "회수") {
                         this.deleteMessage()
                     } else if (e.target.innerText === "전송") {
@@ -821,7 +927,25 @@
                     // 처리결과를 기다렸다가 표시하면 좋을 듯 함
                     //const data = await response.json();
                     console.log("send-received:", response);
+                    
+                    if(response.ok){
 
+                        Swal.fire({
+                            icon: 'success',
+                            title: '문자전송내용',
+                            text: '문자전송이 성공하였습니다.',
+                        });
+
+                    }else{
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: '문자전송내용',
+                            text: '문자전송이 실패하였습니다.',
+                        });
+                        
+                    }
+                
                     // 메시지 재전송 완료 후 메시지 리스트를 다시 조회한다.
                     await this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};

@@ -149,8 +149,10 @@ def message_list(request, phonegroup_id):
 
                 # 해당 단말그룹에 대한 모든 메시지를 가져온다.
                 qs = Message.objects.filter(
-                    Q(phone__phoneGroup_id=phonegroup_id) | \
-                    Q(measdate=measdate, sendType='ALL')).order_by('-updated_at')
+                    #Q(phone__phoneGroup_id=phonegroup_id) | \
+                    #Q(measdate=measdate, sendType='ALL')).order_by('-updated_at')
+                    Q(measdate=measdate, phoneGroup_id=phonegroup_id)).order_by('-updated_at')
+             
                 if qs.exists():
                     # 1) 이벤트 메시지 내역을 가져온다.
                     event_qs = qs.filter(messageType='EVENT')
@@ -170,7 +172,7 @@ def message_list(request, phonegroup_id):
                             messageSmsList.append(serializer.data)
 
                     # 3) 텔레그램 메시지 내역을 가져온다.
-                    tele_qs = qs.filter(sendType='TELE')
+                    tele_qs = qs.filter(sendType='TELE', messageType='SMS')
                     if tele_qs.exists():
                         for message in tele_qs:
                             serializer = MessageSerializer(message, fields=fields)

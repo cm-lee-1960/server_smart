@@ -125,11 +125,12 @@ class PhoneGroup(models.Model):
     def elapsed_time(self):
         """경과시간(분)을 반환한다."""
         if self.active:
-            # 실제 운영시에는 최종 위치보고시간과 현재시간과의 차이(분)을 반환하도록 해야 한다.
-            # daysDiff = (datetime.now() - self.last_updated_dt).days
-            # minutesDiff = daysDiff * 24 * 60
-            minutesDiff = random.randint(0, 10)
-            return minutesDiff
+            #실제 운영시에는 최종 위치보고시간과 현재시간과의 차이(분)을 반환하도록 해야 한다.
+            #daysDiff = (datetime.now() - self.last_updated_dt).days
+            daysDiff= str(round((datetime.now() - self.last_updated_dt).seconds/60))+"분"
+            #minutesDiff = daysDiff * 24 * 60
+            # minutesDiff = random.randint(0, 10)
+            return daysDiff
         else:
             return '-'
 
