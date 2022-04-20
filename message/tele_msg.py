@@ -105,12 +105,14 @@ class TelegramBot:
             raise Exception("send_message_bot(): %s" % e)
 
     # ------------------------------------------------------------------------------------------------------------------
-    # 보낸 메시지 삭제 함수 - Chat_ID와 Message_ID 정보로 삭제 가능
+    # 보낸 메시지 삭제(회수) 함수 - Chat_ID와 Message_ID 정보로 삭제 가능
     # 삭제하고자 하는 Message 에 필요한 정보를 DB에서 읽어와서 삭제
     # 2022.03.19 - 전달되는 파라미터 약어명를 내용을 알 수 있도록 풀명으로 수정함
     # ------------------------------------------------------------------------------------------------------------------
     def delete_message(self, chat_id, message_id):
-        """전송된 메시지를 삭제하는 함수"""
+        """전송된 메시지를 삭제하는 함수
+            파라미터: 수신자ChatID, 보낸메시지ID
+            반환값: Boolean (True / False)"""
         result = self.bot.deleteMessage(chat_id=chat_id, message_id=message_id)
         return result
 

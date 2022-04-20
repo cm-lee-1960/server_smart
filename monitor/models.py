@@ -725,7 +725,8 @@ class Message(models.Model):
     channelId = models.CharField(max_length=25) # 채널ID
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
     sended = models.BooleanField(default=True) # 전송여부
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='생성일시')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일시')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='최종 업데이트 시간')
     sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
     isDel = models.BooleanField(default=False, verbose_name='회수여부')  # Telegram 메시지 회수 여부
@@ -743,8 +744,8 @@ class Message(models.Model):
     # 메시지 생성시간을 반환한다.
     @property
     def create_time(self):
-        if self.updated_at is not None:
-            return self.updated_at.strftime("%H:%M")
+        if self.created_at is not None:
+            return self.created_at.strftime("%H:%M")
         else:
             return ''
 
