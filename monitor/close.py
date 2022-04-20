@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q
 from django.db import connection
 from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose
-from management.models import Center
+from management.models import Center, Morphology
 from .serializers import PhoneGroupSerializer
 from message.tele_msg import TelegramBot
 from datetime import datetime
@@ -78,9 +78,7 @@ def measuring_end(phoneGroup):
     """ 해당지역의 측정을 종료하는 함수
       - 파라미터
         . phoneGroup: 단말그룹(PhoneGroup)
-      - 반환값: dict
-        . message_id: 메시지ID
-        . message: 메시지 내용
+      - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
     """
     if phoneGroup.active == False:  # 이미 종료한 지역일 경우 pass 처리
         return {'message' : '이미 측정 종료한 지역'}
@@ -265,8 +263,7 @@ def measuring_end(phoneGroup):
             raise Exception("measuring_end/message_end_last: %s" % e)
 
         # 반환값에 대해서는 향후 고민 필요  //  일단 생성된 종료 message 내용 반환
-        return_value = {'message': message}
-
+        return_value = {'result': 'ok'}
         return return_value
 
 
@@ -278,8 +275,7 @@ def measuring_day_close(phoneGroup_list, measdate):
       - 파라미터
         . phoneGroup_list: active=True인 단말그룹(PhoneGroup) 리스트
         . measdate: 마감하고자 하는 날짜
-      - 반환값: string
-        . message_report: 일일보고용 메시지 내용
+      - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
     """
     # 1) 단말그룹: 상태변경 - 혹시 남아 있는 상태(True)
     # 2) 측정단말: 상태변경 - 혹시 남아 있는 상태(True)
@@ -382,13 +378,16 @@ def measuring_day_close(phoneGroup_list, measdate):
         print("일일보고 메시지 수합, 생성:", str(e))
         raise Exception("measuring_day_close/message_report_all: %s" % e)
     
+    # 5G 및 LTE의 커버리지 측정 대상 수를 계산 및 저장한다.  // total_count 컬럼에 대상 수 저장
+    measuring_day_close_coverage(measdate)
+        
     # 모든 폰그룹들을 inactive 시킨다.
     PhoneGroup.objects.filter(measdate=measdate).update(active=False)
     
     # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
-    return_value = {'measdate': measdate, 'message': message_report_all}
-
+    return_value = {'result': 'ok'}
     return return_value
+
 
 
 
@@ -398,8 +397,7 @@ def measuring_day_reclose(measdate):
       - 파라미터
         . phoneGroup_list: active=True인 단말그룹(PhoneGroup) 리스트
         . measdate: 마감하고자 하는 날짜
-      - 반환값: string
-        . message_report: 일일보고용 메시지 내용
+      - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
     """  
     # 해당날짜 phoneGroup에 대해 데이터 재생성
     for phoneGroup in PhoneGroup.objects.filter(ispId='45008', manage=True, measdate=measdate):
@@ -428,6 +426,8 @@ def measuring_day_reclose(measdate):
                                 total_count=total_count, \
                                 udpJitter=udpJitter, success_rate=success_rate, connect_time=connect_time,
                                 **serializer.data)
+            # 5G 및 LTE의 커버리지 측정 대상 수를 계산 및 저장한다.  // total_count 컬럼에 대상 수 저장
+            measuring_day_close_coverage(measdate)
 
         except Exception as e:
             print("재마감 데이터 계산, 저장:", str(e))
@@ -444,6 +444,7 @@ def measuring_day_reclose(measdate):
 #####################################################################################################################
 ####### 측정 종료 or 마감 시 필요한 데이터 계산 함수
 #######      - 평균 속도(콜데이터, 초데이터) / LTE전환율 / 평균지연시간 / 전송 성공률 / 접속시간 / LTE CA비율 등
+#######      - (4.20 추가) 모폴로지 커버리지인 대상 수 계산 함수
 #####################################################################################################################
 def cal_avg_bw_call(phoneGroup):
     ''' 평균속도 계산 함수 (콜데이터)
@@ -532,3 +533,30 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
         avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
     else: avg_uploadBandwidth = 0
     return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
+
+
+# 측정 마감 시 커버리지 대상 수 계산 함수 --> morphology='커버리지'로 계산  // manage=False 인 애들로 할까? 검토중
+# total_count에 대상 수를 저장한다.
+def measuring_day_close_coverage(measdate):
+    ''' 커버리지 대상 수 계산 함수
+     . 파라미터: measdate
+     . 반환값: Dict {5G : 5G대상 수, LTE : LTE대상 수} '''
+    try:
+        fivg_coverage_count = PhoneGroup.objects.filter(ispId='45008', morphology__morphology='커버리지', measdate=measdate, networkId='5G').count()
+        lte_coverage_count = PhoneGroup.objects.filter(ispId='45008', morphology__morphology='커버리지', measdate=measdate, networkId='LTE').count()
+        coverage_count = {'5G':fivg_coverage_count, 'LTE':lte_coverage_count}
+        for key, value in coverage_count.items():
+            if MeasuringDayClose.objects.filter(measdate=measdate, networkId=key, morphology__morphology='커버리지').exists():
+                MeasuringDayClose.objects.filter(measdate=measdate, networkId=key, morphology__morphology='커버리지').update(total_count=value)
+            else:
+                MeasuringDayClose.objects.create(
+                    phoneGroup=None,
+                    measdate=measdate,
+                    networkId=key,
+                    total_count=value,
+                    morphology=Morphology.objects.get(morphology='커버리지'),
+                    #morphology_id=PhoneGroup.objects.filter(morphology__morphology='커버리지')[0].morphology_id,
+                )
+        return coverage_count
+    except Exception as e: # 묶인 center가 없으면 channelId는 None
+        raise Exception("measuring_day_close_coverage(): %s" % e)

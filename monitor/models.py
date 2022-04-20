@@ -803,8 +803,8 @@ post_save.connect(send_message, sender=Message)
 class MeasuringDayClose(models.Model):
     """측정마감 클래스"""
     measdate = models.CharField(max_length=10, verbose_name='측정일자')  # 측정일자(예: 20211101)
-    phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING, verbose_name='단말그룹')  # 단말그룹
-    userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
+    phoneGroup = models.ForeignKey(PhoneGroup, null=True, on_delete=models.DO_NOTHING, verbose_name='단말그룹')  # 단말그룹
+    userInfo1 = models.CharField(max_length=100, null=True, blank=True, verbose_name="측정자 입력값1")
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="유형")  # 네트워크ID(5G, LTE, 3G, WiFi)
     center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="센터")
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
