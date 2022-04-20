@@ -266,16 +266,18 @@ def measuring_end_view(request, phonegroup_id):
     """ 해당일자에 대한 측정종료을 처리하는 뷰 함수
         - 파라미터
           . phonegroup_id: 단말그룹ID (int)
-        - 반환값: 없음(현재 페이지 유지)
+        - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
         """
     # 해당 단말그룹 ID로 오브젝트 데이터를 가져온다.
     qs = PhoneGroup.objects.filter(id=phonegroup_id)
     if qs.exists():
         phoneGroup = qs[0]
         # 해당 단말 그룹에 대한 측정을 종료한다.
-        result = measuring_end(phoneGroup)
+        return_value = measuring_end(phoneGroup)
+    else:
+        return_value = {'result' : 'error'}
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponse(return_value)
 
 
 ########################################################################################################################
@@ -285,34 +287,31 @@ def measuring_day_close_view(request, measdate):
     """ 해당일자에 대한 측정마감을 처리하는 뷰 함수
         - 파라미터
           . date: 기준일자(예: 20211101)
-        - 반환값: 없음(현재 페이지 유지)
+        - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
     """
     if request.method == 'GET':
         date = measdate.replace('-', '')  # 기준일자
     else:
-        messages.add_message(request, messages.ERROR, '잘못된 요청입니다.')
+        return_value = {'result' : '잘못된 요청입니다.'}
 
     # 1) 해당일자에 측정 이력이 없는 경우
     if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
-        pass
-        # messages.add_message(request, messages.ERROR, '해당일자에 대한 측정중인 지역이 없습니다.')
+        return_value = {'result': '해당일자에 측정 중인 지역이 없습니다.'}
     
     # 2) 해당일자에 측정마감이 기처리된 경우 -
     #    - 측정 진행중인 단말그룹이 없고(active=True)
     #    - 측정마감 메시지가 이미 생성되어 있는 경우(status='REPORT_ALL')
     elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
         Message.objects.filter(status='REPORT_ALL', measdate=date).count() is not 0:
-        pass
-        # messages.add_message(request, messages.ERROR, '해당일자에 대한 측정마감이 이미 처리되었습니다.')
+        return_value = {'result': '해당일자에 측정마감이 이미 처리되었습니다.'}
 
     # 3) 해당일자에 대한 측정마감을 처리한다.
     else:
         phoneGroup_list = PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True, manage=True)  # 측정마감 대상 단말그룹
         # 해당일자의 대상 단말그룹 리스트에 대해서 측정마감을 처리한다.
-        measuring_day_close(phoneGroup_list, date)
-        # messages.add_message(request, messages.INFO, '해당일자에 대한 측정마감이 처리완료 되었습니다.')
+        return_value = measuring_day_close(phoneGroup_list, date)
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponse(return_value)
 
 ########################################################################################################################
 # 해당 날짜 재마감 함수
@@ -320,30 +319,27 @@ def measuring_day_reclose_view(request, measdate):
     """ 해당일자에 대한 측정마감을 다시 수행하는 뷰 함수
         - 파라미터
           . date: 기준일자(예: 20211101)
-        - 반환값: 없음(현재 페이지 유지)
+        - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
     """
     if request.method == 'GET':
         date = measdate.replace('-', '')  # 기준일자
     else:
-        print('재마감 Request는 Get Method로 요청해주세요.')
+        return_value = {'result' : '재마감 Request는 Get Method로 요청해주세요.'}
 
     # 1) 해당일자에 측정 이력이 없는 경우
     if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
-        pass
-        # messages.add_message(request, messages.ERROR, '해당일자에 대한 측정 이력이 없습니다.')
+        return_value = {'result' : '해당일자에 대한 측정 이력이 없습니다.'}
     
     # 2) 해당일자에 측정마감이 기처리된 경우에 재마감 실행
     elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
         Message.objects.filter(status='REPORT_ALL', measdate=date).count() is not 0:
-        measuring_day_reclose(date)
-        # messages.add_message(request, messages.INFO, '해당일자에 대한 재마감이 처리완료 되었습니다.')
+        return_value = measuring_day_reclose(date)
 
     # 3) 해당일자에 측정마감이 되지 않은 경우
     else:
-        pass
-        # messages.add_message(request, messages.ERROR, '해당일자에 아직 마감이 완료되지 않았습니다. 먼저 측정마감 처리해주세요.')
+        return_value = {'result' : '해당일자에 아직 마감이 완료되지 않았습니다. 먼저 측정마감 처리해주세요.'}
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponse(return_value)
 
 
 ########################################################################################################################
