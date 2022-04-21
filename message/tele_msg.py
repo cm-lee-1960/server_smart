@@ -86,8 +86,7 @@ class TelegramBot:
             qs = SentTelegramMessage.objects.filter(chat_date__gte=from_dt).filter(chat_date__lte=now)
             if qs.exists() and qs.count() >= 2:
                 time.sleep(2)
-
-            print("채널아이디가 뭐지", channelId)
+                
             # 메시지를 텔레그램으로 전송한다.
             sent_msg = self.bot.sendMessage(channelId, text=self.unicode_truncate(message,self.max_length), parse_mode='HTML')
             # 전송된 메시지를 데이터베이스에 저장한다.   -- 제거 예정

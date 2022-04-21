@@ -624,6 +624,7 @@
                 this.message = {}; // 메시지 상세내역
 
             },
+
             methods: {
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정일자에 해당하는 측정단말 리스트를 가져온다.
@@ -648,18 +649,18 @@
                     //for(let i=0; i < this.phoneGroupList.length; i++){
                     //    this.testfunction(this.phoneGroupList[i].id)
                     //}
+                    
 
-                    for (let i in this.phoneGroupList) {
-                        console.log(new Date(this.phoneGroupList[i].last_updated_dt))
-                        console.log(today - new Date(this.phoneGroupList[i].last_updated_dt))
-                        console.log((today - new Date(this.phoneGroupList[i].last_updated_dt))/(1000*60))             
-                    }
-    
                     if(Object.keys(this.phoneGroupListChangeCheck).length > 0){ //체인지 체크에 데이터가 있어야한다.
+                        console.log(Object.keys(this.phoneGroupListChangeCheck))
                         for(p_c_Id of Object.keys(this.phoneGroupListChangeCheck)){   //52 - phnoeGroup.id
                             for(p_Id in Object.keys(this.phoneGroupList)){
+                                console.log(this.phoneGroupList[p_Id].id)
+                                console.log(p_c_Id)
                                 if(this.phoneGroupList[p_Id].id == p_c_Id){
+                                    console.log("잘드어왔다.")
                                     if(this.phoneGroupList[p_Id].last_updated_dt !== this.phoneGroupListChangeCheck[p_c_Id]){
+                                        console.log("잘들어왔따.")
                                         this.colorChange(p_c_Id)
                                     }
                                 }
@@ -675,12 +676,11 @@
                     //dic
                 },
                 async colorChange(p_c_Id) {
-                    //클릭 상태이면 색상 변환 이펙트 안한다.
-                    if($("#"+p_c_Id).css("background-color") != "rgb(150, 255, 255)"){
-                        $("#" + p_c_Id).stop().animate({"background-color":"#D4D4D4","color":"black"},1000,function() {
-                            $("#" + p_c_Id).stop().animate({"background-color":"#FFFFFF","color":"black"},1000);
-                        });
-                    }
+                    console.log(p_c_Id)
+                    console.log($("#"+p_c_Id))
+                    $("#" + p_c_Id).stop().animate({"background-color":"#D4D4D4","color":"black"},1000,function() {
+                        $("#" + p_c_Id).stop().animate({"background-color":"#FFFFFF","color":"black"},1000);
+                    });
                     
                 },
                 /* -----------------------------------------------------------------------------------------------------
@@ -744,7 +744,7 @@
                 clickMessageList: function (message, event) {
                     this.message = message
                     console.log(event.currentTarget.classList)
-                    console.log(this.$refs.clickevent_Tr)
+                    
                     event_tr_len = this.$refs.clickevent_Tr.length //event테이블의 tr의 개수
                     tele_tr_len = this.$refs.clicktele_Tr.length //event테이블의 tr의 개수
                     
@@ -855,13 +855,6 @@
                 clickModalBtnConfirm(e) {
                     if (e.target.innerText === "측정종료") {
                         // 선택된 단말그룹에 대한 측정을 종료한다.
-                        
-                        for (let i in this.phoneGroupList) {
-                            if (this.phoneGroupList[i].selected) {
-                                console.log(this.phoneGroupList[i].last_updated_dt)
-                            }
-                        }
-                        
                         this.measuring_end();
 
                         clearTimeout(alertTimer);
