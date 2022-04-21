@@ -269,7 +269,7 @@ def send_message(request):
 # 단말그룹 측정조를 변경하는 API
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
-def update_phonegroup(request):
+def update_measuringteam(request):
     data = request.data
     # print("data:", data)
     result = {}
@@ -284,8 +284,33 @@ def update_phonegroup(request):
 
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
-        print("update_phonegroup():", str(e))
-        # db_logger.error("update_phonegroup(): %s" % e)
-        raise Exception("update_phonegroup(): %s" % e)
+        print("update_measuringteam():", str(e))
+        # db_logger.error("update_measuringteam(): %s" % e)
+        raise Exception("update_measuringteam(): %s" % e)
 
+    return HttpResponse(result)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹 모폴로지를 변경하는 API
+# ----------------------------------------------------------------------------------------------------------------------
+@api_view(['POST'])
+def update_morphology(request):
+    data = request.data
+    try:
+        from management.models import Morphology
+        phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
+        morphology = data['morphologyName'] # 모폴로지 이름
+        qs = PhoneGroup.objects.filter(id=phoneGroup_id)
+        if qs.exists():
+            phoneGroup = qs[0]
+            phoneGroup.morphology = Morphology.objects.get(morphology=morphology)
+            phoneGroup.manage = Morphology.objects.filter(morphology=morphology).values_list('manage', flat=True)[0]
+            phoneGroup.save()
+            result = {'result' : 'ok'}
+
+    except Exception as e:
+        # 오류 코드 및 내용을 반환한다.
+        result = {'result' : 'fail'}
+        raise Exception("update_morphology(): %s" % e)
     return HttpResponse(result)
