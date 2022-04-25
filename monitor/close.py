@@ -687,7 +687,6 @@ def measuring_day_close_coverage(measdate):
                     networkId=key,
                     total_count=value,
                     morphology=Morphology.objects.get(morphology='커버리지'),
-                    #morphology_id=PhoneGroup.objects.filter(morphology__morphology='커버리지')[0].morphology_id,
                 )
         return coverage_count
     except Exception as e: # 묶인 center가 없으면 channelId는 None
