@@ -274,6 +274,8 @@ def measuring_end_view(request, phonegroup_id):
         phoneGroup = qs[0]
         # 해당 단말 그룹에 대한 측정을 종료한다.
         return_value = measuring_end(phoneGroup)
+        print("dkdkdkd")
+        print(return_value)
     else:
         return_value = {'result' : 'error'}
 
