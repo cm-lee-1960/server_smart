@@ -287,8 +287,8 @@ def send_message(request):
         # db_logger.exception(e)
         raise Exception("send_message(): %s" % e)
 
-    # return JsonResponse(data=result, safe=False)
-    return HttpResponse(result)
+    return JsonResponse(data=result, safe=False)
+    #return HttpResponse(result)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 측정조를 변경하는 API

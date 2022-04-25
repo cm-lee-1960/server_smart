@@ -8,6 +8,10 @@ secrets.json
 /monitor/__pycache__
 /smartproject/__pycache__
 /analysis/__pycache__
+/accounts/__pycache__
+/api/__pycache__
+/scheduler/__pycache__
+
 
 /management/migrations/*.py
 /message/migrations/*.py
