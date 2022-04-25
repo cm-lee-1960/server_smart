@@ -6,6 +6,7 @@ from datetime import datetime
 from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer
+from management.models import Center, Morphology
 from message.tele_msg import TelegramBot
 
 # 디버깅을 위한 로그를 선언한다.
@@ -124,6 +125,30 @@ def phonegroup_list(request, measdate):
             'centerList': centerList, # 센터별 측정건수
             'phoneGroupList': phoneGroupList, # 단말그룹 리스트
             }
+
+    return JsonResponse(data=data, safe=False)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 모폴로지 리스트 조회 API (04.25)
+# ----------------------------------------------------------------------------------------------------------------------
+@api_view(['GET'])
+def morphology_list(request, center_name):
+    data = {}
+    # 조회하고자 하는 메시지ID가 파라미터로 넘어 왔는지 확인한다.
+    if center_name is not None:
+        morphologyList = [] # 모폴로지 리스트
+        try:
+            # 해당 센터의 모폴로지 불러와서 리스트로 작성후 JsonResponse로 반환
+            qs_center = Center.objects.get(centerName=center_name)
+            qs_morphology = qs_center.morphology_set.all()
+            morphologyList = list(qs_morphology.values_list('morphology', flat=True).order_by('id'))
+
+            data = {'morphologyList': morphologyList} # 모폴로지 리스트
+
+        except Exception as e:
+            print("morphology_list():", str(e))
+            raise Exception("morphology_list(): %s" % e)
 
     return JsonResponse(data=data, safe=False)
 
@@ -304,7 +329,7 @@ def update_morphology(request):
         qs = PhoneGroup.objects.filter(id=phoneGroup_id)
         if qs.exists():
             phoneGroup = qs[0]
-            phoneGroup.morphology = Morphology.objects.get(morphology=morphology)
+            phoneGroup.morphology = Morphology.objects.filter(morphology=morphology)[0]
             phoneGroup.manage = Morphology.objects.filter(morphology=morphology).values_list('manage', flat=True)[0]
             phoneGroup.save()
             result = {'result' : 'ok'}
