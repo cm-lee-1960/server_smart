@@ -1,13 +1,16 @@
     h1{
-        font-size: 20px;
+        font-size: 16px;
         font-weight: bold;
     }
     h2{
-        font-size: 17px;
+        font-size: 14px;
         font-weight: bold;
     }
     h3{
-        font-size: 15px;
+        font-size: 13px;
+    }
+    h4{
+        font-size: 12px;
     }
     p{
         font-size: 8px;
@@ -16,13 +19,21 @@
         width: 100%;
         border: 1px solid #444444;
         border-collapse: collapse;
-        font-size: 12px;
+        font-size: 13px;
         text-align: center;
+        vertical-align: middle;
     }
-    th, td {
+    th {
         border: 1px solid #444444;
         width: 40px;
         text-align: center;
+        vertical-align: middle;
+    }
+    td {
+        border: 1px solid #444444;
+        width: 40px;
+        text-align: center;
+        vertical-align: middle;
     }
     p,h1,h2,h3 {
         display: inline;

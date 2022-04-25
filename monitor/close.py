@@ -3,8 +3,10 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q
 from django.db import connection
-from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose
+
+from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose, TestDayClose
 from management.models import Center, Morphology
+
 from .serializers import PhoneGroupSerializer
 from message.tele_msg import TelegramBot
 from datetime import datetime
@@ -183,11 +185,141 @@ def measuring_end(phoneGroup):
                                                 dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
                                                 total_count=total_count, \
                                                 **serializer.data)
-            
+            # 측정마감 테스트################################################################
+            hj = TestDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
+            a = Phone.objects.filter(phoneGroup_id = phoneGroup.id, userInfo1 = phoneGroup.userInfo1, userInfo2 = phoneGroup.userInfo2, measdate = phoneGroup.measdate)
+            siDo = a[0].siDo
+            guGun = a[0].guGun
+            addressDetail = a[0].addressDetail
+            if a[0].morphology_id == 1:
+                mopo = "행정동"
+                if "특별시" in a[0].siDo or "광역시" in a[0].siDo:
+                        address = "대도시"
+                elif a[0].guGun.endswith("읍") or  a[0].guGun.endswith("면"):
+                        address = "농어촌"
+                else:
+                        address = "중소도시"
+            elif a[0].morphology_id == 2:
+                mopo = "테마"
+                if "병원" in a[0].userInfo1:
+                    mopo = "인빌딩"
+                    address = "대형병원"
+                elif "백화점" in a[0].userInfo1:
+                    mopo = "인빌딩"
+                    address = "백화점"
+                elif "터미널" in a[0].userInfo1:
+                    mopo = "인빌딩"
+                    address = "터미널"
+                elif "역" in a[0].userInfo1:
+                    mopo = "인빌딩"
+                    address = "역사"
+                elif "공항" in a[0].userInfo1:
+                    mopo = "인빌딩"
+                    address = "공항" 
+                elif "대학" in a[0].userInfo1 or "학생" in a[0].userInfo1:
+                    mopo = "테마"
+                    address = "대학교"
+                elif "공원" in a[0].userInfo1:
+                    mopo = "테마"
+                    address = "놀이공원"
+                elif "거리" in a[0].userInfo1:
+                    mopo = "테마"
+                    address = "주요거리" 
+                else:
+                    address = "수정필요"           
+            elif a[0].morphology_id == 3:
+                mopo = "인빌딩"
+            elif a[0].morphology_id== 4:
+                mopo = "커버리지"
+            elif a[0].morphology_id== 5 or a[0].userInfo2 == "L" or a[0].userInfo2 == "3":
+                mopo = "취약지역"
+                if a[0].userInfo1.endswith("도"):
+                    address = "유인도서"
+                elif a[0].userInfo1.endswith("산"):
+                    address = "등산로"
+                elif "해안도로" in a[0].userInfo1:
+                    address = "해안도로"
+                elif "-" in a[0].userInfo1:
+                    address = "여객항로"
+                else: 
+                    address = "수정필요"
+            else:
+                pass
+            if a[0].networkId == "WiFi":
+                if "개" in a[0].userInfo2: 
+                    address = "개방"
+                elif "상" in a[0].userInfo2:
+                    address = "상용"
+                else:
+                    address = "수정필요" 
+            else:
+                pass
+            if "서울" in a[0].siDo or "서울" in a[0].guGun:
+                district = "서울"
+            elif "인천" in a[0].siDo or "인천" in a[0].guGun:
+                district = "인천"
+            elif "울산" in a[0].siDo or "울산" in a[0].guGun:
+                district = "울산"
+            elif "대구" in a[0].siDo or "대구" in a[0].guGun:
+                district = "대구"
+            elif "광주" in a[0].siDo or "광주" in a[0].guGun:
+                district = "광주"
+            elif "대전" in a[0].siDo or "대전" in a[0].guGun:
+                district = "대전"
+            elif "경기" in a[0].siDo or "경기" in a[0].guGun:
+                district = "경기"
+            elif "경상북" in a[0].siDo or "경상북" in a[0].guGun:
+                district = "경북"
+            elif "경상남" in a[0].siDo or "경상남" in a[0].guGun:
+                district = "경남"
+            elif "전라남" in a[0].siDo or "전라남" in a[0].guGun:
+                district = "전남"
+            elif "전라북" in a[0].siDo or "전라북" in a[0].guGun:
+                district = "전북"
+            elif "충청남" in a[0].siDo or "충청남" in a[0].guGun:
+                district = "충남"
+            elif "충청북" in a[0].siDo or "충청북" in a[0].guGun:
+                district = "충북"
+            elif "세종" in a[0].siDo or "세종" in a[0].guGun:
+                district = "세종"
+            else:
+                district = "수도권"
+            lte_percent = ((a[0].nr_count)/a[0].total_count)*100
+             # 직렬화 대상 필드를 지정한다.
+            # fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'userInfo2', 'networkId', \
+            #         'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count']
+            fields = ['center_id','measdate', 'userInfo1', 'networkId']
+            serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
+            if hj.exists():
+                # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
+                hj.update(**serializer.data)
+                
+                
+                # 평균속도, 전환율, 총 콜 수는 새로이 계산한 값으로 저장한다.
+                
+                hj.update(downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'], \
+                        uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
+                        # siDo = siDo, guGun = guGun, addressDetail = addressDetail,\
+                        # dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
+                        address=address, mopo=mopo,district=district,lte_percent=lte_percent)
+                        # total_count=total_count)
+            else:
+                
+                # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
+                TestDayClose.objects.create(phoneGroup=phoneGroup, \
+                                                # siDo =siDo, guGun = guGun, addressDetail =addressDetail, \
+                                                downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'], \
+                                                uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
+                                                # dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
+                                                address=address, mopo=mopo,district=district,lte_percent=lte_percent, \
+                                                # total_count=total_count, \
+                                                **serializer.data)
+                                                
+        ###########################################################################################################################   
         except Exception as e:
             print("측정종료 메시지 및 데이터 저장: ", str(e))
             raise Exception("measuring_end() - 측정종료 메시지 및 데이터 저장: %s" % e)
-
+        
 
         # ------------------------------------------------------------------------------------------------------------------
         # 3) 해당 단말그룹이 당일 측정종료 최종 마지막일 때 당일 측정종료 메시지를 생성한다.

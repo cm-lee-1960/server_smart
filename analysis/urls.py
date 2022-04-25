@@ -7,12 +7,12 @@ urlpatterns = [
     path('dashboard/',views.dashboard,name='dashboard'), # 홈 화면
     path("report/", views.report, name='report'), # 일일보고 페이지
 
-    # 추가사항(필요없는것은 삭제예정)
-    path("report/modify/", views.report_modifty, name='report_modify'), # 일일보고 메시지 수정페이지
+   # 추가사항(필요없는것은 삭제예정)
+    
     path("report/measplan/", views.report_measplan, name='report_measplan'), # 측정대상등록 페이지
     path("report/list/", views.report_list, name='report_list'), # 일일보고 리스트 페이지
     path("report/measresult/", views.report_measresult, name='report_measresult'), # 측정결과현황 페이지
-    path('fileupload/', fileUpload, name="fileupload"),
+    
 
     path('report/makereport/', views.register_measdata, name='register_measdata'), # 레포트정보등록페이지(측정대상, 측정완료, 전년도결과, 추가사항)
     path('measplan/create/',views.create_measplan,name='create_measplan'), # 측정대상 등록 및 수정
@@ -25,6 +25,8 @@ urlpatterns = [
     path('measlastyear5G/delete/',views.delete_measlastyear5G,name='delete_measlastyear5G'), # 전년도 결과 삭제(5G)
     path('measlastyearLTE/create/',views.create_measlastyearLTE,name='create_measlastyearLTE'), # 전년도 결과 등록 및 수정(LTE)
     path('measlastyearLTE/delete/',views.delete_measlastyearLTE,name='delete_measlastyearLTE'), # 전년도 결과 삭제(LTE)
+    path('postmeasure5G/create/',views.create_postmeasure5G,name='create_postmeasure5G'), # 사후측정 결과 등록 및 수정(LTE)
+    
     
     # #ajax url
     # path('ajax/getstartdata/', views.get_startdata, name='ajax_startdata'), ## 초기데이터 가져온다(오늘의 측정)

@@ -1,3 +1,4 @@
+
 //그래프 퍼센트 데이터
 var planarea1 = parseInt(document.getElementById("planarea1").outerText);
 var planarea2 = parseInt(document.getElementById("planarea2").outerText);
@@ -1110,10 +1111,16 @@ month = date.getMonth() + 1;
 day = date.getDate();
 document.getElementById("current_date").innerHTML = year + "." + month + "." + day ;
 
-var date1 =  document.getElementById("firstdate").outerText;
-date1 = date1.substr(6);
-document.getElementById("firstdate").innerText = "(" + date1 + "~";
+let date1 = document.getElementById("firstdate").outerText;
+date11 = String(date1);
+year1 = date11.substr(0,4);
+month1 = date11.substr(4,2);
+day1 = date11.substr(6,2);
+document.getElementById("firstdate").innerHTML = "(" + month1 + "." + day1 + "~";
 
-var date2 = document.getElementById("lastdate").outerText;
-date2 = date2.substr(6);
-document.getElementById("lastdate").innerHTML = date2 + ")";
+let date2 = document.getElementById("lastdate").outerText;
+date22 = String(date2);
+year2 = date22.substr(0,4);
+month2 = date22.substr(4,2);
+day2 = date22.substr(6,2);
+document.getElementById("lastdate").innerHTML = month2 + "." + day2 + ")";

@@ -1,17 +1,21 @@
 from django import forms
 from .models import MeasLastyear5G, MeasLastyearLTE
-from django.forms import ModelForm
-from .models import FileUpload
+
 
 
 # -------------------------------------------------------------------------------------------------
-# 파일 업로드 모델 폼
+# 사후측정결과 등록 및 수정(5G) 하기 위한 폼
 # -------------------------------------------------------------------------------------------------
-#모델폼
-class FileUploadForm(ModelForm):
-    class Meta:
-        model = FileUpload
-        fields = ['date', 'title', 'reportfile']
+# class PostMeasure5GForm(forms.ModelForm):
+#     class Meta:
+#         model = PostMeasure5G
+#         fields = "__all__"
+
+#     # 폼(Form)의 모든 필드는 기본값으로 required가 True라서 False로 처리한다.
+#     def __init__(self, *args, **kwargs):
+#         super(PostMeasure5GForm, self).__init__(*args, **kwargs)
+#         for field_name in self.fields.keys():
+#             self.fields[field_name].required = False
 
 
 # -------------------------------------------------------------------------------------------------

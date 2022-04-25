@@ -4,7 +4,6 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from datetime import datetime, timedelta, timezone
 import random
-
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
 from message.xmcs_msg import send_sms  # 2022.03.04 크로샷 메시지 전송 함수 호출
@@ -832,3 +831,39 @@ class MeasuringDayClose(models.Model):
     ca3_rate = models.FloatField(null=True, default=0, verbose_name='CA3 비율')  # CA3 비율
     ca4_rate = models.FloatField(null=True, default=0, verbose_name='CA4 비율')  # CA4 비율
 
+
+########################################################################################################################
+# 허재 측정마감 테스트
+########################################################################################################################
+class TestDayClose(models.Model):
+    """측정마감 클래스"""
+    measdate = models.CharField(max_length=10, verbose_name='측정일자')  # 측정일자(예: 20211101)
+    phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING, verbose_name='단말그룹')  # 단말그룹
+    userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
+    # userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
+    networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="유형")  # 네트워크ID(5G, LTE, 3G, WiFi)
+    center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="센터")
+    morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
+    downloadBandwidth = models.FloatField(null=True, blank=True, verbose_name='DL')  # DL속도 (초단위 데이터 평균)
+    uploadBandwidth = models.FloatField(null=True, blank=True, verbose_name='UL')  # UP속도 (초단위 데이터 평균)
+    # dl_count = models.IntegerField(null=True, default=0, verbose_name='DL콜카운트')  # 다운로드 콜수
+    # ul_count = models.IntegerField(null=True, default=0, verbose_name='UL콜카운트')  # 업로드 콜수
+    # dl_nr_count = models.IntegerField(null=True, default=0, verbose_name='DL NR 콜카운트')  # 5G->NR 전환 콜수
+    # ul_nr_count = models.IntegerField(null=True, default=0, verbose_name='UL NR 콜카운트')  # 5G->NR 전환 콜수
+    # dl_nr_percent = models.FloatField(null=True, default=0.0, verbose_name='DL LTE전환율')  # 5G->NR 전환 전환율(dl)
+    # ul_nr_percent = models.FloatField(null=True, default=0.0, verbose_name='UL LTE전환율')  # 5G->NR 전환 전환율(ul)
+    # total_count = models.IntegerField(null=True, default=0)  # 총 콜수
+    lte_percent = models.FloatField(null=True, default=0.0, verbose_name='LTE전환율') # 5G->LTE 전환 전환율(ul)
+    connect_time = models.FloatField(null=True, default=0.0, verbose_name='접속시간')  # 접속시간
+    udpJitter = models.FloatField(null=True, default=0.0, verbose_name='지연시간')  # 지연시간
+    success_rate = models.FloatField(null=True, default=0.0, verbose_name='전송성공율')  # 전송성공율
+    # siDo = models.CharField(max_length=100, null=True, blank=True, verbose_name="시,도")  # 시도
+    # guGun = models.CharField(max_length=100, null=True, blank=True, verbose_name="군,구")  # 구,군
+    # addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="상세주소")  # 주소상세
+    district = models.CharField(max_length=100, null=True, blank=True,verbose_name="지역")
+    address = models.CharField(max_length=100, null=True, blank=True,verbose_name="상세지역")
+    mopo = models.CharField(max_length=100, null=True, blank=True,verbose_name="모폴로지명")
+    plus = models.CharField(max_length=100, null=True, blank=True,verbose_name="추가사항")
+    
+    class Meta:
+        ordering = ['-measdate']
