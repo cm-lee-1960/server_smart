@@ -313,7 +313,7 @@
                                 </tr>
                                 </thead>
                                 <tbody id='xroshotDetail_body' class="table-hover"
-                                    style="height:130px; overflow-y:auto; display:block">
+                                    style="height:130px; overflow-y:auto; display:block" ref='xroshotDetail_body'>
                                 <tr v-for="message in messageSmsList" class="d-flex text-center"
                                     v-on:click="clickMessageList(message, $event)" >
                                     <td style="width: 12%;">[[ message.create_time ]]</td>
@@ -342,7 +342,7 @@
                                 </tr>
                                 </thead>
                                 <tbody id='teleDetail_body' class="table-hover"
-                                    style="height:130px; overflow-y:auto; display:block">
+                                    style="height:130px; overflow-y:auto; display:block" ref='teleDetail_body'>
                                 <tr v-for="message in messageTeleList" class="d-flex text-center clickTele"
                                     v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
                                     <td style="width: 11%;">[[ message.create_time ]]</td>
@@ -732,10 +732,10 @@
                 messageColor: function(){
                     switch(event.currentTarget.id){
                         case 'msg-event-tab':
-                            for(let child in this.$refs.eventDetail_body.childNodes){
-                                console.log(child)
-                                child.style.backgroundColor='#FFFFFF';
-                            }
+                            console.log(this.$refs.eventDetail_body.childNodes)
+                            this.$refs.eventDetail_body.childNodes.forEach(child => {
+                                child.style.backgroundColor = '#FFFFFF';
+                            });
                             break;
                         case 'msg-sms-tab':
                             for(let i=0; i < this.$refs.endmessage_td.length; i++){
@@ -743,9 +743,9 @@
                             }
                             break;
                         case 'msg-tele-tab':
-                            for(let child in this.$refs.teleDetail_body.childNodes){
-                                child.style.backgroundColor='#FFFFFF';
-                            }
+                            this.$refs.teleDetail_body.childNodes.forEach(child => {
+                                child.style.backgroundColor = '#FFFFFF';
+                            });
                             break;
                     }
                 },
