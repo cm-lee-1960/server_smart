@@ -243,7 +243,7 @@
 
     <!-- 금일 측정그룹 -->
     <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
-         style="height:450px; margin-bottom:1px; border: 2px solid rgb(228, 223, 223); padding: 10px;">
+         style="height:350px; margin-bottom:1px; border: 2px solid rgb(228, 223, 223); padding: 10px;">
         <!-- <h6><b>금일 측정그룹</b></h6> -->
         <div id="phonegroup-contailer" class="table-responsive text-nowrap" style="height:100%;">
             <table id="phonegroup-table" class='table table-hover table-fixed'>
@@ -312,7 +312,9 @@
                     [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
                 </td>
                 <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">측정 중</td>
-                <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">종료</td>
+                <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">
+                     <img class='area_exit' src="{% static "analysis/images/stop-circle.svg" %}" alt="종료" width="20">
+                    종료</td>
                 <td style="width: 7%;" class="text-center">
                     <div class="dropdown flex p-0, m-0">
                         <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown">
