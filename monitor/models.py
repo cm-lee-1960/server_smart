@@ -871,3 +871,4 @@ class TestDayClose(models.Model):
     
     class Meta:
         ordering = ['-measdate']
+
