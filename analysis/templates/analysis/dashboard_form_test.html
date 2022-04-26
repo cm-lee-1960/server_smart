@@ -195,8 +195,11 @@
         margin: 0 auto;
     }
 
-        .red-color {
-        color:red;
+    .blue-color {
+        color: blue;
+    }
+    .red-color {
+        color: red;
     }
 
 </style>
@@ -262,17 +265,17 @@
                     <th style="width: 5%;" class="text-center">본부</th>
                     <th style="width: 6%;" class="text-center">조</th>
                     <th style="width: 18%;" class="text-center">측정지역</th>
-                    <th style="width: 7%;" class="text-center">모폴로지</th>
-                    <th style="width: 7%;" class="text-center">네트워크</th>
-                    <th style="width: 6%;" class="text-center">DL콜수</th>
-                    <th style="width: 6%;" class="text-center">DL속도</th>
-                    <th style="width: 6%;" class="text-center">UL콜수</th>
-                    <th style="width: 6%;" class="text-center">UL속도</th>
-                    <th style="width: 6%;" class="text-center">전환율</th>
-                    <th style="width: 6%;" class="text-center">이벤트</th>
-                    <th style="width: 7%;" class="text-center">측정시간</th>
-                    <th style="width: 7%;" class="text-center">상태</th>
-                    <th style="width: 8%;" class="text-center">
+                    <th style="width: 8%;" class="text-center">모폴로지</th>
+                    <th style="width: 8%;" class="text-center">네트워크</th>
+                    <th style="width: 8%;" class="text-center">DL콜수</th>
+                    <th style="width: 8%;" class="text-center">DL속도</th>
+                    <th style="width: 8%;" class="text-center">UL콜수</th>
+                    <th style="width: 8%;" class="text-center">UL속도</th>
+                    <th style="width: 8%;" class="text-center">전환율</th>
+                    <th style="width: 8%;" class="text-center">이벤트</th>
+                    <th style="width: 8%;" class="text-center">측정시간</th>
+                    <th style="width: 8%;" class="text-center">상태</th>
+                    <th style="width: 6%;" class="text-center">
                         <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                            style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                            data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -294,7 +297,7 @@
                     >
                 </td>
                 <td style="width: 5%;" class="text-center">[[phoneGroup.centerName]]</td>
-                <td style="width: 5%;" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
+                <td style="width: 6%;" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
                     data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
                     title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
                     [[phoneGroup.measuringTeam]]
@@ -305,25 +308,25 @@
                     title="마우스로 더블클릭하면 모폴로지를 변경할 수 있습니다.">
                     [[phoneGroup.morphologyName]]
                 </td>
-                <td style="width: 7%;" class="text-center">[[phoneGroup.networkId]]</td>
-                <td style="width: 6%;" class="text-center">[[phoneGroup.dl_count]]</td>
-                <td style="width: 6%;" class="text-center">[[phoneGroup.downloadBandwidth]]</td>
-                <td style="width: 6%;" class="text-center">[[phoneGroup.ul_count]]</td>
-                <td style="width: 6%;" class="text-center">[[phoneGroup.uploadBandwidth]]</td>
-                <td style="width: 6%;" class="text-center">[[phoneGroup.nr_percent]]</td>
-                <td style="width: 6%;" class="text-center">[[phoneGroup.event_count]]</td>
-                <td style="width: 7%;" class="text-center">
+                <td style="width: 8%;" class="text-center">[[phoneGroup.networkId]]</td>
+                <td style="width: 8%;" class="text-center">[[phoneGroup.dl_count]]</td>
+                <td style="width: 8%;" class="text-center">[[phoneGroup.downloadBandwidth]]</td>
+                <td style="width: 8%;" class="text-center">[[phoneGroup.ul_count]]</td>
+                <td style="width: 8%;" class="text-center">[[phoneGroup.uploadBandwidth]]</td>
+                <td style="width: 8%;" class="text-center">[[phoneGroup.nr_percent]]</td>
+                <td style="width: 8%;" class="text-center">[[phoneGroup.event_count]]</td>
+                <td style="width: 8%;" class="text-center">
                     [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
                 </td>
-                <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">
-                    <span class="bi bi-file-play-fill red-color" style="font-size:18px"> </span></td>
-                <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">
-                    <span class="bi bi-stop-circle red-color text-muted" style="font-size:18px"></span>
+                <td style="width: 8%;" v-if="phoneGroup.active" class="text-center">
+                    <span class="bi bi-file-play-fill" style="font-size:20px; color:red"> </span></td>
+                <td style="width: 8%;" v-else="phoneGroup.active" class="text-center">
+                    <i class="bi bi-stop-circle" style="font-size:20px;color:green"></i>
                 </td>
-                <td style="width: 7%;" class="text-center">
+                <td style="width: 6%;" class="text-center">
                     <div class="dropdown flex p-0, m-0">
-                        <a class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown">
-                            <span class="caret"></span></a>
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" style="height:24px;padding-top:0px;">
+                            <span class="caret"></span></button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a class="dropdown-item" href="#">측정종료 취소</a>
                             <a class="dropdown-item text-muted" href="#">목표 대비 현황</a>
