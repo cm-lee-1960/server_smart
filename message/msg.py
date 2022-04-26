@@ -150,6 +150,7 @@ def make_message(mdata: MeasureCallData):
         total_dl_count, total_ul_count = 0, 0
         phone_list = mdata.phone.phoneGroup.phone_set.all()
         qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+        msg = mdata.phone.phoneGroup.message_set.all()
         # print("######")
         for m in qs:
             if m.phone.networkId == '5G' and m.networkId == 'NR':
@@ -215,16 +216,18 @@ def make_message(mdata: MeasureCallData):
             if phone.networkId == 'WiFi':
                 messages = f"<code>{mdata.address} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
                            "속도(DL/UL, Mbps)\n" + \
-                           f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
+                           f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 5G 측정 데이터의 경우
             elif phone.networkId == '5G':
-                messages = f"<code>{phone.networkId} {mdata.address} 측정({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"<code>{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
-                           f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
+                           f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 기타(LTE, 3G) 측정데이터의 경우
             else:
-                messages = f"<code>{phone.networkId} {mdata.address} 측정({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
-                           f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}</code>"
+                messages = f"<code>{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                           f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
+            # 이벤트 메시지 내용 추가
+            messages +=  f"\n- 이벤트(전송실패/속도저하, 건): {msg.filter(message__contains='전송실패').count()}/{msg.filter(message__contains='속도저하').count()}</code>"
 
         # [측정종료 메시지] --------------------------------------------------------------------------------------------
         # 2022-03-11 - 측정종료 메시지는 수기로 해당지역 측정종료 및 당일 측정종료를 실행할 때 생성되기 때문에 여기에 있는 코드를 사용하지 않음

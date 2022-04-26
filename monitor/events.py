@@ -50,7 +50,7 @@ def event_occur_check(mdata: MeasureCallData):
     if message and message is not None: events_list.append(message)
 
     # 2)속도저하(low throughput)
-    if '전송실패' not in events_list:
+    if ('DL전송실패' not in events_list) and ('UL전송실패' not in events_list):
         message = low_throughput_check(mdata)
         if message and message is not None: events_list.append(message)
 
@@ -112,7 +112,7 @@ def send_failure_check(mdata: MeasureCallData) -> str:
                     #         "(단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
                     #         f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / {mdata.get_pci} / {mdata.cellId} / " + \
                     #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
-                    message = '전송실패'
+                    message = dataType + '전송실패'
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
@@ -156,7 +156,7 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
                     #         "(시간/단말번호/시간/콜카운트/PCI/Cell ID/DL/UL/RSRP/SINR)\n" + \
                     #         f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / {mdata.get_pci()} / {mdata.cellId} / " + \
                     #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
-                    message = '속도저하'
+                    message = dataType + '속도저하'
                     # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
     except Exception as e:
@@ -198,7 +198,7 @@ def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
     # 2022.02.27 - 메시지 내용을 작성한다.
     if mdata.phone.networkId == '5G' and mdata.networkId == 'NR':
         # message = f"{mdata.address}에서 5G->LTE로 전환되었습니다.\n" + \
-        #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+        #             "(단말번호/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
         #             f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \
         #             f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
         message = 'LTE전환'
@@ -269,7 +269,7 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
             # # 메시지를 작성한다.
             # message = f"{mdata.address}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
-            #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+            #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
             #         f"{mdata.phone_no_sht} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.time} / {mdata.currentCount} / " + \
             #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
             message = f'측정범위 벗어남({region_3depth_name})'
@@ -333,7 +333,7 @@ def call_staying_check(mdata: MeasureCallData) -> str:
         if callstay:
             # # 메시지 내용을 작성한다.
             # message = f"{mdata.address}에서 측정단말이 한곳에 머물러 있습니다.\n" + \
-            #            "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+            #            "(단말번호/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
             #             f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \
             #             f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
             message = '측정단말 한곳에 머뭄'
@@ -370,7 +370,7 @@ def duplicated_measuring(mdata: MeasureCallData) -> str:
         if duplicated:
             # # 메시지 내용을 작성한다.
             # message = f"{mdata.address}에서 중복측정({mdata.phone.meastype})을 하고 있습니다.\n" + \
-            #             "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+            #             "(단말번호/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
             #             f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \
             #             f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
             message = '중복측정'
@@ -394,14 +394,14 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
     channelId = settings.CHANNEL_ID
 
     # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
-    # (단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSTP/SINR)
+    # (단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSRP/SINR)
     # 2022.03.17 - 보안이슈로 지도맵 제공기능 취소함
     # filename = make_map_locations(mdata)
 
     # 메시지를 작성한다.
     message = f"{mdata.address}에서 측정단말에 이벤트가 발생했습니다.\n" + \
               f"* 발생 이벤트({len(events_list)}건): {', '.join(events_list)}\n" + \
-              "(단말번호/시간/콜카운트/DL/UL/RSTP/SINR)\n" + \
+              "(단말/시간/콜/DL/UL/RSRP/SINR)\n" + \
               f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \
               f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
 
