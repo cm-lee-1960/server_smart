@@ -5,6 +5,7 @@ app_name = 'analysis'
 urlpatterns = [
                                         
     path('dashboard/',views.dashboard,name='dashboard'), # 홈 화면
+    path('dashboard_test/',views.dashboard_test,name='dashboard_test'), # 홈 화면(테스트)
     path("report/", views.report, name='report'), # 일일보고 페이지
 
    # 추가사항(필요없는것은 삭제예정)
