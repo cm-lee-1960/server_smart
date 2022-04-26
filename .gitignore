@@ -12,6 +12,15 @@ secrets.json
 /api/__pycache__
 /scheduler/__pycache__
 
+/management/migrations/__pycache__
+/message/migrations/__pycache__
+/monitor/migrations/__pycache__
+/smartproject/migrations/__pycache__
+/analysis/migrations/__pycache__
+/accounts/migrations/__pycache__
+/api/migrations/__pycache__
+/scheduler/migrations/__pycache__
+
 
 /management/migrations/*.py
 /message/migrations/*.py
