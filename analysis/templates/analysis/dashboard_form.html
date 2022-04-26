@@ -197,8 +197,10 @@
                         </thead>
                         <tbody id='phonegroup-body' class="table-hover"
                             style="height:300px; overflow-y:auto; display:block" class="d-flex">
-                            <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" class="d-flex" v-bind:id="phoneGroup.id"
-                            v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="clickphone_Tr"/>
+                            <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" 
+                            :class="['d-flex text-center', {'table-success': (phoneGroup.id == selectedPhoneGroup.id)}]"
+                            
+                            v-bind:id="phoneGroup.id" v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="clickphone_Tr"/>
                             <td style="width: 5%;" class="text-center" onclick="event.cancelBubble=true">
                                 <input type="checkbox" 
                                     :id="'check_' + phoneGroup.id"
@@ -307,7 +309,9 @@
                                 </thead>
                                 <tbody id='eventDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block" ref='eventDetail_body'>
-                                <tr v-for="(message,index) in messageEventList" class="d-flex text-center clickEvent" 
+                                <tr v-for="(message,index) in messageEventList" 
+                                    :class="['d-flex text-center clickEvent', {'table-success': (message.id == activeMessage.id)}]"
+            
                                     v-on:click="clickMessageList(message, $event)" ref = "clickevent_Tr">
                                     <td style="width: 11%;" >[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
@@ -339,7 +343,8 @@
                                 </thead>
                                 <tbody id='xroshotDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block" ref='xroshotDetail_body'>
-                                <tr v-for="message in messageSmsList" class="d-flex text-center"
+                                <tr v-for="message in messageSmsList" 
+                                    :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id)}]"
                                     v-on:click="clickMessageList(message, $event)" >
                                     <td style="width: 12%;">[[ message.create_time ]]</td>
                                     <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
@@ -368,7 +373,8 @@
                                 </thead>
                                 <tbody id='teleDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block" ref='teleDetail_body'>
-                                <tr v-for="message in messageTeleList" class="d-flex text-center clickTele"
+                                <tr v-for="message in messageTeleList" 
+                                    :class="['d-flex text-center clickTele', {'table-success': (message.id == activeMessage.id)}]"
                                     v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
                                     <td style="width: 11%;">[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
@@ -628,6 +634,9 @@
                     selectedPhoneGroup: {},
                     morphologyList: [], // 모폴로지 리스트
 
+                    activePhoneGroup: {},
+                    activeMessage: {},
+
                     /////////폰그룹선택확인 변수
                     clickSignal:false,
                     pnoClick:'phonegroup-noclick',
@@ -701,13 +710,8 @@
                     this.total_count = data['total_count']; // 전체 측정건수
                     this.centerList = data['centerList']; // 센터별 측정현황
                     this.phoneGroupList = data['phoneGroupList']; // 단말그룹 리스트
-                    //this.checkedCount = 0;
-                    //for(let i=0; i < this.phoneGroupList.length; i++){
-                    //    this.testfunction(this.phoneGroupList[i].id)
-                    //}
 
-
-    
+                    
                     if(Object.keys(this.phoneGroupListChangeCheck).length > 0){ //체인지 체크에 데이터가 있어야한다.
                         for(p_c_Id of Object.keys(this.phoneGroupListChangeCheck)){   //52 - phnoeGroup.id
                             for(p_Id in Object.keys(this.phoneGroupList)){
@@ -747,8 +751,10 @@
                     this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};
 
+                    this.activePhoneGroup = phoneGroup;
+
                     ////////폰그룹 선택한놈 색상 바꾸기
-                    if(event.currentTarget.style.backgroundColor !== "rgb(150, 255, 255)"){
+                    /*if(event.currentTarget.style.backgroundColor !== "rgb(150, 255, 255)"){
                         tr_len = this.$refs.clickphone_Tr.length //테이블의 tr의 개수
 
                         for(let i=0; i< tr_len; i++){
@@ -757,7 +763,7 @@
                         event.currentTarget.style.backgroundColor='#96FFFF';  
                     }else{                                       //만약 선택되있으면 다시 화이트로 바꾼다.
                         event.currentTarget.style.backgroundColor='white';                      
-                    }
+                    }*/
         
                     $("#msg-event-tab").addClass('active')
                     $("#msg-event").removeClass('fade')
@@ -829,7 +835,8 @@
                  -----------------------------------------------------------------------------------------------------*/
                 clickMessageList: function (message, event) {
                     this.message = message
-                    event_tr_len = this.$refs.clickevent_Tr.length //event테이블의 tr의 개수
+                    this.activeMessage = message
+                    /*event_tr_len = this.$refs.clickevent_Tr.length //event테이블의 tr의 개수
                     tele_tr_len = this.$refs.clicktele_Tr.length //event테이블의 tr의 개수
                     
                     event_classlist = event.currentTarget.classList;
@@ -844,7 +851,7 @@
                         } 
                     }
 
-                    event.currentTarget.style.backgroundColor='#96FFFF';
+                    event.currentTarget.style.backgroundColor='#96FFFF';*/
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹 리스트 체크박스 관련 함수
