@@ -8,6 +8,7 @@ urlpatterns = [
     path('dashboard_test/',views.dashboard_test,name='dashboard_test'), # 홈 화면(테스트)
     path("report/", views.report, name='report'), # 일일보고 페이지
 
+
    # 추가사항(필요없는것은 삭제예정)
     
     path("report/measplan/", views.report_measplan, name='report_measplan'), # 측정대상등록 페이지
