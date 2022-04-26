@@ -33,6 +33,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # 2022.03.22 - 단말그룹에 관리대상 여부 항목 추가
 # 2022.03.28 - 단말그룹에 DL평균속도, UL평균속도, DL LTE전환율, UL LTE전환율, LTE 전환율, 이벤트발생건수 항목 추가
 # 2022.03.31 - 콜수 관련 add_xxx() 함수 모두 삭제 (비효율적 코드)
+# 2022.04.26 - 경과시간(분) 계산 모듈 수정(오류)
 #
 ########################################################################################################################
 class PhoneGroup(models.Model):
@@ -126,10 +127,13 @@ class PhoneGroup(models.Model):
         if self.active:
             #실제 운영시에는 최종 위치보고시간과 현재시간과의 차이(분)을 반환하도록 해야 한다.
             #daysDiff = (datetime.now() - self.last_updated_dt).days
-            daysDiff= str(round((datetime.now() - self.last_updated_dt).seconds/60))+"분"
+            # daysDiff= str(round((datetime.now() - self.last_updated_dt).seconds/60))+"분"
             #minutesDiff = daysDiff * 24 * 60
             # minutesDiff = random.randint(0, 10)
-            return daysDiff
+            diff = datetime.now() - self.last_updated_dt
+            # diff_minutes = round((diff.days * 24 * 60) + (diff.seconds / 60))
+            diff_minutes = round(diff.total_seconds() / 60)
+            return diff_minutes % 20
         else:
             return '-'
 
