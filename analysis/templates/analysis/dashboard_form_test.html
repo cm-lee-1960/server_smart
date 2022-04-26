@@ -47,7 +47,7 @@
 {% load static %}
 
 {% block extra-style %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 <style>
     [v-cloak] {
         display: none; }
@@ -195,6 +195,10 @@
         margin: 0 auto;
     }
 
+        .red-color {
+        color:red;
+    }
+
 </style>
 
 {% endblock %}
@@ -243,7 +247,7 @@
 
     <!-- 금일 측정그룹 -->
     <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
-         style="height:350px; margin-bottom:1px; border: 2px solid rgb(228, 223, 223); padding: 10px;">
+         style="height:450px; margin-bottom:1px; border: 2px solid rgb(228, 223, 223); padding: 10px;">
         <!-- <h6><b>금일 측정그룹</b></h6> -->
         <div id="phonegroup-contailer" class="table-responsive text-nowrap" style="height:100%;">
             <table id="phonegroup-table" class='table table-hover table-fixed'>
@@ -257,7 +261,7 @@
                     </th>
                     <th style="width: 5%;" class="text-center">본부</th>
                     <th style="width: 6%;" class="text-center">조</th>
-                    <th style="width: 16%;" class="text-center">측정지역</th>
+                    <th style="width: 18%;" class="text-center">측정지역</th>
                     <th style="width: 7%;" class="text-center">모폴로지</th>
                     <th style="width: 7%;" class="text-center">네트워크</th>
                     <th style="width: 6%;" class="text-center">DL콜수</th>
@@ -295,7 +299,7 @@
                     title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
                     [[phoneGroup.measuringTeam]]
                 </td>
-                <td style="width: 16%;" class="text-center">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
+                <td style="width: 18%;" class="text-center">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
                 <td style="width: 7%;" v-on:dblclick="doubleclickMorphology(phoneGroup)"
                     data-toggle="tooltip" data-placement="top" class="text-center"
                     title="마우스로 더블클릭하면 모폴로지를 변경할 수 있습니다.">
@@ -311,14 +315,15 @@
                 <td style="width: 7%;" class="text-center">
                     [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
                 </td>
-                <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">측정 중</td>
+                <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">
+                    <span class="bi bi-file-play-fill red-color" style="font-size:18px"> </span></td>
                 <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">
-                     <img class='area_exit' src="{% static "analysis/images/stop-circle.svg" %}" alt="종료" width="20">
-                    종료</td>
+                    <span class="bi bi-stop-circle red-color text-muted" style="font-size:18px"></span>
+                </td>
                 <td style="width: 7%;" class="text-center">
                     <div class="dropdown flex p-0, m-0">
-                        <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown">
-                            <span class="caret"></span></button>
+                        <a class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown">
+                            <span class="caret"></span></a>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a class="dropdown-item" href="#">측정종료 취소</a>
                             <a class="dropdown-item text-muted" href="#">목표 대비 현황</a>
