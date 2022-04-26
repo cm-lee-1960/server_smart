@@ -268,7 +268,7 @@
                     <th style="width: 6%;" class="text-center">이벤트</th>
                     <th style="width: 7%;" class="text-center">측정시간</th>
                     <th style="width: 7%;" class="text-center">상태</th>
-                    <th style="width: 8%;" class="text-center">종료
+                    <th style="width: 8%;" class="text-center">
                         <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                            style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                            data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -312,16 +312,13 @@
                     [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
                 </td>
                 <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">측정 중</td>
-                <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">측정종료</td>
-                <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">
-                    <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료" width="20">
-                </td>
-                <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">
+                <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">종료</td>
+                <td style="width: 7%;" class="text-center">
                     <div class="dropdown flex p-0, m-0">
-                        <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료" width="20">
-                        <button class="btn btn-secondary dropdown-toggle btn-sm p-" type="button" data-toggle="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown">
                             <span class="caret"></span></button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">측정종료 취소</a>
                             <a class="dropdown-item" href="#">목표대비 현황</a>
                             <a class="dropdown-item" href="#">전년도대비 현황</a>
                         </div>
