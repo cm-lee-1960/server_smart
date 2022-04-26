@@ -105,6 +105,14 @@
             height: 0;
         }
 
+        #middle_phonegroup .ui-resizable-s{
+            background-color: #777777;
+            height: 5px;
+        }
+        #bottom_body_left .ui-resizable-e{
+            background-color: #777777;
+            width: 5px;
+        } 
 
     </style>
 
@@ -155,10 +163,10 @@
         <!-- 금일 측정그룹 -->
         <div id= "row_middle" style="height:700px; position: relative;">
             <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
-                style="margin-bottom:10px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:65%;">
+                style="margin-bottom:0px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:65%;">
                 <!-- <h6><b>금일 측정그룹</b></h6> -->
                 <div class="table-responsive text-nowrap">
-                    <table id="phonegroup-table" class='table table-hover'>
+                    <table id="phonegroup-table" class='table table-hover table-fixed'>
                         <thead id='phonegroup-header'>
                         <tr class="bg-light d-flex">
                             <th style="width: 5%" class="text-center">
@@ -180,7 +188,7 @@
                             <th style="width: 6%;" class="text-center">이벤트</th>
                             <th style="width: 7%;" class="text-center">측정시간/대기시간</th>
                             <th style="width: 7%;" class="text-center">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;상태</th>
-                            <th style="width: 8%;" class="text-center">종료
+                            <th style="width: 8%;" class="text-center">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                                 data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -223,12 +231,24 @@
                                 [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
                             </td>
                             <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">측정 중</td>
-                            <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">측정종료</td>
-                            <td style="width: 7%;" v-if="phoneGroup.active" class="text-center">
+                            <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">종료</td>
+                            <!--<td style="width: 7%;" v-if="phoneGroup.active" class="text-center">
                                 <img class='area_exit' src="{% static "admin/img/icon-yes.svg" %}" alt="종료" width="20">
                             </td>
                             <td style="width: 7%;" v-else="phoneGroup.active" class="text-center">
                                 <img class='area_exit' src="{% static "admin/img/icon-no.svg" %}" alt="종료" width="20">
+                            </td>-->
+
+                            <td style="width: 7%;" class="text-center">
+                                <div class="dropdown flex p-0, m-0">
+                                    <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown">
+                                        <span class="caret"></span></button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
+                                        <a class="dropdown-item" href="#">측정종료 취소</a>
+                                        <a class="dropdown-item text-muted" href="#">목표 대비 현황</a>
+                                        <a class="dropdown-item text-muted" href="#">전년도 대비 현황</a>
+                                    </div>
+                                </div>
                             </td>
                         </tbody>
                     </table>
@@ -253,6 +273,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
                                 aria-controls="msg-tele" aria-selected="false" v-on:click="messageColor()">텔레그램</a>
+                            </li>
+                            <!--일마감 메세지 생성-->
+                            <li class="nav-item">
+                                <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
+                                aria-controls="msg-all" aria-selected="false">문자전체</a>
                             </li>
                         </ul>
                         <div style="display:flex; align-items: center;">
@@ -358,12 +383,30 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="tab-pane fade" id="msg-all" role="tabpanel" aria-labelledby="msg-all-tab" style="height:100%;">
+
+                            <table id="all_table" class='table table-hover'>
+                                <thead id='all-header' style="height:50px;">
+                                <tr class="bg-light d-flex text-center">
+                                    <th style="width: 12%;">생성시간</th>
+                                    <th style="width: 12%;">센터</th>
+                                    <th style="width: 52%;">메세지</th>
+                                    <th style="width: 12%;">전송시간</th>
+                                    <th style="width: 12%;">전송여부</th>
+                                </tr>
+                                </thead>
+                                <tbody id='allDetail_body' class="table-hover"
+                                    style="height:130px; overflow-y:auto; display:block" ref='allDetail_body'>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <!-- Tabs content End -->
 
                 </div>
+
                 <!-- /.container -->
-                <div id="bottom_body_right" style ="border: 2px solid rgb(228, 223, 223); padding: 10px; margin-left:30px; height:100%; width:40%" ref="bottom_body_right">
+                <div id="bottom_body_right" style ="border: 2px solid rgb(228, 223, 223); padding: 10px; margin-left:0px; height:100%; width:40%" ref="bottom_body_right">
 
                     <!-- 출처: https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content -->
                     <div style="display:flex;justify-content:space-between;">
@@ -738,9 +781,10 @@
                             });
                             break;
                         case 'msg-sms-tab':
-                            for(let i=0; i < this.$refs.endmessage_td.length; i++){
-                                this.$refs.endmessage_td[i].parentNode.style.backgroundColor='#96FFFF';
-                            }
+                            console.log(this.$refs.xroshotDetail_body.childNodes)
+                            this.$refs.xroshotDetail_body.childNodes.forEach(child => {
+                                child.style.backgroundColor = '#FFFFFF';
+                            });
                             break;
                         case 'msg-tele-tab':
                             this.$refs.teleDetail_body.childNodes.forEach(child => {
@@ -1211,24 +1255,6 @@
 
         Vue.filter('truncate', filter);
 
-        /* -------------------------------------------------------------------------------------------------------------
-         * 마우스를 텝위(이벤트/문자/텔레그램)에 울려 놓으면 해당 탭이 선택되게 한다.
-         * 마우스가 탭위에 위치할 때마다 자동으로 탭들이 변경되니 오히려 어지럽고, 불편감이 있어서 제거함
-         -------------------------------------------------------------------------------------------------------------*/
-        /*
-        $(".nav-link").mouseover(function () {
-            $(this).tab("show");
-        });
-
-        $(".nav-link").on("show.bs.tab", function (e) {
-            console.log(e.relatedTarget);
-            if (e.relatedTarget !== undefined) {
-                const tabPanelId = e.relatedTarget.getAttribute("href");
-                $(tabPanelId).removeClass("active");
-            }
-        });
-         */
-
         $(document).ready(function () {
             var today = new Date();
 
@@ -1246,7 +1272,7 @@
 
                 bottom_body_left_rightsize = $('#bottom_body_left').innerWidth();
                 bottom_body_size = $('#bottom_body').innerWidth();
-                bottom_body_right_size = bottom_body_size - bottom_body_left_rightsize - 30;
+                bottom_body_right_size = bottom_body_size - bottom_body_left_rightsize;
         
                 document.getElementById('bottom_body_right').style.width = bottom_body_right_size + 'px'
                 
@@ -1258,17 +1284,18 @@
                 middle_phonegroup_size = $('#middle_phonegroup').innerHeight();
                 console.log(middle_phonegroup_size)
                 row_middle_size = $('#row_middle').innerHeight();
-                bottom_body_height_size = row_middle_size - middle_phonegroup_size - 10;
+                bottom_body_height_size = row_middle_size - middle_phonegroup_size;
                 message_height_size = bottom_body_height_size - 115;
                 phonegroup_body_size = middle_phonegroup_size - 50;
-
+                console.log("하단사이즈")
+                console.log(bottom_body_height_size)
                 document.getElementById('phonegroup-body').style.height = phonegroup_body_size + 'px'
                 document.getElementById('bottom_body').style.height = bottom_body_height_size + 'px'
                 document.getElementById('eventDetail_body').style.height = message_height_size + 'px'
                 document.getElementById('xroshotDetail_body').style.height = message_height_size + 'px'
                 document.getElementById('teleDetail_body').style.height = message_height_size + 'px'
 
-                if(bottom_body_height_size < 250){
+                if(bottom_body_height_size < 260){
                     document.getElementById('message_contents').rows = 5
                 }else if(bottom_body_height_size > 300 & bottom_body_height_size < 350){
                     document.getElementById('message_contents').rows = 7
@@ -1282,10 +1309,9 @@
 
             $('#bottom_body_left').resizable({ grid: [1, 10000] });  //좌우만 크기조정
             $('#middle_phonegroup').resizable({ grid: [10000, 1], maxHeight: 450 }); //상하만 크기조정
-  
-            //출처: https://offbyone.tistory.com/353 [쉬고 싶은 개발자]
-        });
 
+        });
+    
     </script>
 
 {% endblock %}
