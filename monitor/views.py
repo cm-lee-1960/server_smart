@@ -9,7 +9,7 @@ from message.msg import make_message
 from management.models import Morphology
 from .events import event_occur_check
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, Message
-from .close import measuring_end, measuring_day_close, measuring_day_reclose
+from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union
 
 
 # 로그를 기록하기 위한 로거를 생성한다.
@@ -279,7 +279,28 @@ def measuring_end_view(request, phonegroup_id):
     else:
         return_value = {'result' : 'error'}
 
-    return JsonResponse(data=return_value, safe=False)
+    return HttpResponse(return_value)
+
+
+########################################################################################################################
+# 해당지역 측정종료를 취소한다. (04.25)
+def measuring_end_cancel_view(request, phonegroup_id):
+    """ 해당일자에 대한 측정종료을 취소하는 뷰 함수
+        - 파라미터
+          . phonegroup_id: 단말그룹ID (int)
+        - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
+        """
+    # 해당 단말그룹 ID로 오브젝트 데이터를 가져온다.
+    qs = PhoneGroup.objects.filter(id=phonegroup_id)
+    if qs.exists():
+        phoneGroup = qs[0]
+        # 해당 단말 그룹에 대한 측정종료를 취소한다.
+        return_value = measuring_end_cancel(phoneGroup)
+    else:
+        return_value = {'result' : 'error'}
+
+    return HttpResponse(return_value)
+
 
 ########################################################################################################################
 # 당일 측정을 마감한다.
@@ -312,7 +333,7 @@ def measuring_day_close_view(request, measdate):
         # 해당일자의 대상 단말그룹 리스트에 대해서 측정마감을 처리한다.
         return_value = measuring_day_close(phoneGroup_list, date)
 
-    return JsonResponse(data=return_value, safe=False)
+    return HttpResponse(return_value)
 
 ########################################################################################################################
 # 해당 날짜 재마감 함수
@@ -340,7 +361,19 @@ def measuring_day_reclose_view(request, measdate):
     else:
         return_value = {'result' : '해당일자에 아직 마감이 완료되지 않았습니다. 먼저 측정마감 처리해주세요.'}
 
-    return JsonResponse(data=return_value, safe=False)
+    return HttpResponse(return_value)
+
+
+########################################################################################################################
+# 폰그룹 데이터 합치는 함수 (04.26)
+## 선택한 폰그룹과 measdate/unserInfo1/networkId/ispId 가 일치하는 폰그룹들이 있을 경우 데이터를 합친다.
+########################################################################################################################
+def phonegroup_union_view(request, phonegroup_id):
+    base_pg = PhoneGroup.objects.get(id=phonegroup_id)
+    added_pg = phoneGroup.objects.filter(measdate=base_pg.measdate, userInfo1=base_pg.userInfo1, networkId=base_pg.networkId, ispId='45008').order_by('-last_updated_dt')
+    for pg in added_pg:
+        return_value = phonegroup_union(base_pg, pg)
+    return return_value
 
 
 ########################################################################################################################

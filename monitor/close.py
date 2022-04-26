@@ -83,7 +83,8 @@ def measuring_end(phoneGroup):
       - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
     """
     if phoneGroup.active == False:  # 이미 종료한 지역일 경우 pass 처리
-        return {'message' : '이미 측정 종료한 지역'}
+        return_value = {'result' : 'ERROR: 이미 측정 종료한 지역'}
+        return return_value
     else:
         # 해당 단말그룹에 묶여 있는 단말기들을 가져온다.
         try:
@@ -169,16 +170,16 @@ def measuring_end(phoneGroup):
             fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'networkId', \
                     'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count']
             serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
-            if md.exists():
-                # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
+            if md.exists(): # 기존에 생성된 데이터가 있으면
+                # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
                 md.update(**serializer.data)
                 # 평균속도, 전환율, 총 콜 수는 새로이 계산한 값으로 저장한다.
                 md.update(downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'], \
                         uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
                         dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
                         total_count=total_count)
-            else:
-                # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
+            else: # 기존에 생성된 데이터가 없으면
+                # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
                 MeasuringDayClose.objects.create(phoneGroup=phoneGroup, \
                                                 downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'],
                                                 uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
@@ -398,6 +399,83 @@ def measuring_end(phoneGroup):
         return_value = {'result': 'ok'}
         return return_value
 
+
+
+########################################################################################################################
+# 측정 종료 취소 함수
+########################################################################################################################
+def measuring_end_cancel(phoneGroup):
+    """ 해당지역의 측정 종료를 취소하는 함수
+      - 파라미터
+        . phoneGroup: 단말그룹(PhoneGroup)
+      - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
+    """
+    if phoneGroup.active == True:  # 종료되지 않은 지역일 경우
+        return_value = {'result' : 'ERROR: 종료되지 않은 지역'}
+        return return_value
+    else:
+        # 해당 단말그룹에 묶여 있는 단말기들을 가져온다.
+        try:
+            # 1) 해당 단말그룹이 측정종료되며 생성된 메시지 및 측정종료 데이터(MeasuringDayClose)는 따로 삭제하지 않는다
+            phone_list = phoneGroup.phone_set.all()
+            # message_list = phoneGroup.message_set.all().filter(Q(status='END') | Q(status='END_LAST'))
+            # if message_list.exists():
+            #     message_list.delete()
+
+            # 2) 측정종료 처리가 완료된 단말그룹과 측정단말의 상태를 다시 활성화 시킨다.
+            phoneGroup.active = True # 단말그룹
+            phoneGroup.save()
+            phone_list.update(active=True) # 측정단말
+                         
+        except Exception as e:
+            return_value = {'result' : 'error'}
+            raise Exception("measuring_end_cancel() - 측정종료 취소: %s" % e)
+        
+        # 반환값 : Dict
+        return_value = {'result': 'ok'}
+        return return_value
+
+
+########################################################################################################################
+# 단말 그룹 데이터 합치는 함수
+########################################################################################################################
+def phonegroup_union(phoneGroup1, phoneGroup2):
+    """ 폰그룹 2개를 합치는 함수
+      - 파라미터
+        . phoneGroup1: 기준 단말
+        . phoneGroup2: 합쳐질 단말
+      - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
+    """
+    # 콜데이터/초데이터의 phone id를 통일 / 메시지 phone id 및 phonegroup id 통일 -> phone 삭제 -> 종료데이터 삭제 -> event_count 합산 -> phonegroup 삭제 -> active 변경
+    try:
+        # phoneGroup1 : 기존 데이터, phoneGroup2 : 신규 데이터
+        phone_list1 = phoneGroup1.phone_set.all()  # 기준이 되는 단말그룹의 phone 추출
+        phone_list2 = phoneGroup2.phone_set.all()  # 합쳐질 단말그룹의 phone 추출
+        
+        for p2 in phone_list2:
+            for p1 in phone_list1:
+                if p2.phone_no == p1.phone_no:
+                    for p2_data in p2.measurecalldata_set.all():
+                        p1.update_phone(p2_data)
+                        p2_data.phone = p1
+                        p2_data.save()
+                    p2.measureseconddata_set.all().update(phone_id=p1.id)
+                    p2.message_set.all().update(phone_id=p1.id, phoneGroup_id=phoneGroup1.id)
+                    p2.delete()
+        
+        phoneGroup2.measuringdayclose_set.all().delete()
+        phoneGroup1.event_count += phoneGroup2.event_count
+        phoneGroup2.delete()
+        phoneGroup1.active=True
+        phoneGroup1.save()
+
+        return_value = {'result' : 'ok'}
+    except Exception as e:
+        return_value = {'result' : 'error'}
+        raise Exception("phonegroup_union() - 단말그룹 결합 함수: %s" % e)
+                
+    return return_value
+    
 
 ########################################################################################################################
 # 당일 측정을 마감한다.
