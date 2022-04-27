@@ -204,7 +204,7 @@ def message_list(request, phonegroup_id):
                             messageSmsList.append(serializer.data)
 
                     # 3) 텔레그램 메시지 내역을 가져온다.
-                    tele_qs = qs.filter(sendType='TELE', messageType='SMS')
+                    tele_qs = qs.filter(Q(sendType='TELE', messageType='SMS') | Q(sendType='ALL', messageType='SMS'))
                     if tele_qs.exists():
                         for message in tele_qs:
                             serializer = MessageSerializer(message, fields=fields)
