@@ -114,10 +114,23 @@
             background-color: #777777;
             width: 5px;
         }
-        #browsersButton{
-            width:50px;
+
+        #browsersButton {
+            width: 50px;
             border-radius: 10px;
         }
+
+        /* 진행 모달창이 중앙에 나타나도록 하는 코드
+         * 출처: https://www.codeply.com/go/14Ki1kyTgo
+         */
+        #progressModal .modal-dialog {
+            -webkit-transform: translate(0, -50%);
+            -o-transform: translate(0, -50%);
+            transform: translate(0, -50%);
+            top: 50%;
+            margin: 0 auto;
+        }
+
     </style>
 
 {% endblock %}
@@ -524,17 +537,19 @@
         </div>
         <!-- Modify PhoneGroup Info Modal End -->
         <!-- Morphology Modal End -->
+
         <!-- Progress Dialog Modal -->
         <!-- 출처: https://codepen.io/easyisez/pen/GELWXR -->
-        <div id="progressModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
-        aria-hidden="true">
+        <div id="progressModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog"
+             aria-hidden="true">
             <div class="modal-dialog modal-m modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header"><h3 style="margin:0;">일일마감 중...</h3></div>
                     <div class="modal-body">
                         <div class="progress">
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" v-bind:style="endWidth"></div>
+                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
                         </div>
                     </div>
                 </div>
@@ -962,6 +977,7 @@
                     }
                     return "OK";
                 },
+                /*
                 //end 메세지 알람 펑션 체크한 내용과 에러 개수 넘긴다 error개수가 0개면 성공 1개라도 잇으면 경고 메세지
                 end_message_alert(listLen, errorCount) {
 
@@ -979,7 +995,8 @@
                             })
                     }
 
-                },
+                }
+                */
                 upDateEndWidth: function() {
                     //return "0%"
                     //return this.phoneGroupActiveChecked ? "100%" : "0%" 
@@ -990,6 +1007,7 @@
 
                 // 2) 해당 일자에 대한 측정을 마감한다.
                 async measuring_day_close() {
+                    /*
                     $("#progressModal").modal('show');
                     clearInterval(this.timer);
                     this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
@@ -1012,8 +1030,9 @@
                                 })
                             },1000);
                     }
-                    
-
+                    */
+                    const res = await fetch("/monitor/day_close/" + this.date)
+                    return res;
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정종료 및 일일마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
