@@ -250,7 +250,7 @@
 
     <!-- 금일 측정그룹 -->
     <div id="middle_phonegroup" class="fixed-table-container mt-1 pt-0 px-1"
-         style="height:450px; margin-bottom:1px; border: 2px solid rgb(228, 223, 223); padding: 10px;">
+         style="height:350px; margin-bottom:1px; border: 2px solid rgb(228, 223, 223); padding: 10px;">
         <!-- <h6><b>금일 측정그룹</b></h6> -->
         <div id="phonegroup-contailer" class="table-responsive text-nowrap" style="height:100%;">
             <table id="phonegroup-table" class='table table-hover table-fixed'>
@@ -319,18 +319,14 @@
                     [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]])</font>
                 </td>
                 <td style="width: 8%;" v-if="phoneGroup.active" class="text-center">
-                    <span class="bi bi-file-play-fill" style="font-size:20px; color:red"> </span></td>
-                <td style="width: 8%;" v-else="phoneGroup.active" class="text-center">
-                    <i class="bi bi-stop-circle" style="font-size:20px;color:green"></i>
-                </td>
+                    <span style="color:red">측정중</span></td>
+                <td style="width: 8%;" v-else="phoneGroup.active" class="text-center">종료</td>
                 <td style="width: 6%;" class="text-center">
                     <div class="dropdown flex p-0, m-0">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" style="height:24px;padding-top:0px;">
                             <span class="caret"></span></button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a class="dropdown-item" href="#">측정종료 취소</a>
-                            <a class="dropdown-item text-muted" href="#">목표 대비 현황</a>
-                            <a class="dropdown-item text-muted" href="#">전년도 대비 현황</a>
                         </div>
                     </div>
                 </td>
