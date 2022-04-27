@@ -49,10 +49,9 @@
 {% block extra-style %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
-        .counter {
-            background-color: #f5f5f5;
-            padding: 20px 0;
-            border-radius: 5px;
+
+        [v-cloak] {
+            display: none;
         }
 
         .fa-spin-hover:hover {
@@ -124,7 +123,7 @@
 {% endblock %}
 
 {% block contents %}
-    <div id="app">
+    <div id="app" v-cloak>
         <!-- 상단 내용 -->
         <div class="row" style="height:100px;">
             <div class="col-10 px-2">
