@@ -116,8 +116,10 @@
         }
 
         #browsersButton {
-            width: 50px;
-            border-radius: 10px;
+            width: 30px;
+            height:20px;
+            border-radius: 5px;
+            padding-top: 0px;
         }
 
         /* 진행 모달창이 중앙에 나타나도록 하는 코드
@@ -194,17 +196,17 @@
                             </th>
                             <th style="width: 5%;" class="text-center">본부</th>
                             <th style="width: 6%;" class="text-center">조</th>
-                            <th style="width: 16%;"class="text-center">측정지역</th>
-                            <th style="width: 7%;" class="text-center">모폴로지</th>
-                            <th style="width: 7%;" class="text-center">네트워크</th>
-                            <th style="width: 6%;" class="text-center">DL콜수</th>
-                            <th style="width: 6%;" class="text-center">DL속도</th>
-                            <th style="width: 6%;" class="text-center">UL콜수</th>
-                            <th style="width: 6%;" class="text-center">UL속도</th>
-                            <th style="width: 6%;" class="text-center">전환율</th>
-                            <th style="width: 6%;" class="text-center">이벤트</th>
-                            <th style="width: 7%;" class="text-center">최종측정(경과)</th>
-                            <th style="width: 7%;" class="text-center">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;상태</th>
+                            <th style="width: 18%;"class="text-center">측정지역</th>
+                            <th style="width: 8%;" class="text-center">모폴로지</th>
+                            <th style="width: 8%;" class="text-center">네트워크</th>
+                            <th style="width: 8%;" class="text-center">DL콜수</th>
+                            <th style="width: 8%;" class="text-center">DL속도</th>
+                            <th style="width: 8%;" class="text-center">UL콜수</th>
+                            <th style="width: 8%;" class="text-center">UL속도</th>
+                            <th style="width: 8%;" class="text-center">전환율</th>
+                            <th style="width: 8%;" class="text-center">이벤트</th>
+                            <th style="width: 8%;" class="text-center">최종측정(경과)</th>
+                            <th style="width: 8%;" class="text-center">상태</th>
                             <th style="width: 8%;" class="text-center">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
@@ -233,29 +235,29 @@
                                 title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
                                 [[phoneGroup.measuringTeam]]
                             </td>
-                            <td style="width: 16%;">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
-                            <td style="width: 7%;" v-on:dblclick="doubleclickMorphology(phoneGroup)"
+                            <td style="width: 18%;">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
+                            <td style="width: 8%;" v-on:dblclick="doubleclickMorphology(phoneGroup)"
                                 data-toggle="tooltip" data-placement="top" class="text-center"
                                 title="마우스로 더블클릭하면 모폴로지를 변경할 수 있습니다.">
                                 [[phoneGroup.morphologyName]]
                             </td>
-                            <td style="width: 7%;" >[[phoneGroup.networkId]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.dl_count]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.downloadBandwidth]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.ul_count]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.uploadBandwidth]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.nr_percent]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.event_count]]</td>
-                            <td style="width: 7%;"ß>[[phoneGroup.last_updated_time]]/
+                            <td style="width: 8%;" >[[phoneGroup.networkId]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.dl_count]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.downloadBandwidth]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.ul_count]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.uploadBandwidth]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.nr_percent]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.event_count]]</td>
+                            <td style="width: 8%;"ß>[[phoneGroup.last_updated_time]]/
                                 <span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
                                 <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
                             </td>
-                            <td style="width: 7%; color: red" v-if="phoneGroup.active" >측정 중</td>
-                            <td style="width: 7%; color: #777777" v-else="phoneGroup.active" >종료</td>
-                            <td style="width: 7%;" >
+                            <td style="width: 8%; color: red" v-if="phoneGroup.active" >측정 중</td>
+                            <td style="width: 8%; color: #777777" v-else="phoneGroup.active" >종료</td>
+                            <td style="width: 8%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
-                                            type="button" data-toggle="dropdown" style="height:24px;padding-top:0px;">
+                                            type="button" data-toggle="dropdown">
                                         <span class="caret"></span></button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
                                         <a class="dropdown-item" @click="measuringEndCancel">측정종료 취소</a>
@@ -756,7 +758,6 @@
                         this.phoneGroupListChangeCheck[this.phoneGroupList[p_Id].id] = this.phoneGroupList[p_Id].last_updated_dt
                         //종료 알랏을 위한 액티브 체크
                         if(!this.phoneGroupList[p_Id]['active']){
-                            console.log("여기들어왓다.")
                             this.phoneGroupActiveCheckSave += 1
                             console.log(this.phoneGroupActiveCheckSave)
                         }
@@ -848,9 +849,8 @@
                  * 전송 메시지(이벤트/문자/텔레그램) 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
                 async fetch_all_message() {
-                    this.$refs.message_clickphone.innerHTML = this.selectedPhoneGroup.userInfo1
+                    // this.$refs.message_clickphone.innerHTML = this.selectedPhoneGroup.userInfo1
                     if(this.selectedPhoneGroup.id){
-                        console.log("들어왓다.")
                         const res = await fetch("/api/message/list/" + this.selectedPhoneGroup.id)
                         const data = await res.json();
 
@@ -965,7 +965,6 @@
                     }
                     await this.end_message_alert(end_success_count, end_error_count)
                     */
-
                     for (let i in this.phoneGroupList) {
                         if (this.phoneGroupList[i].selected) {
                             // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
