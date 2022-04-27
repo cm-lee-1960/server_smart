@@ -241,7 +241,8 @@
                             <td style="width: 7%; color: #777777" v-else="phoneGroup.active" >종료</td>
                             <td style="width: 7%;" >
                                 <div class="dropdown flex p-0, m-0">
-                                    <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown">
+                                    <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
+                                            type="button" data-toggle="dropdown" style="height:24px;padding-top:0px;">
                                         <span class="caret"></span></button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
                                         <a class="dropdown-item" @click="measuringEndCancel">측정종료 취소</a>
@@ -278,7 +279,7 @@
                             <!--일마감 메세지 생성-->
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
-                                aria-controls="msg-all" aria-selected="false" v-on:click="messageColor()">문자전체</a>
+                                aria-controls="msg-all" aria-selected="false" v-on:click="messageColor()">문자(전체)</a>
                             </li>
                         </ul>
                         <div style="display:flex; align-items: center;">
@@ -635,9 +636,9 @@
                     activeMessage: {},
 
                     /////////폰그룹선택확인 변수
-                    clickSignal:false,
-                    pnoClick:'phonegroup-noclick',
-                    pClick:'phonegroup-click',
+                    // clickSignal:false,
+                    // pnoClick:'phonegroup-noclick',
+                    // pClick:'phonegroup-click',
 
                     ///////폰그룹 내용 변경 확인 사전
                     phoneGroupListChangeCheck : {},
@@ -783,7 +784,7 @@
                     this.message = {};
 
                     //this.activePhoneGroup = phoneGroup;
-
+                    /*
                     $("#msg-event-tab").addClass('active')
                     $("#msg-event").removeClass('fade')
                     $("#msg-event").addClass('active')
@@ -794,6 +795,8 @@
 
                     $("#msg-tele-tab").removeClass('active')
                     $("#msg-tele").removeClass('active')
+
+                    */
 
                 },
 
@@ -893,11 +896,12 @@
                     return phoneGroupList
                 },
                 /* -----------------------------------------------------------------------------------------------------
-                 * 측정종료 및 측정마감에 관련된 함수
+                 * 측정종료 및 일일마감에 관련된 함수
                  -----------------------------------------------------------------------------------------------------*/
                 // 1) 해당 단말그룹에 대한 측정을 종료한다.
               
                 async measuring_end() {
+                    /*
                     let end_error_count = 0;
                     let end_success_count = 0;
                     const selectedPhoneGroupList = this.getSelected();
@@ -941,9 +945,22 @@
                             }
                        
                     }
-                    
                     await this.end_message_alert(end_success_count, end_error_count)
-                    await this.fetch_all_phoneGroup();
+                    */
+
+                    for (let i in this.phoneGroupList) {
+                        if (this.phoneGroupList[i].selected) {
+                            // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
+                            const res = await fetch("/monitor/end/" + this.phoneGroupList[i].id)
+                                .then(respone => {
+                                    // 측정종료 처리후  단말그룹 리스트를 다시 조회한다.
+                                    this.fetch_all_phoneGroup();
+                                });
+                            // 측정종료 처리후 선택된 단말그룹의 체크박스를 해제 한다.
+                            this.phoneGroupList[i].selected = false;
+                        }
+                    }
+                    return "OK";
                 },
                 //end 메세지 알람 펑션 체크한 내용과 에러 개수 넘긴다 error개수가 0개면 성공 1개라도 잇으면 경고 메세지
                 end_message_alert(listLen, errorCount) {
@@ -999,7 +1016,7 @@
 
                 },
                 /* -----------------------------------------------------------------------------------------------------
-                 * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
+                 * 측정종료 및 일일마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
                  -----------------------------------------------------------------------------------------------------*/
                 // 1) 측정종료 버튼을 클릭했을 때
                 clickMeasuringEnd(e) {
@@ -1007,9 +1024,10 @@
                         // 선택된 단말그룹 리스트 중에서 측정이 종료된 건이 있는지 확인한다.
                         const selectedPhoneGroupList = this.getSelected();
                         let isMeasuringEnd = false
+                        let isWithin5min = false
                         selectedPhoneGroupList.forEach(phoneGroup => {
-                            console.log("####", phoneGroup.active);
-                            isMeasuringEnd = !phoneGroup.active;
+                            if (!phoneGroup.active) isMeasuringEnd = true;
+                            if (phoneGroup.elapsed_time <= 5) isWithin5min = true;
                         });
                         if (isMeasuringEnd) {
                             this.isModelConfirmDisabled = false
@@ -1017,9 +1035,16 @@
                             $("#modal_body").html("선택한 단말그룹이 측정이 이미 종료되었습니다.");
                             $("#mi-modal").modal('show');
                         } else {
-                            $("#modal-btn-confirm").html('측정종료');
-                            $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
-                            $("#mi-modal").modal('show');
+                            if (isWithin5min) {
+                                $("#modal-btn-confirm").html('측정종료');
+                                $("#modal_body").html("선택된 단말그룹에 <span style='color:red;'>최근 5분이내 업데이트 이력</span>이 있습니다." +
+                                    "<br>그래도 측정을 종료하시겠습니까?");
+                                $("#mi-modal").modal('show');
+                            } else {
+                                $("#modal-btn-confirm").html('측정종료');
+                                $("#modal_body").html("선택된 단말그룹에 대한 측정을 종료하시겠습니까?");
+                                $("#mi-modal").modal('show');
+                            }
                         }
                     } else {
                         this.isModelConfirmDisabled = false
@@ -1028,24 +1053,57 @@
                         $("#mi-modal").modal('show');
                     }
                 },
-                // 2) 측정마감 버튼을 클릭했을 때
+                // 2) 일일마감 버튼을 클릭했을 때
                 clickMeasuringClose(e) {
                     this.isModelConfirmDisabled = true
-                    $("#modal-btn-confirm").html('측정마감');
+                    $("#modal-btn-confirm").html('일일마감');
                     $("#modal_body").html("당일(" + this.date + ") 측정을 마감하시겠습니까?");
                     $("#mi-modal").modal('show');
                 },
-                // 3) 모달창에서 확인버튼(측정종료 또는 측정마감) 버튼을 클릭했을 때
+                // 3) 모달창에서 확인버튼(측정종료 또는 일일마감) 버튼을 클릭했을 때
                 clickModalBtnConfirm(e) {
                     if (e.target.innerText === "측정종료") {
                         // 선택된 단말그룹에 대한 측정을 종료한다.
-                        this.measuring_end();
+                        const promise = this.measuring_end();
+                        promise.then(res => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '측정이 종료되었습니다.',
+                                text: '해당지역의 종료문자를 확인해주세요.',
+                            });
+                        }).catch(err => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '측정종료 중에 오류가 발생했습니다.',
+                                text: err,
+                            });
+                        });
 
-                    } else if (e.target.innerText === "측정마감") {
-                        // 해당일자에 대한 측정을 마감한다.
-                        this.measuring_day_close();
-                            
-                            //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
+                    } else if (e.target.innerText === "일일마감") {
+                    // 해당일자에 대한 측정을 마감한다.
+                    $("#progressModal").modal('show');
+                        const promise = this.measuring_day_close()
+                        promise.then(res => {
+                            // 일일마감 후 단말그룹을 다시 조회한다.
+                            const subpromise = this.fetch_all_phoneGroup();
+                            subpromise.then(res => {
+                                $("#progressModal").modal('hide');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '측정이 마감되었습니다.',
+                                    text: '해당일자의 마감문자를 확인해주세요.',
+                                });
+                            }).catch(err => {
+                                // pass
+                            });
+                        }).catch(err => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '일일마감 중에 오류가 발생했습니다.',
+                                text: err,
+                            });
+                        });
+                        //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
                     } else if (e.target.innerText === "회수") {
                         this.deleteMessage()
                     } else if (e.target.innerText === "전송") {
