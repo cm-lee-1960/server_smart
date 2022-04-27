@@ -190,7 +190,7 @@ def message_list(request, phonegroup_id):
                             serializer = MessageSerializer(message, fields=fields)
                             messageEventList.append(serializer.data)
                     # 1-2) 전송실패 이벤트 메시지 내역은 별도로 
-                    fail_event_qs = qs.filter(message__contains='전송실패')
+                    fail_event_qs = qs.filter(messageType='EVENT', message__contains='전송실패')
                     if fail_event_qs.exists():
                         for message in fail_event_qs:
                             serializer = MessageSerializer(message, fields=fields)
