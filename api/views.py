@@ -162,6 +162,7 @@ def message_list(request, phonegroup_id):
         # 조회하고자 하는 메시지ID가 파라미터로 넘어 왔는지 확인한다.
         if phonegroup_id is not None:
             messageEventList = [] # 이벤트 메시지
+            messageFailEventList = [] # 전송실패 이벤트 메시지
             messageSmsList = [] # 문자 메시지
             messageTeleList = [] # 텔레그램
             try:
@@ -187,6 +188,12 @@ def message_list(request, phonegroup_id):
                         for message in event_qs:
                             serializer = MessageSerializer(message, fields=fields)
                             messageEventList.append(serializer.data)
+                    # 1-2) 전송실패 이벤트 메시지 내역은 별도로 
+                    fail_event_qs = qs.filter(message__contains='전송실패')
+                    if fail_event_qs.exists():
+                        for message in fail_event_qs:
+                            serializer = MessageSerializer(message, fields=fields)
+                            messageFailEventList.append(serializer.data)
 
                     # 2) 문자 메시지 내역을 가져온다.
                     sms_qs = qs.filter(Q(sendType='XMCS') | Q(sendType='ALL'))
@@ -205,6 +212,7 @@ def message_list(request, phonegroup_id):
 
                 # 클라이언트 브라우저에 전송할 데이터를 랩필한다.
                 data = {'messageEventList': messageEventList, # 이벤트 메시지 리스트
+                        'messageFailEventList': messageFailEventList, # 전송실패 이벤트 메시지 리스트
                         'messageSmsList': messageSmsList, # 문자 메시지 리스트
                         'messageTeleList': messageTeleList,} # 텔레그램 메시지 리스트
 
