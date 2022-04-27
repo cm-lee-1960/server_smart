@@ -279,7 +279,7 @@ def measuring_end_view(request, phonegroup_id):
     else:
         return_value = {'result' : 'error'}
 
-    return HttpResponse(return_value)
+    return JsonResponse(return_value)
 
 
 ########################################################################################################################
@@ -299,7 +299,7 @@ def measuring_end_cancel_view(request, phonegroup_id):
     else:
         return_value = {'result' : 'error'}
 
-    return HttpResponse(return_value)
+    return JsonResponse(return_value)
 
 
 ########################################################################################################################
@@ -333,7 +333,7 @@ def measuring_day_close_view(request, measdate):
         # 해당일자의 대상 단말그룹 리스트에 대해서 측정마감을 처리한다.
         return_value = measuring_day_close(phoneGroup_list, date)
 
-    return HttpResponse(return_value)
+    return JsonResponse(return_value)
 
 ########################################################################################################################
 # 해당 날짜 재마감 함수
@@ -361,7 +361,7 @@ def measuring_day_reclose_view(request, measdate):
     else:
         return_value = {'result' : '해당일자에 아직 마감이 완료되지 않았습니다. 먼저 측정마감 처리해주세요.'}
 
-    return HttpResponse(return_value)
+    return JsonResponse(return_value)
 
 
 ########################################################################################################################
