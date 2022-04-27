@@ -199,29 +199,21 @@
                             style="height:300px; overflow-y:auto; display:block" class="d-flex">
                             <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" 
                             :class="['d-flex text-center', {'table-success': (phoneGroup.id == selectedPhoneGroup.id)}]"
-                            
-                            v-bind:id="phoneGroup.id" v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="clickphone_Tr"/>
+                            v-bind:id="phoneGroup.id" v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="clickphone_Tr"
+                            data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center" v-on:dblclick="doubleclickModifyInfo(phoneGroup)"
+                            title="마우스로 더블클릭하면 단말그룹 정보를 변경할 수 있습니다."/>
                             <td style="width: 5%;" class="text-center" onclick="event.cancelBubble=true">
                                 <input type="checkbox" 
                                     :id="'check_' + phoneGroup.id"
                                     :value="phoneGroup.id"
                                     v-model="phoneGroup.selected"
                                     @change="selected($event)"
-                                    
                                 >
                             </td>
                             <td style="width: 5%;" class="text-center">[[phoneGroup.centerName]]</td>
-                            <td style="width: 5%;" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
-                                data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
-                                title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
-                                [[phoneGroup.measuringTeam]]
-                            </td>
+                            <td style="width: 5%;" class="text-center">[[phoneGroup.measuringTeam]]</td>
                             <td style="width: 16%;"class="text-center">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
-                            <td style="width: 7%;" v-on:dblclick="doubleclickMorphology(phoneGroup)"
-                                data-toggle="tooltip" data-placement="top" class="text-center"
-                                title="마우스로 더블클릭하면 모폴로지를 변경할 수 있습니다.">
-                                [[phoneGroup.morphologyName]]
-                            </td>
+                            <td style="width: 7%;" class="text-center">[[phoneGroup.morphologyName]]</td>
                             <td style="width: 7%;" class="text-center">[[phoneGroup.networkId]]</td>
                             <td style="width: 6%;" class="text-center">[[phoneGroup.dl_count]]</td>
                             <td style="width: 6%;" class="text-center">[[phoneGroup.downloadBandwidth]]</td>
@@ -246,7 +238,7 @@
                                     <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown">
                                         <span class="caret"></span></button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
-                                        <a class="dropdown-item" href="#">측정종료 취소</a>
+                                        <a class="dropdown-item" @click="measuringEndCancel">측정종료 취소</a>
                                         <a class="dropdown-item text-muted" href="#">목표 대비 현황</a>
                                         <a class="dropdown-item text-muted" href="#">전년도 대비 현황</a>
                                     </div>
@@ -489,59 +481,40 @@
         </div>
         <!-- Modal End-->
 
-
-        <!-- Measuringteam Modal -->
-        <div class="modal fade" id="measuringTeamModal" tabindex="-1" role="dialog"
-             aria-labelledby="measuringTeamModalLabel" aria-hidden="true">
+        <!-- Modify PhoneGroup Info Modal -->
+            <div class="modal fade" id="modifyInfoModal" tabindex="-1" role="dialog"
+            aria-labelledby="modifyInfoModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="measuringTeamModalLabel">측정조 변경</h5>
+                        <h5 class="modal-title" id="modifyInfoModalLabel">단말그룹 정보 변경</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        [[selectedPhoneGroup.userInfo1]]
-                        <p class="mt-1"><label for="measuringTeam" class="m-lg-1">측정 조</label>
-                            <input type="text" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" v-on:click="clickModalTeamConfirm">저장</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Measuringteam Modal End -->
-        <!-- Morphology Modal -->
-        <div class="modal fade" id="morphologyModal" tabindex="-1" role="dialog"
-             aria-labelledby="morphologyModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="morphologyModalLabel">모폴로지 변경</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        [[selectedPhoneGroup.userInfo1]]
-                        <p class="mt-1"><label for="morphology" class="m-lg-1">모폴로지</label>
-                            <!-- <input type="text" id="morphology" v-model="selectedPhoneGroup.morphologyName" list="morphologyList"/> -->
-                            <select name="morphology" id="morphology" v-model="selectedPhoneGroup.morphologyName">
+                        <font color='blue' size="5pt"><b>[[selectedPhoneGroup.userInfo1]]</b></font>
+                        <p class="mt-1"><label for="center" class="m-lg-1" style="width: 80px">본부</label>
+                            <select name="center" style="width: 90px;" id="center" v-model="selectedPhoneGroup.centerName" @change="fetch_center_morphology($event)">
+                                <option v-for="center in centerList" v-bind:value="center.centerName">[[center.centerName]]</option>
+                            </select>
+                        </p>
+                        <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 80px">측정 조</label>
+                            <input type="text" style="width: 90px;" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
+                        <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 80px">모폴로지</label>
+                            <select name="morphology" style="width: 90px;" id="morphology" v-model="selectedPhoneGroup.morphologyName">
                                 <option v-for="morphology in morphologyList" v-bind:value="morphology">[[morphology]]</option>
                             </select>
                         </p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" v-on:click="clickModalMorphologyConfirm">저장</button>
+                        <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm">저장</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Morphology Modal End -->
+        <!-- Modify PhoneGroup Info Modal End -->
 
     </div>
 
@@ -737,12 +710,21 @@
                     }
                     
                 },
-
+                
+                // 단말 그룹의 모폴로지를 불러오는 함수
                 async fetch_all_morphology(phoneGroup) {
                     const res = await fetch("/api/morphology/list/" + phoneGroup.centerName);
                     const data = await res.json();
                     this.morphologyList = data['morphologyList']
                 },
+                
+                // 정보 변경 모달 창에서 본부를 바꿨을 경우 모폴로지를 긁어오는 함수
+                async fetch_center_morphology($event) {
+                    const res = await fetch("/api/morphology/list/" + event.target.value);
+                    const data = await res.json();
+                    this.morphologyList = data['morphologyList'];
+                },
+                
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
                  -----------------------------------------------------------------------------------------------------*/
@@ -1115,6 +1097,7 @@
                     this.message = {};
 
                 },
+
                 // 1-3) 텍스트 파일 내용을 읽어 오는 함수(수신자 전화번호 리스트)
                 // source: https://www.raymondcamden.com/2019/05/21/reading-client-side-files-for-validation-with-vuejs
                 selectedFile() {
@@ -1160,56 +1143,36 @@
                     await this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};
                 },
-                /* -----------------------------------------------------------------------------------------------------
-                 * 단말그룹에 대한 측정조를 입력하는 모듈 관련 함수
-                 -----------------------------------------------------------------------------------------------------*/
-                // 1) 단말그룹 리스트에서 측정조 컬럼을 마우스 더블클릭 했을 때
-                doubleclickMeasuringTeam(phoneGroup) {
-                    $("#measuringTeamModal").modal('show');
+                
+                /*---------------------------------------------------------------------------------------
+                 * 측정종료 취소 클릭 시 측정종료 질의 팝업 및 진행하는 함수
+                 --------------------------------------------------------------------------------------*/
+                measuringEndCancel(e) {
+                    if (this.selectedPhoneGroup.active === false) {
+                        $("#modal-btn-confirm").html('측정종료 취소');
+                        $("#modal_body").html("해당 단말그룹의 측정을 재개하시겠습니까?");
+                        $("#mi-modal").modal('show');
+                    } else {
+                        $("#modal_body").html("아직 종료되지 않은 단말그룹입니다.");
+                        $("#mi-modal").modal('show');
+                    }
+                    // this.selectedPhoneGroup = checked
+                    
                 },
-                // 2) 측정조 변경 모달창에서 저장 버튼을 클릭했을 때
-                clickModalTeamConfirm() {
-                    this.changeMeasuringTeam()
-                    $("#measuringTeamModal").modal('hide');
 
-                },
-                // 3) 단말그룹의 측정조 변경을 서버에 요청한다.
-                async changeMeasuringTeam() {
-                    const requestOptions = {
-                        method: "POST",
-                        headers: {
-                            "X-CSRFToken": '{{csrf_token}}',
-                            "Content-Type": "application/json",
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            'phoneGroup_id': this.selectedPhoneGroup.id,
-                            'measuringTeam': this.selectedPhoneGroup.measuringTeam,
-                        })
-                    };
-                    const response = await fetch("/api/phonegroup/update/measuringteam", requestOptions);
-                    console.log("send-received:", response);
-                    // 단말그룹 리스트를 다시 조회한다.
-                    await this.fetch_all_phoneGroup();
-                },
-                clickClearMessage() {
-                    this.message = {};
-                    this.recipient_text = null;
-
-                },
                 /* -----------------------------------------------------------------------------------------------------
-                 * 단말그룹에 대한 모폴로지를 입력하는 모듈 관련 함수
+                 * 단말그룹에 대한 정보를 변경하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/
-                doubleclickMorphology(phoneGroup) {
+                doubleclickModifyInfo(phoneGroup) {
                     this.fetch_all_morphology(phoneGroup);
-                    $("#morphologyModal").modal('show');
+                    $("#modifyInfoModal").modal('show');
                 },
-                clickModalMorphologyConfirm() {
-                    this.changeMorphology()
-                    $("#morphologyModal").modal('hide');
+                clickModalModifyConfirm() {
+                    this.changeInfo()
+                    $("#modifyInfoModal").modal('hide');
 
                 },
-                async changeMorphology() {
+                async changeInfo() {
                     const requestOptions = {
                         method: "POST",
                         headers: {
@@ -1218,11 +1181,13 @@
                             'Accept': 'application/json'
                         },
                         body: JSON.stringify({
-                            'phoneGroup_id': this.selectedPhoneGroup.id,
-                            'morphologyName': this.selectedPhoneGroup.morphologyName
+                            'phoneGroup_id': this.selectedPhoneGroup.id,  // 단말그룹 ID
+                            'centerName': this.selectedPhoneGroup.centerName,  // 본부
+                            'measuringTeam': this.selectedPhoneGroup.measuringTeam,  // 측정조
+                            'morphologyName': this.selectedPhoneGroup.morphologyName  // 모폴로지 이름
                         })
                     };
-                    const response = await fetch("/api/phonegroup/update/morphology", requestOptions);
+                    const response = await fetch("/api/phonegroup/update/info", requestOptions);
                     console.log("send-received:", response);
                     await this.fetch_all_phoneGroup();
                 },

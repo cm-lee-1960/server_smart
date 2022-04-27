@@ -299,46 +299,25 @@ def send_message(request):
     #return HttpResponse(result)
 
 # ----------------------------------------------------------------------------------------------------------------------
-# 단말그룹 측정조를 변경하는 API
+# 단말그룹 정보를 수정하는 API
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
-def update_measuringteam(request):
+def update_phonegroup_info(request):
+    ''' 대쉬보드에서 단말그룹 더블클릭하여 정보 수정할 때 함수
+        반환값: {result : 'ok' / 'fail'} '''
     data = request.data
-    # print("data:", data)
-    result = {}
     try:
         phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
+        centerName = data['centerName']
         measuringTeam = data['measuringTeam'] # 측정조
-        qs = PhoneGroup.objects.filter(id=phoneGroup_id)
-        if qs.exists():
-            phoneGroup = qs[0]
-            phoneGroup.measuringTeam = measuringTeam # 측정조
-            phoneGroup.save()
-
-    except Exception as e:
-        # 오류 코드 및 내용을 반환한다.
-        print("update_measuringteam():", str(e))
-        # db_logger.error("update_measuringteam(): %s" % e)
-        raise Exception("update_measuringteam(): %s" % e)
-
-    return HttpResponse(result)
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# 단말그룹 모폴로지를 변경하는 API
-# ----------------------------------------------------------------------------------------------------------------------
-@api_view(['POST'])
-def update_morphology(request):
-    data = request.data
-    try:
-        from management.models import Morphology
-        phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
         morphology = data['morphologyName'] # 모폴로지 이름
         qs = PhoneGroup.objects.filter(id=phoneGroup_id)
         if qs.exists():
             phoneGroup = qs[0]
-            phoneGroup.morphology = Morphology.objects.filter(morphology=morphology)[0]
-            phoneGroup.manage = Morphology.objects.filter(morphology=morphology).values_list('manage', flat=True)[0]
+            phoneGroup.center = Center.objects.filter(centerName=centerName)[0]  # 본부
+            phoneGroup.measuringTeam = measuringTeam  # 측정조
+            phoneGroup.morphology = Morphology.objects.filter(morphology=morphology)[0]  # 모폴로지
+            phoneGroup.manage = Morphology.objects.filter(morphology=morphology).values_list('manage', flat=True)[0]  # 모폴로지 값에 따른 Manage 값
             phoneGroup.save()
             result = {'result' : 'ok'}
 
