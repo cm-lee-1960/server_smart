@@ -787,9 +787,10 @@
                 
                 // 정보 변경 모달 창에서 본부를 바꿨을 경우 모폴로지를 긁어오는 함수
                 async fetch_center_morphology($event) {
+                    /*
                     const res = await fetch("/api/morphology/list/" + event.target.value);
                     const data = await res.json();
-                    this.morphologyList = data['morphologyList'];
+                     */
                 },
                 
                 /* -----------------------------------------------------------------------------------------------------
@@ -1193,27 +1194,21 @@
                     const response = await fetch("/api/message/send/", requestOptions);
                     // 아래 코드는 나중에 사용할 수 있어서 남겨둠
                     // 처리결과를 기다렸다가 표시하면 좋을 듯 함
-                    //const data = await response.json();
-                    console.log("send-received:", response);
-                    
-                    if(response.ok){
-
+                    const data = await response.json();
+                    // console.log("send-received:", response);
+                    if (response.ok) {
                         Swal.fire({
                             icon: 'success',
                             title: '문자전송내용',
                             text: '문자전송이 성공하였습니다.',
                         });
-
-                    }else{
-
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: '문자전송내용',
                             text: '문자전송이 실패하였습니다.',
                         });
-                        
                     }
-                
                     // 메시지 재전송 완료 후 메시지 리스트를 다시 조회한다.
                     await this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};
@@ -1318,8 +1313,16 @@
                     this.recipient_text = null;
                 },
             },
+            beforeDestroy() {
+                // console.log(this.timer); // returns a progressive integer
+                clearInterval(this.timer);
+                // console.log(this.timer); // returns same integer
+                this.counters = 0;
+                // console.log("destroyed");
+            },
         });
 
+        /*
         const hm = new Vue({
             el: '#head',
             methods: {
@@ -1334,6 +1337,7 @@
 
             }
         });
+        */
 
         /* -------------------------------------------------------------------------------------------------------------
          * 전송 메시지 내용을 줄여서 표현하는 필터를 선언한다.
