@@ -731,7 +731,7 @@ class Message(models.Model):
     sended = models.BooleanField(default=True) # 전송여부
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일시')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='최종 업데이트 시간')
-    sendTime = models.DateTimeField(auto_now=True, verbose_name='보낸시간')
+    sendTime = models.DateTimeField(null=True, blank=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
     isDel = models.BooleanField(default=False, verbose_name='회수여부')  # Telegram 메시지 회수 여부
 
@@ -780,8 +780,9 @@ def send_message(sender, instance, created, **kwargs):
         # 1) 텔레그램으로 메시지를 전송한다.
         if instance.sendType == 'TELE' or instance.sendType == 'ALL':
             result = bot.send_message_bot(instance.channelId, instance.message)
-            instance.sendTime = result['date'].astimezone(timezone(timedelta(hours=9)))  ## 텔레그램 전송시각 저장
+            #instance.sendTime = result['date'].astimezone(timezone(timedelta(hours=9)))  ## 텔레그램 전송시각 저장
             instance.telemessageId = result['message_id']  ## 텔레그램 메시지ID 저장
+            instance.sendTime = instance.updated_at
             instance.save()
 
         # # 2) 크로샷으로 메시지를 전송한다.
