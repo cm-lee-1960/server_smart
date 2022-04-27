@@ -88,7 +88,7 @@ class TelegramBot:
                 time.sleep(2)
             
             # 메시지 앞뒤로 <code></code> 래핑을 한다. (04.26)
-            message = '<code>' + message + '</code>'
+            # message = '<code>' + message + '</code>'
 
             # 메시지를 텔레그램으로 전송한다.
             sent_msg = self.bot.sendMessage(channelId, text=message, parse_mode='HTML')
