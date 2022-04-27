@@ -328,7 +328,7 @@ def measuring_end(phoneGroup):
         try:
             # 더 이상 활성화된 단말그룹이 없다면 최종 마지막 단말그룹이라고 판단한다.
             # 즉, 가장 마지막 측정종료 단말그룹이라는 것을 의미한다.
-            if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008, active=True).count() == 0:
+            if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008, manage=True, active=True).count() == 0:
                 # 측정지역 개수 추출
                 daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
                 # 네트워크 유형별 건수를 조회한다.
@@ -346,14 +346,18 @@ def measuring_end(phoneGroup):
                 threeg_count = result['3G'] if '3G' in result.keys() else 0 # 3G 측정건수
                 wifi_count = result['WiFi'] if 'WiFi' in result.keys() else 0 # WiFi 측정건수
                 total_count = fiveg_count + lte_count + threeg_count + wifi_count
+                # 네트워크 유형 별 userInfo1을 추출한다.
+                userInfo_byType = {'5G':'', 'LTE':'', '3G':'', 'WiFi':''}
+                for userInfo in PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008).values('networkId', 'userInfo1'):
+                    userInfo_byType[userInfo['networkId']] += '\n  .' + userInfo['userInfo1']
 
                 # 메시지를 생성한다.
                 message_end_last = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
                             f"{phoneGroup.userInfo1}({phoneGroup.networkId}{phoneGroup.morphology})을 마지막으로 종료 되었습니다.\n" + \
                             f"ㅇ 측정지역({total_count})\n" + \
-                            f" - 5G품질({fiveg_count})\n" + "  .\n" + \
-                            f" - LTE/3G 취약지역 품질({lte_count + threeg_count})\n" + "  .\n" + \
-                            f" - WiFi 품질({wifi_count})\n" + "  .\n" + \
+                            f" - 5G품질({fiveg_count})\n" + f"  .{userInfo_byType['5G']}\n" + \
+                            f" - LTE/3G 취약지역 품질({lte_count + threeg_count})\n" + f"  .{userInfo_byType['LTE']}\n" + f"  .{userInfo_byType['LTE']}\n" + \
+                            f" - WiFi 품질({wifi_count})\n" + f"  .{userInfo_byType['WiFi']}\n" + \
                             "수고 많으셨습니다."
 
                 # 마지막 종료 메시지가 존재하면 update, 미존재면 신규생성

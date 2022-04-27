@@ -214,27 +214,27 @@ def make_message(mdata: MeasureCallData):
         elif phone.status == 'MEASURING':
             # WiFi 측정 데이터의 경우
             if phone.networkId == 'WiFi':
-                messages = f"<code>{mdata.address} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
+                messages = f"{mdata.address} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
                            "속도(DL/UL, Mbps)\n" + \
                            f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 5G 측정 데이터의 경우
             elif phone.networkId == '5G':
-                messages = f"<code>{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 기타(LTE, 3G) 측정데이터의 경우
             else:
-                messages = f"<code>{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 이벤트 메시지 내용 추가
-            messages +=  f"\n- 이벤트(전송실패/속도저하, 건): {msg.filter(message__contains='전송실패').count()}/{msg.filter(message__contains='속도저하').count()}</code>"
+            messages +=  f"\n- 이벤트(전송실패/속도저하, 건): {msg.filter(message__contains='전송실패').count()}/{msg.filter(message__contains='속도저하').count()}"
 
         # [측정종료 메시지] --------------------------------------------------------------------------------------------
         # 2022-03-11 - 측정종료 메시지는 수기로 해당지역 측정종료 및 당일 측정종료를 실행할 때 생성되기 때문에 여기에 있는 코드를 사용하지 않음
         elif phone.status == 'END':
-            messages = f"<code>금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
+            messages = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}을 마지막으로 종료 되었습니다.\n" + \
                        "(DL/UL/시도호/성공률)\n" + \
-                       f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count + ul_count}/-</code>"
+                       f"{phone.networkId}: {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}/{dl_count + ul_count}/-</>"
 
         # 2022.03.17 - 보안이슈로 지도맵 기능제공 취소함
         # # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
