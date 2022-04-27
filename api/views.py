@@ -165,6 +165,7 @@ def message_list(request, phonegroup_id):
             messageFailEventList = [] # 전송실패 이벤트 메시지
             messageSmsList = [] # 문자 메시지
             messageTeleList = [] # 텔레그램
+            messageSmsAllList = [] # 전체 단말그룹의 메시지
             try:
                 # 단말그룹에 대한 측정일자를 조회한다(단말그룹을 찾지 못하는 경우는 당일을 지정한다).
                 qs = PhoneGroup.objects.filter(id=phonegroup_id)
@@ -209,12 +210,20 @@ def message_list(request, phonegroup_id):
                         for message in tele_qs:
                             serializer = MessageSerializer(message, fields=fields)
                             messageTeleList.append(serializer.data)
+                    
+                    # 4) 전체 단말그룹의 문자 메시지 내역을 가져온다.
+                    sms_all_qs = Message.objects.filter(measdate=measdate).order_by('-updated_at').filter(Q(sendType='XMCS' | Q(sendType='ALL')))
+                    if sms_all_qs.exists():
+                        for message in sms_all_qs:
+                            serializer = MessageSerializer(message, fields=fields)
+                            messageSmsAllList.append(serializer.data)
 
                 # 클라이언트 브라우저에 전송할 데이터를 랩필한다.
                 data = {'messageEventList': messageEventList, # 이벤트 메시지 리스트
                         'messageFailEventList': messageFailEventList, # 전송실패 이벤트 메시지 리스트
                         'messageSmsList': messageSmsList, # 문자 메시지 리스트
-                        'messageTeleList': messageTeleList,} # 텔레그램 메시지 리스트
+                        'messageTeleList': messageTeleList, # 텔레그램 메시지 리스트
+                        'messageSmsAllList': messageSmsAllList,} # 전체 문자 메시지 리스트
 
             except Exception as e:
                 print("message_list():", str(e))
