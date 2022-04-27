@@ -212,7 +212,7 @@ def message_list(request, phonegroup_id):
                             messageTeleList.append(serializer.data)
                     
                     # 4) 전체 단말그룹의 문자 메시지 내역을 가져온다.
-                    sms_all_qs = Message.objects.filter(measdate=measdate).order_by('-updated_at').filter(Q(sendType='XMCS' | Q(sendType='ALL')))
+                    sms_all_qs = Message.objects.filter(measdate=measdate).order_by('-updated_at').filter(Q(sendType='XMCS') | Q(sendType='ALL'))
                     if sms_all_qs.exists():
                         for message in sms_all_qs:
                             serializer = MessageSerializer(message, fields=fields)
