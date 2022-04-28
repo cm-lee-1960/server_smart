@@ -2,6 +2,7 @@ from django.http import JsonResponse, HttpResponse
 from django.db import connection
 from django.db.models import Q
 from datetime import datetime
+import json
 
 from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
@@ -279,6 +280,7 @@ def send_message(request):
                 receiver_list = receiver_list.replace(' ','').replace('\n','').split(',')
                 result_sms = send_sms_queryset(message, receiver_list)
                 result = {'result': result_sms}
+
             # 2) 텔레그램 메시지를 재전송 한다.
             elif sendType == 'TELE':
                 bot = TelegramBot()
@@ -289,6 +291,8 @@ def send_message(request):
 
                 # 메시지를 저장한다.
                 message.save()
+
+                result = {'result': 'ok'}
 
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
