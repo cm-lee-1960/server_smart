@@ -74,4 +74,4 @@ class SentTelegramMessageAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-admin.site.register(SentTelegramMessage, SentTelegramMessageAdmin)
+# admin.site.register(SentTelegramMessage, SentTelegramMessageAdmin)
