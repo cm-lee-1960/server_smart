@@ -686,15 +686,6 @@
             },
             watch: {
                 date() {
-                    // 화면을 초기화 한다.
-                    this.measuringTeam_count = 0, // 측정조 건수
-                    this.total_count = 0, // 총 측정건수
-                    this.centerList = [], // 측정중인 센터수,
-                    this.phoneGroupList = [], // 측정 단말그룹 리스트
-                    this.messageEventList = []; // 이벤트 메시지 리스트
-                    this.messageSmsList = []; // 문자 메시지 리스트
-                    this.messageTeleList = []; // 텔레그램 메시지 리스트
-                    this.message = {}; // 메시지 상세내역
 
                     this.phoneGroupListChangeCheck = {};//폰그룹 변경 체크 초기화
 
@@ -702,12 +693,27 @@
                     if ((new Date(this.date) !== "Invalid Date") && !isNaN(new Date(this.date))) {
                         this.fetch_all_phoneGroup(); // 단말그룹 리스트
                     } else {
+
+                        // 화면을 초기화 한다.
+                        this.measuringTeam_count = 0, // 측정조 건수
+                        this.total_count = 0, // 총 측정건수
+                        this.centerList = [], // 측정중인 센터수,
+                        this.phoneGroupList = [], // 측정 단말그룹 리스트
+                        this.messageEventList = []; // 이벤트 메시지 리스트
+                        this.messageSmsList = []; // 문자 메시지 리스트
+                        this.messageTeleList = []; // 텔레그램 메시지 리스트
+                        this.message = {}; // 메시지 상세내역
+
                         Swal.fire({
                             icon: 'info',
                             title: '측정일자',
                             text: '측정일자를 잘못 입력했습니다.',
                         });
                     }
+                },
+                phoneGroupList(newValue, oldValue) {
+                    console.log("oldValue:", oldValue);
+                    console.log("newValue: ", newValue);
                 },
             },
             created: function () {
@@ -727,6 +733,9 @@
                 this.messageTeleList = []; // 텔레그램 메시지 리스트
                 this.message = {}; // 메시지 상세내역
 
+            },
+            updated: function () {
+                // 어떤 속성이 있는지 확인 중,...
             },
             methods: {
                 /* -----------------------------------------------------------------------------------------------------
