@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib import auth
 from django.conf import settings
-from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam, ReportCycle, MorphologyMap, CenterManageArea
-from .models import ChatMemberList
+from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam, ReportCycle, MorphologyMap, \
+    CenterManageArea, ChatMemberList, PhoneInfo
 
 ########################################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
@@ -124,6 +124,16 @@ class ChatMemberListAdmin(admin.ModelAdmin):
     list_display_links = ['userchatId', ]
     search_fields = ('userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId',)
 
+# ----------------------------------------------------------------------------------------------------------------------
+# 측정단말 사전정보
+# ----------------------------------------------------------------------------------------------------------------------
+class PhoneInfoAdmin(admin.ModelAdmin):
+    """어드민 페이지에 측정단말 사전정보(PhoneInfo)를 보여주기 위한 클래스"""
+    list_display = ['phone_no', 'networkId', 'measuringTeam', ]
+    list_display_links = ['phone_no']
+    search_fields = ('networkId', 'measuringTeam', )
+    list_filter = ['networkId', 'measuringTeam', ]
+    ordering = ('networkId', 'phone_no', )
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 관리자 페이지에 모델을 등록한다.
@@ -139,6 +149,8 @@ admin.site.register(ReportCycle, ReportCycleAdmin) # 측정 보고주기
 admin.site.register(CenterManageArea, CenterManageAreaAdmin) # 센터별 관할구역
 
 admin.site.register(ChatMemberList, ChatMemberListAdmin) # 채팅방 멤버 리스트
+
+admin.site.register(PhoneInfo, PhoneInfoAdmin) # 측정단말 사전정보
 
 # 사용자 인증관련 그룹을 어드민 페이지에서 제외한다.
 admin.site.unregister(auth.models.Group)
