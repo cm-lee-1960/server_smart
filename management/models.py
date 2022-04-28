@@ -278,6 +278,13 @@ class PhoneInfo(models.Model):
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
                                      choices=sorted(MEASURINGTEAM_CHOICES, key=itemgetter(0)), verbose_name='측정조')
 
+    @property
+    def phone_no_str(self):
+        """전화번호(문자열)를 반환한다."""
+        # 1029213855
+        phone_no_str = str(self.phone_no)
+        return '0' + phone_no_str[:2] + '-' + phone_no_str[2:6] + '-' + phone_no_str[6:]
+
     class Meta:
         verbose_name = ("측정단말 사전정보")
         verbose_name_plural = ("측정단말 사전정보")

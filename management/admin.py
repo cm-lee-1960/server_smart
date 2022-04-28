@@ -129,11 +129,12 @@ class ChatMemberListAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 class PhoneInfoAdmin(admin.ModelAdmin):
     """어드민 페이지에 측정단말 사전정보(PhoneInfo)를 보여주기 위한 클래스"""
-    list_display = ['phone_no', 'networkId', 'measuringTeam', ]
-    list_display_links = ['phone_no']
+    list_display = ['networkId', 'measuringTeam', 'phone_no_str', ]
+    list_display_links = ['phone_no_str']
     search_fields = ('networkId', 'measuringTeam', )
     list_filter = ['networkId', 'measuringTeam', ]
-    ordering = ('networkId', 'phone_no', )
+    # 정렬에는 @property를 사용할 수 없음
+    ordering = ('networkId', 'measuringTeam', 'phone_no', )
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 관리자 페이지에 모델을 등록한다.
