@@ -228,7 +228,7 @@
                             <th style="width: 6%;">이벤트</th>
                             <th style="width: 8%;">최종측정(경과)</th>
                             <th style="width: 6%;">상태</th>
-                            <th style="width: 6%;">
+                            <th style="width: 5%;">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                                 data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -261,13 +261,13 @@
                             <td style="width: 6%;" >[[phoneGroup.uploadBandwidth]]</td>
                             <td style="width: 6%;" >[[phoneGroup.nr_percent]]</td>
                             <td style="width: 6%;" >[[phoneGroup.failEventCount]]</td>
-                            <td style="width: 6%;" >
+                            <td style="width: 8%;" >
                                 [[phoneGroup.last_updated_time]]/<span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
                                 <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
                             </td>
                             <td style="width: 6%; color: red" v-if="phoneGroup.active" >측정 중</td>
                             <td style="width: 6%; color: #777777" v-else="phoneGroup.active" >종료</td>
-                            <td style="width: 6%;" >
+                            <td style="width: 5%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
                                             type="button" data-toggle="dropdown">
@@ -300,12 +300,12 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
-                                aria-controls="msg-tele" aria-selected="false" v-on:click="messageColor()">텔레그램</a>
+                                aria-controls="msg-tele" aria-selected="false" v-on:click="[messageColor(), TelegramClick=true]">텔레그램</a>
                             </li>
                             <!--일마감 메세지 생성-->
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
-                                aria-controls="msg-all" aria-selected="false" v-on:click="messageColor()">문자전체</a>
+                                aria-controls="msg-all" aria-selected="false" v-on:click="messageColor()">문자(전체)</a>
                             </li>
                         </ul>
                         <div style="display:flex; align-items: center;">
@@ -470,6 +470,11 @@
                                 <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
                                 role="tab"
                                 aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#"
+                                role="tab" v-show="TelegramClick==true"
+                                aria-controls="msgdtl-recipient" aria-selected="false">채팅방 멤버</a>
                             </li>
                         </ul>
                         <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
@@ -682,6 +687,9 @@
                     ///////폰그룹 내용 변경 확인 사전
                     phoneGroupListChangeCheck : {},
                     clickPhoneGroup : null,
+
+                    //////텔레그램 탭 선택 시 별도 메뉴 활성화를 위한 값
+                    TelegramClick : false,
 
                     ///////종요 알랏을위한 종료체크변수
                     phoneGroupActiveCheck : 0,
@@ -1251,7 +1259,7 @@
                         $("#mi-modal").modal('show');
                     } else {
                         this.isModelConfirmDisabled = false
-                        $("#modal_body").html("아직 종료되지 않은 단말그룹입니다.");
+                        $("#modal_body").html("<span style='color:red;'>측정 중</span>인 단말그룹입니다." + "<br>측정이 종료된 단말그룹에 대해 처리할 수 있습니다.");
                         $("#mi-modal").modal('show');
                     }
                     $("#mi-modal").modal('hide');
