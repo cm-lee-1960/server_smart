@@ -48,10 +48,11 @@
 {% block extra-style %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
-        
+
         [v-cloak] {
             display: none;
         }
+
         .fa-spin-hover:hover {
             animation: fa-spin 2s infinite linear;
         }
@@ -112,6 +113,7 @@
             background-color: #777777;
             width: 5px;
         }
+
         #browsersButton {
             width: 35px;
             height:20px;
@@ -120,8 +122,8 @@
         }
 
         /* 진행 모달창이 중앙에 나타나도록 하는 코드
-        * 출처: https://www.codeply.com/go/14Ki1kyTgo
-        */
+         * 출처: https://www.codeply.com/go/14Ki1kyTgo
+         */
         #progressModal .modal-dialog {
             -webkit-transform: translate(0, -50%);
             -o-transform: translate(0, -50%);
@@ -191,19 +193,19 @@
                                 >
                             </th>
                             <th style="width: 5%;" class="text-center">본부</th>
-                            <th style="width: 5%;" class="text-center">조</th>
+                            <th style="width: 6%;" class="text-center">조</th>
                             <th style="width: 18%;"class="text-center">측정지역</th>
-                            <th style="width: 7%;" class="text-center">모폴로지</th>
-                            <th style="width: 6%;" class="text-center">네트워크</th>
-                            <th style="width: 6%;" class="text-center">DL콜수</th>
-                            <th style="width: 6%;" class="text-center">DL속도</th>
-                            <th style="width: 6%;" class="text-center">UL콜수</th>
-                            <th style="width: 6%;" class="text-center">UL속도</th>
-                            <th style="width: 6%;" class="text-center">전환율</th>
-                            <th style="width: 6%;" class="text-center">이벤트</th>
-                            <th style="width: 6%;" class="text-center">최종측정(경과)</th>
-                            <th style="width: 6%;" class="text-center">상태</th>
-                            <th style="width: 6%;" class="text-center">
+                            <th style="width: 8%;" class="text-center">모폴로지</th>
+                            <th style="width: 8%;" class="text-center">네트워크</th>
+                            <th style="width: 8%;" class="text-center">DL콜수</th>
+                            <th style="width: 8%;" class="text-center">DL속도</th>
+                            <th style="width: 8%;" class="text-center">UL콜수</th>
+                            <th style="width: 8%;" class="text-center">UL속도</th>
+                            <th style="width: 8%;" class="text-center">전환율</th>
+                            <th style="width: 8%;" class="text-center">이벤트</th>
+                            <th style="width: 8%;" class="text-center">최종측정(경과)</th>
+                            <th style="width: 8%;" class="text-center">상태</th>
+                            <th style="width: 8%;" class="text-center">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                                 data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -232,24 +234,25 @@
                                 [[phoneGroup.measuringTeam]]
                             </td>
                             <td style="width: 18%;">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
-                            <td style="width: 7%;" v-on:dblclick="doubleclickMorphology(phoneGroup)"
+                            <td style="width: 8%;" v-on:dblclick="doubleclickMorphology(phoneGroup)"
                                 data-toggle="tooltip" data-placement="top" class="text-center"
                                 title="마우스로 더블클릭하면 모폴로지를 변경할 수 있습니다.">
                                 [[phoneGroup.morphologyName]]
                             </td>
-                            <td style="width: 6%;" >[[phoneGroup.networkId]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.dl_count]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.downloadBandwidth]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.ul_count]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.uploadBandwidth]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.nr_percent]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.event_count]]</td>
-                            <td style="width: 6%;" >
-                                [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]]분)</font>
+                            <td style="width: 8%;" >[[phoneGroup.networkId]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.dl_count]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.downloadBandwidth]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.ul_count]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.uploadBandwidth]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.nr_percent]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.event_count]]</td>
+                            <td style="width: 8%;"ß>[[phoneGroup.last_updated_time]]/
+                                <span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
+                                <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
                             </td>
-                            <td style="width: 6%; color: red" v-if="phoneGroup.active" >측정 중</td>
-                            <td style="width: 6%; color: #777777" v-else="phoneGroup.active" >종료</td>
-                            <td style="width: 6%;" >
+                            <td style="width: 8%; color: red" v-if="phoneGroup.active" >측정 중</td>
+                            <td style="width: 8%; color: #777777" v-else="phoneGroup.active" >종료</td>
+                            <td style="width: 8%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
                                             type="button" data-toggle="dropdown">
@@ -276,24 +279,24 @@
                         <ul class="nav nav-tabs nav-pills" id="msg" role="tablist" style="height:44px">
                             <li class="nav-item">
                                 <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
-                                aria-controls="msg-event" aria-selected="true" v-on:click="messageColor()">이벤트</a>
+                                aria-controls="msg-event" aria-selected="true">이벤트</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
-                                aria-controls="msg-sms" aria-selected="false" v-on:click="messageColor()">문자</a>
+                                aria-controls="msg-sms" aria-selected="false">문자</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
-                                aria-controls="msg-tele" aria-selected="false" v-on:click="messageColor()">텔레그램</a>
+                                aria-controls="msg-tele" aria-selected="false">텔레그램</a>
                             </li>
                             <!--일마감 메세지 생성-->
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
-                                aria-controls="msg-all" aria-selected="false" v-on:click="messageColor()">문자전체</a>
+                                aria-controls="msg-all" aria-selected="false">문자(전체)</a>
                             </li>
                         </ul>
                         <div style="display:flex; align-items: center;">
-                            <strong><span ref="message_clickphone"></span></strong>
+                            <strong><span>[[selectedPhoneGroup.userInfo1]]</span></strong>
                             <i id="refreshIconMessage" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                             style="font-size:20px; color:blue" v-on:click="fetch_all_message"
                             data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -320,10 +323,9 @@
                                 <tbody id='eventDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block" ref='eventDetail_body'>
                                 <tr v-for="(message,index) in messageEventList" 
-                                    :class="['d-flex text-center clickEvent', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
+                                    :class="['d-flex text-center clickEvent', {'table-success': (message.id == activeMessage.id)}]"
             
                                     v-on:click="clickMessageList(message, $event)" ref = "clickevent_Tr">
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
                                     <td style="width: 11%;" >[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
@@ -355,9 +357,8 @@
                                 <tbody id='xroshotDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block" ref='xroshotDetail_body'>
                                 <tr v-for="message in messageSmsList" 
-                                    :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
+                                    :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id)}]"
                                     v-on:click="clickMessageList(message, $event)" >
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
                                     <td style="width: 12%;">[[ message.create_time ]]</td>
                                     <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 12%;" v-else="message.phone_no_sht" ref="endmessage_td">-</td>
@@ -386,9 +387,8 @@
                                 <tbody id='teleDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block" ref='teleDetail_body'>
                                 <tr v-for="message in messageTeleList" 
-                                    :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
+                                    :class="['d-flex text-center clickTele', {'table-success': (message.id == activeMessage.id)}]"
                                     v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
                                     <td style="width: 11%;">[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
@@ -403,6 +403,7 @@
                             </table>
                         </div>
                         <div class="tab-pane fade" id="msg-all" role="tabpanel" aria-labelledby="msg-all-tab" style="height:100%;">
+
                             <table id="all_table" class='table table-hover'>
                                 <thead id='all-header' style="height:50px;">
                                 <tr class="bg-light d-flex text-center">
@@ -415,20 +416,6 @@
                                 </thead>
                                 <tbody id='allDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block" ref='allDetail_body'>
-                                <tr v-for="message in messageSmsList" 
-                                    :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
-                                    v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
-                                    <td style="width: 11%;">[[ message.create_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                    <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
-                                    <td style="width: 45%;">[[ message.message | truncate(75,'...')]]</td>
-                                    <td style="width: 11%;">[[ message.sended_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.sended">전송</td>
-                                    <td style="width: 11%;" v-else="message.sended">미전송</td>
-                                    <td style="width: 11%;" v-if="message.isDel">회수</td>
-                                    <td style="width: 11%;" v-else="message.idDel">-</td>
-                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -551,10 +538,11 @@
         </div>
         <!-- Modify PhoneGroup Info Modal End -->
         <!-- Morphology Modal End -->
+
         <!-- Progress Dialog Modal -->
         <!-- 출처: https://codepen.io/easyisez/pen/GELWXR -->
-        <div id="progressModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" 
-             role="dialog" 
+        <div id="progressModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog"
              aria-hidden="true">
             <div class="modal-dialog modal-m modal-dialog-centered">
                 <div class="modal-content">
@@ -562,7 +550,7 @@
                     <div class="modal-body">
                         <div class="progress">
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" v-bind:style="endWidth"></div>
+                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
                         </div>
                     </div>
                 </div>
@@ -634,7 +622,6 @@
          *            - 문자 메시지 조회시 측정단말 및 단말그룹이 없는 경우 해당 측정일자에 생성된 건이 조회 추가
          *              (전송유형: ALL)
          * 2022.04.12 - 화면처리 흐름도 및 주석 추가
-
          * 2022.04.18 - 
          =============================================================================================================*/
         const vm = new Vue({
@@ -659,12 +646,13 @@
                     recipient_text: null, // 수신자 리스트
                     selectedPhoneGroup: {},
                     morphologyList: [], // 모폴로지 리스트
-                    tabChangeCheck: false,
-                    //activePhoneGroup: {},
+
+                    // activePhoneGroup: {},
                     activeMessage: {},
 
                     ///////폰그룹 내용 변경 확인 사전
                     phoneGroupListChangeCheck : {},
+
                     clickPhoneGroup : null,
 
                     ///////종요 알랏을위한 종료체크변수
@@ -790,9 +778,10 @@
                 
                 // 정보 변경 모달 창에서 본부를 바꿨을 경우 모폴로지를 긁어오는 함수
                 async fetch_center_morphology($event) {
+                    /*
                     const res = await fetch("/api/morphology/list/" + event.target.value);
                     const data = await res.json();
-                    this.morphologyList = data['morphologyList'];
+                     */
                 },
                 
                 /* -----------------------------------------------------------------------------------------------------
@@ -803,15 +792,53 @@
                     this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};
 
+                    //this.activePhoneGroup = phoneGroup;
+                    /*
+                    $("#msg-event-tab").addClass('active')
+                    $("#msg-event").removeClass('fade')
+                    $("#msg-event").addClass('active')
+                    
+                    $("#msg-sms-tab").removeClass('active')
+                    $("#msg-sms").removeClass('active')
+                    $("#msg-tele-tab").removeClass('active')
+                    $("#msg-tele").removeClass('active')
+                    */
+
                 },
+
+                /*
                 messageColor: function(){
-                    this.tabChangeCheck = false;
+                    switch(event.currentTarget.id){
+                        case 'msg-event-tab':
+                            console.log(this.$refs.eventDetail_body.childNodes)
+                            this.$refs.eventDetail_body.childNodes.forEach(child => {
+                                child.style.backgroundColor = '#FFFFFF';
+                            });
+                            break;
+                        case 'msg-sms-tab':
+                            console.log(this.$refs.xroshotDetail_body.childNodes)
+                            this.$refs.xroshotDetail_body.childNodes.forEach(child => {
+                                child.style.backgroundColor = '#FFFFFF';
+                            });
+                            break;
+                        case 'msg-tele-tab':
+                            this.$refs.teleDetail_body.childNodes.forEach(child => {
+                                child.style.backgroundColor = '#FFFFFF';
+                            });
+                            break;
+                        case 'msg-tele-tab':
+                            this.$refs.allDetail_body.childNodes.forEach(child => {
+                                child.style.backgroundColor = '#FFFFFF';
+                            });
+                            break;
+                    }
                 },
+                 */
                 /* -----------------------------------------------------------------------------------------------------
                  * 전송 메시지(이벤트/문자/텔레그램) 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
                 async fetch_all_message() {
-                    this.$refs.message_clickphone.innerHTML = this.selectedPhoneGroup.userInfo1
+                    // this.$refs.message_clickphone.innerHTML = this.selectedPhoneGroup.userInfo1
                     if(this.selectedPhoneGroup.id){
                         const res = await fetch("/api/message/list/" + this.selectedPhoneGroup.id)
                         const data = await res.json();
@@ -820,8 +847,9 @@
                         this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
                         this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
 
-                        /*this.messageEventListsplit = []
+                        console.log(this.selectedPhoneGroup.id,  this.messageTeleList)
 
+                        /*this.messageEventListsplit = []
                         //*를 기준으로 이벤트 메시지 내용을 잘라서 필요 내용만 보게 한다. messageEventListsplit 에 넣어서 표기
                         for(let i=0 ; i < this.messageEventList.length; i++){
                             startPosition = this.messageEventList[i].message.indexOf('*')
@@ -842,10 +870,8 @@
                  * 전송 메시지 내역을 클릭 했을 때 메시지 상세내역을 보여준다.
                  -----------------------------------------------------------------------------------------------------*/
                 clickMessageList: function (message, event) {
-                    this.tabChangeCheck = true
                     this.message = message
                     this.activeMessage = message
-                    console.log(this.activeMessage)
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹 리스트 체크박스 관련 함수
@@ -876,7 +902,7 @@
                     return phoneGroupList
                 },
                 /* -----------------------------------------------------------------------------------------------------
-                 * 측정종료 및 측정마감에 관련된 함수
+                 * 측정종료 및 일일마감에 관련된 함수
                  -----------------------------------------------------------------------------------------------------*/
                 // 1) 해당 단말그룹에 대한 측정을 종료한다.
               
@@ -897,7 +923,6 @@
                                                 if (result.isConfirmed) {   //확인을 누른뒤 실행된다
                                                     const res = await fetch("/monitor/end/" + selectedPhoneGroupList[i].id);
                                                     const data = await res.json();
-
                                                     if(data['result'] == 'ok'){
                                                         selectedPhoneGroupList[i].selected = false;
                                                         end_success_count += 1;
@@ -906,14 +931,12 @@
                                                         selectedPhoneGroupList[i].selected = true;
                                                         end_error_count += 1;
                                                     }
-
                                                     
                                                 } 
                                             })
                             }else{
                                 const res = await fetch("/monitor/end/" + selectedPhoneGroupList[i].id)
                                 const data = await res.json();
-
                                 if(data['result'] == 'ok'){
                                     selectedPhoneGroupList[i].selected = false;
                                     end_success_count += 1;
@@ -926,7 +949,6 @@
                        
                     }
                     await this.end_message_alert(end_success_count, end_error_count)
-                    await this.fetch_all_phoneGroup();
                     */
                     for (let i in this.phoneGroupList) {
                         if (this.phoneGroupList[i].selected) {
@@ -958,8 +980,7 @@
                                 text: '총' + String(listLen) + '건 중'+ String(errorCount) + '건 실패 하였습니다.',
                             })
                     }
-
-                },
+                }
                 */
                 upDateEndWidth: function() {
                     //return "0%"
@@ -971,12 +992,12 @@
 
                 // 2) 해당 일자에 대한 측정을 마감한다.
                 async measuring_day_close() {
+                    /*
                     $("#progressModal").modal('show');
                     clearInterval(this.timer);
                     this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
                     const res = await fetch("/monitor/day_close/" + this.date);
                     const data = await res.json();
-
                     if(data['result'] == 'ok'){
                         //여기서는 백
                         this.testtt.width = "100%"
@@ -993,11 +1014,12 @@
                                 })
                             },1000);
                     }
-                    
-
+                    */
+                    const res = await fetch("/monitor/day_close/" + this.date)
+                    return res;
                 },
                 /* -----------------------------------------------------------------------------------------------------
-                 * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
+                 * 측정종료 및 일일마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
                  -----------------------------------------------------------------------------------------------------*/
                 // 1) 측정종료 버튼을 클릭했을 때
                 clickMeasuringEnd(e) {
@@ -1007,7 +1029,6 @@
                         let isMeasuringEnd = false
                         let isWithin5min = false
                         selectedPhoneGroupList.forEach(phoneGroup => {
-                            console.log("####", phoneGroup.active);
                             if (!phoneGroup.active) isMeasuringEnd = true;
                             if (phoneGroup.elapsed_time <= 5) isWithin5min = true;
                         });
@@ -1035,7 +1056,7 @@
                         $("#mi-modal").modal('show');
                     }
                 },
-                // 2) 측정마감 버튼을 클릭했을 때
+                // 2) 일일마감 버튼을 클릭했을 때
                 clickMeasuringClose(e) {
                     this.isModelConfirmDisabled = true
                     $("#modal-btn-confirm").html('일일마감');
@@ -1062,10 +1083,30 @@
                         });
 
                     } else if (e.target.innerText === "일일마감") {
-                        // 해당일자에 대한 측정을 마감한다.
-                        this.measuring_day_close();
-                            
-                            //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
+                    // 해당일자에 대한 측정을 마감한다.
+                    $("#progressModal").modal('show');
+                        const promise = this.measuring_day_close()
+                        promise.then(res => {
+                            // 일일마감 후 단말그룹을 다시 조회한다.
+                            const subpromise = this.fetch_all_phoneGroup();
+                            subpromise.then(res => {
+                                $("#progressModal").modal('hide');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '측정이 마감되었습니다.',
+                                    text: '해당일자의 마감문자를 확인해주세요.',
+                                });
+                            }).catch(err => {
+                                // pass
+                            });
+                        }).catch(err => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '일일마감 중에 오류가 발생했습니다.',
+                                text: err,
+                            });
+                        });
+                        //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
                     } else if (e.target.innerText === "회수") {
                         this.deleteMessage()
                     } else if (e.target.innerText === "전송") {
@@ -1134,17 +1175,15 @@
                     const response = await fetch("/api/message/send/", requestOptions);
                     // 아래 코드는 나중에 사용할 수 있어서 남겨둠
                     // 처리결과를 기다렸다가 표시하면 좋을 듯 함
-                    //const data = await response.json();
-                    console.log("send-received:", response);
-                    if(response.ok){
+                    const data = await response.json();
+                    // console.log("send-received:", response);
+                    if (response.ok) {
                         Swal.fire({
                             icon: 'success',
                             title: '문자전송내용',
                             text: '문자전송이 성공하였습니다.',
                         });
-
-                    }else{
-
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: '문자전송내용',
@@ -1264,6 +1303,7 @@
             },
         });
 
+        /*
         const hm = new Vue({
             el: '#head',
             methods: {
@@ -1277,6 +1317,7 @@
                 //인터벌종료
             }
         });
+        */
 
         /* -------------------------------------------------------------------------------------------------------------
          * 전송 메시지 내용을 줄여서 표현하는 필터를 선언한다.
