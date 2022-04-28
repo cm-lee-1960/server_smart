@@ -7,7 +7,7 @@ import random
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
 from message.xmcs_msg import send_sms  # 2022.03.04 크로샷 메시지 전송 함수 호출
-from management.models import Center, Morphology, MorphologyMap, CenterManageArea
+from management.models import Center, Morphology, MorphologyMap, CenterManageArea, PhoneInfo
 
 # import logging
 # logger = logging.getLogger(__name__)
@@ -90,15 +90,21 @@ class PhoneGroup(models.Model):
             - 업데이트 항목: 측정조, 측정유형(5G,LTE,3G,WiFi), 관할센터
         """
         phone_list = [p.phone_no for p in self.phone_set.all()]
-        qs = Phone.objects.filter(measdate=self.measdate, phone_no__in=phone_list).exclude(phoneGroup=self)
+        # 1)측정단말 사전정보에 등록되어 있는지 확인한다.
+        measuringTeam = None
+        qs = PhoneInfo.objects.filter(phone_no__in=phone_list)
         if qs.exists():
-            measuringTeam = None
-            for p in qs:
-                # print(p, p.phoneGroup.id, p.phoneGroup.measuringTeam)
-                if p.phoneGroup.measuringTeam and p.phoneGroup.measuringTeam != None:
-                    measuringTeam = p.phoneGroup.measuringTeam
-                    break
-            self.measuringTeam = measuringTeam
+            measuringTeam = qs[0].measuringTeam
+        else:
+            # 2)당일 측정 단말그룹에 측정조가 등록되어 있는지 확인한다.
+            qs = Phone.objects.filter(measdate=self.measdate, phone_no__in=phone_list).exclude(phoneGroup=self)
+            if qs.exists():
+                for p in qs:
+                    # print(p, p.phoneGroup.id, p.phoneGroup.measuringTeam)
+                    if p.phoneGroup.measuringTeam and p.phoneGroup.measuringTeam is not None:
+                        measuringTeam = p.phoneGroup.measuringTeam
+                        break
+        if measuringTeam is not None : self.measuringTeam = measuringTeam
 
         # 2022.03.17 - 측정종료 및 측정마감 시 코드 복잡성을 낮추기 위해 측정유형(networkId)을 가져감
         #            - 단말그룹에 묶여 있는 측정 단말의 측정유형을 가져와서 업데이트 한다.
