@@ -248,7 +248,7 @@ def delete_message(request, message_id):
         try:
             bot = TelegramBot()
             message = qs[0]
-            print(f"message_id: {message_id}, channelId: {message.channelId}, telemessageId: {message.telemessageId}")
+            # print(f"message_id: {message_id}, channelId: {message.channelId}, telemessageId: {message.telemessageId}")
             # 전송된 메시지를 취소한다.
             data = bot.delete_message(message.channelId, message.telemessageId)
             # 메시지 회수가 완료되면 회수여부를 업데이트 한다.
@@ -272,10 +272,8 @@ def delete_message(request, message_id):
 @api_view(['POST'])
 def send_message(request):
     data = request.data
-    print("####### data:", data)
     result = {}
     try:
-        print("####")
         if 'sendType' in data.keys():
             sendType = data['sendType'] # 전송유형(sendType)
             receiver_list = data['receiver_list'] # 수신자 리스트
@@ -288,9 +286,11 @@ def send_message(request):
                 from message.xmcs_msg import send_sms_queryset
                 receiver_list = receiver_list.replace(' ','').replace('\n','').split(',')
                 result_sms = send_sms_queryset(message, receiver_list)
-                result = {'result': result_sms}
+                result = {'result': 'ok'}
+
             # 2) 텔레그램 메시지를 재전송 한다.
             elif sendType == 'TELE':
+                print("###>>>>>")
                 bot = TelegramBot()
                 result = bot.send_message_bot(channelId, message.message)
                 message.telemessageId = result['message_id'] # 텔레그램 메시지ID
@@ -299,6 +299,8 @@ def send_message(request):
 
                 # 메시지를 저장한다.
                 message.save()
+
+                result = {'result': 'ok'}
 
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
@@ -337,4 +339,6 @@ def update_phonegroup_info(request):
         # 오류 코드 및 내용을 반환한다.
         result = {'result' : 'fail'}
         raise Exception("update_morphology(): %s" % e)
-    return HttpResponse(result)
+
+    return JsonResponse(data=result, safe=False)
+    # return HttpResponse(result)
