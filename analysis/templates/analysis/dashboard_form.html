@@ -1089,6 +1089,7 @@
                         // 선택된 단말그룹에 대한 측정을 종료한다.
                         const promise = this.measuring_end();
                         promise.then(res => {
+                            this.fetch_all_message();
                             Swal.fire({
                                 icon: 'success',
                                 title: '측정이 종료되었습니다.',
