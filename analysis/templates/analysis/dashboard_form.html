@@ -1104,9 +1104,31 @@
 
                     } else if (e.target.innerText === "일일마감") {
                         // 해당일자에 대한 측정을 마감한다.
-                        this.measuring_day_close();
-                            
-                            //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
+                        $("#progressModal").modal('show');
+                        const promise = this.measuring_day_close()
+                        promise.then(res => {
+                            // 일일마감 후 단말그룹을 다시 조회한다.
+                            const subpromise = this.fetch_all_phoneGroup();
+                            subpromise.then(res => {
+                                $("#progressModal").modal('hide');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '측정이 마감되었습니다.',
+                                    text: '해당일자의 마감문자를 확인해주세요.',
+                                });
+                            }).catch(err => {
+                                // pass
+                                $("#progressModal").modal('hide');
+                            });
+                        }).catch(err => {
+                            $("#progressModal").modal('hide');
+                            Swal.fire({
+                                icon: 'error',
+                                title: '일일마감 중에 오류가 발생했습니다.',
+                                text: err,
+                            });
+                        });
+                        //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
                     } else if (e.target.innerText === "회수") {
                         this.deleteMessage()
                     } else if (e.target.innerText === "전송") {
