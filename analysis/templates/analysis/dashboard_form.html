@@ -226,24 +226,16 @@
                                 >
                             </td>
                             <td style="width: 5%;" >[[phoneGroup.centerName]]</td>
-                            <td style="width: 5%;" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
-                                data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
-                                title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
-                                [[phoneGroup.measuringTeam]]
-                            </td>
-                            <td style="width: 18%;">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
-                            <td style="width: 7%;" v-on:dblclick="doubleclickMorphology(phoneGroup)"
-                                data-toggle="tooltip" data-placement="top" class="text-center"
-                                title="마우스로 더블클릭하면 모폴로지를 변경할 수 있습니다.">
-                                [[phoneGroup.morphologyName]]
-                            </td>
+                            <td style="width: 5%;" >[[phoneGroup.measuringTeam]]</td>
+                            <td style="width: 18%;" >[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
+                            <td style="width: 7%;" >[[phoneGroup.morphologyName]]</td>
                             <td style="width: 6%;" >[[phoneGroup.networkId]]</td>
                             <td style="width: 6%;" >[[phoneGroup.dl_count]]</td>
                             <td style="width: 6%;" >[[phoneGroup.downloadBandwidth]]</td>
                             <td style="width: 6%;" >[[phoneGroup.ul_count]]</td>
                             <td style="width: 6%;" >[[phoneGroup.uploadBandwidth]]</td>
                             <td style="width: 6%;" >[[phoneGroup.nr_percent]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.event_count]]</td>
+                            <td style="width: 6%;" >[[phoneGroup.failEventCount]]</td>
                             <td style="width: 7%;" >
                                 [[phoneGroup.last_updated_time]]/<span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
                                 <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
@@ -256,7 +248,8 @@
                                             type="button" data-toggle="dropdown">
                                         <span class="caret"></span></button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
-                                        <a class="dropdown-item" @click="measuringEndCancel">측정종료 취소</a>
+                                        <a class="dropdown-item" @click="clickCancelMeasuringEnd">측정종료 취소</a>
+                                        <a class="dropdown-item" @click="clickphoneGroupUnion">데이터 병합</a>
                                         <a class="dropdown-item text-muted" href="#">목표 대비 현황</a>
                                         <a class="dropdown-item text-muted" href="#">전년도 대비 현황</a>
 
@@ -518,40 +511,39 @@
         <!-- Modal End-->
 
         <!-- Modify PhoneGroup Info Modal -->
-            <div class="modal fade" id="modifyInfoModal" tabindex="-1" role="dialog"
-            aria-labelledby="modifyInfoModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modifyInfoModalLabel">단말그룹 정보 변경</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <font color='blue' size="5pt"><b>[[selectedPhoneGroup.userInfo1]]</b></font>
-                        <p class="mt-1"><label for="center" class="m-lg-1" style="width: 80px">본부</label>
-                            <select name="center" style="width: 90px;" id="center" v-model="selectedPhoneGroup.centerName" @change="fetch_center_morphology($event)">
-                                <option v-for="center in centerList" v-bind:value="center.centerName">[[center.centerName]]</option>
-                            </select>
-                        </p>
-                        <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 80px">측정 조</label>
-                            <input type="text" style="width: 90px;" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
-                        <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 80px">모폴로지</label>
-                            <select name="morphology" style="width: 90px;" id="morphology" v-model="selectedPhoneGroup.morphologyName">
-                                <option v-for="morphology in morphologyList" v-bind:value="morphology">[[morphology]]</option>
-                            </select>
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm">저장</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                    </div>
+        <div class="modal fade" id="modifyInfoModal" tabindex="-1" role="dialog"
+        aria-labelledby="modifyInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modifyInfoModalLabel">단말그룹 정보 변경</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <font color='blue' size="5pt"><b>[[selectedPhoneGroup.userInfo1]]</b></font>
+                    <p class="mt-1"><label for="center" class="m-lg-1" style="width: 80px">본부</label>
+                        <select name="center" style="width: 90px;" id="center" v-model="selectedPhoneGroup.centerName">
+                            <option v-for="center in centerListAll" v-bind:value="center">[[center]]</option>
+                        </select>
+                    </p>
+                    <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 80px">측정 조</label>
+                        <input type="text" style="width: 90px;" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
+                    <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 80px">모폴로지</label>
+                        <select name="morphology" style="width: 90px;" id="morphology" v-model="selectedPhoneGroup.morphologyName">
+                            <option v-for="morphology in morphologyList" v-bind:value="morphology">[[morphology]]</option>
+                        </select>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm">저장</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
                 </div>
             </div>
         </div>
-        <!-- Modify PhoneGroup Info Modal End -->
-        <!-- Morphology Modal End -->
+    </div>
+    <!-- Modify PhoneGroup Info Modal End -->
         <!-- Progress Dialog Modal -->
         <!-- 출처: https://codepen.io/easyisez/pen/GELWXR -->
         <div id="progressModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" 
@@ -659,6 +651,7 @@
                     isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
                     recipient_text: null, // 수신자 리스트
                     selectedPhoneGroup: {},
+                    centerListAll: [], // 전체 센터 리스트
                     morphologyList: [], // 모폴로지 리스트
                     tabChangeCheck: false,
                     //activePhoneGroup: {},
@@ -796,18 +789,12 @@
                     
                 },
                 
-                // 단말 그룹의 모폴로지를 불러오는 함수
-                async fetch_all_morphology(phoneGroup) {
-                    const res = await fetch("/api/morphology/list/" + phoneGroup.centerName);
+                // 모든 센터 정보 및 모폴로지를 불러오는 함수
+                async fetch_all_centerANDmorphology(phoneGroup) {
+                    const res = await fetch("/api/phonegroup/update/centerANDmorphology/");
                     const data = await res.json();
+                    this.centerListAll = data['centerListAll']
                     this.morphologyList = data['morphologyList']
-                },
-                
-                // 정보 변경 모달 창에서 본부를 바꿨을 경우 모폴로지를 긁어오는 함수
-                async fetch_center_morphology($event) {
-                    const res = await fetch("/api/morphology/list/" + event.target.value);
-                    const data = await res.json();
-                    this.morphologyList = data['morphologyList'];
                 },
                 
                 /* -----------------------------------------------------------------------------------------------------
@@ -1086,6 +1073,10 @@
                     } else if (e.target.innerText === "전송") {
                         this.sendMessage()
                         this.recipient_text = null; //수신자 리스트 제거
+                    } else if (e.target.innerText === "종료취소") {
+                        this.cancelMeasuringEnd()
+                    } else if (e.target.innerText === "병합") {
+                        this.phoneGroupUnion()
                     }
                     $("#mi-modal").modal('hide');
                 },
@@ -1221,24 +1212,79 @@
                 /*---------------------------------------------------------------------------------------
                  * 측정종료 취소 클릭 시 측정종료 질의 팝업 및 진행하는 함수
                  --------------------------------------------------------------------------------------*/
-                measuringEndCancel(e) {
+                 clickCancelMeasuringEnd(e) {
                     if (this.selectedPhoneGroup.active === false) {
-                        $("#modal-btn-confirm").html('측정종료 취소');
+                        this.isModelConfirmDisabled = true
+                        $("#modal-btn-confirm").html('종료취소');
                         $("#modal_body").html("해당 단말그룹의 측정을 재개하시겠습니까?");
                         $("#mi-modal").modal('show');
                     } else {
+                        this.isModelConfirmDisabled = false
                         $("#modal_body").html("아직 종료되지 않은 단말그룹입니다.");
                         $("#mi-modal").modal('show');
                     }
-                    // this.selectedPhoneGroup = checked
-                    
+                    $("#mi-modal").modal('hide');
+                },
+
+                async cancelMeasuringEnd() {
+                    const res = await fetch("/monitor/end/cancel/" + this.selectedPhoneGroup.id);
+                    const data = await res.json();
+                    if(data['result'] === 'ok') {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '측정종료 취소 성공',
+                            text: '선택하신 단말그룹의 종료를 취소하였습니다.',
+                        })
+                    } else {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: '측정종료 취소 실패',
+                            text: '오류가 발생하였습니다.',
+                        })
+                    }
+                    await this.fetch_all_phoneGroup();
+                },
+
+                /*---------------------------------------------------------------------------------------
+                 * 중복 데이터 결합 클릭 시 같은 정보를 가진 폰그룹 데이터 합치는 함수
+                 --------------------------------------------------------------------------------------*/
+                clickphoneGroupUnion(e) {
+                    this.isModelConfirmDisabled = true
+                    $("#modal-btn-confirm").html('병합');
+                    $("#modal_body").html("해당 단말그룹과 동일 정보를 가진 데이터와 병합 하시겠습니까?");
+                    $("#mi-modal").modal('show');
+                    // $("#mi-modal").modal('hide');
+                },
+
+                async phoneGroupUnion() {
+                    const res = await fetch("/monitor/end/union/" + this.selectedPhoneGroup.id);
+                    const data = await res.json();
+                    if (data['result'] === 'ok') {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '데이터 병합 성공',
+                            text: '선택하신 단말그룹과 동일 정보를 가진 데이터와 병합이 완료되었습니다.',
+                        })
+                    } else if (data['result'] === 'error') {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: '데이터 병합 실패',
+                            text: '오류가 발생하였습니다.',
+                        })
+                    } else if (data['result'] === 'no') {
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: '데이터 병합 실패',
+                            text: '해당 단말그룹과 같은 정보의 데이터가 없습니다.',
+                        })
+                    }
                 },
 
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹에 대한 정보를 변경하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/
                 doubleclickModifyInfo(phoneGroup) {
-                    this.fetch_all_morphology(phoneGroup);
+                    this.fetch_all_centerANDmorphology(phoneGroup);
                     $("#modifyInfoModal").modal('show');
                 },
                 clickModalModifyConfirm() {
@@ -1262,7 +1308,6 @@
                         })
                     };
                     const response = await fetch("/api/phonegroup/update/info", requestOptions);
-                    console.log("send-received:", response);
                     await this.fetch_all_phoneGroup();
                 },
                 clickClearMessage() {
