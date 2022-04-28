@@ -248,7 +248,9 @@ MANAGEMENT_MODELS_ORDERING = {
     "모풀로지": 6,
     "센터정보": 7,
     "센터별 관할구역": 8,
-    "채팅방 멤버 리스트": 9,
+    "측정단말 사전정보": 9,
+    "채팅방 멤버 리스트": 10,
+
 }
 
 LOGIN_REDIRECT_URL = 'http://localhost:8000/'

@@ -1,5 +1,6 @@
 from django.utils import timezone
 from django.db import models
+from operator import itemgetter
 
 ########################################################################################################################
 # 환경설정 관리 관련 클래스
@@ -14,6 +15,7 @@ from django.db import models
 #  * 측정 보고주기(ReportCycle): 측정 보고주기를 DB화 함(3, 10, 27, 37, 57)
 #  * 행정동 경계구역(AddressRegion): 지도맵에 현재 측정하고 있는 행정동 경계구역을 표시하기 위한 폴리건 데이터(JSON)
 #  * 센터별 관할지역(CenterManageArea): 지역센터별 관리대상 주소 정보
+#  * 측정단말 사전정보(phoneInfo): 측정단말에 대한 사전 정보
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.05 - 기본 모폴로지를 모폴로지와 모폴로지 맵으로 클래스를 분리함
 #              즉, 기존에 하드코딩 되어 있는 '행정동', '테마', '인빌딩', '커버리지' 등을 DB로 등로관리 할 수 있도록 함
@@ -21,6 +23,7 @@ from django.db import models
 # 2022.03.12 - 지도맵에 현재 측정하고 있는 행정동 경계구역을 표시하기 위한 폴리건 데이터 모델(JSON) 추가
 # 2022.03.18 - 센터별 관할지역(CenterManageArea) 맵핑 정보 추가
 # 2022.03.28 - 센터정보 모델에 센터영문명(centerEngName) 항목 추가
+# 2022.04.28 - 측정단말에 대한 사전 정보 추가
 #
 ########################################################################################################################
 
@@ -249,3 +252,32 @@ class ChatMemberList(models.Model):
     class Meta:
         verbose_name = ('채팅방 멤버 리스트')
         verbose_name_plural = ('채팅방 멤버 리스트')
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 측정단말에 대한 사전정보
+# ----------------------------------------------------------------------------------------------------------------------
+class PhoneInfo(models.Model):
+    """ 측정단말에 대한 사전정보 관리(유형, 측정조 등)"""
+    MEASURINGTEAM_CHOICES = (
+        ("1조", "1조"),
+        ("2조", "2조"),
+        ("3조", "3조"),
+        ("4조", "4조"),
+        ("5조", "5조"),
+    )
+    NETWORKID_CHOICES = (
+        ("5G", "5G"),
+        ("LTE", "LTE"),
+        ("3G", "3G"),
+        ("5G 커버리지", "5G 커버리지"),
+        ("WiFi", "WiFi")
+    )
+    phone_no = models.BigIntegerField(verbose_name="측정단말")
+    networkId = models.CharField(max_length=100, null=True, blank=True,
+                                 choices=sorted(NETWORKID_CHOICES, key=itemgetter(0)), verbose_name="유형")  # 네트워크ID(5G, LTE, 3G, WiFi)
+    measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
+                                     choices=sorted(MEASURINGTEAM_CHOICES, key=itemgetter(0)), verbose_name='측정조')
+
+    class Meta:
+        verbose_name = ("측정단말 사전정보")
+        verbose_name_plural = ("측정단말 사전정보")
