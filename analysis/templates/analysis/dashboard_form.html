@@ -172,7 +172,9 @@
                         <div class="card-header p-1" style="font-weight: bold;">[[center.centerName]]</div>
                         <div class="card-body p-2">
                             <h3 class="card-title p-0 m-0">[[center.count]]</h3>
-                            <p class="card-text p-0 m-0" style="font-size:14px;">(측정중 <span style="font-size: 16px;">[[center.measuring_count]]</span>
+                            <p class="card-text p-0 m-0" style="font-size:14px;">(측정중
+                                <span style="font-size:16px;color:red;" v-if="center.measuring_count > 0">[[center.measuring_count]]</span>
+                                <span style="font-size:16px;" v-else="center.measuring_count > 0">[[center.measuring_count]]</span>
                                 / 종료 <span style="font-size: 16px;">[[center.end_count]])</span></p>
                         </div>
                     </div>
