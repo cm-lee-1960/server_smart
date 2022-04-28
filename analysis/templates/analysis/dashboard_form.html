@@ -201,9 +201,9 @@
                             <th style="width: 6%;" class="text-center">UL속도</th>
                             <th style="width: 6%;" class="text-center">전환율</th>
                             <th style="width: 6%;" class="text-center">이벤트</th>
-                            <th style="width: 6%;" class="text-center">최종측정(경과)</th>
+                            <th style="width: 7%;" class="text-center">최종측정(경과)</th>
                             <th style="width: 6%;" class="text-center">상태</th>
-                            <th style="width: 6%;" class="text-center">
+                            <th style="width: 5%;" class="text-center">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                                 data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -244,12 +244,13 @@
                             <td style="width: 6%;" >[[phoneGroup.uploadBandwidth]]</td>
                             <td style="width: 6%;" >[[phoneGroup.nr_percent]]</td>
                             <td style="width: 6%;" >[[phoneGroup.event_count]]</td>
-                            <td style="width: 6%;" >
-                                [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]]분)</font>
+                            <td style="width: 7%;" >
+                                [[phoneGroup.last_updated_time]]/<span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
+                                <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
                             </td>
                             <td style="width: 6%; color: red" v-if="phoneGroup.active" >측정 중</td>
                             <td style="width: 6%; color: #777777" v-else="phoneGroup.active" >종료</td>
-                            <td style="width: 6%;" >
+                            <td style="width: 5%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
                                             type="button" data-toggle="dropdown">
