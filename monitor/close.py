@@ -415,7 +415,7 @@ def measuring_end_cancel(phoneGroup):
       - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
     """
     if phoneGroup.active == True:  # 종료되지 않은 지역일 경우
-        return_value = {'result' : 'ERROR: 종료되지 않은 지역'}
+        return_value = {'result' : 'ERROR: 종료되지 않은 지역', 'add' : False}
         return return_value
     else:
         # 해당 단말그룹에 묶여 있는 단말기들을 가져온다.
@@ -430,19 +430,17 @@ def measuring_end_cancel(phoneGroup):
             phoneGroup.active = True # 단말그룹
             phoneGroup.save()
             phone_list.update(active=True) # 측정단말
-                         
+            return_value = {'result' : 'ok'}
         except Exception as e:
-            return_value = {'result' : 'error'}
+            return_value = {'result' : 'error', 'add' : False}
             raise Exception("measuring_end_cancel() - 측정종료 취소: %s" % e)
         
-        # 반환값 : Dict
-        return_value = {'result': 'ok'}
         return return_value
 
 
 ########################################################################################################################
 # 단말 그룹 데이터 합치는 함수
-########################################################################################################################
+########################################################################################################################                        
 def phonegroup_union(phoneGroup1, phoneGroup2):
     """ 폰그룹 2개를 합치는 함수
       - 파라미터
@@ -476,7 +474,7 @@ def phonegroup_union(phoneGroup1, phoneGroup2):
         return_value = {'result' : 'ok'}
     except Exception as e:
         return_value = {'result' : 'error'}
-        raise Exception("phonegroup_union() - 단말그룹 결합 함수: %s" % e)
+        raise Exception("phonegroup_union() - 단말그룹 병합 함수: %s" % e)
                 
     return return_value
     

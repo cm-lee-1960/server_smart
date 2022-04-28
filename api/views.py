@@ -72,6 +72,8 @@ def phonegroup_list(request, measdate):
                 serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
                 data = serializer.data
                 data['selected'] = False
+                data['failEventCount'] = Message.objects.filter(messageType='EVENT', message__contains='전송실패', measdate=measdate, \
+                                                                        phoneGroup_id=phoneGroup.id).count()  # 전송실패 이벤트 건수
                 phoneGroupList.append(data)
                 # print(data)
 
@@ -133,22 +135,15 @@ def phonegroup_list(request, measdate):
 # 모폴로지 리스트 조회 API (04.25)
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['GET'])
-def morphology_list(request, center_name):
-    data = {}
-    # 조회하고자 하는 메시지ID가 파라미터로 넘어 왔는지 확인한다.
-    if center_name is not None:
-        morphologyList = [] # 모폴로지 리스트
-        try:
-            # 해당 센터의 모폴로지 불러와서 리스트로 작성후 JsonResponse로 반환
-            qs_center = Center.objects.get(centerName=center_name)
-            qs_morphology = qs_center.morphology_set.all()
-            morphologyList = list(qs_morphology.values_list('morphology', flat=True).order_by('id'))
-
-            data = {'morphologyList': morphologyList} # 모폴로지 리스트
-
-        except Exception as e:
-            print("morphology_list():", str(e))
-            raise Exception("morphology_list(): %s" % e)
+def centerANDmorphology_list(request):
+    try:
+        # 모든 센터 및 모폴로지 추출하여 Json 반환
+        centerListAll = list(Center.objects.values_list('centerName', flat=True).order_by('id'))
+        morphologyList = list(Morphology.objects.values_list('morphology', flat=True).order_by('id'))
+        data = {'morphologyList': morphologyList, 'centerListAll': centerListAll} # 센터 및 모폴로지 리스트
+    except Exception as e:
+        print("morphology_list():", str(e))
+        raise Exception("morphology_list(): %s" % e)
 
     return JsonResponse(data=data, safe=False)
 
@@ -245,7 +240,7 @@ def delete_message(request, message_id):
         try:
             bot = TelegramBot()
             message = qs[0]
-            # print(f"message_id: {message_id}, channelId: {message.channelId}, telemessageId: {message.telemessageId}")
+            print(f"message_id: {message_id}, channelId: {message.channelId}, telemessageId: {message.telemessageId}")
             # 전송된 메시지를 취소한다.
             data = bot.delete_message(message.channelId, message.telemessageId)
             # 메시지 회수가 완료되면 회수여부를 업데이트 한다.
@@ -283,11 +278,9 @@ def send_message(request):
                 from message.xmcs_msg import send_sms_queryset
                 receiver_list = receiver_list.replace(' ','').replace('\n','').split(',')
                 result_sms = send_sms_queryset(message, receiver_list)
-                result = {'result': 'ok'}
-
+                result = {'result': result_sms}
             # 2) 텔레그램 메시지를 재전송 한다.
             elif sendType == 'TELE':
-                print("###>>>>>")
                 bot = TelegramBot()
                 result = bot.send_message_bot(channelId, message.message)
                 message.telemessageId = result['message_id'] # 텔레그램 메시지ID
@@ -296,8 +289,6 @@ def send_message(request):
 
                 # 메시지를 저장한다.
                 message.save()
-
-                result = {'result': 'ok'}
 
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
@@ -336,6 +327,4 @@ def update_phonegroup_info(request):
         # 오류 코드 및 내용을 반환한다.
         result = {'result' : 'fail'}
         raise Exception("update_morphology(): %s" % e)
-
-    return JsonResponse(data=result, safe=False)
-    # return HttpResponse(result)
+    return HttpResponse(result)

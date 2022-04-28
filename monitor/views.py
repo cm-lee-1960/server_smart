@@ -237,7 +237,8 @@ def receive_json(request):
             #    - 두개의 단말기로 측정을 진행하니 메시지가 한번만 갈 수 있도록 유의히야 한다.
             # (조건: KT 속도측정 데이터에 대해서만 적용)
             if mdata.phone.status == 'START_M' and mdata.ispId == '45008' and mdata.testNetworkType == 'speed': 
-                make_message(mdata)
+                make_message(mdata)  # 메시지 작성
+                event_occur_check(mdata)  # 이벤트 발생여부 체크
 
         # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
         elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
@@ -274,12 +275,10 @@ def measuring_end_view(request, phonegroup_id):
         phoneGroup = qs[0]
         # 해당 단말 그룹에 대한 측정을 종료한다.
         return_value = measuring_end(phoneGroup)
-        print("dkdkdkd")
-        print(return_value)
     else:
         return_value = {'result' : 'error'}
 
-    return JsonResponse(return_value)
+    return JsonResponse(data=return_value, safe=False)
 
 
 ########################################################################################################################
@@ -288,7 +287,7 @@ def measuring_end_cancel_view(request, phonegroup_id):
     """ 해당일자에 대한 측정종료을 취소하는 뷰 함수
         - 파라미터
           . phonegroup_id: 단말그룹ID (int)
-        - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
+        - 반환값: dict {result : 결과값} // 합칠 데이터 있으면 add:True
         """
     # 해당 단말그룹 ID로 오브젝트 데이터를 가져온다.
     qs = PhoneGroup.objects.filter(id=phonegroup_id)
@@ -298,8 +297,7 @@ def measuring_end_cancel_view(request, phonegroup_id):
         return_value = measuring_end_cancel(phoneGroup)
     else:
         return_value = {'result' : 'error'}
-
-    return JsonResponse(return_value)
+    return JsonResponse(data=return_value, safe=False)
 
 
 ########################################################################################################################
@@ -333,7 +331,7 @@ def measuring_day_close_view(request, measdate):
         # 해당일자의 대상 단말그룹 리스트에 대해서 측정마감을 처리한다.
         return_value = measuring_day_close(phoneGroup_list, date)
 
-    return JsonResponse(return_value)
+    return JsonResponse(data=return_value, safe=False)
 
 ########################################################################################################################
 # 해당 날짜 재마감 함수
@@ -361,7 +359,7 @@ def measuring_day_reclose_view(request, measdate):
     else:
         return_value = {'result' : '해당일자에 아직 마감이 완료되지 않았습니다. 먼저 측정마감 처리해주세요.'}
 
-    return JsonResponse(return_value)
+    return JsonResponse(data=return_value, safe=False)
 
 
 ########################################################################################################################
@@ -369,11 +367,21 @@ def measuring_day_reclose_view(request, measdate):
 ## 선택한 폰그룹과 measdate/unserInfo1/networkId/ispId 가 일치하는 폰그룹들이 있을 경우 데이터를 합친다.
 ########################################################################################################################
 def phonegroup_union_view(request, phonegroup_id):
+    """ 폰그룹과 동일 정보를 가진 단말 그룹이 있는지 검사하고 데이터를 합치는 함수
+        - 파라미터
+          . phonegroup_id: 합쳐질 기준이 될 폰그룹ID
+        - 반환값: dict {result : 결과값} --> 성공 시 결과값 'ok', 에러 발생시 'error', 합쳐질 데이터가 없으면 'no'
+    """
     base_pg = PhoneGroup.objects.get(id=phonegroup_id)
-    added_pg = phoneGroup.objects.filter(measdate=base_pg.measdate, userInfo1=base_pg.userInfo1, networkId=base_pg.networkId, ispId='45008').order_by('-last_updated_dt')
-    for pg in added_pg:
-        return_value = phonegroup_union(base_pg, pg)
-    return return_value
+    added_pg = PhoneGroup.objects.filter(measdate=base_pg.measdate, userInfo1=base_pg.userInfo1, networkId=base_pg.networkId, \
+                                        manage=base_pg.manage, ispId=base_pg.ispId).exclude(id=phonegroup_id).order_by('-last_updated_dt')
+    if added_pg.exists():
+        for pg in added_pg:
+            return_value = phonegroup_union(base_pg, pg)
+    else:
+        return_value = {'result' : 'no'}
+    
+    return JsonResponse(data=return_value, safe=False)
 
 
 ########################################################################################################################
