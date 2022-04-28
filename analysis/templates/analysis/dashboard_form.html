@@ -217,17 +217,18 @@
                             <th style="width: 6%;"><input type="text" class="form-control text-center filter-input" placeholder="네트워크" disabled></th>-->
                             <th style="width: 5%;">본부</th>
                             <th style="width: 5%;">조</th>
+                            <th style="width: 7%;">단말번호</th>
                             <th style="width: 18%;">측정지역</th>
                             <th style="width: 6%;">모폴로지</th>
                             <th style="width: 6%;">네트워크</th>
-                            <th style="width: 6%;">DL콜수</th>
-                            <th style="width: 6%;">DL속도</th>
-                            <th style="width: 6%;">UL콜수</th>
-                            <th style="width: 6%;">UL속도</th>
-                            <th style="width: 6%;">전환율</th>
-                            <th style="width: 6%;">이벤트</th>
+                            <th style="width: 5%;">DL콜수</th>
+                            <th style="width: 5%;">DL속도</th>
+                            <th style="width: 5%;">UL콜수</th>
+                            <th style="width: 5%;">UL속도</th>
+                            <th style="width: 5%;">전환율</th>
+                            <th style="width: 5%;">이벤트</th>
                             <th style="width: 8%;">최종측정(경과)</th>
-                            <th style="width: 6%;">상태</th>
+                            <th style="width: 5%;">상태</th>
                             <th style="width: 5%;">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
@@ -252,21 +253,22 @@
                             </td>
                             <td style="width: 5%;" >[[phoneGroup.centerName]]</td>
                             <td style="width: 5%;" >[[phoneGroup.measuringTeam]]</td>
+                            <td style="width: 7%;" >[[phoneGroup.phone_list]]</td>
                             <td style="width: 18%;" >[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
-                            <td style="width: 7%;" >[[phoneGroup.morphologyName]]</td>
+                            <td style="width: 6%;" >[[phoneGroup.morphologyName]]</td>
                             <td style="width: 6%;" >[[phoneGroup.networkId]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.dl_count]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.downloadBandwidth]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.ul_count]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.uploadBandwidth]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.nr_percent]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.failEventCount]]</td>
+                            <td style="width: 5%;" >[[phoneGroup.dl_count]]</td>
+                            <td style="width: 5%;" >[[phoneGroup.downloadBandwidth]]</td>
+                            <td style="width: 5%;" >[[phoneGroup.ul_count]]</td>
+                            <td style="width: 5%;" >[[phoneGroup.uploadBandwidth]]</td>
+                            <td style="width: 5%;" >[[phoneGroup.nr_percent]]</td>
+                            <td style="width: 5%;" >[[phoneGroup.failEventCount]]</td>
                             <td style="width: 8%;" >
                                 [[phoneGroup.last_updated_time]]/<span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
                                 <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
                             </td>
-                            <td style="width: 6%; color: red" v-if="phoneGroup.active" >측정 중</td>
-                            <td style="width: 6%; color: #777777" v-else="phoneGroup.active" >종료</td>
+                            <td style="width: 5%; color: red" v-if="phoneGroup.active" >측정 중</td>
+                            <td style="width: 5%; color: #777777" v-else="phoneGroup.active" >종료</td>
                             <td style="width: 5%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
