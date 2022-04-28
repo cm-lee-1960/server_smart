@@ -311,7 +311,7 @@
                             </li>
                         </ul>
                         <div style="display:flex; align-items: center;">
-                            <strong><span ref="message_clickphone"></span></strong>
+                            <strong><span>[[selectedPhoneGroup.userInfo1]]</span></strong>
                             <i id="refreshIconMessage" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                             style="font-size:20px; color:blue" v-on:click="fetch_all_message"
                             data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -854,7 +854,7 @@
                  * 전송 메시지(이벤트/문자/텔레그램) 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
                 async fetch_all_message() {
-                    this.$refs.message_clickphone.innerHTML = this.selectedPhoneGroup.userInfo1
+                    // this.$refs.message_clickphone.innerHTML = this.selectedPhoneGroup.userInfo1
                     if(this.selectedPhoneGroup.id){
                         const res = await fetch("/api/message/list/" + this.selectedPhoneGroup.id)
                         const data = await res.json();
