@@ -745,8 +745,8 @@
                     }
                 },
                 phoneGroupList(newValue, oldValue) {
-                    console.log("oldValue:", oldValue);
-                    console.log("newValue: ", newValue);
+                    // console.log("oldValue:", oldValue);
+                    // console.log("newValue: ", newValue);
                 },
             },
             created: function () {
@@ -810,17 +810,17 @@
                         //종료 알랏을 위한 액티브 체크
                         if(!this.phoneGroupList[p_Id]['active']){
                             this.phoneGroupActiveCheckSave += 1
-                            console.log(this.phoneGroupActiveCheckSave)
+                            // console.log(this.phoneGroupActiveCheckSave)
                         }
                     }
                     this.phoneGroupActiveCheck = this.phoneGroupActiveCheckSave
-                    console.log(this.phoneGroupActiveCheck)
+                    // console.log(this.phoneGroupActiveCheck)
                     this.upDateEndWidth();
                 
                 },
                 async colorChange(p_c_Id) {
                     //클릭 상태이면 색상 변환 이펙트 안한다.
-                    console.log( $("#" + p_c_Id))
+                    // console.log( $("#" + p_c_Id))
                       $("#" + p_c_Id).stop().animate({"background-color":"#D4D4D4","color":"black"},2000,function() {
                             $("#" + p_c_Id).stop().animate({"background-color":"#FFFFFF","color":"black"},2000);
                         });
@@ -886,7 +886,7 @@
                     this.tabChangeCheck = true
                     this.message = message
                     this.activeMessage = message
-                    console.log(this.activeMessage)
+                    // console.log(this.activeMessage)
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹 리스트 체크박스 관련 함수
@@ -1048,7 +1048,7 @@
                         let isMeasuringEnd = false
                         let isWithin5min = false
                         selectedPhoneGroupList.forEach(phoneGroup => {
-                            console.log("####", phoneGroup.active);
+                            // console.log("####", phoneGroup.active);
                             if (!phoneGroup.active) isMeasuringEnd = true;
                             if (phoneGroup.elapsed_time <= 5) isWithin5min = true;
                         });
@@ -1202,7 +1202,7 @@
                     // 아래 코드는 나중에 사용할 수 있어서 남겨둠
                     // 처리결과를 기다렸다가 표시하면 좋을 듯 함
                     //const data = await response.json();
-                    console.log("send-received:", response);
+                    // console.log("send-received:", response);
                     if(response.ok){
                         Swal.fire({
                             icon: 'success',
@@ -1443,13 +1443,13 @@
             $('#middle_phonegroup').resize(function() {
 
                 middle_phonegroup_size = $('#middle_phonegroup').innerHeight();
-                console.log(middle_phonegroup_size)
+                // console.log(middle_phonegroup_size)
                 row_middle_size = $('#row_middle').innerHeight();
                 bottom_body_height_size = row_middle_size - middle_phonegroup_size;
                 message_height_size = bottom_body_height_size - 115;
                 phonegroup_body_size = middle_phonegroup_size - 50;
-                console.log("하단사이즈")
-                console.log(bottom_body_height_size)
+                // console.log("하단사이즈")
+                // console.log(bottom_body_height_size)
                 document.getElementById('phonegroup-body').style.height = phonegroup_body_size + 'px'
                 document.getElementById('bottom_body').style.height = bottom_body_height_size + 'px'
                 document.getElementById('eventDetail_body').style.height = message_height_size + 'px'
@@ -1506,16 +1506,14 @@
                 rows.show();
                 /* Dirtiest filter function ever ;) */
                 var filteredRows = rows.filter(function(){
-                    console.log(inputContent)
+                    // console.log(inputContent)
                     var value = $(this).find('td').eq(column).text().toLowerCase();
                     return value.indexOf(inputContent) === -1;
                 });
                 /* Clean previous no-result if exist */
                 if(filteredRows){
-                    console.log("들어왓다.")
-                    console.log($(filteredRows)
-                    
-                    )
+                    // console.log("들어왓다.")
+                    // console.log($(filteredRows))
                     //$(filteredRows tr).hide();
                 }
                 /* Prepend no-result row if all rows are filtered */
