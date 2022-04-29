@@ -6,8 +6,8 @@ import json
 
 from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
-from monitor.serializers import PhoneGroupSerializer, MessageSerializer
-from management.models import Center, Morphology
+from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer
+from management.models import Center, Morphology, ChatMemberList
 from message.tele_msg import TelegramBot, update_members, ban_member_as_compared_db, ban_member_not_allowed
 
 # 디버깅을 위한 로그를 선언한다.
@@ -341,7 +341,7 @@ def update_phonegroup_info(request):
 def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 리스트 업데이트 하여 전달 (해당 센터)
     try:
         channelId = Center.objects.get(centerName=centerName).channelId
-        update_members(str(channelId))
+        #update_members(str(channelId))
         ChatMembers = ChatMemberList.objects.filter(center__centerName=centerName).order_by('id')
         ChatMembersList = []
         if ChatMembers.exists():

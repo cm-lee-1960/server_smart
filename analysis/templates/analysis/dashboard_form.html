@@ -476,9 +476,9 @@
                                 aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#"
+                                <a class="nav-link" id="msgdtl-chatmember-tab" data-toggle="tab" href="#msgdtl-chatmember"
                                 role="tab" v-show="TelegramClick==true"
-                                aria-controls="msgdtl-recipient" aria-selected="false">채팅방 멤버</a>
+                                aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(selectedPhoneGroup.centerName)">채팅방 멤버</a>
                             </li>
                         </ul>
                         <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
@@ -507,6 +507,34 @@
                                         placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다." ref = "phoneNumberArea" value></textarea>
                             <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
                                 @change="selectedFile"/>
+                        </div>
+                        <!-- 텔레그램 채팅방 현황 및 강퇴를 위한 탭 -->
+                        <div class="tab-pane fade mt-1" id="msgdtl-chatmember" role="tabpanel" aria-labelledby="msgdtl-chatmember-tab">
+                            <p class="tab-pane fade" id="chatmember" role="tabpanel" aria-labelledby="msg-chatmember-tab" style="height:100%;">
+                                <table id="all_table" class='table table-hover'>
+                                    <thead id='all-header' style="height:50px;">
+                                    <tr class="bg-light d-flex text-center">
+                                        <th style="width: 18%;">center</th>
+                                        <th style="width: 20%;">firstName</th>
+                                        <th style="width: 20%;">lastName</th>
+                                        <th style="width: 32%;">userName</th>
+                                        <th style="width: 10%;">allowed</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id='allDetail_body' class="table-hover"
+                                        style="height:130px; overflow-y:auto; display:block" ref='allDetail_body'>
+                                    <tr v-for="ChatMember in selectedChatMembers" 
+                                        :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
+                                        v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
+                                        <td style="width: 18%;" >[[ ChatMember.centerName ]]</td>
+                                        <td style="width: 20%;">[[ ChatMember.firstName ]]</td>
+                                        <td style="width: 32%;">[[ ChatMember.lastName ]]</td>
+                                        <td style="width: 34%;">[[ ChatMember.userName ]]</td>
+                                        <td style="width: 10%;">[[ ChatMember.allowed ]]</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </p>
                         </div>
                     </div>
                     <!-- Tabs content End-->
@@ -694,6 +722,8 @@
 
                     //////텔레그램 탭 선택 시 별도 메뉴 활성화를 위한 값
                     TelegramClick : false,
+                    //////텔레그램 강퇴 기능을 위한 멤버 리스트
+                    selectedChatMembers: [],
 
                     ///////종요 알랏을위한 종료체크변수
                     phoneGroupActiveCheck : 0,
@@ -1273,6 +1303,15 @@
                     // 메시지 회수 완료 후 메시지 리스트를 다시 조회한다.
                     await this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};
+                },
+
+                // 3) 채팅방 멤버 리스트 : DB 리스트 긁어오기, 현재 멤버 긁어오기, 수동 강퇴기능, 자동 강퇴기능
+                // 3-1) 현재 채팅방 멤버를 업데이트 후 받아오기
+                async fetch_chatmembers() {
+                    const res = await fetch("/api/message/get_chatmembers/" + this.selectedPhoneGroup.centerName);
+                    const data = await res.json()
+                    this.selectedChatMembers = data['ChatMembers']
+                    console.log(this.selectedChatMembers)
                 },
                 
                 /*---------------------------------------------------------------------------------------
