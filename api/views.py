@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer
 from management.models import Center, Morphology
-from message.tele_msg import TelegramBot
+from message.tele_msg import TelegramBot, update_members, ban_member_as_compared_db, ban_member_not_allowed
 
 # 디버깅을 위한 로그를 선언한다.
 import logging
@@ -332,3 +332,26 @@ def update_phonegroup_info(request):
         result = {'result' : 'fail'}
         raise Exception("update_morphology(): %s" % e)
     return HttpResponse(result)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 텔레그램 채팅방 멤버 조회 API (04.29)
+# ----------------------------------------------------------------------------------------------------------------------
+@api_view(['GET'])
+def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 리스트 업데이트 하여 전달 (해당 센터)
+    try:
+        channelId = Center.objects.get(centerName=centerName).channelId
+        update_members(str(channelId))
+        ChatMembers = ChatMemberList.objects.filter(center__centerName=centerName).order_by('id')
+        ChatMembersList = []
+        if ChatMembers.exists():
+            for ChatMember in ChatMembers:
+                fields = ['id', 'userchatId', 'firstName', 'lastName', 'userName', 'centerName', 'chatId', 'allowed', 'isBot']
+                serializer = ChatMemberListSerializer(ChatMember, fields=fields)
+                data = serializer.data
+                ChatMembersList.append(data)
+        data = {'ChatMembers':ChatMembersList}
+    except Exception as e:
+        print("get_chatmembers():", str(e))
+        raise Exception("get_chatmembers(): %s" % e)
+    return JsonResponse(data=data, safe=False)

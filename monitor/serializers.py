@@ -1,6 +1,6 @@
 from rest_framework import serializers, relations
 from monitor.models import Phone, PhoneGroup, MeasuringDayClose, Message
-from management.models import Center, Morphology
+from management.models import Center, Morphology, ChatMemberList
 
 ########################################################################################################################
 # 모델 직렬화 관련 모듈
@@ -144,4 +144,17 @@ class MessageSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 
     class Meta:
         model = Message
+        fields = '__all__'
+
+
+########################################################################################################################
+# 메시지 직렬화 클래스
+# ----------------------------------------------------------------------------------------------------------------------
+########################################################################################################################
+class ChatMemberListSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
+    centerName = serializers.ReadOnlyField(source = 'center.centerName')  # 유저가 속한 센터
+    chatId = serializers.ReadOnlyField(source = 'center.channelId')  # 유저가 속한 채팅방 chat id // 중복 채널 입장 가능?
+
+    class Meta:
+        model = ChatMemberList
         fields = '__all__'

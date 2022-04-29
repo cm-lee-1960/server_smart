@@ -200,12 +200,11 @@ class RunTelethon():
         self.api_hash = settings.TELEGRAM_API_HASH
         self.token = settings.BOT_TOKEN
         self.session_file = 'smartproject'
-        self.client = TelegramClient(self.session_file, self.api_id, self.api_hash).start(bot_token=self.token)
-        #self.client = TelegramClient('anon', self.api_id, self.api_hash)
 
     # Telethon 연결
     def connect(self):
-        self.client.start()
+        self.client = TelegramClient(self.session_file, self.api_id, self.api_hash)
+        self.client.start(bot_token=self.token)
         # client.run_until_disconnected()
 
     # Telethon 연결 해제(필수)
@@ -223,8 +222,9 @@ class RunTelethon():
     
     # Telethon 연결 및 채팅방 멤버 얻은 후 연결 해제까지
     def run_get_chat_members(self, chat_id):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         self.connect()
-        loop = asyncio.get_event_loop()
         members_list = loop.run_until_complete(self.get_chat_members(chat_id))
         self.disconnect()
         return members_list

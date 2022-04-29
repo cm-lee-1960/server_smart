@@ -244,14 +244,15 @@ class ChatMemberList(models.Model):
     firstName = models.CharField(max_length=100, verbose_name="First Name")  # 유저가 지정한, 본인의 first name
     lastName = models.CharField(max_length=100, verbose_name="Last Name")  # 유저가 지정한, 본인의 last name
     userName = models.CharField(max_length=100, verbose_name="User Name")  # 유저가 지정한, 본인의 username
-    center = models.CharField(max_length=100, verbose_name="센터명")  # 유저가 속한 센터
-    chatId = models.CharField(max_length=25, verbose_name="채팅방ID")  # 유저가 속한 채팅방 chat id // 중복 채널 입장 가능?
+    center = models.ForeignKey(Center, null=True, on_delete=models.DO_NOTHING, verbose_name="센터")  # 유저가 속한 센터
+    chatId = models.CharField(max_length=25, null=True, blank=True, verbose_name="채팅방ID")  # 유저가 속한 채팅방 chat id
     allowed = models.BooleanField(default=False, verbose_name="허용")  # 허용된 유저인지 여부
     isBot = models.BooleanField(default=False, verbose_name="Is Bot")  # 봇(관리자)인지 아닌지 여부
     
     class Meta:
         verbose_name = ('채팅방 멤버 리스트')
         verbose_name_plural = ('채팅방 멤버 리스트')
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정단말에 대한 사전정보
