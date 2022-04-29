@@ -179,10 +179,10 @@
                 </div>
             </div>
             <div class="col-2" align="right">
-                <button type="button" class="btn btn-secondary btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringEnd()">
+                <button type="button" class="btn btn-secondary btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringEnd()" title="선택한 단말그룹을 측정종료 처리하며 해당 지역의 종료 메시지를 생성합니다.">
                     <h5>측정종료</h5>
                 </button>
-                <button type="button" class="btn btn-danger btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringClose()">
+                <button type="button" class="btn btn-danger btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringClose()" title="전체 단말그룹을 측정종료 처리하고 최종보고 메시지를 생성합니다.">
                     <h5>일일마감</h5></button>
             </div>
         </div>
@@ -193,13 +193,23 @@
                 style="margin-bottom:0px; border: 2px solid rgb(228, 223, 223); padding: 10px; height:65%;">
                 <!-- <h6><b>금일 측정그룹</b></h6> -->
                 <div class="table-responsive text-nowrap panel panel-primary filterable">
-                    
-                    <!--<div class="panel-heading">
-                        <h3 class="panel-title">Users</h3>
-                        <div class="pull-right">
-                            <button class="btn btn-default btn-xs btn-filter"><span class="glyphicon glyphicon-filter"></span> Filter</button>
-                        </div>
-                    </div>-->
+                    <!--필터-->
+
+                    <div class="panel-heading" style="display:flex; height:50px; width:100%">
+                        <form class="row g-3">
+                            <div class="col-auto" style="width:150px; float:left">
+                              <select v-model="filterSelected" id="hederName" class="form-control" style="height:40px">
+                                <option v-for="item in items" v-bind:value="item.eng">
+                                    [[ item.name ]]
+                                </option>
+                                <!--<option v-for="(value, index) in items" :key="index" :value="value">[[index]]</option>-->
+                              </select>
+                            </div>
+                            <div class="col-auto" style="float:right">
+                                <input class="form-control" type="search" placeholder="test" style="height:40px" v-model="filterInput">
+                            </div>
+                          </form>
+                    </div>
 
                     <table id="phonegroup-table" class='table table-hover table-fixed'>
                         <thead id='phonegroup-header'>
@@ -210,20 +220,25 @@
                                     @click="checkedAll($event.target.checked)"
                                 >
                             </th>
-                            <th style="width: 5%;"><input type="text" class="form-control text-center filter-input" placeholder="본부" disabled></th>
+                            <!--<th style="width: 5%;"><input type="text" class="form-control text-center filter-input" placeholder="본부" disabled></th>
                             <th style="width: 5%;"><input type="text" class="form-control text-center filter-input" placeholder="조" disabled></th>
                             <th style="width: 18%;"><input type="text" class="form-control text-center filter-input" placeholder="측정지역" disabled></th>
                             <th style="width: 7%;"><input type="text" class="form-control text-center filter-input" placeholder="모폴로지" disabled></th>
-                            <th style="width: 6%;"><input type="text" class="form-control text-center filter-input" placeholder="네트워크" disabled></th>
+                            <th style="width: 6%;"><input type="text" class="form-control text-center filter-input" placeholder="네트워크" disabled></th>-->
+                            <th style="width: 5%;">본부</th>
+                            <th style="width: 5%;">조</th>
+                            <th style="width: 18%;">측정지역</th>
+                            <th style="width: 6%;">모폴로지</th>
+                            <th style="width: 6%;">네트워크</th>
                             <th style="width: 6%;">DL콜수</th>
                             <th style="width: 6%;">DL속도</th>
                             <th style="width: 6%;">UL콜수</th>
                             <th style="width: 6%;">UL속도</th>
                             <th style="width: 6%;">전환율</th>
                             <th style="width: 6%;">이벤트</th>
-                            <th style="width: 6%;">최종측정(경과)</th>
+                            <th style="width: 8%;">최종측정(경과)</th>
                             <th style="width: 6%;">상태</th>
-                            <th style="width: 6%;">
+                            <th style="width: 5%;">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                                 data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -232,7 +247,7 @@
                         </thead>
                         <tbody id='phonegroup-body' class="table-hover"
                             style="overflow-y:auto; display:block" class="d-flex">
-                            <tr v-for="(phoneGroup, index) in phoneGroupList" :key="phoneGroup.id" 
+                            <tr v-for="phoneGroup in phoneGroupList" :key="phoneGroup.id" 
                             :class="['d-flex text-center', {'table-success': (phoneGroup.id == selectedPhoneGroup.id)}]"
                             v-bind:id="phoneGroup.id" v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="clickphone_Tr"
                             data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center" v-on:dblclick="doubleclickModifyInfo(phoneGroup)"
@@ -246,39 +261,30 @@
                                 >
                             </td>
                             <td style="width: 5%;" >[[phoneGroup.centerName]]</td>
-                            <td style="width: 5%;" v-on:dblclick="doubleclickMeasuringTeam(phoneGroup)"
-                                data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
-                                title="마우스로 더블클릭하면 측정조를 변경할 수 있습니다.">
-                                [[phoneGroup.measuringTeam]]
-                            </td>
-                            <td style="width: 18%;">[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
-                            <td style="width: 7%;" v-on:dblclick="doubleclickMorphology(phoneGroup)"
-                                data-toggle="tooltip" data-placement="top" class="text-center"
-                                title="마우스로 더블클릭하면 모폴로지를 변경할 수 있습니다.">
-                                [[phoneGroup.morphologyName]]
-                            </td>
+                            <td style="width: 5%;" >[[phoneGroup.measuringTeam]]</td>
+                            <td style="width: 18%;" >[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
+                            <td style="width: 7%;" >[[phoneGroup.morphologyName]]</td>
                             <td style="width: 6%;" >[[phoneGroup.networkId]]</td>
                             <td style="width: 6%;" >[[phoneGroup.dl_count]]</td>
                             <td style="width: 6%;" >[[phoneGroup.downloadBandwidth]]</td>
                             <td style="width: 6%;" >[[phoneGroup.ul_count]]</td>
                             <td style="width: 6%;" >[[phoneGroup.uploadBandwidth]]</td>
                             <td style="width: 6%;" >[[phoneGroup.nr_percent]]</td>
-                            <td style="width: 6%;" >[[phoneGroup.event_count]]</td>
-                            <td style="width: 6%;" >
-                                [[phoneGroup.last_updated_time]]/<font color='red'>([[phoneGroup.elapsed_time]]분)</font>
+                            <td style="width: 6%;" >[[phoneGroup.failEventCount]]</td>
+                            <td style="width: 8%;" >
+                                [[phoneGroup.last_updated_time]]/<span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
+                                <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
                             </td>
                             <td style="width: 6%; color: red" v-if="phoneGroup.active" >측정 중</td>
                             <td style="width: 6%; color: #777777" v-else="phoneGroup.active" >종료</td>
-                            <td style="width: 6%;" >
+                            <td style="width: 5%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
                                             type="button" data-toggle="dropdown">
                                         <span class="caret"></span></button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
-                                        <a class="dropdown-item" @click="measuringEndCancel">측정종료 취소</a>
-                                        <a class="dropdown-item text-muted" href="#">목표 대비 현황</a>
-                                        <a class="dropdown-item text-muted" href="#">전년도 대비 현황</a>
-
+                                        <a class="dropdown-item" @click="clickCancelMeasuringEnd" title="측정종료 상태를 측정 중으로 변경합니다.">측정종료 취소</a>
+                                        <a class="dropdown-item" @click="clickphoneGroupUnion"title="동일 정보를 가진 단말그룹이 생성되어 있을 경우 하나로 병합합니다."> 측정데이터 병합</a>
                                     </div>
                                 </div>
                             </td>
@@ -304,12 +310,12 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
-                                aria-controls="msg-tele" aria-selected="false" v-on:click="messageColor()">텔레그램</a>
+                                aria-controls="msg-tele" aria-selected="false" v-on:click="[messageColor(), TelegramClick=true]">텔레그램</a>
                             </li>
                             <!--일마감 메세지 생성-->
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
-                                aria-controls="msg-all" aria-selected="false" v-on:click="messageColor()">문자전체</a>
+                                aria-controls="msg-all" aria-selected="false" v-on:click="messageColor()">문자(전체)</a>
                             </li>
                         </ul>
                         <div style="display:flex; align-items: center;">
@@ -475,6 +481,11 @@
                                 role="tab"
                                 aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#"
+                                role="tab" v-show="TelegramClick==true"
+                                aria-controls="msgdtl-recipient" aria-selected="false">채팅방 멤버</a>
+                            </li>
                         </ul>
                         <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
                             <i id="message-trash"
@@ -537,40 +548,39 @@
         <!-- Modal End-->
 
         <!-- Modify PhoneGroup Info Modal -->
-            <div class="modal fade" id="modifyInfoModal" tabindex="-1" role="dialog"
-            aria-labelledby="modifyInfoModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modifyInfoModalLabel">단말그룹 정보 변경</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <font color='blue' size="5pt"><b>[[selectedPhoneGroup.userInfo1]]</b></font>
-                        <p class="mt-1"><label for="center" class="m-lg-1" style="width: 80px">본부</label>
-                            <select name="center" style="width: 90px;" id="center" v-model="selectedPhoneGroup.centerName" @change="fetch_center_morphology($event)">
-                                <option v-for="center in centerList" v-bind:value="center.centerName">[[center.centerName]]</option>
-                            </select>
-                        </p>
-                        <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 80px">측정 조</label>
-                            <input type="text" style="width: 90px;" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
-                        <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 80px">모폴로지</label>
-                            <select name="morphology" style="width: 90px;" id="morphology" v-model="selectedPhoneGroup.morphologyName">
-                                <option v-for="morphology in morphologyList" v-bind:value="morphology">[[morphology]]</option>
-                            </select>
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm">저장</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                    </div>
+        <div class="modal fade" id="modifyInfoModal" tabindex="-1" role="dialog"
+        aria-labelledby="modifyInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modifyInfoModalLabel">단말그룹 정보 변경</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <font color='blue' size="5pt"><b>[[selectedPhoneGroup.userInfo1]]</b></font>
+                    <p class="mt-1"><label for="center" class="m-lg-1" style="width: 80px">본부</label>
+                        <select name="center" style="width: 90px;" id="center" v-model="selectedPhoneGroup.centerName">
+                            <option v-for="center in centerListAll" v-bind:value="center">[[center]]</option>
+                        </select>
+                    </p>
+                    <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 80px">측정 조</label>
+                        <input type="text" style="width: 90px;" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
+                    <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 80px">모폴로지</label>
+                        <select name="morphology" style="width: 90px;" id="morphology" v-model="selectedPhoneGroup.morphologyName">
+                            <option v-for="morphology in morphologyList" v-bind:value="morphology">[[morphology]]</option>
+                        </select>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm">저장</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
                 </div>
             </div>
         </div>
-        <!-- Modify PhoneGroup Info Modal End -->
-        <!-- Morphology Modal End -->
+    </div>
+    <!-- Modify PhoneGroup Info Modal End -->
         <!-- Progress Dialog Modal -->
         <!-- 출처: https://codepen.io/easyisez/pen/GELWXR -->
         <div id="progressModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" 
@@ -582,7 +592,7 @@
                     <div class="modal-body">
                         <div class="progress">
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" v-bind:style="endWidth"></div>
+                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%"></div>
                         </div>
                     </div>
                 </div>
@@ -678,6 +688,7 @@
                     isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
                     recipient_text: null, // 수신자 리스트
                     selectedPhoneGroup: {},
+                    centerListAll: [], // 전체 센터 리스트
                     morphologyList: [], // 모폴로지 리스트
                     tabChangeCheck: false,
                     //activePhoneGroup: {},
@@ -687,13 +698,32 @@
                     phoneGroupListChangeCheck : {},
                     clickPhoneGroup : null,
 
+                    //////텔레그램 탭 선택 시 별도 메뉴 활성화를 위한 값
+                    TelegramClick : false,
+
                     ///////종요 알랏을위한 종료체크변수
                     phoneGroupActiveCheck : 0,
                     phoneGroupActiveCheckSave : 0,
                     phoneGroupActiveChecked : true,
                     testtt :{
                         width : "33%"
-                    }
+                    },
+                    /////필터 테스트
+                    items: [
+                        {name: 'select' , eng: "default"},
+                        {name: '본부' , eng: "centerName"},
+                        {name: '조' , eng: "measuringTeam"},
+                        {name: '측정지역' , eng: "userInfo1"},
+                        {name: '모폴로지' , eng: "morphologyName"},
+                        {name: '네트워크' , eng: "networkId"}
+                    ],
+                    filterSelected: 'default',
+                    fiterPhoneGroupList : [],
+                    filterInput : '',
+                    
+                    dddd : true
+
+                    
                 }
             },
             computed: {
@@ -713,15 +743,60 @@
             },
             watch: {
                 date() {
-                   // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
-                    this.fetch_all_phoneGroup(); // 단말그룹 리스트
-                    this.messageEventList = []; // 이벤트 메시지 리스트
-                    this.messageSmsList = []; // 문자 메시지 리스트
-                    this.messageTeleList = []; // 텔레그램 메시지 리스트
-                    this.message = {}; // 메시지 상세내역
-    
+
                     this.phoneGroupListChangeCheck = {};//폰그룹 변경 체크 초기화
+
+                   // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
+                    if ((new Date(this.date) !== "Invalid Date") && !isNaN(new Date(this.date))) {
+                        this.fetch_all_phoneGroup(); // 단말그룹 리스트
+                    } else {
+
+                        // 화면을 초기화 한다.
+                        this.measuringTeam_count = 0, // 측정조 건수
+                        this.total_count = 0, // 총 측정건수
+                        this.centerList = [], // 측정중인 센터수,
+                        this.phoneGroupList = [], // 측정 단말그룹 리스트
+                        this.messageEventList = []; // 이벤트 메시지 리스트
+                        this.messageSmsList = []; // 문자 메시지 리스트
+                        this.messageTeleList = []; // 텔레그램 메시지 리스트
+                        this.message = {}; // 메시지 상세내역
+
+                        Swal.fire({
+                            icon: 'info',
+                            title: '측정일자',
+                            text: '측정일자를 잘못 입력했습니다.',
+                        });
+                    }
                 },
+                phoneGroupList(newValue, oldValue) {
+                    console.log("oldValue:", oldValue);
+                    console.log("newValue: ", newValue);
+                },
+
+                //필터 워치
+                filterSelected(){
+                    /*let test = this.filterSelected //console.log(this.filterSelected)
+                    const testList = [];
+                    console.log(test)
+                    this.phoneGroupList.forEach(function(value, index) {
+                    //    //console.log(this.selected)
+                        //이름 하고 아이디?
+                        testList.push(value[test])
+                    });
+                    this.fiterPhoneGroupList = testList
+                    console.log(this.fiterPhoneGroupList)
+                    let tttt = this.filterItems(this.fiterPhoneGroupList)
+                    console.log(tttt)*/
+                    if(this.filterSelected !=='default'){
+                        this.dddd = false
+                    }else{
+                        this.dddd = true
+                    }
+            
+                },
+                filterInput(){
+                    this.filterItems()
+                }
             },
             created: function () {
                 // 날짜타입의 측정일자를 스트링으로 변환한다(예: 20211101)
@@ -741,7 +816,33 @@
                 this.message = {}; // 메시지 상세내역
 
             },
+            updated: function () {
+                // 어떤 속성이 있는지 확인 중,...
+            },
             methods: {
+                filterItems() {
+                    let test = this.filterSelected
+                    let test2 = this.filterInput
+                    const testlist = []
+                    if (this.dddd){
+                        this.phoneGroupList = this.phoneGroupList
+                    }else{
+                        //let tttee = this.fiterPhoneGroupList.filter(this.fiterPhoneGroupList => { //강북
+                        //    let regex = new RegExp(this.filterInput)
+                       //     return this.fiterPhoneGroupList.match(regex)
+                        //})
+                        this.phoneGroupList.forEach(function(value, index) {
+                            //    //console.log(this.selected)
+                            console.log(value[test])
+                            if(value[test].indexOf(test2) !== -1){
+                                testlist.push(value)
+                            }
+                            console.log(value[test].indexOf(test2))
+                        });
+                        this.phoneGroupList = testlist
+
+                    }
+                }, // End filterItems
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정일자에 해당하는 측정단말 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
@@ -796,20 +897,15 @@
                             $("#" + p_c_Id).stop().animate({"background-color":"#FFFFFF","color":"black"},2000);
                         });
                     
+                    
                 },
                 
-                // 단말 그룹의 모폴로지를 불러오는 함수
-                async fetch_all_morphology(phoneGroup) {
-                    const res = await fetch("/api/morphology/list/" + phoneGroup.centerName);
+                // 모든 센터 정보 및 모폴로지를 불러오는 함수
+                async fetch_all_centerANDmorphology(phoneGroup) {
+                    const res = await fetch("/api/phonegroup/update/centerANDmorphology/");
                     const data = await res.json();
+                    this.centerListAll = data['centerListAll']
                     this.morphologyList = data['morphologyList']
-                },
-                
-                // 정보 변경 모달 창에서 본부를 바꿨을 경우 모폴로지를 긁어오는 함수
-                async fetch_center_morphology($event) {
-                    const res = await fetch("/api/morphology/list/" + event.target.value);
-                    const data = await res.json();
-                    this.morphologyList = data['morphologyList'];
                 },
                 
                 /* -----------------------------------------------------------------------------------------------------
@@ -834,7 +930,6 @@
                         const data = await res.json();
 
                         this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
-                        //this.messageFailEventList = data['messageFailEventList']; // 이벤트 메시지 리스트
                         this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
                         this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
 
@@ -990,14 +1085,14 @@
                 // 2) 해당 일자에 대한 측정을 마감한다.
                 async measuring_day_close() {
                     $("#progressModal").modal('show');
-                    clearInterval(this.timer);
-                    this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
+                    //clearInterval(this.timer);
+                    //this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
                     const res = await fetch("/monitor/day_close/" + this.date);
                     const data = await res.json();
 
                     if(data['result'] == 'ok'){
                         //여기서는 백
-                        this.testtt.width = "100%"
+                        //this.testtt.width = "100%"
                         setTimeout(function() {
                             Swal.fire({
                                 icon: 'success',
@@ -1009,7 +1104,7 @@
                                         await this.fetch_all_phoneGroup;
                                     } 
                                 })
-                            },1000);
+                            });
                     }
                     
 
@@ -1081,14 +1176,40 @@
 
                     } else if (e.target.innerText === "일일마감") {
                         // 해당일자에 대한 측정을 마감한다.
-                        this.measuring_day_close();
-                            
-                            //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
+                        $("#progressModal").modal('show');
+                        const promise = this.measuring_day_close()
+                        promise.then(res => {
+                            // 일일마감 후 단말그룹을 다시 조회한다.
+                            const subpromise = this.fetch_all_phoneGroup();
+                            subpromise.then(res => {
+                                $("#progressModal").modal('hide');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '측정이 마감되었습니다.',
+                                    text: '해당일자의 마감문자를 확인해주세요.',
+                                });
+                            }).catch(err => {
+                                // pass
+                                $("#progressModal").modal('hide');
+                            });
+                        }).catch(err => {
+                            $("#progressModal").modal('hide');
+                            Swal.fire({
+                                icon: 'error',
+                                title: '일일마감 중에 오류가 발생했습니다.',
+                                text: err,
+                            });
+                        });
+                        //출처: https://inpa.tistory.com/entry/SweetAlert2-📚-설치-사용 [👨‍💻 Dev Scroll]
                     } else if (e.target.innerText === "회수") {
                         this.deleteMessage()
                     } else if (e.target.innerText === "전송") {
                         this.sendMessage()
                         this.recipient_text = null; //수신자 리스트 제거
+                    } else if (e.target.innerText === "종료취소") {
+                        this.cancelMeasuringEnd()
+                    } else if (e.target.innerText === "병합") {
+                        this.phoneGroupUnion()
                     }
                     $("#mi-modal").modal('hide');
                 },
@@ -1224,24 +1345,79 @@
                 /*---------------------------------------------------------------------------------------
                  * 측정종료 취소 클릭 시 측정종료 질의 팝업 및 진행하는 함수
                  --------------------------------------------------------------------------------------*/
-                measuringEndCancel(e) {
+                 clickCancelMeasuringEnd(e) {
                     if (this.selectedPhoneGroup.active === false) {
-                        $("#modal-btn-confirm").html('측정종료 취소');
+                        this.isModelConfirmDisabled = true
+                        $("#modal-btn-confirm").html('종료취소');
                         $("#modal_body").html("해당 단말그룹의 측정을 재개하시겠습니까?");
                         $("#mi-modal").modal('show');
                     } else {
-                        $("#modal_body").html("아직 종료되지 않은 단말그룹입니다.");
+                        this.isModelConfirmDisabled = false
+                        $("#modal_body").html("<span style='color:red;'>측정 중</span>인 단말그룹입니다." + "<br>측정이 종료된 단말그룹에 대해 처리할 수 있습니다.");
                         $("#mi-modal").modal('show');
                     }
-                    // this.selectedPhoneGroup = checked
-                    
+                    $("#mi-modal").modal('hide');
+                },
+
+                async cancelMeasuringEnd() {
+                    const res = await fetch("/monitor/end/cancel/" + this.selectedPhoneGroup.id);
+                    const data = await res.json();
+                    if(data['result'] === 'ok') {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '측정종료 취소 성공',
+                            text: '선택하신 단말그룹의 종료를 취소하였습니다.',
+                        })
+                    } else {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: '측정종료 취소 실패',
+                            text: '오류가 발생하였습니다.',
+                        })
+                    }
+                    await this.fetch_all_phoneGroup();
+                },
+
+                /*---------------------------------------------------------------------------------------
+                 * 중복 데이터 결합 클릭 시 같은 정보를 가진 폰그룹 데이터 합치는 함수
+                 --------------------------------------------------------------------------------------*/
+                clickphoneGroupUnion(e) {
+                    this.isModelConfirmDisabled = true
+                    $("#modal-btn-confirm").html('병합');
+                    $("#modal_body").html("해당 단말그룹과 동일 정보를 가진 데이터와 병합 하시겠습니까?");
+                    $("#mi-modal").modal('show');
+                    // $("#mi-modal").modal('hide');
+                },
+
+                async phoneGroupUnion() {
+                    const res = await fetch("/monitor/end/union/" + this.selectedPhoneGroup.id);
+                    const data = await res.json();
+                    if (data['result'] === 'ok') {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '데이터 병합 성공',
+                            text: '선택하신 단말그룹과 동일 정보를 가진 데이터와 병합이 완료되었습니다.',
+                        })
+                    } else if (data['result'] === 'error') {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: '데이터 병합 실패',
+                            text: '오류가 발생하였습니다.',
+                        })
+                    } else if (data['result'] === 'no') {
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: '데이터 병합 실패',
+                            text: '해당 단말그룹과 같은 정보의 데이터가 없습니다.',
+                        })
+                    }
                 },
 
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹에 대한 정보를 변경하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/
                 doubleclickModifyInfo(phoneGroup) {
-                    this.fetch_all_morphology(phoneGroup);
+                    this.fetch_all_centerANDmorphology(phoneGroup);
                     $("#modifyInfoModal").modal('show');
                 },
                 clickModalModifyConfirm() {
@@ -1265,7 +1441,6 @@
                         })
                     };
                     const response = await fetch("/api/phonegroup/update/info", requestOptions);
-                    console.log("send-received:", response);
                     await this.fetch_all_phoneGroup();
                 },
                 clickClearMessage() {
@@ -1371,55 +1546,7 @@
             // resize 대각선 아래 지우기
             $('#middle_phonegroup .ui-resizable-se').hide();
             $('#bottom_body_left .ui-resizable-se').hide();
-            ///////////////////////////폰그룹 테이블 필터를
-            $('.filterable .btn-filter').click(function(){
-                var $panel = $(this).parents('.filterable'),
-                $filters = $panel.find('.filters .filter-input'),
-                $tbody = $panel.find('.table tbody');
-                if ($filters.prop('disabled') == true) {
-                    $filters.prop('disabled', false);
-                    $filters.first().focus();
-                } else {
-                    $filters.val('').prop('disabled', true);
-                    $tbody.find('.no-result').remove();
-                    $tbody.find('tr').show();
-                }
-            });
 
-            $('.filterable .filters .filter-input').keyup(function(e){
-                /* Ignore tab key */
-                var code = e.keyCode || e.which;
-                if (code == '9') return;
-                /* Useful DOM data and selectors */
-                var input = $(this),
-                inputContent = $(input).val().toLowerCase(),
-                
-                panel = $(input).parents('.filterable'),
-                column = $(panel).find('.filters th').index($(input).parents('th')),
-                table = $(panel).find('.table'),
-                rows = $(table).find('tbody tr');
-                table.find('tbody .no-result').remove();
-                /* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
-                rows.show();
-                /* Dirtiest filter function ever ;) */
-                var filteredRows = rows.filter(function(){
-                    console.log(inputContent)
-                    var value = $(this).find('td').eq(column).text().toLowerCase();
-                    return value.indexOf(inputContent) === -1;
-                });
-                /* Clean previous no-result if exist */
-                if(filteredRows){
-                    console.log("들어왓다.")
-                    console.log($(filteredRows)
-                    
-                    )
-                    //$(filteredRows tr).hide();
-                }
-                /* Prepend no-result row if all rows are filtered */
-                if (filteredRows.length === rows.length) {
-                    table.find('tbody').prepend($('<tr class="no-result text-center"><td colspan="'+ table.find('.filters th').length +'">No result found</td></tr>'));
-                }
-            });
         });
     
     </script>
