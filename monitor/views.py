@@ -102,9 +102,11 @@ def receive_json(request):
         if qs.exists():
             phoneGroup = qs[0]    
         else:
-            # 측정 단말기 그룹을 생성한다. 
+            # 측정 단말기 그룹을 생성한다.
+            meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             phoneGroup = PhoneGroup.objects.create(
                             measdate=measdate, # 측정일자
+                            starttime=meastime_s[8:10]+ ':' + meastime_s[10:12], # 측정 시작시간
                             userInfo1=data['userInfo1'], # 측정자 입력값1
                             userInfo2=data['userInfo2'], # 측정자 입력갑2
                             morphology=morphology, # 모폴로지

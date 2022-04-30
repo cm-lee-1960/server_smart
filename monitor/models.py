@@ -52,6 +52,7 @@ class PhoneGroup(models.Model):
     )
 
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
+    starttime = models.CharField(max_length=10, verbose_name="측정시작시간")  # 측정시작시간
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
     userInfo2 = models.CharField(max_length=100, verbose_name="측정자 입력값2")
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="유형")  # 네트워크ID(5G, LTE, 3G, WiFi)

@@ -66,7 +66,7 @@ def phonegroup_list(request, measdate):
         phoneGroupList = []
         if qs.exists():
             fields = ['id', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
-                      'morphologyName', 'networkId',
+                      'starttime', 'morphologyName', 'networkId',
                       'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
                       'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active',]
             for phoneGroup in qs:
