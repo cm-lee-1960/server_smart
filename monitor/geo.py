@@ -3,6 +3,7 @@ import requests
 import folium
 from folium import plugins
 import pandas as pd
+import os
 from haversine import haversine # 이동거리
 from django.conf import settings
 from management.models import AddressRegion
@@ -384,7 +385,11 @@ def make_map_locations(phoneGroup):
     folium.LayerControl(collapsed=False).add_to(map)
 
     # 작성된 지도맵을 저장하고, 파일명을 반환한다.
-    filename = "monitor/templates/maps/" + f'{phoneGroup.measdate}_{phoneGroup.phone_list}.html'
+    dirName = "monitor/templates/maps/"
+    filename = dirName + f'{phoneGroup.measdate}_{phoneGroup.phone_list}.html'
+    # 해당 디렉토리가 있는지 확인해서 없으면 생성한다.
+    if not os.path.exists(dirName):
+        os.mkdir(dirName)
     map.save(filename)
 
     return filename
