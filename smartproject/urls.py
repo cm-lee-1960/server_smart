@@ -55,7 +55,7 @@ from analysis.views import dashboard
 ########################################################################################################################
 
 urlpatterns = [
-    path('', dashboard),
+    path('', dashboard, name='dashboard'),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path("monitor/", include("monitor.urls")), # 측정 모니터링

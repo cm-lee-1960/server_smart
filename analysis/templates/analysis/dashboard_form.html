@@ -279,7 +279,9 @@
                                         <span class="caret"></span></button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
                                         <a class="dropdown-item" @click="clickCancelMeasuringEnd" title="측정종료 상태를 측정 중으로 변경합니다.">측정종료 취소</a>
-                                        <a class="dropdown-item" @click="clickphoneGroupUnion"title="동일 정보를 가진 단말그룹이 생성되어 있을 경우 하나로 병합합니다."> 측정데이터 병합</a>
+                                        <a class="dropdown-item" @click="clickPhoneGroupUnion" title="동일 정보를 가진 단말그룹이 생성되어 있을 경우 하나로 병합합니다.">측정데이터 병합</a>
+                                        <a class="dropdown-item" @click="clickPhoneGroupMap(phoneGroup.measdate, phoneGroup.phone_list, phoneGroup.id)"
+                                           title="해당 단말그룹의 측정위치를 지도위에 보여줍니다.">측정데이터 지도맵</a>
                                     </div>
                                 </div>
                             </td>
@@ -1174,6 +1176,8 @@
                         this.cancelMeasuringEnd()
                     } else if (e.target.innerText === "병합") {
                         this.phoneGroupUnion()
+                    } else if (e.target.innerText === "지도맵") {
+                        this.phoneGroupMap()
                     }
                     $("#mi-modal").modal('hide');
                 },
@@ -1355,14 +1359,13 @@
                 /*---------------------------------------------------------------------------------------
                  * 중복 데이터 결합 클릭 시 같은 정보를 가진 폰그룹 데이터 합치는 함수
                  --------------------------------------------------------------------------------------*/
-                clickphoneGroupUnion(e) {
+                clickPhoneGroupUnion(e) {
                     this.isModelConfirmDisabled = true
                     $("#modal-btn-confirm").html('병합');
                     $("#modal_body").html("해당 단말그룹과 동일 정보를 가진 데이터와 병합 하시겠습니까?");
                     $("#mi-modal").modal('show');
                     // $("#mi-modal").modal('hide');
                 },
-
                 async phoneGroupUnion() {
                     const res = await fetch("/monitor/end/union/" + this.selectedPhoneGroup.id);
                     const data = await res.json();
@@ -1386,7 +1389,27 @@
                         })
                     }
                 },
-
+                /*---------------------------------------------------------------------------------------
+                 * 측정데이터를 지도맵으로 그러주는 함수
+                 --------------------------------------------------------------------------------------*/
+                clickPhoneGroupMap(measdate, phone_list, phoneGroup_id){
+                    this.isModelConfirmDisabled = true
+                    $("#modal-btn-confirm").html('지도맵');
+                    $("#modal_body").html("해당 단말그룹의 측정데이터를 지도맵으로 보시겠습니까??");
+                    $("#mi-modal").modal('show');
+                    // console.log(measdate, phone_list)
+                    // window.open(url, '_blank');
+                    // window.open("monitor/maps/" + measdate + "_" + phone_list + ".html" , '_blank');
+                    // window.open("monitor/maps/20211101_3855,3942.html" , '_blank');
+                },
+                async phoneGroupMap() {
+                    const res = await fetch("/api/monitor/makemap/" + this.selectedPhoneGroup.id);
+                    const data = await res.json();
+                    if (data['result'] === 'ok') {
+                        //console.log(data['result'])
+                        window.open(data['filename'], '_blank');
+                    }
+                },
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹에 대한 정보를 변경하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/

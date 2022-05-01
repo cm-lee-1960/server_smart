@@ -1,10 +1,11 @@
 import json
 import requests
 import folium
+from folium import plugins
 import pandas as pd
 from haversine import haversine # 이동거리
 from django.conf import settings
-# from management.models import AddressRegion
+from management.models import AddressRegion
 
 ########################################################################################################################
 # 좌표(위도,경도) 및 주소 변환 모듈
@@ -186,93 +187,204 @@ def rsrp2color(x):
         color = 'black'
     return color
 
-def make_map_locations(mdata):
+# def make_map_locations(mdata):
+#     """ 측정위치로 지도를 작성하는 함수
+#         - 파라미터
+#           . mdata: 측정 데이터(콜단위) (MeasureCallData)
+#         - 반환값: 없음
+#     """
+#     # if locations and len(locations) < 1: return None
+#     map = folium.Map(location=[mdata.phone.latitude, mdata.phone.longitude], zoom_start=15)
+#
+#     # 첫번째 측정위치를 지도맵에 표시한다.
+#     folium.Marker(
+#         location=[mdata.phone.latitude, mdata.phone.longitude],
+#         icon=folium.Icon(color="red", icon="star"),
+#         icon_size=(10,10),
+#     ).add_to(map)
+#
+#     # 측정 위치를 지도맵에 표시한다.
+#     locations = []
+#     points = folium.FeatureGroup(name="All Points")
+#     qs = mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime")
+#     if qs.exists():
+#         for m in qs:
+#             # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
+#             if m.networkId == '5G':
+#                 pci, RSRP, SINR = m.NR_PCI, m.NR_RSRP, m.NR_SINR
+#             else:
+#                 pci, RSRP, SINR= m.p_pci, m.p_rsrp, m.p_SINR
+#             # RSRP 값에 따라서 색상을 계산한다.
+#             if m.latitude == mdata.latitude and m.longitude == mdata.longitude:
+#                 radius = 40
+#             else:
+#                 radius = 25
+#             df = pd.DataFrame([{'PCI': pci, 'Cell ID': m.cellId, 'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, \
+#                                 'RSRP': RSRP, 'SINR': SINR },])
+#             html = df.to_html(index=False,
+#                             classes='table table-striped table-hover table-condensed table-responsive text-center')
+#             html = html.replace('<th>', '<td align="center">') # 항목명 가운데 정렬
+#             html = html.replace('<td>', '<td align="center">') # 항목값 가운데 정렬
+#             popup = folium.Popup(html, min_width=100, max_width=300)
+#             folium.Circle(
+#                 location=[m.latitude, m.longitude],
+#                 popup=popup,
+#                 radius=radius, # 크기 지정
+#                 color='black', # 테두리 색상
+#                 fill_color=rsrp2color(RSRP) if RSRP else 'black', # 내부 색상 '#000000'
+#                 fill_opacity=1.,
+#                 weight=1
+#             ).add_to(points)
+#             locations.append([m.latitude, m.longitude])
+#
+#         # 지도맵에 이동경로를 표시한다.
+#         folium.PolyLine(locations=locations).add_to(map)
+#
+#         # 지도맵에 측정지점들을 표시한다.
+#         # 이동경로와 겹쳐서 먼저 이동경로를 그리고 난 후 측점지점들을 표시한다.
+#         points.add_to(map)
+#
+#         # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
+#         # 2022.03.07 - 측정 데이터가 10개 이상일 때만 지도를 자동확대 하도록 한다.
+#         #              측정 데이터가 몇개 안될때 지도를 자동확대 하면 측정위치가 너무 크게 확대되는 현상이 있음
+#         if len(locations) > 1:
+#             start_loc = tuple(locations[0])
+#             current_loc = (mdata.latitude, mdata.longitude)
+#             distance = haversine(start_loc, current_loc)  # 킬로(km)
+#             # if len(locations) >= 10:
+#             if distance > 3:
+#                 sw = pd.DataFrame(locations).min().values.tolist()
+#                 ne = pd.DataFrame(locations).max().values.tolist()
+#                 map.fit_bounds([sw, ne])
+#
+#     # # 지도상에 행정동 경계구역을 표시한다.
+#     # # 동일한 필드명으로 조건을 두번 쓸수 없고, 필터를 두번 걸어야 함
+#     # qs = AddressRegion.objects.filter( addressDetail__contains=mdata.phone.addressDetail) \
+#     #                         .filter(addressDetail__contains=mdata.phone.guGun)
+#     # if qs.exists():
+#     #     json_data = qs[0].json_data
+#     #     geo = {
+#     #         "type": "FeatureCollection",
+#     #         "name": "HangJeongDong_ver20220309",
+#     #         "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+#     #         "bbox": [ 124.609681415304, 33.1118678527544, 131.871294250487, 38.616952080675 ],
+#     #         "features": [ json_data
+#     #     ]}
+#     #     folium.GeoJson(geo, name='seoul_municipalities').add_to(map)
+#
+#     # 작성된 지도맵을 저장하고, 파일명을 반환한다.
+#     filename = f'{mdata.meastime}-{mdata.ispId}-{mdata.phone_no}.html'
+#     map.save("monitor/templates/maps/" + filename)
+#
+#     return filename
+
+def make_map_locations(phoneGroup):
     """ 측정위치로 지도를 작성하는 함수
         - 파라미터
           . mdata: 측정 데이터(콜단위) (MeasureCallData)
         - 반환값: 없음
     """
-    # if locations and len(locations) < 1: return None
-    map = folium.Map(location=[mdata.phone.latitude, mdata.phone.longitude], zoom_start=15)
 
-    # 첫번째 측정위치를 지도맵에 표시한다.
-    folium.Marker(
-        location=[mdata.phone.latitude, mdata.phone.longitude],
-        icon=folium.Icon(color="red", icon="star"),
-        icon_size=(10,10),
-    ).add_to(map)
+    map = folium.Map(location=[phoneGroup.phone_set.first().latitude, phoneGroup.phone_set.first().longitude],
+                     zoom_start=15)
 
-    # 측정 위치를 지도맵에 표시한다.
+    dl_points = folium.FeatureGroup(name="DL Points")
+    ul_points = folium.FeatureGroup(name="UL Points")
+    polyline = folium.FeatureGroup(name="PolyLine", show=False)
+
     locations = []
-    points = folium.FeatureGroup(name="All Points")
-    qs = mdata.phone.measurecalldata_set.filter(testNetworkType='speed').order_by("meastime")
-    if qs.exists():
-        for m in qs:
+    for phone in phoneGroup.phone_set.all():
+
+        # 첫번째 측정위치를 지도맵에 표시한다.
+        folium.Marker(
+            location=[phone.latitude, phone.longitude],
+            icon=folium.Icon(color="red", icon="star"),
+            icon_size=(10, 10),
+        ).add_to(map)
+
+        for mdata in phone.measurecalldata_set.all():
             # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
-            if m.networkId == '5G':
-                pci, RSRP, SINR = m.NR_PCI, m.NR_RSRP, m.NR_SINR
+            if mdata.networkId == '5G':
+                pci, RSRP, SINR = mdata.NR_PCI, mdata.NR_RSRP, mdata.NR_SINR
             else:
-                pci, RSRP, SINR= m.p_pci, m.p_rsrp, m.p_SINR
-            # RSRP 값에 따라서 색상을 계산한다.
-            if m.latitude == mdata.latitude and m.longitude == mdata.longitude:
-                radius = 40
-            else:
-                radius = 25
-            df = pd.DataFrame([{'PCI': pci, 'Cell ID': m.cellId, 'DL': m.downloadBandwidth, 'UL': m.uploadBandwidth, \
-                                'RSRP': RSRP, 'SINR': SINR },])
-            html = df.to_html(index=False, 
-                            classes='table table-striped table-hover table-condensed table-responsive text-center')
-            html = html.replace('<th>', '<td align="center">') # 항목명 가운데 정렬
-            html = html.replace('<td>', '<td align="center">') # 항목값 가운데 정렬
+                pci, RSRP, SINR = mdata.p_pci, mdata.p_rsrp, mdata.p_SINR
+
+            df = pd.DataFrame(
+                [{'PCI': pci, 'Cell ID': mdata.cellId, 'DL': mdata.downloadBandwidth, 'UL': mdata.uploadBandwidth, \
+                  'RSRP': RSRP, 'SINR': SINR}, ])
+            html = df.to_html(index=False,
+                              classes='table table-striped table-hover table-condensed table-responsive text-center')
+            html = html.replace('<th>', '<td align="center">')  # 항목명 가운데 정렬
+            html = html.replace('<td>', '<td align="center">')  # 항목값 가운데 정렬
             popup = folium.Popup(html, min_width=100, max_width=300)
-            folium.Circle(
-                location=[m.latitude, m.longitude],
-                popup=popup,
-                radius=radius, # 크기 지정
-                color='black', # 테두리 색상
-                fill_color=rsrp2color(RSRP) if RSRP else 'black', # 내부 색상 '#000000' 
-                fill_opacity=1.,
-                weight=1
-            ).add_to(points)
-            locations.append([m.latitude, m.longitude])
+            radius = 25
+            if mdata.downloadBandwidth is not None and mdata.downloadBandwidth > 0:
+                folium.Circle(
+                    location=[mdata.latitude, mdata.longitude],
+                    popup=popup,
+                    radius=radius,  # 크기 지정
+                    color='black',  # 테두리 색상
+                    fill_color=rsrp2color(RSRP) if RSRP else 'black',  # 내부 색상 '#000000'
+                    fill_opacity=1.,
+                    weight=1
+                ).add_to(dl_points)
+            elif mdata.uploadBandwidth is not None and mdata.uploadBandwidth > 0:
+                folium.Circle(
+                    location=[mdata.latitude, mdata.longitude],
+                    popup=popup,
+                    radius=radius,  # 크기 지정
+                    color='black',  # 테두리 색상
+                    fill_color=rsrp2color(RSRP) if RSRP else 'black',  # 내부 색상 '#000000'
+                    fill_opacity=1.,
+                    weight=1
+                ).add_to(ul_points)
 
-        # 지도맵에 이동경로를 표시한다.
-        folium.PolyLine(locations=locations).add_to(map)
+            locations.append([mdata.latitude, mdata.longitude])
 
-        # 지도맵에 측정지점들을 표시한다.
-        # 이동경로와 겹쳐서 먼저 이동경로를 그리고 난 후 측점지점들을 표시한다.
-        points.add_to(map)
+    # 지도상에 행정동 경계구역을 표시한다.
+    # 동일한 필드명으로 조건을 두번 쓸수 없고, 필터를 두번 걸어야 함
+    qs = AddressRegion.objects.filter(addressDetail__contains=mdata.phone.addressDetail) \
+        .filter(addressDetail__contains=mdata.phone.guGun)
+    if qs.exists():
+        json_data = qs[0].json_data
+        #         print(json_data)
+        #         geo = {
+        #             "type": "FeatureCollection",
+        #             "name": "HangJeongDong_ver20220309",
+        #             "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+        #             "bbox": [ 124.609681415304, 33.1118678527544, 131.871294250487, 38.616952080675 ],
+        #             "features": [ json_data
+        #         ]}
+        #         folium.GeoJson(geo, name='seoul_municipalities').add_to(map)
+        folium.GeoJson(data=json_data, name='AddressRegion').add_to(map)
 
-        # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
-        # 2022.03.07 - 측정 데이터가 10개 이상일 때만 지도를 자동확대 하도록 한다. 
-        #              측정 데이터가 몇개 안될때 지도를 자동확대 하면 측정위치가 너무 크게 확대되는 현상이 있음
-        if len(locations) > 1:
-            start_loc = tuple(locations[0])
-            current_loc = (mdata.latitude, mdata.longitude)
-            distance = haversine(start_loc, current_loc)  # 킬로(km)
-            # if len(locations) >= 10:
-            if distance > 3:
-                sw = pd.DataFrame(locations).min().values.tolist()
-                ne = pd.DataFrame(locations).max().values.tolist()
-                map.fit_bounds([sw, ne])
+    # 지도맵에 이동경로를 표시한다.
+    folium.PolyLine(locations=locations).add_to(polyline)
 
-    # # 지도상에 행정동 경계구역을 표시한다.
-    # # 동일한 필드명으로 조건을 두번 쓸수 없고, 필터를 두번 걸어야 함
-    # qs = AddressRegion.objects.filter( addressDetail__contains=mdata.phone.addressDetail) \
-    #                         .filter(addressDetail__contains=mdata.phone.guGun)
-    # if qs.exists():
-    #     json_data = qs[0].json_data
-    #     geo = {
-    #         "type": "FeatureCollection",
-    #         "name": "HangJeongDong_ver20220309",
-    #         "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-    #         "bbox": [ 124.609681415304, 33.1118678527544, 131.871294250487, 38.616952080675 ],
-    #         "features": [ json_data
-    #     ]}
-    #     folium.GeoJson(geo, name='seoul_municipalities').add_to(map)
+    # 지도맵에 측정지점들을 표시한다.
+    dl_points.add_to(map)
+    ul_points.add_to(map)
+
+    polyline.add_to(map)
+
+    # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
+    sw = pd.DataFrame(locations).min().values.tolist()
+    ne = pd.DataFrame(locations).max().values.tolist()
+    map.fit_bounds([sw, ne])
+
+    # 화면 왼쪽 상단에 컨트롤들을 표시하기
+    plugins.Fullscreen(
+        position='topright',
+        title='전체화면 보기',
+        title_cancel='전체화면 종료',
+        force_separate_button=True
+    ).add_to(map)
+    #     plugins.ScrollZoomToggler().add_to(map)
+    plugins.MeasureControl().add_to(map)
+    folium.LayerControl(collapsed=False).add_to(map)
 
     # 작성된 지도맵을 저장하고, 파일명을 반환한다.
-    filename = f'{mdata.meastime}-{mdata.ispId}-{mdata.phone_no}.html'
-    map.save("monitor/templates/maps/" + filename)
+    filename = "monitor/templates/maps/" + f'{phoneGroup.measdate}_{phoneGroup.phone_list}.html'
+    map.save(filename)
 
     return filename

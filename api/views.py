@@ -9,6 +9,7 @@ from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer
 from management.models import Center, Morphology, ChatMemberList
 from message.tele_msg import TelegramBot, update_members, ban_member_as_compared_db, ban_member_not_allowed
+from monitor.geo import make_map_locations
 
 # 디버깅을 위한 로그를 선언한다.
 import logging
@@ -68,7 +69,7 @@ def phonegroup_list(request, measdate):
         qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
         phoneGroupList = []
         if qs.exists():
-            fields = ['id', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
+            fields = ['id', 'measdate', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
                       'starttime', 'morphologyName', 'networkId',
                       'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent',
                       'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended',
@@ -360,3 +361,26 @@ def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 �
         print("get_chatmembers():", str(e))
         raise Exception("get_chatmembers(): %s" % e)
     return JsonResponse(data=data, safe=False)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 측정데이터 지도맵을 작성하는 API
+# ----------------------------------------------------------------------------------------------------------------------
+@api_view(['GET'])
+def make_map(request, phonegroup_id):
+    qs = PhoneGroup.objects.filter(id=phonegroup_id)
+    if qs.exists():
+        try:
+            filename = make_map_locations(qs[0])
+            result = {
+                'result': 'ok',
+                'filename': filename.replace('templates/', ''),
+            }
+            # print(result)
+        except Exception as e:
+            print("make_map():", str(e))
+            raise Exception("make_map(): %s" % e)
+    else:
+        result = {
+            'result': 'fail',
+        }
+    return JsonResponse(data=result, safe=False)
