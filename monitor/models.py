@@ -34,6 +34,8 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # 2022.03.28 - 단말그룹에 DL평균속도, UL평균속도, DL LTE전환율, UL LTE전환율, LTE 전환율, 이벤트발생건수 항목 추가
 # 2022.03.31 - 콜수 관련 add_xxx() 함수 모두 삭제 (비효율적 코드)
 # 2022.04.26 - 경과시간(분) 계산 모듈 수정(오류)
+# 2022.05.01 - 측정시작시간 필드 및 문자 메시지 미전송여부 항목(Decorator) 추가
+#            - 문자 메시지 전송여부 속성(데코레이터) 항목 추가
 #
 ########################################################################################################################
 class PhoneGroup(models.Model):
@@ -148,6 +150,16 @@ class PhoneGroup(models.Model):
     def phone_list(self):
         """단말그룹에 대한 단만번호 리스트를 반환한다."""
         return ','.join([str(phone.phone_no)[-4:] for phone in self.phone_set.all()])
+
+    @property
+    def xmcsmsg_sended(self):
+        """단말그룹에 대한 문자 메시지 전송상태를 반환한다."""
+        qs = Message.objects.filter(measdate=self.measdate, phoneGroup_id=self.id, sendType__in=['XMCS','ALL'], \
+                                    sended=False)
+        if qs.exists():
+            return False
+        else:
+            return True
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.

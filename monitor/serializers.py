@@ -94,6 +94,7 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.26 - IdModelSerializer가 Foreign Key를 _id를 붙여주는 좋은 코드인데, 정상동작 하지 않음
 # 2022.04.01 - @property decorator 항목 직렬화 추가
+# 2022.05.01 - 문자 메시지 전송여부 속성(데코레이터) 항목 추가
 #
 ########################################################################################################################
 class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
@@ -110,6 +111,8 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     phone_list = serializers.ReadOnlyField()  # 단말번호 리스트
     last_updated_time = serializers.ReadOnlyField() # 최종 측정위치보고 시간 (@property decorator) (예: 12:05)
     elapsed_time = serializers.ReadOnlyField() # 경과시간(분) (@property decorator)
+    xmcsmsg_sended = serializers.ReadOnlyField() # 문자 메시지 전송여부 (@property decorator)
+
     class Meta:
         model = PhoneGroup
         fields = '__all__'

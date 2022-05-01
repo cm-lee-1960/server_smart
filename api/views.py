@@ -68,7 +68,7 @@ def phonegroup_list(request, measdate):
             fields = ['id', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
                       'starttime', 'morphologyName', 'networkId',
                       'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
-                      'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active',]
+                      'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended', ]
             for phoneGroup in qs:
                 serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
                 data = serializer.data

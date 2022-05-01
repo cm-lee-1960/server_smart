@@ -268,7 +268,10 @@
                                 <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
                             </td>
                             <td style="width: 7%; color: red" v-if="phoneGroup.active" >측정 중</td>
-                            <td style="width: 7%; color: #777777" v-else="phoneGroup.active" >종료</td>ß
+                            <td style="width: 7%; color: #777777" v-else="phoneGroup.active">
+                                종료<span v-if="phoneGroup.xmcsmsg_sended">(-)</span>
+                                <span v-else="phoneGroup.xmcsmsg_sended" style="color:blue;">(미전송)</span>
+                            </td>
                             <td style="width: 5%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
@@ -1252,6 +1255,7 @@
                         });
                     }
                     // 메시지 재전송 완료 후 메시지 리스트를 다시 조회한다.
+                    await this.fetch_all_phoneGroup();
                     await this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};
 
