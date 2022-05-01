@@ -28,6 +28,7 @@ from .models import MeasureCallData, Phone, Message
 # 2022.03.28 - 단말그룹의 이벤트발생 건수를 업데이트 하는 코드를 추가함
 # 2022.03.30 - 전송실패 이벤트 발생시 시 속도저하 이벤트를 체크하지 않음
 # 2022.04.08 - 메시지 모델에 단말그룹 추가에 따른 업데이트 코드 추가
+# 2022.05.01 - 이벤트 건수에 전송실패 건수만 반영 및 DL/UL 전송실패 건수 항목 추가
 #
 ########################################################################################################################
 def event_occur_check(mdata: MeasureCallData):
@@ -429,6 +430,12 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
         )
 
         # 단말그룹의 이벤트 발생건수를 하나 증가시킨다.
-        mdata.phone.phoneGroup.event_count += 1
+        # 2022.05.01 - 이벤트 발생건수에 "전송실패"만 반영하기로 함
+        if 'DL전송실패' in events_list:
+            mdata.phone.phoneGroup.send_failure_dl_count += 1
+            mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
+        elif 'UL전송실패' in events_list:
+            mdata.phone.phoneGroup.send_failure_ul_count += 1
+            mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
         mdata.phone.phoneGroup.save()
 

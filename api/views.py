@@ -44,6 +44,9 @@ db_logger = logging.getLogger('db')
 #           ** 전송된 메시지를 회수하는 경우는 많지 않으니 현재 구조를 유지해도 괜찮을 듯 함(다소 불편감은 있지만,..)
 # 2022.04.10 - 단말그룹에 대한 측정조를 변경하는 기능 추가
 #            - 기존 Django View를 REST Framework APIView로 변경 (API 취지에 맞게 수정)
+# 2022.05.01 - 측정시작시간 필드 및 문자 메시지 미전송여부 항목(Decorator) 추가
+#            - 문자 메시지 전송여부 속성(데코레이터) 항목 추가
+#            - DL/UL LTE전환 건수 표기
 #
 ########################################################################################################################
 
@@ -67,14 +70,16 @@ def phonegroup_list(request, measdate):
         if qs.exists():
             fields = ['id', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
                       'starttime', 'morphologyName', 'networkId',
-                      'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent', 'event_count',
-                      'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended', ]
+                      'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent',
+                      'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended',
+                      'dl_nr_count', 'ul_nr_count', 'dl_nr_count_z', 'ul_nr_count_z',
+                      'event_count', 'send_failure_dl_count_z', 'send_failure_ul_count_z', ]
             for phoneGroup in qs:
                 serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
                 data = serializer.data
                 data['selected'] = False
-                data['failEventCount'] = Message.objects.filter(messageType='EVENT', message__contains='전송실패', measdate=measdate, \
-                                                                        phoneGroup_id=phoneGroup.id).count()  # 전송실패 이벤트 건수
+                # data['failEventCount'] = Message.objects.filter(messageType='EVENT', message__contains='전송실패', measdate=measdate, \
+                #                                                         phoneGroup_id=phoneGroup.id).count()  # 전송실패 이벤트 건수
                 phoneGroupList.append(data)
                 # print(data)
 

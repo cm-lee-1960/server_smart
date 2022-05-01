@@ -36,6 +36,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # 2022.04.26 - 경과시간(분) 계산 모듈 수정(오류)
 # 2022.05.01 - 측정시작시간 필드 및 문자 메시지 미전송여부 항목(Decorator) 추가
 #            - 문자 메시지 전송여부 속성(데코레이터) 항목 추가
+#            - DL/UL LTE전환 건수, DL/UL 전송실패 건수 표기
 #
 ########################################################################################################################
 class PhoneGroup(models.Model):
@@ -75,6 +76,8 @@ class PhoneGroup(models.Model):
     ul_nr_percent = models.FloatField(null=True, default=0.0, verbose_name="UL LTE전환율") # UL LTE전환율
     nr_percent = models.FloatField(null=True, default=0.0, verbose_name="LTE전환율")  # LTE전환율
     event_count = models.IntegerField(null=True, default=0, verbose_name="이벤트")  # 이벤트발생건수
+    send_failure_dl_count = models.IntegerField(null=True, default=0, verbose_name="이벤트")  # DL전송실패 이벤트발생건수
+    send_failure_ul_count = models.IntegerField(null=True, default=0, verbose_name="이벤트")  # DL전송실패 이벤트발생건수
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
@@ -160,6 +163,38 @@ class PhoneGroup(models.Model):
             return False
         else:
             return True
+
+    @property
+    def dl_nr_count_z(self):
+        """단말그룹에 대한 DL LTE전환 건수(-)를 반환한다."""
+        if self.dl_nr_count > 0:
+            return self.dl_nr_count
+        else:
+            return '-'
+
+    @property
+    def ul_nr_count_z(self):
+        """단말그룹에 대한 DL LTE전환 건수(-)를 반환한다."""
+        if self.ul_nr_count > 0:
+            return self.ul_nr_count
+        else:
+            return '-'
+
+    @property
+    def send_failure_dl_count_z(self):
+        """단말그룹에 대한 DL 전송실패 건수(-)를 반환한다."""
+        if self.send_failure_dl_count > 0:
+            return self.send_failure_dl_count
+        else:
+            return '-'
+
+    @property
+    def send_failure_ul_count_z(self):
+        """단말그룹에 대한 UL 전송실패 건수(-)를 반환한다."""
+        if self.send_failure_ul_count > 0:
+            return self.send_failure_ul_count
+        else:
+            return '-'
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.

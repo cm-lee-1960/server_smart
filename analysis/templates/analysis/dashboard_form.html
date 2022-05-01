@@ -206,7 +206,7 @@
                     <table id="phonegroup-table" class='table table-hover table-fixed'>
                         <thead id='phonegroup-header'>
                         <tr class="bg-light d-flex text-center filters">
-                            <th style="width: 5%">
+                            <th style="width: 4%">
                                 <input type="checkbox"
                                     v-model="allChecked"
                                     @click="checkedAll($event.target.checked)"
@@ -217,20 +217,20 @@
                             <th style="width: 18%;"><input type="text" class="form-control text-center filter-input" placeholder="측정지역" disabled></th>
                             <th style="width: 7%;"><input type="text" class="form-control text-center filter-input" placeholder="모폴로지" disabled></th>
                             <th style="width: 6%;"><input type="text" class="form-control text-center filter-input" placeholder="네트워크" disabled></th>-->
-                            <th style="width: 5%;">본부</th>
-                            <th style="width: 5%;">조</th>
+                            <th style="width: 4%;">본부</th>
+                            <th style="width: 4%;">조</th>
                             <th style="width: 7%;">단말번호</th>
-                            <th style="width: 18%;">측정지역</th>
+                            <th style="width: 16%;">측정지역</th>
                             <th style="width: 5%;">모폴로지</th>
                             <th style="width: 5%;">네트워크</th>
                             <th style="width: 6%;">측정시작</th>
                             <th style="width: 7%;">DL/UL콜수</th>
                             <th style="width: 7%;">DL/UL속도</th>
-                            <th style="width: 5%;">전환율</th>
-                            <th style="width: 5%;">이벤트</th>
+                            <th style="width: 8%;">전환율(DL/UL)</th>
+                            <th style="width: 8%;">이벤트(DL/UL)</th>
                             <th style="width: 8%;">최종측정(경과)</th>
                             <th style="width: 7%;">상태</th>
-                            <th style="width: 5%;">
+                            <th style="width: 4%;">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
                                 data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -244,7 +244,7 @@
                             v-bind:id="phoneGroup.id" v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="clickphone_Tr"
                             data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center" v-on:dblclick="doubleclickModifyInfo(phoneGroup)"
                             title="마우스로 더블클릭하면 단말그룹 정보를 변경할 수 있습니다."/>
-                            <td style="width: 5%;" class="text-center" onclick="event.cancelBubble=true">
+                            <td style="width: 4%;" class="text-center" onclick="event.cancelBubble=true">
                                 <input type="checkbox" 
                                     :id="'check_' + phoneGroup.id"
                                     :value="phoneGroup.id"
@@ -252,17 +252,17 @@
                                     @change="selected($event)"
                                 >
                             </td>
-                            <td style="width: 5%;" >[[phoneGroup.centerName]]</td>
-                            <td style="width: 5%;" >[[phoneGroup.measuringTeam]]</td>
+                            <td style="width: 4%;" >[[phoneGroup.centerName]]</td>
+                            <td style="width: 4%;" >[[phoneGroup.measuringTeam]]</td>
                             <td style="width: 7%;" >[[phoneGroup.phone_list]]</td>
-                            <td style="width: 18%;" >[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
+                            <td style="width: 16%;" >[[phoneGroup.userInfo1 | truncate(20, '...')]]</td>
                             <td style="width: 5%;" >[[phoneGroup.morphologyName]]</td>
                             <td style="width: 5%;" >[[phoneGroup.networkId]]</td>
                             <td style="width: 6%;" >[[phoneGroup.starttime]]</td>
                             <td style="width: 7%;" >[[phoneGroup.dl_count]] / [[phoneGroup.ul_count]]</td>
                             <td style="width: 7%;" >[[phoneGroup.downloadBandwidth]] / [[phoneGroup.uploadBandwidth]]</td>
-                            <td style="width: 5%;" >[[phoneGroup.nr_percent]]</td>
-                            <td style="width: 5%;" >[[phoneGroup.failEventCount]]</td>
+                            <td style="width: 8%;" >[[phoneGroup.nr_percent]]([[phoneGroup.dl_nr_count_z]]/[[phoneGroup.ul_nr_count_z]])</td>
+                            <td style="width: 8%;" >[[phoneGroup.event_count]]([[phoneGroup.send_failure_dl_count_z]]/[[phoneGroup.send_failure_ul_count_z]])</td>
                             <td style="width: 8%;" >
                                 [[phoneGroup.last_updated_time]]/<span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
                                 <span v-else="phoneGroup.active">([[phoneGroup.elapsed_time]])</span>
@@ -272,7 +272,7 @@
                                 종료<span v-if="phoneGroup.xmcsmsg_sended">(-)</span>
                                 <span v-else="phoneGroup.xmcsmsg_sended" style="color:blue;">(미전송)</span>
                             </td>
-                            <td style="width: 5%;" >
+                            <td style="width: 4%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
                                             type="button" data-toggle="dropdown">
