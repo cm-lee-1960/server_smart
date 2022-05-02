@@ -37,15 +37,15 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div id = "head" class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'dashboard' %}">실시간감시
+        <ul class="navbar-nav mr-auto" id="navtitle">
+          <li class="nav-item active" id="dashboard_nav">
+            <a class="nav-link"  href="{% url 'analysis:dashboard' %}">실시간감시
               <span class="sr-only">(current)</span></a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'analysis:report' %}" @click="timerEnd">일일보고</a>
+          <li class="nav-item" id="report_nav">
+            <a class="nav-link"  href="{% url 'analysis:report' %}" @click="timerEnd">일일보고</a>
           </li>
-          <li class="nav-item">       
+          <li class="nav-item" id="management_nav">       
             <a class="nav-link" href="{% url 'admin:index' %}" @click="timerEnd">관리자페이지</a>
           </li>
         </ul>
@@ -58,7 +58,7 @@
 
 
 <!-- main -->
-<main role="main" class="container-fluid" style="margin-top: 12px">
+<main role="main" class="container-fluid" style="margin-top: 20px">
     {% block contents %}{% endblock %}
 </main>
 
@@ -72,7 +72,13 @@
 {% comment %} <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> {% endcomment %}
 <script src="https://getbootstrap.com/docs/4.0/assets/js/vendor/popper.min.js"></script>
 <script src="https://getbootstrap.com/docs/4.0/dist/js/bootstrap.min.js"></script>
-
+<script>
+  $('#navtitle').click(function(e) {
+    $('#navtitle a').removeClass('nav-item active');
+    $('#navtitle a').addClass('nav-item');
+    $(this).addClass('nav-item active');
+});
+</script>
 
 {% block extra-script %}{% endblock %}
   

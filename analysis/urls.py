@@ -14,7 +14,7 @@ urlpatterns = [
     path("report/measplan/", views.report_measplan, name='report_measplan'), # 측정대상등록 페이지
     path("report/list/", views.report_list, name='report_list'), # 일일보고 리스트 페이지
     path("report/measresult/", views.report_measresult, name='report_measresult'), # 측정결과현황 페이지
-    
+    path("report/postmeas/", views.report_postmeas, name='report_postmeas'), # 사후측정 등록 페이지
 
     path('report/makereport/', views.register_measdata, name='register_measdata'), # 레포트정보등록페이지(측정대상, 측정완료, 전년도결과, 추가사항)
     path('measplan/create/',views.create_measplan,name='create_measplan'), # 측정대상 등록 및 수정
@@ -27,7 +27,11 @@ urlpatterns = [
     path('measlastyear5G/delete/',views.delete_measlastyear5G,name='delete_measlastyear5G'), # 전년도 결과 삭제(5G)
     path('measlastyearLTE/create/',views.create_measlastyearLTE,name='create_measlastyearLTE'), # 전년도 결과 등록 및 수정(LTE)
     path('measlastyearLTE/delete/',views.delete_measlastyearLTE,name='delete_measlastyearLTE'), # 전년도 결과 삭제(LTE)
-    path('postmeasure5G/create/',views.create_postmeasure5G,name='create_postmeasure5G'), # 사후측정 결과 등록 및 수정(LTE)
+    path('postmeasure5G/create/',views.create_postmeasure5G,name='create_postmeasure5G'), # 사후측정 결과 등록 및 수정(5G)
+    path('postmeasureLTE/create/',views.create_postmeasureLTE,name='create_postmeasureLTE'), # 사후측정 결과 등록 및 수정(LTE)
+    path('excelupload5g/', views.ExcelUploadView5g.as_view(), name='excel-upload5g'),#5g사후측정 엑셀 업로드
+    path('exceluploadlte/', views.ExcelUploadViewlte.as_view(), name='excel-uploadlte'),#lte사후측정 엑셀 업로드
+    path('pdf_merge/', views.pdf_merge, name='pdf_merge'),#pdf 병합
     
     
     # #ajax url

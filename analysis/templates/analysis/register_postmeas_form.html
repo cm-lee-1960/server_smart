@@ -1,0 +1,523 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% block extra-style %}
+
+<!-- 부트스트랩 -->
+<link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+<!-- CSS,JS 호출 -->
+<link rel="stylesheet" type="text/css" href="{% static "css/A4.css" %}">
+<!-- CSS호출 -->
+<link rel="stylesheet" type="text/css" href="{% static "css/report.css" %}">
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+<!-- 테스트 -->
+
+
+<style>
+    #btnzone{
+        border-radius:0px 0px 10px 10px;
+        right:100px; 
+        border: 1px solid rgba(183, 180, 180, 0.839); 
+        background-color: white; 
+        width:350px; 
+        text-align:center; 
+        position:fixed; 
+        margin-top:-15px; 
+        padding:5px; 
+        z-index:10; 
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    } 
+    button{
+        display:inline;
+        margin:2px 5px;
+    }
+    </style>
+
+<!-- 테스트사이드바 -->
+<style>
+
+	.wrapper {
+		display: flex;
+		align-items: stretch;
+        position:fixed;
+	}
+	
+	#sidebar {
+		min-width: 250px;
+		max-width: 250px;
+		min-height: 100vh;
+	}
+	
+	#sidebar.active {
+		margin-left: -250px;
+	}
+	a[data-toggle="collapse"] {
+		position: relative;
+	}
+	
+	.dropdown-toggle::after {
+		display: block;
+		position: absolute;
+		top: 50%;
+		right: 20px;
+		transform: translateY(-50%);
+	}
+	@media (max-width: 768px) {
+		#sidebar {
+			margin-left: -250px;
+		}
+		#sidebar.active {
+			margin-left: 0;
+		}
+	}
+	@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+	
+	
+	body {
+		font-family: 'Poppins', sans-serif;
+		background: #fafafa;
+	}
+	
+	/* p {
+		font-family: 'Poppins', sans-serif;
+		font-size: 1.1em;
+		font-weight: 300;
+		line-height: 1.7em;
+		color: #999;
+	} */
+	
+	a, a:hover, a:focus {
+		color: inherit;
+		text-decoration: none;
+		transition: all 0.3s;
+	}
+	
+	#sidebar {
+		/* don't forget to add all the previously mentioned styles here too */
+		background: rgb(164, 164, 164);
+		color: #fff;
+		transition: all 0.3s;
+	}
+	
+	#sidebar .sidebar-header {
+		padding: 20px;
+		background: #212529;
+	}
+	
+	#sidebar ul.components {
+		padding: 20px 0;
+		/* border-bottom: 1px solid #47748b; */
+	}
+	
+	#sidebar ul p {
+		color: #fff;
+		padding: 10px;
+	}
+	
+	#sidebar ul li a {
+		padding: 10px;
+		font-size: 1.1em;
+		display: block;
+	}
+	#sidebar ul li a:hover {
+		color: #8d8e93;
+		background: #fff;
+	}
+	
+	#sidebar ul li.active > a, a[aria-expanded="true"] {
+		color: #fff;
+		background: rgb(164, 164, 164);
+	}
+	ul ul a {
+		font-size: 0.9em !important;
+		padding-left: 30px !important;
+		background: grey;
+	}
+	</style>
+{% endblock %}
+{% block contents %}
+<body>
+        <!-- modal content5g -->
+<div id="modal-excel5g" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="far fa-save mr-1"></i>
+                    5G 사후측정 업로드
+                </h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" id="modal-excel-form" method='post'>
+                    <div class="row justify-content-center toolbar-forms py-2">
+                        <div class="col-8">
+                                <div class="custom-file text-left">
+                                    <input id="input-excel5g"  type="file">
+                                    <label for="input-excel5g" ></label>
+                                </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <div class="float-left mx-auto">
+                    <button type="submit" class="btn btn-secondary" id="excel-upload5g">저장</button>
+                    <button type="button" class="btn btn-default border" data-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- modal end -->
+
+<div id="modal-excellte" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="far fa-save mr-1"></i>
+                    LTE 사후측정 업로드
+                </h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" id="modal-excel-form" method='post'>
+                    <div class="row justify-content-center toolbar-forms py-2">
+                        <div class="col-8">
+                            <div class="custom-file text-left">
+                                <input id="input-excellte" class="custom-file-input" type="file" >
+                                <label for="input-excellte" class="custom-file-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <div class="float-left mx-auto">
+                    <button type="submit" class="btn btn-secondary" id="excel-uploadlte">저장</button>
+                    <button type="button" class="btn btn-default border" data-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- modal end -->
+    <!-- 메인화면 -->
+<div  style="display:flex; flex-flow: row nowrap;">
+    <!-- 테스트 사이드바 -->
+
+
+<div class="wrapper">
+    
+	<!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h2>일일보고</h2>
+        </div>
+
+        <ul class="list-unstyled components">
+            <li>
+                <a href="http://127.0.0.1:8000/analysis/report/">일일보고</a>
+            </li>
+			<li>
+                <a href="http://127.0.0.1:8000/analysis/report/list/">일일보고 목록</a>
+            </li>
+			<li class="active">
+                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">일일보고 관리</a>
+                <ul class="collapse list-unstyled" id="homeSubmenu">
+                    <li>
+                        <a href="http://127.0.0.1:8000/analysis/report/measplan/">측정대상등록</a>
+                    </li>
+                    <li>
+                        <a href="http://127.0.0.1:8000/analysis/report/measresult/">측정완료현황</a>
+                    </li>
+                    <li>
+                        <a href="http://127.0.0.1:8000/analysis/report/postmeas/">사후측정등록</a>
+                    </li>
+                </ul>
+            </li>
+            
+            <!-- <li>
+                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
+                <ul class="collapse list-unstyled" id="pageSubmenu">
+                    <li>
+                        <a href="#">Page 1</a>
+                    </li>
+                    <li>
+                        <a href="#">Page 2</a>
+                    </li>
+                    <li>
+                        <a href="#">Page 3</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">Portfolio</a>
+            </li>
+            <li>
+                <a href="#">Contact</a>
+            </li> -->
+        </ul>
+    </nav>
+	<div id="content">
+
+		<nav class="navbar navbar-expand-lg">
+			<div class="container-fluid">
+	
+				<button type="button" id="sidebarCollapse" class="btn btn-primary">
+					<i class="fas fa-align-left"></i>
+					<span></span>
+				</button>
+			</div>
+		</nav>
+	</div>
+</div>
+
+
+<div id="blank" style="width:250px;"></div>
+
+<div id="show1" style=" width:90%;">
+    <div id = 'btnzone'> 
+			
+			
+        <button class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;" id="postmeas5gupload" >5G 사후측정 <i class="icon-fixed-width icon-upload-alt"></i></button>
+        <button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;" id="postmeaslteupload">LTE 사후측정 <i class="icon-fixed-width icon-upload-alt"></i></button>
+       
+    </div>
+    <div id="output" div style="border: 1px solid rgb(226, 221, 221); margin:60px 40px; padding:10px; width:95%">
+        <table id="5Gsh" style="border: solid 1px black;" >
+				
+            <thead>
+                <tr>
+                    <th rowspan = "2">지역<br>(측정수)</th>
+                    <th rowspan = "2">20년<br>결과</th>
+                    <th colspan = "5">종합</th>
+                    <th colspan = "5">행정동</th>
+                    <th colspan = "5">다중이용시설/교통/아파트/대학</th>
+                </tr>
+                <tr >
+                    <th>KT<br>(본)</th>
+                    <th>KT<br>(사후)</th>
+                    <th>S사<br>(사후)</th>
+                    <th>L사<br>(사후)</th>
+                    <th>KT<br>순위</th>
+                    <th>KT<br>(본)</th>
+                    <th>KT<br>(사후)</th>
+                    <th>S사<br>(사후)</th>
+                    <th>L사<br>(사후)</th>
+                    <th>KT<br>순위</th>
+                    <th>KT<br>(본)</th>
+                    <th>KT<br>(사후)</th>
+                    <th>S사<br>(사후)</th>
+                    <th>L사<br>(사후)</th>
+                    <th>KT<br>순위</th>
+                    
+            </thead>
+            <tbody id="graph">
+            {% for postmeas5g in postmeas5g %} 	
+                <tr>
+                    <td ><p class="postmeasresult">{{postmeas5g.district}}({{postmeas5g.number}})</p></td>
+                    <td><p class="postmeasresult">{{postmeas5g.lasttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lasttotal5g" id="post1"value="{{postmeas5g.lasttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.kttotaltotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotaltotal5g" id="post2" value="{{postmeas5g.kttotaltotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.kttotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotalposttotal5g" id="post3" value="{{postmeas5g.kttotalposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.skttotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skttotalposttotal5g" id="post4" value="{{postmeas5g.skttotalposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.lgtotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgtotalposttotal5g" id="post5" value="{{postmeas5g.lgtotalposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.ktranktotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.kthjdtotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdtotal5g"id="post7" value="{{postmeas5g.kthjdtotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.kthjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdposttotal5g" id="post8" value="{{postmeas5g.kthjdposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.skthjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skthjdposttotal5g" id="post9" value="{{postmeas5g.skthjdposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.lghjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lghjdposttotal5g" id="post10" value="{{postmeas5g.lghjdposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.ktrankhjdtotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktrankhjdtotal5g" id="post11" value="{{postmeas5g.ktrankhjdtotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.ktsidetotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktsidetotal5g"id="post12"  value="{{postmeas5g.ktsidetotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.ktsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktsideposttotal5g" id="post13" value="{{postmeas5g.ktsideposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.sktsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="sktsideposttotal5g" id="post14" value="{{postmeas5g.sktsideposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.lgsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgsideposttotal5g" id="post15" value="{{postmeas5g.lgsideposttotal5g}}"></input></td>
+                    <td><p class="postmeasresult">{{postmeas5g.ktranksidetotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranksidetotal5g" id="post16" value="{{postmeas5g.ktranksidetotal5g}}"></input></td>
+                </tr>
+            {% endfor %}	
+                
+                
+                    
+                
+                
+            </tbody>
+        </table>
+        <br>
+        <table id="5Gsh" style="border: solid 1px black;" >
+			<thead>
+				<tr>
+					<th rowspan = "2">지역<br>(측정수)</th>
+					<th rowspan = "2">20년<br>결과</th>
+					<th colspan = "4">DL 속도(Mbps)</th>
+					<th colspan = "4">UL 속도(Mbps)</th>
+					
+				</tr>
+				<tr >
+					<th>KT<br>(본)</th>
+					<th>KT<br>(사후)</th>
+					<th>S사<br>(사후)</th>
+					<th>L사<br>(사후)</th>
+					
+					<th>KT<br>(본)</th>
+					<th>KT<br>(사후)</th>
+					<th>S사<br>(사후)</th>
+					<th>L사<br>(사후)</th>
+					
+					
+			</thead>
+			<tbody id="graph" >
+				{% for postmeaslte in postmeaslte %} 	
+				<tr>
+					<td ><p class="postmeasresult">{{postmeaslte.district}}({{postmeaslte.number}})</p></td>
+					<td><p class="postmeasresult">{{postmeaslte.lasttotallte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lasttotal5g" id="post1"value="{{postmeas5g.lasttotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.ktdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotaltotal5g" id="post2" value="{{postmeas5g.kttotaltotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.ktpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotalposttotal5g" id="post3" value="{{postmeas5g.kttotalposttotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.sktpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skttotalposttotal5g" id="post4" value="{{postmeas5g.skttotalposttotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.lgpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgtotalposttotal5g" id="post5" value="{{postmeas5g.lgtotalposttotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.ktullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.ktpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.sktpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdtotal5g"id="post7" value="{{postmeas5g.kthjdtotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.lgpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdposttotal5g" id="post8" value="{{postmeas5g.kthjdposttotal5g}}"></input></td>
+					
+				</tr>
+				{% endfor %}	
+			
+					
+			</tbody>
+		</table>
+        </div>
+</div>
+</div>
+
+
+
+
+</body>
+{% endblock %}
+{% block extra-script %}
+<!-- 자바스크립트 호출 -->
+
+{% csrf_token %}
+<script src="https://unpkg.com/vue@2.4.2"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+
+<!-- 테스트 사이드바 -->
+<script>
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+            $(this).toggleClass('active');
+        });
+    });
+    $('#report_nav').addClass('nav-item active');
+	$('#dashboard_nav').removeClass('nav-item active');
+	$('#dashboard_nav').addClass('nav-item');
+    </script>
+
+<!-- 엑셀 업로드 -->
+<script type="text/javascript">
+    $("#postmeas5gupload").click(function () {
+            $("#modal-excel5g").modal('show');
+        });
+    $("#postmeaslteupload").click(function () {
+            $("#modal-excellte").modal('show');
+        });
+</script>
+<script type="text/javascript">
+    
+        $('#excel-upload5g').click(() => {
+            var form = $("#modal-excel-form")[0];
+            var formData = new FormData(form);
+            formData.append("message", "ajax로 파일 전송하기");
+            formData.append("file", $("#input-excel5g")[0].files[0]);
+            $.ajaxSetup({
+                headers: { "X-CSRFToken": '{{csrf_token}}'}
+            });
+            $.ajax({
+                url: "{% url 'analysis:excel-upload5g' %}",
+                processData: false,
+                contentType: false,
+                type: "POST",
+  
+                data : formData,
+                success: function(data) {
+                    alert(data.message);
+                    location.reload();
+                },
+                error: function(data) {
+                    alert(data.message);
+                },
+            });
+        });
+
+        
+        $('#excel-uploadlte').click(() => {
+            var form = $("#modal-excel-form")[0];
+            var formData = new FormData(form);
+            formData.append("message", "ajax로 파일 전송하기");
+            formData.append("file", $("#input-excellte")[0].files[0]);
+            $.ajaxSetup({
+                headers: { "X-CSRFToken": '{{csrf_token}}'}
+            });
+            $.ajax({
+                url: "{% url 'analysis:excel-uploadlte' %}",
+                processData: false,
+                contentType: false,
+                type: "POST",
+  
+                data : formData,
+                success: function(data) {
+                    alert(data.message);
+                    location.reload();
+                },
+                error: function(data) {
+                    alert(data.message);
+                },
+            });
+        });
+</script>
+
+<script>
+
+    $(document).ready(function() {
+       
+        $(".postmeas5g").hide();
+        // for (let i = 0; i<textmod.length; i++){
+        //         $(textmod[i]).hide();
+        //     }
+        
+        // $('#msgmodify').click(function() {
+        //     for(let i = 0; i<textmod.length; i++){
+        //         $(textmod[i]).toggle();
+        //     };
+        //     for(let i = 0; i<result.length; i++){
+        //         $(result[i]).toggle();
+        //     };
+        //     let text1 = $("#textmod1").val();
+        //     $("#textmod1copy").val(text1);
+        //     let text2 = $("#textmod2").val();
+        //     $("#textmod2copy").val(text2);
+        //     let text3 = $("#textmod3").val();
+        //     $("#textmod3copy").val(text3);
+        //     let text4 = $("#textmod4").val();
+        //     $("#textmod4copy").val(text4);
+        //     let text5 = $("#textmod5").val();
+        //     $("#textmod5copy").val(text5);
+        //     let text6 = $("#textmod6").val();
+        //     $("#textmod6copy").val(text6);
+        //     $("#msgcomplete").toggle();
+        //     $("#postmeasmodify").toggle();
+        // });
+        // $('#postmeasmodify').click(function() {
+        //     // $(".postmeas5g").toggle();
+        //     $("#postmeascomplete").toggle();
+        //     $("#msgmodify").toggle();
+        //     // $(".postmeasresult").toggle();
+        // });
+        
+    });
+    </script>
+
+{% endblock %}

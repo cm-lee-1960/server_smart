@@ -1,29 +1,22 @@
 {% extends "analysis/base.html" %}
 {% load static %}
 {% block extra-style %}
-<!-- Bootstrap core CSS -->
-<link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="{% static "css/nav.css" %}">
-<!-- 제이쿼리 -->
-<script defer src="https://code.jquery.com/jquery-3.6.0.js"></script>
-<script src="http://code.jquery.com/jquery-latest.js"></script> 
+
+
 <!-- 부트스트랩 -->
 <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">
-<link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-<!-- CSS호출 -->
-<script type="text/javascript" defer src="{% static "js/search.js" %}"></script>
-<!-- pdf 출력 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+
 <!-- CSS,JS 호출 -->
 <link rel="stylesheet" type="text/css" href="{% static "css/A4.css" %}">
-<script type="text/javascript" defer src="{% static "js/reportdata.js" %}"></script>
+
 <!-- CSS호출 -->
 <link rel="stylesheet" type="text/css" href="{% static "css/report.css" %}">
-<link rel="stylesheet" type="text/css" href="{% static "css/modal.css" %}">
-<!-- 아이콘 -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+
 <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
+
 <style>
 #btnzone{
 	border-radius:0px 0px 10px 10px;
@@ -40,9 +33,112 @@
 } 
 button{
 	display:inline;
-	margin-left:5px;
+	margin:2px 5px;
 }
 </style>
+
+<!-- 테스트사이드바 -->
+<style>
+
+	.wrapper {
+		display: flex;
+		align-items: stretch;
+		position:fixed;
+	}
+	
+	#sidebar {
+		min-width: 250px;
+		max-width: 250px;
+		min-height: 100vh;
+		
+	}
+	
+	#sidebar.active {
+		margin-left: -250px;
+	}
+	a[data-toggle="collapse"] {
+		position: relative;
+	}
+	
+	.dropdown-toggle::after {
+		display: block;
+		position: absolute;
+		top: 50%;
+		right: 20px;
+		transform: translateY(-50%);
+	}
+	@media (max-width: 768px) {
+		#sidebar {
+			margin-left: -250px;
+		}
+		#sidebar.active {
+			margin-left: 0;
+		}
+	}
+	@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+	
+	
+	body {
+		font-family: 'Poppins', sans-serif;
+		background: #fafafa;
+	}
+	
+	/* p {
+		font-family: 'Poppins', sans-serif;
+		font-size: 1.1em;
+		font-weight: 300;
+		line-height: 1.7em;
+		color: #999;
+	} */
+	
+	a, a:hover, a:focus {
+		color: inherit;
+		text-decoration: none;
+		transition: all 0.3s;
+	}
+	
+	#sidebar {
+		/* don't forget to add all the previously mentioned styles here too */
+		background: rgb(164, 164, 164);
+		color: #fff;
+		transition: all 0.3s;
+	}
+	
+	#sidebar .sidebar-header {
+		padding: 20px;
+		background: #212529;
+	}
+	
+	#sidebar ul.components {
+		padding: 20px 0;
+		/* border-bottom: 1px solid #47748b; */
+	}
+	
+	#sidebar ul p {
+		color: #fff;
+		padding: 10px;
+	}
+	
+	#sidebar ul li a {
+		padding: 10px;
+		font-size: 1.1em;
+		display: block;
+	}
+	#sidebar ul li a:hover {
+		color: #8d8e93;
+		background: #fff;
+	}
+	
+	#sidebar ul li.active > a, a[aria-expanded="true"] {
+		color: #fff;
+		background: rgb(164, 164, 164);
+	}
+	ul ul a {
+		font-size: 0.9em !important;
+		padding-left: 30px !important;
+		background: grey;
+	}
+	</style>
 {% endblock %}
 {% block contents %}
 
@@ -50,7 +146,7 @@ button{
 	<!-- 메인화면 -->
 <div style="display:flex; flex-flow: row nowrap;">
 	<!-- 사이드바 -->
-	<div style="width:200px; border-right:1px solid rgb(226, 221, 221); margin-top:5px;" >
+	<!-- <div style="width:200px; border-right:1px solid rgb(226, 221, 221);margin-top:5px;" >
 		
 		<div style="position:fixed;width:200px; display:flex;">
 			<nav>
@@ -67,52 +163,141 @@ button{
 					<a href="http://127.0.0.1:8000/analysis/report/measresult/" style="text-decoration-line:none; text-decoration:none;color:grey">측정완료현황</a>
 				</div>  
 			</nav>
-		</div>
+		</div> -->
+		
+	<!-- </div> -->
+<!-- 테스트 사이드바 -->
 
-		<div id = checkbox style="position:fixed; top :300px; margin:5px; padding:5px;border: 1px solid rgba(183, 180, 180, 0.839);border-radius:10px;color:grey;background-color: white; " >
-			<input type="checkbox" name="meastitle" id="meas1" value="meassituation" style="color:grey;background-color: white;"checked/>측정현황
+
+<div class="wrapper">
+    
+	<!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h2>일일보고</h2>
+        </div>
+
+        <ul class="list-unstyled components">
+            <li>
+                <a href="http://127.0.0.1:8000/analysis/report/">일일보고</a>
+            </li>
+			<li>
+                <a href="http://127.0.0.1:8000/analysis/report/list/">일일보고 목록</a>
+            </li>
+			<li class="active">
+                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">일일보고 관리</a>
+                <ul class="collapse list-unstyled" id="homeSubmenu">
+                    <li>
+                        <a href="http://127.0.0.1:8000/analysis/report/measplan/">측정대상등록</a>
+                    </li>
+                    <li>
+                        <a href="http://127.0.0.1:8000/analysis/report/measresult/">측정완료현황</a>
+                    </li>
+                    <li>
+                        <a href="http://127.0.0.1:8000/analysis/report/postmeas/">사후측정등록</a>
+                    </li>
+                </ul>
+            </li>
+            
+
+			
+            <!-- <li>
+                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
+                <ul class="collapse list-unstyled" id="pageSubmenu">
+                    <li>
+                        <a href="#">Page 1</a>
+                    </li>
+                    <li>
+                        <a href="#">Page 2</a>
+                    </li>
+                    <li>
+                        <a href="#">Page 3</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">Portfolio</a>
+            </li>
+            <li>
+                <a href="#">Contact</a>
+            </li> -->
+        </ul>
+    </nav>
+	
+	<div id="content">
+
+		<nav class="navbar navbar-expand-lg">
+			<div class="container-fluid">
+	
+				<button type="button" id="sidebarCollapse" class="btn btn-primary">
+					<i class="fas fa-align-left"></i>
+					<span></span>
+				</button>
+			</div>
+		</nav>
+		<div id = checkbox style="z-index: 3; position:fixed; top :150px; padding:5px;border: 1px solid rgba(183, 180, 180, 0.839);border-radius:10px;color:grey;background-color: white; " >
+			<input type="checkbox" name="meastitle" id="meas1" value="meassituation" style="color:grey;background-color: white;"checked/> 측정현황
 			<br>
-			<input type="checkbox" name="meastitle" id="meas11" value="meassituation5G"style="color:grey;" checked/>5G
-			<input type="checkbox" name="meastitle" id="meas12" value="meassituationLTE"style="color:grey;" checked/>LTE
-			<input type="checkbox" name="meastitle" id="meas13" value="meassituationWiFi"style="color:grey;" checked/>WiFi
+			<input type="checkbox" name="meastitle" id="meas11" value="meassituation5G"style="color:grey;" checked/> 5G
 			<br>
-			<input type="checkbox" name="meastitle" id="meas14" value="meassituationweak"style="color:grey;" checked/>품질취약지역
+			<input type="checkbox" name="meastitle" id="meas12" value="meassituationLTE"style="color:grey;" checked/> LTE
 			<br>
-			<input type="checkbox" name="meastitle" id="meas2" value="measresult"style="color:grey;" checked/>측정결과
+			<input type="checkbox" name="meastitle" id="meas13" value="meassituationWiFi"style="color:grey;" checked/> WiFi
 			<br>
-			<input type="checkbox" name="meastitle" id="meas21" value="measresult5G"style="color:grey;" checked/>5G
-			<input type="checkbox" name="meastitle" id="meas22" value="measresultLTE"style="color:grey;background-color: white;" checked/>LTE
-			<input type="checkbox" name="meastitle" id="meas23" value="measresultWiFi" checked/>WiFi
+			<input type="checkbox" name="meastitle" id="meas14" value="meassituationweak"style="color:grey;" checked/> 품질취약지역
 			<br>
-			<input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" checked/>사후측정5G
-			<input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" checked/>사후측정LTE
+			<input type="checkbox" name="meastitle" id="meas2" value="measresult"style="color:grey;" checked/> 측정결과
 			<br>
-			<input type="checkbox" name="meastitle" id="meas3" value="measplus" checked/>추가사항
+			<input type="checkbox" name="meastitle" id="meas21" value="measresult5G"style="color:grey;" checked/> 5G
+			<br>
+			<input type="checkbox" name="meastitle" id="meas22" value="measresultLTE"style="color:grey;background-color: white;" checked/> LTE
+			<br>
+			<input type="checkbox" name="meastitle" id="meas23" value="measresultWiFi" checked/> WiFi
+			<br>
+			<input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" checked/> 사후측정5G
+			<br>
+			<input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" checked/> 사후측정LTE
+			<br>
+			<input type="checkbox" name="meastitle" id="meas3" value="measplus" checked/> 추가사항
 		</div>
+	
 	</div>
 
+</div>
+<div id="blank" style="width:250px;">
 
+		
+</div>
 
 
 	<div id="show" style="width:90%">
 		<div id = 'btnzone'> 
 			
 			
-			<button class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;" id="modify" >수정 <i class="icon-fixed-width icon-pencil"></i></button>
+			<button class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="msgmodify" >메시지수정 <i class="icon-fixed-width icon-pencil"></i></button>
+			<!-- <button class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;" id="postmeasmodify" >사후측정수정 <i class="icon-fixed-width icon-pencil"></i></button> -->
+			<button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="msgcomplete" form="reportmsg">완료 <i class="icon-fixed-width icon-check"></i></button>
 			
-			<button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;" id="complete" form="reportmsg">완료 <i class="icon-fixed-width icon-check"></i></button>
 			<!-- 시험 -->
 			<!-- <button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;" id="c" form="postmeas5G">사후측정 <i class="icon-fixed-width icon-check"></i></button> -->
-			<button class="btn btn-secondary btn-sm" onclick="Export2Word('content','test');">워드다운</button>
 			<!-- 시험 -->
 			<div style="display: inline" id="editor"></div>
-			<button type="button" class="btn btn-secondary btn-sm" id="cmd">
+			<button type="button" class="btn btn-secondary btn-sm" id="cmd" style="font-weight: bold;">
 				PDF 다운
 			</button>
 		</div>
-		
+		<!-- 시험 -->
+		<form action="{% url 'analysis:create_reportmsg' %}" method="POST" style="display:inline;" id="reportmsg">{% csrf_token %}
+			<input style="display:inline; height:23px;width:200PX;"class="form-control" type="hidden" name="msg5G" id="textmod1copy" value="{{reportmsg.msg5G}}"></input>
+			<input style="display:inline;height:23px;width:200px;" class="form-control" type="hidden" name="msgLTE" id="textmod2copy" value="{{reportmsg.msgLTE}}"></input>
+			<input style="display:inline; height:23px;width:200px;" class="form-control" type="hidden" name="msgWiFi" id="textmod3copy" value="{{reportmsg.msgWiFi}}"></input>
+			<input style="display:inline; height:23px;width:200px;" class="form-control" type="hidden" name="msgWeak" id="textmod4copy" value="{{reportmsg.msgWeak}}"></input>
+			<input style="display:inline; height:23px;width:350px;" class="form-control"type="hidden" name="msg5Gafter" id="textmod5copy" value="{{reportmsg.msg5Gafter}}"></input>
+			<input style="display:inline;height:23px; width:350px;"class="form-control" type="hidden" name="msgLTEafter" id="textmod6copy" value="{{reportmsg.msgLTEafter}}"></input>
+		</form>
 		<div class="page">
-			<form action="{% url 'analysis:create_reportmsg' %}" method="POST" style="display:inline;" id="reportmsg">{% csrf_token %}
+		<div class="page1" id="page1">
+			
 			<div id='content' style = "position: relative;">
 				<div id='title' style="text-align:center;">
 					<h1>S-CXI 상황실 일일 보고</h1>
@@ -124,12 +309,14 @@ button{
 				
 				<div id = "meassituation">
 				<div>
+					<!-- <input type="checkbox" name="meastitle" id="meas1" value="meassituation" style="color:grey;background-color: white;"checked/> 측정현황 -->
 					<h2>□ 측정 현황 </h2><h4 style="display: inline;font-weight: bold;" id = 'firstdate'>{{firstdate.measdate}}</h4><h4 style="display: inline;font-weight: bold;" id='lastdate'>{{lastdate.measdate}}</h4>
 					<h3>: 전국 </h3><h3 id="tt"></h3><h3> 지역 중 </h3><h3 id="ttf"></h3><h3> 완료</h3><h3 id="pcf"></h3>
 				</div>
 				<br> 
 				<div id="meassituation5G">
 				<div>
+					<!-- <input type="checkbox" name="meastitle" id="meas11" value="meassituation5G"style="color:grey;" checked/> 5G -->
 					<h3>&nbsp;&nbsp;○ 5G : 전국 </h3><h3 id="tt1"></h3><h3> {{sregi5G}}개 완료</h3><h3 id = pc1></h3><h3>,</h3>
 					{% for reportmsg in reportmsg %}
 					<h4 style="color: blue; display:inline;" id='result1'>
@@ -193,13 +380,14 @@ button{
 		</div>
 		<div id="meassituationLTE">
 		<div>
-			<h2>&nbsp;&nbsp;○ LTE : 전국 </h2><h2 id = "tt2"></h2><h2> {{sregiLTE}}개 완료</h2><h2 id = pc2></h2><h3>,</h3>
+			<!-- <input type="checkbox" name="meastitle" id="meas12" value="meassituationLTE"style="color:grey;" checked/> LTE -->
+			<h3>&nbsp;&nbsp;○ LTE : 전국 </h3><h3 id = "tt2"></h3><h3> {{sregiLTE}}개 완료</h3><h3 id = pc2></h3><h3>,</h3>
 			{% for reportmsg in reportmsg %}
-			<h2 style="color: blue;" id='result2' >
+			<h4 style="color: blue;" id='result2' >
 				
 				{{reportmsg.msgLTE}}
 				
-			</h2>	
+			</h4>	
 			<input style="display:inline;height:23px;width:200px;" class="form-control"type="text" name="msgLTE" id="textmod2" value="{{reportmsg.msgLTE}}"></input>
 			{% endfor %}
 		</div>
@@ -270,15 +458,17 @@ button{
 		<br>	
 	</div>
 </div>
+<br>
 <div id = "meassituationWiFi">
 		<div>
-			<h2>&nbsp;&nbsp;○ WiFi : 전국 </h2><h2 id="tt3"></h2><h2> {{sregiWiFi}}국소 완료</h2><h2 id = pc3></h2><h3>,</h3>
+			<!-- <input type="checkbox" name="meastitle" id="meas13" value="meassituationWiFi"style="color:grey;" checked/> WiFi -->
+			<h3>&nbsp;&nbsp;○ WiFi : 전국 </h3><h3 id="tt3"></h3><h3> {{sregiWiFi}}국소 완료</h3><h3 id = pc3></h3><h3>,</h3>
 			{% for reportmsg in reportmsg %}
-			<h2 style="color: blue;" id='result3'>
+			<h4 style="color: blue;" id='result3'>
 				
 				{{reportmsg.msgWiFi}}
 				
-			</h2>
+			</h4>
 			<input style="display:inline; height:23px;width:200px;" class="form-control" type="text" name="msgWiFi" id="textmod3" value="{{reportmsg.msgWiFi}}"></input>
 			{% endfor %}
 		</div>
@@ -335,13 +525,14 @@ button{
 	</div>
 	<div id="meassituationweak">
 		<div>
-			<h2>&nbsp;&nbsp;○ 품질취약지역 : 전국 </h2><h2 id="tt4"></h2><h2> {{sregiweak}}개 완료</h2><h2 id = pc4></h2><h3>,</h3>
+			<!-- <input type="checkbox" name="meastitle" id="meas14" value="meassituationweak"style="color:grey;" checked/> 품질취약지역 -->
+			<h3>&nbsp;&nbsp;○ 품질취약지역 : 전국 </h3><h3 id="tt4"></h3><h3> {{sregiweak}}개 완료</h3><h3 id = pc4></h3><h3>,</h3>
 			{% for reportmsg in reportmsg %}
-			<h2 style="color: blue;" id='result4'>
+			<h4 style="color: blue;" id='result4'>
 				
 				{{reportmsg.msgWeak}}
 				
-			</h2>
+			</h4>
 			<input style="display:inline; height:23px;width:200px;" class="form-control" type="text" name="msgWeak" id="textmod4" value="{{reportmsg.msgWeak}}"></input>
 			{% endfor %}
 		</div>
@@ -389,29 +580,44 @@ button{
 			</table>
 		</div>
 	
-
+	
 		<br>
 		<br>
 	</div>
 	</div>
+	</div>
+	<!-- 테스트 -->
+	<br>
+	<br>
+	<br>
+	<br>
+	<hr class="one">
+	<br>
+	<br>
+	<br>
+	<br>
+	<!-- 테스트 -->
+	<div class="page2" id="page2">
 		<div id="measresult">
 		<div>
+			<!-- <input type="checkbox" name="meastitle" id="meas2" value="measresult"style="color:grey;" checked/> 측정결과 -->
 			<h2>□ 측정 결과</h2>
 		</div>
 		<br>
 		<div id ="measresult5G">
 		<div>
-			<h2>&nbsp;&nbsp;○ 5G : DL 속도</h2>
-			<h2 id="target5">{{total5gdl}}</h2>
-			<h2>Mbps, UL 속도</h2>
-			<h2 id="target6">{{total5gul}}</h2>
-			<h2>Mbps, LTE 전환율</h2>
-			<h2 id="target7">{{total5glte}}</h2>
-			<h2>%, 전송성공률</h2>
-			<h2 id="target8">{{total5gsucc}}</h2>
-			<h2>%, 지연시간</h2>
-			<h2 id="target9">{{total5gconn}}</h2>
-			<h2>ms</h2>
+			<!-- <input type="checkbox" name="meastitle" id="meas21" value="measresult5G"style="color:grey;" checked/> 5G -->
+			<h3>&nbsp;&nbsp;○ 5G : DL 속도</h3>
+			<h3 id="target5">{{total5gdl}}</h3>
+			<h3>Mbps, UL 속도</h3>
+			<h3 id="target6">{{total5gul}}</h3>
+			<h3>Mbps, LTE 전환율</h3>
+			<h3 id="target7">{{total5glte}}</h3>
+			<h3>%, 전송성공률</h2>
+			<h3 id="target8">{{total5gsucc}}</h3>
+			<h3>%, 지연시간</h2>
+			<h3 id="target9">{{total5gconn}}</h3>
+			<h3>ms</h2>
 	
 		</div>
 		<br><div id="output1">
@@ -509,15 +715,16 @@ button{
 	</div>
 	<div id="measresultpost5G">
 		<div>
-			<h2>&nbsp;&nbsp;※ 5G 사후 측정(DL 속도):</h2>
+			<!-- <input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" checked/> 사후측정5G -->
+			<h3>&nbsp;&nbsp;※ 5G 사후 측정(DL 속도):</h3>
 			{% for reportmsg in reportmsg %}
-			<h2 style="color: blue;" id='result5'>
+			<h3 style="color: blue;" id='result5'>
 				
 				
 				{{reportmsg.msg5Gafter}}
 				
 			
-			</h2>
+			</h3>
 			<input style="display:inline; height:23px;width:350px;" class="form-control"type="text" name="msg5Gafter" id="textmod5" value="{{reportmsg.msg5Gafter}}"></input>
 			{% endfor %}
 		</div>
@@ -552,275 +759,31 @@ button{
 						
 				</thead>
 				<tbody id="graph">
+				{% for postmeas5g in postmeas5g %} 	
+					<tr>
+						<td ><p class="postmeasresult">{{postmeas5g.district}}({{postmeas5g.number}})</p></td>
+						<td><p class="postmeasresult">{{postmeas5g.lasttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lasttotal5g" id="post1"value="{{postmeas5g.lasttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.kttotaltotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotaltotal5g" id="post2" value="{{postmeas5g.kttotaltotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.kttotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotalposttotal5g" id="post3" value="{{postmeas5g.kttotalposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.skttotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skttotalposttotal5g" id="post4" value="{{postmeas5g.skttotalposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.lgtotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgtotalposttotal5g" id="post5" value="{{postmeas5g.lgtotalposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.ktranktotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.kthjdtotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdtotal5g"id="post7" value="{{postmeas5g.kthjdtotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.kthjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdposttotal5g" id="post8" value="{{postmeas5g.kthjdposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.skthjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skthjdposttotal5g" id="post9" value="{{postmeas5g.skthjdposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.lghjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lghjdposttotal5g" id="post10" value="{{postmeas5g.lghjdposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.ktrankhjdtotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktrankhjdtotal5g" id="post11" value="{{postmeas5g.ktrankhjdtotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.ktsidetotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktsidetotal5g"id="post12"  value="{{postmeas5g.ktsidetotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.ktsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktsideposttotal5g" id="post13" value="{{postmeas5g.ktsideposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.sktsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="sktsideposttotal5g" id="post14" value="{{postmeas5g.sktsideposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.lgsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgsideposttotal5g" id="post15" value="{{postmeas5g.lgsideposttotal5g}}"></input></td>
+						<td><p class="postmeasresult">{{postmeas5g.ktranksidetotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranksidetotal5g" id="post16" value="{{postmeas5g.ktranksidetotal5g}}"></input></td>
+					</tr>
+				{% endfor %}	
 					
-					<tr>
-						<td >종합</td>
-						<td id="result10">{{postmeas5G.lasttotal}}<input style="display:inline;" class="form-control" type="text" name="lasttotal" id="textmod10" value="{{postmeas5G.lasttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotaltotal}}<input style="display:inline;" class="form-control" type="text" name="kttotaltotal" id="" value="{{postmeas5G.kttotaltotal}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalposttotal}}<input style="display:inline;" class="form-control" type="text" name="kttotalposttotal" id="" value="{{postmeas5G.kttotalposttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.skttotalposttotal}}<input style="display:inline;" class="form-control" type="text" name="skttotalposttotal" id="" value="{{postmeas5G.skttotalposttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.lgtotalposttotal}}<input style="display:inline;" class="form-control" type="text" name="lgtotalposttotal" id="" value="{{postmeas5G.lgtotalposttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranktotal}}<input style="display:inline;" class="form-control" type="text" name="ktranktotal" id="" value="{{postmeas5G.ktranktotal}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdtotal}}<input style="display:inline;" class="form-control" type="text" name="kthjdtotal" id="" value="{{postmeas5G.kthjdtotal}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdposttotal}}<input style="display:inline;" class="form-control" type="text" name="kthjdposttotal" id="" value="{{postmeas5G.kthjdposttotal}}"></input></td>
-						<td id="result10" >{{postmeas5G.skthjdposttotal}}<input style="display:inline;" class="form-control" type="text" name="skthjdposttotal" id="" value="{{postmeas5G.skthjdposttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.lghjdposttotal}}<input style="display:inline;" class="form-control" type="text" name="lghjdposttotal" id="" value="{{postmeas5G.lghjdposttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankhjdtotal}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdtotal" id="" value="{{postmeas5G.ktrankhjdtotal}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidetotal}}<input style="display:inline;" class="form-control" type="text" name="ktsidetotal" id="" value="{{postmeas5G.ktsidetotal}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsideposttotal}}<input style="display:inline;" class="form-control" type="text" name="ktsideposttotal" id="" value="{{postmeas5G.ktsideposttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.sktsideposttotal}}<input style="display:inline;" class="form-control" type="text" name="sktsideposttotal" id="" value="{{postmeas5G.sktsideposttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.lgsideposttotal}}<input style="display:inline;" class="form-control" type="text" name="lgsideposttotal" id="" value="{{postmeas5G.lgsideposttotal}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranksidetotal}}<input style="display:inline;" class="form-control" type="text" name="ktranksidetotal" id="" value="{{postmeas5G.ktranksidetotal}}"></input></td>
-					</tr>
-					<tr>
-						<td >서울</td>
-						<td id="result10">{{postmeas5G.lastseoul}}<input style="display:inline;" class="form-control" type="text" name="lastseoul" id="" value="{{postmeas5G.lastseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalseoul}}<input style="display:inline;" class="form-control" type="text" name="kttotalseoul" id="" value="{{postmeas5G.kttotalseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalpostseoul}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostseoul" id="" value="{{postmeas5G.kttotalpostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.skttotalpostseoul}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostseoul" id="" value="{{postmeas5G.skttotalpostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.lgtotalpostseoul}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostseoul" id="" value="{{postmeas5G.lgtotalpostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankseoul}}<input style="display:inline;" class="form-control" type="text" name="ktrankseoul" id="" value="{{postmeas5G.ktrankseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdseoul}}<input style="display:inline;" class="form-control" type="text" name="kthjdseoul" id="" value="{{postmeas5G.kthjdseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdpostseoul}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostseoul" id="" value="{{kthjdpostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.skthjdpostseoul}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostseoul" id="" value="{{postmeas5G.skthjdpostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.lghjdpostseoul}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostseoul" id="" value="{{postmeas5G.lghjdpostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankhjdseoul}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdseoul" id="" value="{{postmeas5G.ktrankhjdseoul}}"></input></td>
-						<td id="result10" >{{postmeas5G.ktsideseoul}}<input style="display:inline;" class="form-control" type="text" name="ktsideseoul" id="" value="{{postmeas5G.ktsideseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidepostseoul}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostseoul" id="" value="{{postmeas5G.ktsidepostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.sktsidepostseoul}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostseoul" id="" value="{{postmeas5G.sktsidepostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.lgsidepostseoul}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostseoul" id="" value="{{postmeas5G.lgsidepostseoul}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranksideseoul}}<input style="display:inline;" class="form-control" type="text" name="ktranksideseoul" id="" value="{{postmeas5G.ktranksideseoul}}"></input></td>
-					</tr>
-					<tr>
-						<td >인천</td>
-						<td id="result10">{{postmeas5G.lastincheon}}<input style="display:inline;" class="form-control" type="text" name="lastincheon" id="" value="{{postmeas5G.lastincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalincheon}}<input style="display:inline;" class="form-control" type="text" name="kttotalincheon" id="" value="{{postmeas5G.kttotalincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalpostincheon}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostincheon" id="" value="{{postmeas5G.kttotalpostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.skttotalpostincheon}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostincheon" id="" value="{{postmeas5G.skttotalpostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.lgtotalpostincheon}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostincheon" id="" value="{{postmeas5G.lgtotalpostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankincheon}}<input style="display:inline;" class="form-control" type="text" name="ktrankincheon" id="" value="{{postmeas5G.ktrankincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdincheon}}<input style="display:inline;" class="form-control" type="text" name="kthjdincheon" id="" value="{{postmeas5G.kthjdincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdpostincheon}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostincheon" id="" value="{{postmeas5G.kthjdpostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.skthjdpostincheon}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostincheon" id="" value="{{postmeas5G.skthjdpostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.lghjdpostincheon}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostincheon" id="" value="{{postmeas5G.lghjdpostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankhjdincheon}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdincheon" id="" value="{{postmeas5G.ktrankhjdincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsideincheon}}<input style="display:inline;" class="form-control" type="text" name="ktsideincheon" id="" value="{{postmeas5G.ktsideincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidepostincheon}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostincheon" id="" value="{{postmeas5G.ktsidepostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.sktsidepostincheon}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostincheon" id="" value="{{postmeas5G.sktsidepostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.lgsidepostincheon}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostincheon" id="" value="{{postmeas5G.lgsidepostincheon}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranksideincheon}}<input style="display:inline;" class="form-control" type="text" name="ktranksideincheon" id="" value="{{postmeas5G.ktranksideincheon}}"></input></td>
-					</tr>
-					<tr>
-						<td >울산</td>
-						<td id="result10">{{postmeas5G.lastulsan}}<input style="display:inline;" class="form-control" type="text" name="lastulsan" id="" value="{{postmeas5G.lastulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalulsan}}<input style="display:inline;" class="form-control" type="text" name="kttotalulsan" id="" value="{{postmeas5G.kttotalulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalpostulsan}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostulsan" id="" value="{{postmeas5G.kttotalpostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.skttotalpostulsan}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostulsan" id="" value="{{postmeas5G.skttotalpostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.lgtotalpostulsan}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostulsan" id="" value="{{postmeas5G.lgtotalpostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankulsan}}<input style="display:inline;" class="form-control" type="text" name="ktrankulsan" id="" value="{{postmeas5G.ktrankulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdulsan}}<input style="display:inline;" class="form-control" type="text" name="kthjdulsan" id="" value="{{postmeas5G.kthjdulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdpostulsan}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostulsan" id="" value="{{postmeas5G.kthjdpostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.skthjdpostulsan}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostulsan" id="" value="{{postmeas5G.skthjdpostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.lghjdpostulsan}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostulsan" id="" value="{{postmeas5G.lghjdpostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankhjdulsan}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdulsan" id="" value="{{postmeas5G.ktrankhjdulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsideulsan}}<input style="display:inline;" class="form-control" type="text" name="ktsideulsan" id="" value="{{postmeas5G.ktsideulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidepostulsan}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostulsan" id="" value="{{postmeas5G.ktsidepostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.sktsidepostulsan}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostulsan" id="" value="{{postmeas5G.sktsidepostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.lgsidepostulsan}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostulsan" id="" value="{{postmeas5G.lgsidepostulsan}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranksideulsan}}<input style="display:inline;" class="form-control" type="text" name="ktranksideulsan" id="" value="{{postmeas5G.ktranksideulsan}}"></input></td>
-					</tr>
-					<tr>
-						<td >대구</td>
-						<td id="result10">{{postmeas5G.lastdaegu}}<input style="display:inline;" class="form-control" type="text" name="lastdaegu" id="" value="{{postmeas5G.lastdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotaldaegu}}<input style="display:inline;" class="form-control" type="text" name="kttotaldaegu" id="" value="{{postmeas5G.kttotaldaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalpostdaegu}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostdaegu" id="" value="{{postmeas5G.kttotalpostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.skttotalpostdaegu}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostdaegu" id="" value="{{postmeas5G.skttotalpostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.lgtotalpostdaegu}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostdaegu" id="" value="{{postmeas5G.lgtotalpostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankdaegu}}<input style="display:inline;" class="form-control" type="text" name="ktrankdaegu" id="" value="{{postmeas5G.ktrankdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjddaegu}}<input style="display:inline;" class="form-control" type="text" name="kthjddaegu" id="" value="{{postmeas5G.kthjddaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdpostdaegu}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostdaegu" id="" value="{{postmeas5G.kthjdpostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.skthjdpostdaegu}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostdaegu" id="" value="{{postmeas5G.skthjdpostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.lghjdpostdaegu}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostdaegu" id="" value="{{postmeas5G.lghjdpostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankhjddaegu}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjddaegu" id="" value="{{postmeas5G.ktrankhjddaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidedaegu}}<input style="display:inline;" class="form-control" type="text" name="ktsidedaegu" id="" value="{{postmeas5G.ktsidedaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidepostdaegu}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostdaegu" id="" value="{{postmeas5G.ktsidepostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.sktsidepostdaegu}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostdaegu" id="" value="{{postmeas5G.sktsidepostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.lgsidepostdaegu}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostdaegu" id="" value="{{postmeas5G.lgsidepostdaegu}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranksidedaegu}}<input style="display:inline;" class="form-control" type="text" name="ktranksidedaegu" id="" value="{{postmeas5G.ktranksidedaegu}}"></input></td>
-					</tr>
-					<tr>
-						<td >광주</td>
-						<td id="result10">{{postmeas5G.lastgwangju}}<input style="display:inline;"class="form-control"type="text"name="lastgwangju"id=""value="{{postmeas5G.lastgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalgwangju}}<input style="display:inline;"class="form-control"type="text"name="kttotalgwangju"id=""value="{{postmeas5G.kttotalgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalpostgwangju}}<input style="display:inline;"class="form-control"type="text"name="kttotalpostgwangju"id=""value="{{postmeas5G.kttotalpostgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.skttotalpostgwangju}}<input style="display:inline;"class="form-control"type="text"name="skttotalpostgwangju"id=""value="{{postmeas5G.skttotalpostgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.lgtotalpostgwangju}}<input style="display:inline;"class="form-control"type="text"name="lgtotalpostgwangju"id=""value="{{postmeas5G.lgtotalpostgwangju}}"></input></td>						
-						<td id="result10">{{postmeas5G.ktrankgwangju}}<input style="display:inline;"class="form-control"type="text"name="ktrankgwangju"id=""value="{{postmeas5G.ktrankgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdgwangju}}<input style="display:inline;"class="form-control"type="text"name="kthjdgwangju"id=""value="{{postmeas5G.kthjdgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdpostgwangju}}<input style="display:inline;"class="form-control"type="text"name="kthjdpostgwangju"id=""value="{{postmeas5G.kthjdpostgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.skthjdpostgwangju}}<input style="display:inline;"class="form-control"type="text"name="skthjdpostgwangju"id=""value="{{postmeas5G.skthjdpostgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.lghjdpostgwangju}}<input style="display:inline;"class="form-control"type="text"name="lghjdpostgwangju"id=""value="{{postmeas5G.lghjdpostgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankhjdgwangju}}<input style="display:inline;"class="form-control"type="text"name="ktrankhjdgwangju"id=""value="{{postmeas5G.ktrankhjdgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidegwangju}}<input style="display:inline;"class="form-control"type="text"name="ktsidegwangju"id=""value="{{postmeas5G.ktsidegwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidepostgwangju}}<input style="display:inline;"class="form-control"type="text"name="ktsidepostgwangju"id=""value="{{postmeas5G.ktsidepostgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.sktsidepostgwangju}}<input style="display:inline;"class="form-control"type="text"name="sktsidepostgwangju"id=""value="{{postmeas5G.sktsidepostgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.lgsidepostgwangju}}<input style="display:inline;"class="form-control"type="text"name="lgsidepostgwangju"id=""value="{{postmeas5G.lgsidepostgwangju}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranksidegwangju}}<input style="display:inline;"class="form-control"type="text"name="ktranksidegwangju"id=""value="{{postmeas5G.ktranksidegwangju}}"></input></td>
-					</tr>
-					<tr>
-						<td >대전</td>
-						<td id="result10">{{postmeas5G.lastdaejun}}<input style="display:inline;"class="form-control"type="text"name="lastdaejun"id=""value="{{postmeas5G.lastdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotaldaejun}}<input style="display:inline;"class="form-control"type="text"name="kttotaldaejun"id=""value="{{postmeas5G.kttotaldaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalpostdaejun}}<input style="display:inline;"class="form-control"type="text"name="kttotalpostdaejun"id=""value="{{postmeas5G.kttotalpostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.skttotalpostdaejun}}<input style="display:inline;"class="form-control"type="text"name="skttotalpostdaejun"id=""value="{{postmeas5G.skttotalpostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.lgtotalpostdaejun}}<input style="display:inline;"class="form-control"type="text"name="lgtotalpostdaejun"id=""value="{{postmeas5G.lgtotalpostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankdaejun}}<input style="display:inline;"class="form-control"type="text"name="ktrankdaejun"id=""value="{{postmeas5G.ktrankdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjddaejun}}<input style="display:inline;"class="form-control"type="text"name="kthjddaejun"id=""value="{{postmeas5G.kthjddaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdpostdaejun}}<input style="display:inline;"class="form-control"type="text"name="kthjdpostdaejun"id=""value="{{postmeas5G.kthjdpostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.skthjdpostdaejun}}<input style="display:inline;"class="form-control"type="text"name="skthjdpostdaejun"id=""value="{{postmeas5G.skthjdpostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.lghjdpostdaejun}}<input style="display:inline;"class="form-control"type="text"name="lghjdpostdaejun"id=""value="{{postmeas5G.lghjdpostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankhjddaejun}}<input style="display:inline;"class="form-control"type="text"name="ktrankhjddaejun"id=""value="{{postmeas5G.ktrankhjddaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidedaejun}}<input style="display:inline;"class="form-control"type="text"name="ktsidedaejun"id=""value="{{postmeas5G.ktsidedaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidepostdaejun}}<input style="display:inline;"class="form-control"type="text"name="ktsidepostdaejun"id=""value="{{postmeas5G.ktsidepostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.sktsidepostdaejun}}<input style="display:inline;"class="form-control"type="text"name="sktsidepostdaejun"id=""value="{{postmeas5G.sktsidepostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.lgsidepostdaejun}}<input style="display:inline;"class="form-control"type="text"name="lgsidepostdaejun"id=""value="{{postmeas5G.lgsidepostdaejun}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranksidedaejun}}<input style="display:inline;"class="form-control"type="text"name="ktranksidedaejun"id=""value="{{postmeas5G.ktranksidedaejun}}"></input></td>
-					</tr>
-					<tr>
-						<td >경기</td>
-						<td id="result10">{{postmeas5G.lastgyunggi}}<input style="display:inline;"class="form-control"type="text"name="lastgyunggi"id=""value="{{postmeas5G.lastgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalgyunggi}}<input style="display:inline;"class="form-control"type="text"name="kttotalgyunggi"id=""value="{{postmeas5G.kttotalgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.kttotalpostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="kttotalpostgyunggi"id=""value="{{postmeas5G.kttotalpostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.skttotalpostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="skttotalpostgyunggi"id=""value="{{postmeas5G.skttotalpostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.lgtotalpostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="lgtotalpostgyunggi"id=""value="{{postmeas5G.lgtotalpostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankgyunggi}}<input style="display:inline;"class="form-control"type="text"name="ktrankgyunggi"id=""value="{{postmeas5G.ktrankgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdgyunggi}}<input style="display:inline;"class="form-control"type="text"name="kthjdgyunggi"id=""value="{{postmeas5G.kthjdgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.kthjdpostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="kthjdpostgyunggi"id=""value="{{postmeas5G.kthjdpostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.skthjdpostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="skthjdpostgyunggi"id=""value="{{postmeas5G.skthjdpostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.lghjdpostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="lghjdpostgyunggi"id=""value="{{postmeas5G.lghjdpostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.ktrankhjdgyunggi}}<input style="display:inline;"class="form-control"type="text"name="ktrankhjdgyunggi"id=""value="{{postmeas5G.ktrankhjdgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidegyunggi}}<input style="display:inline;"class="form-control"type="text"name="ktsidegyunggi"id=""value="{{postmeas5G.ktsidegyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.ktsidepostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="ktsidepostgyunggi"id=""value="{{postmeas5G.ktsidepostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.sktsidepostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="sktsidepostgyunggi"id=""value="{{postmeas5G.sktsidepostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.lgsidepostgyunggi}}<input style="display:inline;"class="form-control"type="text"name="lgsidepostgyunggi"id=""value="{{postmeas5G.lgsidepostgyunggi}}"></input></td>
-						<td id="result10">{{postmeas5G.ktranksidegyunggi}}<input style="display:inline;"class="form-control"type="text"name="ktranksidegyunggi"id=""value="{{postmeas5G.ktranksidegyunggi}}"></input></td>
-					</tr>
-					<tr>
-						<td >경북</td>
-						<td>{{postmeas5G.lastgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="lastgyungbuk"id=""value="{{postmeas5G.lastgyungbuk}}"></input></td>
-						<td>{{postmeas5G.kttotalgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="kttotalgyungbuk"id=""value="{{postmeas5G.kttotalgyungbuk}}"></input></td>
-						<td>{{postmeas5G.kttotalpostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="kttotalpostgyungbuk"id=""value="{{postmeas5G.kttotalpostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.skttotalpostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="skttotalpostgyungbuk"id=""value="{{postmeas5G.skttotalpostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.lgtotalpostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="lgtotalpostgyungbuk"id=""value="{{postmeas5G.lgtotalpostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.ktrankgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="ktrankgyungbuk"id=""value="{{postmeas5G.ktrankgyungbuk}}"></input></td>
-						<td>{{postmeas5G.kthjdgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="kthjdgyungbuk"id=""value="{{postmeas5G.kthjdgyungbuk}}"></input></td>
-						<td>{{postmeas5G.kthjdpostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="kthjdpostgyungbuk"id=""value="{{postmeas5G.kthjdpostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.skthjdpostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="skthjdpostgyungbuk"id=""value="{{postmeas5G.skthjdpostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.lghjdpostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="lghjdpostgyungbuk"id=""value="{{postmeas5G.lghjdpostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.ktrankhjdgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="ktrankhjdgyungbuk"id=""value="{{postmeas5G.ktrankhjdgyungbuk}}"></input></td>
-						<td>{{postmeas5G.ktsidegyungbuk}}<input style="display:inline;"class="form-control"type="text"name="ktsidegyungbuk"id=""value="{{postmeas5G.ktsidegyungbuk}}"></input></td>
-						<td>{{postmeas5G.ktsidepostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="ktsidepostgyungbuk"id=""value="{{postmeas5G.ktsidepostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.sktsidepostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="sktsidepostgyungbuk"id=""value="{{postmeas5G.sktsidepostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.lgsidepostgyungbuk}}<input style="display:inline;"class="form-control"type="text"name="lgsidepostgyungbuk"id=""value="{{postmeas5G.lgsidepostgyungbuk}}"></input></td>
-						<td>{{postmeas5G.ktranksidegyungbuk}}<input style="display:inline;"class="form-control"type="text"name="ktranksidegyungbuk"id=""value="{{postmeas5G.ktranksidegyungbuk}}"></input></td>
-					</tr>
-					<tr>
-						<td >전남</td>
-						<td >{{postmeas5G.lastjunnam}}<input style="display:inline;" class="form-control" type="text" name="lastjunnam" id="" value="{{postmeas5G.lastjunnam}}"></input></td>
-						<td >{{postmeas5G.kttotaljunnam}}<input style="display:inline;" class="form-control" type="text" name="kttotaljunnam" id="" value="{{postmeas5G.kttotaljunnam}}"></input></td>
-						<td >{{postmeas5G.kttotalpostjunnam}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostjunnam" id="" value="{{postmeas5G.kttotalpostjunnam}}"></input></td>
-						<td >{{postmeas5G.skttotalpostjunnam}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostjunnam" id="" value="{{postmeas5G.skttotalpostjunnam}}"></input></td>
-						<td >{{postmeas5G.lgtotalpostjunnam}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostjunnam" id="" value="{{postmeas5G.lgtotalpostjunnam}}"></input></td>
-						<td >{{postmeas5G.ktrankjunnam}}<input style="display:inline;" class="form-control" type="text" name="ktrankjunnam" id="" value="{{postmeas5G.ktrankjunnam}}"></input></td>
-						<td >{{postmeas5G.kthjdjunnam}}<input style="display:inline;" class="form-control" type="text" name="kthjdjunnam" id="" value="{{postmeas5G.kthjdjunnam}}"></input></td>
-						<td >{{postmeas5G.kthjdpostjunnam}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostjunnam" id="" value="{{postmeas5G.kthjdpostjunnam}}"></input></td>
-						<td >{{postmeas5G.skthjdpostjunnam}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostjunnam" id="" value="{{postmeas5G.skthjdpostjunnam}}"></input></td>
-						<td >{{postmeas5G.lghjdpostjunnam}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostjunnam" id="" value="{{postmeas5G.lghjdpostjunnam}}"></input></td>
-						<td >{{postmeas5G.ktrankhjdjunnam}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdjunnam" id="" value="{{postmeas5G.ktrankhjdjunnam}}"></input></td>
-						<td >{{postmeas5G.ktsidejunnam}}<input style="display:inline;" class="form-control" type="text" name="ktsidejunnam" id="" value="{{postmeas5G.ktsidejunnam}}"></input></td>
-						<td >{{postmeas5G.ktsidepostjunnam}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostjunnam" id="" value="{{postmeas5G.ktsidepostjunnam}}"></input></td>
-						<td >{{postmeas5G.sktsidepostjunnam}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostjunnam" id="" value="{{postmeas5G.sktsidepostjunnam}}"></input></td>
-						<td >{{postmeas5G.lgsidepostjunnam}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostjunnam" id="" value="{{postmeas5G.lgsidepostjunnam}}"></input></td>
-						<td >{{postmeas5G.ktranksidejunnam}}<input style="display:inline;" class="form-control" type="text" name="ktranksidejunnam" id="" value="{{postmeas5G.ktranksidejunnam}}"></input></td>
-					</tr>
-					<tr>
-						<td >전북</td>
-						<td >{{postmeas5G.lastjunbuk}}<input style="display:inline;" class="form-control" type="text" name="lastjunbuk" id="" value="{{postmeas5G.lastjunbuk}}"></input></td>
-						<td >{{postmeas5G.kttotaljunbuk}}<input style="display:inline;" class="form-control" type="text" name="kttotaljunbuk" id="" value="{{postmeas5G.kttotaljunbuk}}"></input></td>
-						<td >{{postmeas5G.kttotalpostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostjunbuk" id="" value="{{postmeas5G.kttotalpostjunbuk}}"></input></td>
-						<td >{{postmeas5G.skttotalpostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostjunbuk" id="" value="{{postmeas5G.skttotalpostjunbuk}}"></input></td>
-						<td >{{postmeas5G.lgtotalpostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostjunbuk" id="" value="{{postmeas5G.lgtotalpostjunbuk}}"></input></td>
-						<td >{{postmeas5G.ktrankjunbuk}}<input style="display:inline;" class="form-control" type="text" name="ktrankjunbuk" id="" value="{{postmeas5G.ktrankjunbuk}}"></input></td>
-						<td >{{postmeas5G.kthjdjunbuk}}<input style="display:inline;" class="form-control" type="text" name="kthjdjunbuk" id="" value="{{postmeas5G.kthjdjunbuk}}"></input></td>
-						<td >{{postmeas5G.kthjdpostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostjunbuk" id="" value="{{postmeas5G.kthjdpostjunbuk}}"></input></td>
-						<td >{{postmeas5G.skthjdpostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostjunbuk" id="" value="{{postmeas5G.skthjdpostjunbuk}}"></input></td>
-						<td >{{postmeas5G.lghjdpostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostjunbuk" id="" value="{{postmeas5G.lghjdpostjunbuk}}"></input></td>
-						<td >{{postmeas5G.ktrankhjdjunbuk}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdjunbuk" id="" value="{{postmeas5G.ktrankhjdjunbuk}}"></input></td>
-						<td >{{postmeas5G.ktsidejunbuk}}<input style="display:inline;" class="form-control" type="text" name="ktsidejunbuk" id="" value="{{postmeas5G.ktsidejunbuk}}"></input></td>
-						<td >{{postmeas5G.ktsidepostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostjunbuk" id="" value="{{postmeas5G.ktsidepostjunbuk}}"></input></td>
-						<td >{{postmeas5G.sktsidepostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostjunbuk" id="" value="{{postmeas5G.sktsidepostjunbuk}}"></input></td>
-						<td >{{postmeas5G.lgsidepostjunbuk}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostjunbuk" id="" value="{{postmeas5G.lgsidepostjunbuk}}"></input></td>
-						<td >{{postmeas5G.ktranksidejunbuk}}<input style="display:inline;" class="form-control" type="text" name="ktranksidejunbuk" id="" value="{{postmeas5G.ktranksidejunbuk}}"></input></td>
-					</tr>
-					<tr>
-						<td >충남</td>
-						<td >{{postmeas5G.lastchungnam}}<input style="display:inline;" class="form-control" type="text" name="lastchungnam" id="" value="{{postmeas5G.lastchungnam}}"></input></td>
-						<td >{{postmeas5G.kttotalchungnam}}<input style="display:inline;" class="form-control" type="text" name="kttotalchungnam" id="" value="{{postmeas5G.kttotalchungnam}}"></input></td>
-						<td >{{postmeas5G.kttotalpostchungnam}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostchungnam" id="" value="{{postmeas5G.kttotalpostchungnam}}"></input></td>
-						<td >{{postmeas5G.skttotalpostchungnam}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostchungnam" id="" value="{{postmeas5G.skttotalpostchungnam}}"></input></td>
-						<td >{{postmeas5G.lgtotalpostchungnam}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostchungnam" id="" value="{{postmeas5G.lgtotalpostchungnam}}"></input></td>
-						<td >{{postmeas5G.ktrankchungnam}}<input style="display:inline;" class="form-control" type="text" name="ktrankchungnam" id="" value="{{postmeas5G.ktrankchungnam}}"></input></td>
-						<td >{{postmeas5G.kthjdchungnam}}<input style="display:inline;" class="form-control" type="text" name="kthjdchungnam" id="" value="{{postmeas5G.kthjdchungnam}}"></input></td>
-						<td >{{postmeas5G.kthjdpostchungnam}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostchungnam" id="" value="{{postmeas5G.kthjdpostchungnam}}"></input></td>
-						<td >{{postmeas5G.skthjdpostchungnam}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostchungnam" id="" value="{{postmeas5G.skthjdpostchungnam}}"></input></td>
-						<td >{{postmeas5G.lghjdpostchungnam}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostchungnam" id="" value="{{postmeas5G.lghjdpostchungnam}}"></input></td>
-						<td >{{postmeas5G.ktrankhjdchungnam}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdchungnam" id="" value="{{postmeas5G.ktrankhjdchungnam}}"></input></td>
-						<td >{{postmeas5G.ktsidechungnam}}<input style="display:inline;" class="form-control" type="text" name="ktsidechungnam" id="" value="{{postmeas5G.ktsidechungnam}}"></input></td>
-						<td >{{postmeas5G.ktsidepostchungnam}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostchungnam" id="" value="{{postmeas5G.ktsidepostchungnam}}"></input></td>
-						<td >{{postmeas5G.sktsidepostchungnam}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostchungnam" id="" value="{{postmeas5G.sktsidepostchungnam}}"></input></td>
-						<td >{{postmeas5G.lgsidepostchungnam}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostchungnam" id="" value="{{postmeas5G.lgsidepostchungnam}}"></input></td>
-						<td >{{postmeas5G.ktranksidechungnam}}<input style="display:inline;" class="form-control" type="text" name="ktranksidechungnam" id="" value="{{postmeas5G.ktranksidechungnam}}"></input></td>
-					</tr>
-					<tr>
-						<td >충북</td>
-						<td >{{postmeas5G.lastchungbuk}}<input style="display:inline;" class="form-control" type="text" name="lastchungbuk" id="" value="{{postmeas5G.lastchungbuk}}"></input></td>
-						<td >{{postmeas5G.kttotalchungbuk}}<input style="display:inline;" class="form-control" type="text" name="kttotalchungbuk" id="" value="{{postmeas5G.kttotalchungbuk}}"></input></td>
-						<td >{{postmeas5G.kttotalpostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostchungbuk" id="" value="{{postmeas5G.kttotalpostchungbuk}}"></input></td>
-						<td >{{postmeas5G.skttotalpostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostchungbuk" id="" value="{{postmeas5G.skttotalpostchungbuk}}"></input></td>
-						<td >{{postmeas5G.lgtotalpostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostchungbuk" id="" value="{{postmeas5G.lgtotalpostchungbuk}}"></input></td>
-						<td >{{postmeas5G.ktrankchungbuk}}<input style="display:inline;" class="form-control" type="text" name="ktrankchungbuk" id="" value="{{postmeas5G.ktrankchungbuk}}"></input></td>
-						<td >{{postmeas5G.kthjdchungbuk}}<input style="display:inline;" class="form-control" type="text" name="kthjdchungbuk" id="" value="{{postmeas5G.kthjdchungbuk}}"></input></td>
-						<td >{{postmeas5G.kthjdpostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostchungbuk" id="" value="{{postmeas5G.kthjdpostchungbuk}}"></input></td>
-						<td >{{postmeas5G.skthjdpostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostchungbuk" id="" value="{{postmeas5G.skthjdpostchungbuk}}"></input></td>
-						<td >{{postmeas5G.lghjdpostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostchungbuk" id="" value="{{postmeas5G.lghjdpostchungbuk}}"></input></td>
-						<td >{{postmeas5G.ktrankhjdchungbuk}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdchungbuk" id="" value="{{postmeas5G.ktrankhjdchungbuk}}"></input></td>
-						<td >{{postmeas5G.ktsidechungbuk}}<input style="display:inline;" class="form-control" type="text" name="ktsidechungbuk" id="" value="{{postmeas5G.ktsidechungbuk}}"></input></td>
-						<td >{{postmeas5G.ktsidepostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostchungbuk" id="" value="{{postmeas5G.ktsidepostchungbuk}}"></input></td>
-						<td >{{postmeas5G.sktsidepostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostchungbuk" id="" value="{{postmeas5G.sktsidepostchungbuk}}"></input></td>
-						<td >{{postmeas5G.lgsidepostchungbuk}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostchungbuk" id="" value="{{postmeas5G.lgsidepostchungbuk}}"></input></td>
-						<td >{{postmeas5G.ktranksidechungbuk}}<input style="display:inline;" class="form-control" type="text" name="ktranksidechungbuk" id="" value="{{postmeas5G.ktranksidechungbuk}}"></input></td>
-					</tr>
-					<tr>
-						<td >세종</td>
-						<td >{{postmeas5G.lastsejong}}<input style="display:inline;" class="form-control" type="text" name="lastsejong" id="" value="{{postmeas5G.lastsejong}}"></input></td>
-						<td >{{postmeas5G.kttotalsejong}}<input style="display:inline;" class="form-control" type="text" name="kttotalsejong" id="" value="{{postmeas5G.kttotalsejong}}"></input></td>
-						<td >{{postmeas5G.kttotalpostsejong}}<input style="display:inline;" class="form-control" type="text" name="kttotalpostsejong" id="" value="{{postmeas5G.kttotalpostsejong}}"></input></td>
-						<td >{{postmeas5G.skttotalpostsejong}}<input style="display:inline;" class="form-control" type="text" name="skttotalpostsejong" id="" value="{{postmeas5G.skttotalpostsejong}}"></input></td>
-						<td >{{postmeas5G.lgtotalpostsejong}}<input style="display:inline;" class="form-control" type="text" name="lgtotalpostsejong" id="" value="{{postmeas5G.lgtotalpostsejong}}"></input></td>
-						<td >{{postmeas5G.ktranksejong}}<input style="display:inline;" class="form-control" type="text" name="ktranksejong" id="" value="{{postmeas5G.ktranksejong}}"></input></td>
-						<td >{{postmeas5G.kthjdsejong}}<input style="display:inline;" class="form-control" type="text" name="kthjdsejong" id="" value="{{postmeas5G.kthjdsejong}}"></input></td>
-						<td >{{postmeas5G.kthjdpostsejong}}<input style="display:inline;" class="form-control" type="text" name="kthjdpostsejong" id="" value="{{postmeas5G.kthjdpostsejong}}"></input></td>
-						<td >{{postmeas5G.skthjdpostsejong}}<input style="display:inline;" class="form-control" type="text" name="skthjdpostsejong" id="" value="{{postmeas5G.skthjdpostsejong}}"></input></td>
-						<td >{{postmeas5G.lghjdpostsejong}}<input style="display:inline;" class="form-control" type="text" name="lghjdpostsejong" id="" value="{{postmeas5G.lghjdpostsejong}}"></input></td>
-						<td >{{postmeas5G.ktrankhjdsejong}}<input style="display:inline;" class="form-control" type="text" name="ktrankhjdsejong" id="" value="{{postmeas5G.ktrankhjdsejong}}"></input></td>
-						<td >{{postmeas5G.ktsidesejong}}<input style="display:inline;" class="form-control" type="text" name="ktsidesejong" id="" value="{{postmeas5G.ktsidesejong}}"></input></td>
-						<td >{{postmeas5G.ktsidepostsejong}}<input style="display:inline;" class="form-control" type="text" name="ktsidepostsejong" id="" value="{{postmeas5G.ktsidepostsejong}}"></input></td>
-						<td >{{postmeas5G.sktsidepostsejong}}<input style="display:inline;" class="form-control" type="text" name="sktsidepostsejong" id="" value="{{postmeas5G.sktsidepostsejong}}"></input></td>
-						<td >{{postmeas5G.lgsidepostsejong}}<input style="display:inline;" class="form-control" type="text" name="lgsidepostsejong" id="" value="{{postmeas5G.lgsidepostsejong}}"></input></td>
-						<td >{{postmeas5G.ktranksidesejong}}<input style="display:inline;" class="form-control" type="text" name="ktranksidesejong" id="" value="{{postmeas5G.ktranksidesejong}}"></input></td>
-					</tr>
+					
 						
-
+					
 					
 				</tbody>
 			</table>
@@ -828,17 +791,31 @@ button{
 		</div>
 	</br>
 </div>
+</div>
+<!-- 테스트 -->
+<br>
+<br>
+<br>
+<br>
+<hr class="one">
+<br>
+<br>
+<br>
+<br>
+<!-- 테스트 -->
+<div class="page3" id="page3">
 <div id="measresultLTE">
 	<div>
-		<h2>&nbsp;&nbsp;○ LTE : DL 속도 </h2>
-		<h2 id="target5">{{totalltedl}}</h2>
-		<h2>Mbps, UL 속도 </h2>
-		<h2 id="target6">{{totallteul}}</h2>
-		<h2>Mbps, 전송성공률 </h2>
-		<h2>{{totalltesucc}}</h2>
-		<h2 id='target3'>%, 지연시간 </h2>
-		<h2>{{totalltejitter}}</h2>
-		<h2>ms</h2>
+		<!-- <input type="checkbox" name="meastitle" id="meas22" value="measresultLTE"style="color:grey;background-color: white;" checked/> LTE -->
+		<h3>&nbsp;&nbsp;○ LTE : DL 속도 </h3>
+		<h3 id="target5">{{totalltedl}}</h3>
+		<h3>Mbps, UL 속도 </h2>
+		<h3 id="target6">{{totallteul}}</h3>
+		<h3>Mbps, 전송성공률 </h3>
+		<h3>{{totalltesucc}}</h3>
+		<h3 id='target3'>%, 지연시간 </h3>
+		<h3>{{totalltejitter}}</h3>
+		<h3>ms</h3>
 	</div>
 	<br><div id="output1">
 		<table id="5Ghh">
@@ -916,22 +893,25 @@ button{
 
 <br>
 	<br>
+	
 </div>
+
 <div id="measresultpostLTE">
 	<div>
-		<h2>&nbsp;&nbsp;※ LTE 사후 측정(지하철 품질 포함):</h2>
+		<!-- <input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" checked/> 사후측정LTE -->
+		<h3>&nbsp;&nbsp;※ LTE 사후 측정(지하철 품질 포함):</h3>
 		{% for reportmsg in reportmsg %}
-		<h2 style="color: blue;" id='result6'>
+		<h3 style="color: blue;" id='result6'>
 				
 			
 			{{reportmsg.msgLTEafter}}
 			
 		
-		</h2>
+		</h3>
 		<input style="display:inline;height:23px; width:350px;"class="form-control" type="text" name="msgLTEafter" id="textmod6" value="{{reportmsg.msgLTEafter}}"></input>
 		{% endfor %}
 	</div>
-</form>
+
 	<br><div id="output1">
 		<table id="5Gsh" style="border: solid 1px black;" >
 			<thead>
@@ -954,205 +934,24 @@ button{
 					<th>L사<br>(사후)</th>
 					
 					
-					
-					
 			</thead>
 			<tbody id="graph" >
+				{% for postmeaslte in postmeaslte %} 	
 				<tr>
-					<td >종합</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					
+					<td ><p class="postmeasresult">{{postmeaslte.district}}({{postmeaslte.number}})</p></td>
+					<td><p class="postmeasresult">{{postmeaslte.lasttotallte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lasttotal5g" id="post1"value="{{postmeas5g.lasttotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.ktdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotaltotal5g" id="post2" value="{{postmeas5g.kttotaltotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.ktpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotalposttotal5g" id="post3" value="{{postmeas5g.kttotalposttotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.sktpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skttotalposttotal5g" id="post4" value="{{postmeas5g.skttotalposttotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.lgpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgtotalposttotal5g" id="post5" value="{{postmeas5g.lgtotalposttotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.ktullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.ktpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.sktpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdtotal5g"id="post7" value="{{postmeas5g.kthjdtotal5g}}"></input></td>
+					<td><p class="postmeasresult">{{postmeaslte.lgpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdposttotal5g" id="post8" value="{{postmeas5g.kthjdposttotal5g}}"></input></td>
 					
 				</tr>
-				<tr>
-					<td >서울</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-				
-				</tr>
-				<tr>
-					<td >인천</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-				
-					
-				</tr>
-				<tr>
-					<td >울산</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-				
-					
-				</tr>
-				<tr>
-					<td >대구</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-				
-					
-				</tr>
-				<tr>
-					<td >광주</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					
-					
-				</tr>
-				<tr>
-					<td >대전</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					
-				
-				</tr>
-				<tr>
-					<td >경기</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					
-					
-				</tr>
-				<tr>
-					<td >경북</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-				
-				
-				</tr>
-				<tr>
-					<td >전남</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-				
-					
-				</tr>
-				<tr>
-					<td >전북</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					
-					
-				</tr>
-				<tr>
-					<td >충남</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-				
-					
-				</tr>
-				<tr>
-					<td >충북</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					
-				
-				</tr>
-				<tr>
-					<td >세종</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					<td >0</td>
-					
-					
-				</tr>
+				{% endfor %}	
+			
 					
 			</tbody>
 		</table>
@@ -1161,8 +960,9 @@ button{
 </div>
 <div id="measresultWiFi">
 	<div>
-		<h2>&nbsp;&nbsp;○ WiFi</h2></br></br>
-		<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;종합</h2>
+		<!-- <input type="checkbox" name="meastitle" id="meas23" value="measresultWiFi" checked/> WiFi -->
+		<h3>&nbsp;&nbsp;○ WiFi</h3></br></br>
+		<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;종합</h3>
 	</div>
 
 	<div id="output1">
@@ -1202,7 +1002,7 @@ button{
 </br>
 	<div>
 		
-		<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;센터별(지하철 제외)</h2>
+		<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;센터별(지하철 제외)</h3>
 	</div>
 
 	<div id="output1">
@@ -1275,7 +1075,7 @@ button{
 </br>
 	<div>
 		
-		<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;지역별(지하철 객차)</h2>
+		<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;지역별(지하철 객차)</h3>
 	</div>
 
 	<div id="output1">
@@ -1320,40 +1120,63 @@ button{
 </div>
 
 		</div>
-		
-</div>	
-
+	</div>		
 </div>	
 </div>
-
+</div>	
+</div>
+</div>
 </body>
 
 {% endblock %}
 {% block extra-script %}
 <!-- 자바스크립트 호출 -->
-<script defer src="https://code.jquery.com/jquery-3.4.1.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>        
-<script type="text/javascript" defer src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-<script src="https://getbootstrap.com/docs/4.0/assets/js/vendor/popper.min.js"></script>
-<script src="https://getbootstrap.com/docs/4.0/dist/js/bootstrap.min.js"></script>	
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.js"></script>
+{% csrf_token %}
+<script src="https://unpkg.com/vue@2.4.2"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
 
+<script type="text/javascript" defer src="{% static "js/reportdata.js" %}"></script>
+<script type="text/javascript" defer src="{% static "js/html2canvas.js" %}"></script>
 
 <script>
 
 $(document).ready(function() {
-	//드래그 가능 기능 
-	$('#meassituation').sortable({
+	// //드래그 가능 기능 
+	// $('#meassituation').sortable({
 		
 		
+	// });
+	// 레포트메세지 입력 복사
+	$('#textmod1').keyup(function(){
+		let text1 = $("#textmod1").val();
+		$("#textmod1copy").val(text1);
 	});
-	// 수정 완료 이벤트
+	$('#textmod2').keyup(function(){
+		let text2 = $("#textmod2").val();
+		$("#textmod2copy").val(text2);
+	});
+	$('#textmod3').keyup(function(){
+		let text3 = $("#textmod3").val();
+		$("#textmod3copy").val(text3);
+	});
+	$('#textmod4').keyup(function(){
+		let text4 = $("#textmod4").val();
+		$("#textmod4copy").val(text4);
+	});
+	$('#textmod5').keyup(function(){
+		let text5 = $("#textmod5").val();
+		$("#textmod5copy").val(text5);
+	});
+	$('#textmod6').keyup(function(){
+		let text6 = $("#textmod6").val();
+		$("#textmod6copy").val(text6);
+	});
+	// 체크박스 항목 보이기/숨기기
 	$('#meas1').change(function(){
     	if($(this).is(":checked")){
 			$("#meassituation").show();
@@ -1451,23 +1274,54 @@ $(document).ready(function() {
 		}
 
 	});
+	//사후측정데이터 null값 대비
+	// if ($(".postmeasresult").value() == null){
+	// 	$(".postmeasresult").text("X");
+	// }else{
+	// 	pass;
+	// };
+	
 
+	//수정 완료 버튼 이벤트
 	let textmod = ["#textmod1","#textmod2","#textmod3","#textmod4","#textmod5","#textmod6"]
 	let result = ["#result1","#result2","#result3","#result4","#result5","#result6"]
-	
+	let textmodcopy = ["#textmod1copy","#textmod2copy","#textmod3copy","#textmod4copy","#textmod5copy","#textmod6copy"]
+	$("#msgcomplete").hide();
+	$("#postmeascomplete").hide();
+	$(".postmeas5g").hide();
+	$("#checkbox").hide();
 	for (let i = 0; i<textmod.length; i++){
 			$(textmod[i]).hide();
 		}
 	
-
-	$('#modify').click(function() {
+	$('#msgmodify').click(function() {
 		for(let i = 0; i<textmod.length; i++){
 			$(textmod[i]).toggle();
-		}
+		};
 		for(let i = 0; i<result.length; i++){
 			$(result[i]).toggle();
-		}
-		
+		};
+		$("#checkbox").toggle();
+		let text1 = $("#textmod1").val();
+		$("#textmod1copy").val(text1);
+		let text2 = $("#textmod2").val();
+		$("#textmod2copy").val(text2);
+		let text3 = $("#textmod3").val();
+		$("#textmod3copy").val(text3);
+		let text4 = $("#textmod4").val();
+		$("#textmod4copy").val(text4);
+		let text5 = $("#textmod5").val();
+		$("#textmod5copy").val(text5);
+		let text6 = $("#textmod6").val();
+		$("#textmod6copy").val(text6);
+		$("#msgcomplete").toggle();
+		$("#postmeasmodify").toggle();
+	});
+	$('#postmeasmodify').click(function() {
+		// $(".postmeas5g").toggle();
+		$("#postmeascomplete").toggle();
+		$("#msgmodify").toggle();
+		// $(".postmeasresult").toggle();
 	});
 	
 });
@@ -1484,71 +1338,124 @@ $(document).ready(function() {
 							return true;
 						}
 					};
-					html2canvas($('#content'), {	
-						onrendered : function(canvas) {
+					let pagenum = ['#page1','#page2','#page3']
+					// html2canvas($('.page'), {	
+					// 	onrendered : function(canvas) {
+					
+					
+					// for(let i = 0; i<pagenum.length; i++){
+					// 	html2canvas(document.querySelector(pagenum[i])).then(canvas =>{
+					// 		var doc = new jsPDF("p", "mm", 'a4');
+					// 		var imgData = canvas.toDataURL('jpeg', 1.0);
+					// 		var imgWidth = 180; // 이미지 가로 길이(mm) A4 기준
+					// 		var pageHeight = imgWidth / 210 * 297; // 출력 페이지 세로 길이 계산 A4 기준
+					// 		var imgHeight = canvas.height * imgWidth / canvas.width;
+					// 		var heightLeft = imgHeight;
+					// 		var margin = 15; // 출력 페이지 여백설정
+					// 		var position = 15;	
+					// 		doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight-40);
+					// 		doc.save('test.pdf');
+					// 	});
+					// }
+						
+					
+				// });
+				
+						html2canvas(document.querySelector('#page1')).then(canvas =>{
 							var imgData = canvas.toDataURL('jpeg', 1.0);
-							var imgWidth = 210; // 이미지 가로 길이(mm) A4 기준
-							var pageHeight = imgWidth * 1.414; // 출력 페이지 세로 길이 계산 A4 기준
+							var imgWidth = 180; // 이미지 가로 길이(mm) A4 기준
+							var pageHeight = imgWidth / 210 * 297; // 출력 페이지 세로 길이 계산 A4 기준
 							var imgHeight = canvas.height * imgWidth / canvas.width;
 							var heightLeft = imgHeight;
-							var margin = 20; // 출력 페이지 여백설정
-							var position = 10;
-							var doc = new jsPDF("p", "mm");
+							var margin = 15; // 출력 페이지 여백설정
+							var position = 15;
+							var doc = new jsPDF("p", "mm", 'a4');
 	
-							doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-							heightLeft -= pageHeight;
+							doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight-100);
+							// heightLeft -= pageHeight;
 							// 한 페이지 이상일 경우 루프 돌면서 출력
-							while (heightLeft >= 0) {
-								position += heightLeft - imgHeight;
-								doc.addPage();
-								doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-								heightLeft -= pageHeight;
-							}
+							// while (heightLeft >= 15) {
+							// 	position = heightLeft - imgHeight - 40;
+							// 	doc.addPage();
+							// 	doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+							// 	heightLeft -= pageHeight;
+							// }
 							doc.save('test.pdf');
-	
-						}
-					});
+						});
+						html2canvas(document.querySelector('#page2')).then(canvas =>{
+							var imgData2 = canvas.toDataURL('jpeg', 1.0);
+							var imgWidth = 180; // 이미지 가로 길이(mm) A4 기준
+							var pageHeight = imgWidth / 210 * 297; // 출력 페이지 세로 길이 계산 A4 기준
+							var imgHeight = canvas.height * imgWidth / canvas.width;
+							var heightLeft = imgHeight;
+							var margin = 15; // 출력 페이지 여백설정
+							var position = 15;
+							var doc = new jsPDF("p", "mm", 'a4');
+							
+							doc.addImage(imgData2, 'JPEG', margin, position, imgWidth, imgHeight-150);
+							doc.save('test.pdf');
+						});
+						html2canvas(document.querySelector('#page3')).then(canvas =>{
+							var imgData3 = canvas.toDataURL('jpeg', 1.0);
+							var imgWidth = 180; // 이미지 가로 길이(mm) A4 기준
+							var pageHeight = imgWidth / 210 * 297; // 출력 페이지 세로 길이 계산 A4 기준
+							var imgHeight = canvas.height * imgWidth / canvas.width;
+							var heightLeft = imgHeight;
+							var margin = 15; // 출력 페이지 여백설정
+							var position = 15;
+							var doc = new jsPDF("p", "mm", 'a4');
+							
+							
+							doc.addImage(imgData3, 'JPEG', margin, position, imgWidth, imgHeight-40);
+							doc.save('test.pdf');
+						});
+						
+					
+						function merge_test(){
+											$.ajaxSetup({
+											headers: { "X-CSRFToken": '{{csrf_token}}'}
+											});
+											$.ajax({
+												url: "{% url 'analysis:pdf_merge' %}",
+												processData: false,
+												contentType: false,
+												type: "POST",
+
+												//data : formData,
+												success: function() {
+													alert("성공성공");
+													//location.reload();
+												},
+												error: function() {
+													alert("실패실패");
+												},
+										});
+
+						};
+						setTimeout(function(){merge_test()},10000);
+					    
+					
 				});
 	
 	
 	</script>
-	<!-- 시험 -->
-	<script>
+<!-- 테스트 사이드바 -->
+<script>
+$(document).ready(function () {
+    $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active');
+        $(this).toggleClass('active');
+		
+    });
+
+});
+
+  
+    $('#report_nav').addClass('nav-item active');
+	$('#dashboard_nav').removeClass('nav-item active');
+	$('#dashboard_nav').addClass('nav-item');
 	
-	function Export2Word(element, filename = ''){
-		var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
-		var postHtml = "</body></html>";
-		var html = preHtml+document.getElementById(element).innerHTML+postHtml;
-	
-		var blob = new Blob(['\ufeff', html], {
-			type: 'application/msword'
-		});
-		
-		// Specify link url
-		var url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
-		
-		// Specify file name
-		filename = filename?filename+'.doc':'document.doc';
-		
-		// Create download link element
-		var downloadLink = document.createElement("a");
-	
-		document.body.appendChild(downloadLink);
-		
-		if(navigator.msSaveOrOpenBlob ){
-			navigator.msSaveOrOpenBlob(blob, filename);
-		}else{
-			// Create a link to the file
-			downloadLink.href = url;
-			
-			// Setting the file name
-			downloadLink.download = filename;
-			
-			//triggering the function
-			downloadLink.click();
-		}
-		
-		document.body.removeChild(downloadLink);
-	}
-	</script>
+</script>
+</script>
+
 {% endblock %}

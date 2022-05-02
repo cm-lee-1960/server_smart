@@ -33,7 +33,9 @@ from django.views.generic import ListView
 from django.shortcuts import get_list_or_404
 from django.views.generic import TemplateView
 from monitor.serializers import MessageSerializer
-
+from PyPDF2 import PdfFileReader, PdfFileMerger#피디에프병합
+import openpyxl#엑셀업로드
+from django.views.generic import View
 ###################################################################################################
 # 분석 처리모듈
 # -------------------------------------------------------------------------------------------------
@@ -190,6 +192,82 @@ def dashboard_test(request):
         return redirect(reverse('accounts:login'))
 
 
+
+#####################################################################################################
+#PDF 병합
+#####################################################################################################
+
+def pdf_merge(request):
+    # merger라는 이름의 pdf병합기를 준비
+    merger = PdfFileMerger()
+
+    # 준비한 파일들을 하나씩 읽은 후, merger에 추가
+    merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test.pdf", 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test (1).pdf", 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test (2).pdf", 'rb')))
+
+
+    # merger가 새 pdf파일로 저장
+    merger.write("C:/Users/82109/Downloads/testone.pdf")
+    response = {'status': 1, 'message': '엑셀파일이 정상적으로 업로드 됐습니다.'}
+    return HttpResponse(json.dumps(response), content_type='application/json')
+
+
+################################################################################################
+# 엑셀업로드테스트
+#################################################################################################
+#views.py
+
+class ExcelUploadView5g(View):
+    def post(self, request):
+        excelFile = request.FILES['file']
+
+        excel = openpyxl.load_workbook(excelFile, data_only=True)
+        work_sheet = excel.worksheets[0]
+
+        all_values = []
+        for i, row in enumerate (work_sheet.rows):
+            if i != 0 :
+                row_value = []
+                for cell in row:
+                    row_value.append(cell.value)
+                all_values.append(row_value)
+            
+        PostMeasure5G.objects.all().delete()
+        for row in all_values:
+            sample_model = PostMeasure5G(district = row[0],number = row[1],lasttotal5g = row[2],kttotaltotal5g = row[3],kttotalposttotal5g = row[4],skttotalposttotal5g = row[5],lgtotalposttotal5g =row[6],ktranktotal5g = row[7],
+            kthjdtotal5g = row[8],kthjdposttotal5g = row[9],skthjdposttotal5g = row[10],lghjdposttotal5g = row[11],ktrankhjdtotal5g =row[12], ktsidetotal5g = row[13],ktsideposttotal5g = row[14],sktsideposttotal5g = row[15],lgsideposttotal5g = row[16],
+            ktranksidetotal5g = row[17])
+            
+            sample_model.save()
+
+        response = {'status': 1, 'message': '엑셀파일이 정상적으로 업로드 됐습니다.'}
+        return HttpResponse(json.dumps(response), content_type='application/json')
+
+class ExcelUploadViewlte(View):
+    def post(self, request):
+        excelFile = request.FILES['file']
+
+        excel = openpyxl.load_workbook(excelFile, data_only=True)
+        work_sheet = excel.worksheets[0]
+
+        all_values = []
+        for i, row in enumerate (work_sheet.rows):
+            if i != 0 :
+                row_value = []
+                for cell in row:
+                    row_value.append(cell.value)
+                all_values.append(row_value)
+         
+        PostMeasureLTE.objects.all().delete()
+        for row in all_values:
+            sample_model = PostMeasureLTE(district = row[0],number = row[1],lasttotallte = row[2],ktdllte = row[3], ktpostdllte = row[4],sktpostdllte = row[5],lgpostdllte = row[6],ktullte =row[7],ktpostullte = row[8],
+            sktpostullte = row[9],lgpostullte = row[10])
+            
+            sample_model.save()
+
+        response = {'status': 1, 'message': '엑셀파일이 정상적으로 업로드 됐습니다.'}
+        return HttpResponse(json.dumps(response), content_type='application/json')
 # -------------------------------------------------------------------------------------------------
 # 일일보고 페이지
 # -------------------------------------------------------------------------------------------------
@@ -222,6 +300,15 @@ def report_measresult(request):
     """일일보고 대상등록 페이지 뷰"""
     context = get_measclose_cntx(request)
     return render(request, "analysis/register_measresult_form.html", context)
+
+# -------------------------------------------------------------------------------------------------
+# 사후측정등록 페이지
+# -------------------------------------------------------------------------------------------------
+def report_postmeas(request):
+    """일일보고 대상등록 페이지 뷰"""
+    context = get_report_cntx()
+    return render(request, "analysis/register_postmeas_form.html", context)
+
 
 
 # -------------------------------------------------------------------------------------------------
@@ -344,269 +431,60 @@ def delete_reportmsg(request):
 # [ 코드수점 검토사항 ]
 # - 해당 뷰에서 신규/저장/삭제 기능이 모두 되게 기능을 넣는다.
 # -------------------------------------------------------------------------------------------------
-# def create_postmeasure5G(request):
-#     """ 전년도 결과 등록 및 수정(5G) 뷰"""
-#     if request.method== "POST":
-#         # update_postmeasure5G(request)
-#         form = PostMeasure5GForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             postmeasure5G = form.save()
-#     else:
-#         # 데이터를 조회해서 화면에 넘겨주는 코드를 작성한다.
-#         pass
 
-#     return redirect("analysis:report")
 def create_postmeasure5G(request):
     if request.method == "POST":
         # 빈 객체를 생성한다.
-        postmeas5G = PostMeasure5G()
-        postmeas5G.lasttotal = request.POST['lasttotal']
-        postmeas5G.lastseoul = request.POST['lastseoul']
-        postmeas5G.lastincheon = request.POST['lastincheon']
-        postmeas5G.lastulsan = request.POST['lastulsan']
-        postmeas5G.lastdaegu = request.POST['lastdaegu']
-        postmeas5G.lastgwangju = request.POST['lastgwangju']
-        postmeas5G.lastdaejun = request.POST['lastdaejun']
-        postmeas5G.lastgyunggi = request.POST['lastgyunggi']
-        postmeas5G.lastgyungbuk = request.POST['lastgyungbuk']
-        postmeas5G.lastjunnam = request.POST['lastjunnam']
-        postmeas5G.lastjunbuk = request.POST['lastjunbuk']
-        postmeas5G.lastchungnam = request.POST['lastchungnam']
-        postmeas5G.lastchungbuk = request.POST['lastchungbuk']
-        postmeas5G.lastsejong = request.POST['lastsejong']
-        #KT 본 종합 결과
-        postmeas5G.kttotaltotal = request.POST['kttotaltotal']
-        postmeas5G.kttotalseoul = request.POST['kttotalseoul']
-        postmeas5G.kttotalincheon = request.POST['kttotalincheon']
-        postmeas5G.kttotalulsan = request.POST['kttotalulsan']
-        postmeas5G.kttotaldaegu = request.POST['kttotaldaegu']
-        postmeas5G.kttotalgwangju = request.POST['kttotalgwangju']
-        postmeas5G.kttotaldaejun = request.POST['kttotaldaejun']
-        postmeas5G.kttotalgyunggi = request.POST['kttotalgyunggi']
-        postmeas5G.kttotalgyungbuk = request.POST['kttotalgyungbuk']
-        postmeas5G.kttotaljunnam = request.POST['kttotaljunnam']
-        postmeas5G.kttotaljunbuk = request.POST['kttotaljunbuk']
-        postmeas5G.kttotalchungnam = request.POST['kttotalchungnam']
-        postmeas5G.kttotalchungbuk = request.POST['kttotalchungbuk']
-        postmeas5G.kttotalsejong = request.POST['kttotalsejong']
-        #KT 사후 종합 결과
-        postmeas5G.kttotalposttotal = request.POST['kttotalposttotal']
-        postmeas5G.kttotalpostseoul = request.POST['kttotalpostseoul']
-        postmeas5G.kttotalpostincheon = request.POST['kttotalpostincheon']
-        postmeas5G.kttotalpostulsan = request.POST['kttotalpostulsan']
-        postmeas5G.kttotalpostdaegu = request.POST['kttotalpostdaegu']
-        postmeas5G.kttotalpostgwangju = request.POST['kttotalpostgwangju']
-        postmeas5G.kttotalpostdaejun = request.POST['kttotalpostdaejun']
-        postmeas5G.kttotalpostgyunggi = request.POST['kttotalpostgyunggi']
-        postmeas5G.kttotalpostgyungbuk = request.POST['kttotalpostgyungbuk']
-        postmeas5G.kttotalpostjunnam = request.POST['kttotalpostjunnam']
-        postmeas5G.kttotalpostjunbuk = request.POST['kttotalpostjunbuk']
-        postmeas5G.kttotalpostchungnam = request.POST['kttotalpostchungnam']
-        postmeas5G.kttotalpostchungbuk = request.POST['kttotalpostchungbuk']
-        postmeas5G.kttotalpostsejong = request.POST['kttotalpostsejong']
-        #S사 사후 종합 결과
-        postmeas5G.skttotalposttotal = request.POST['skttotalposttotal']
-        postmeas5G.skttotalpostseoul = request.POST['skttotalpostseoul']
-        postmeas5G.skttotalpostincheon = request.POST['skttotalpostincheon']
-        postmeas5G.skttotalpostulsan = request.POST['skttotalpostulsan']
-        postmeas5G.skttotalpostdaegu = request.POST['skttotalpostdaegu']
-        postmeas5G.skttotalpostgwangju = request.POST['skttotalpostgwangju']
-        postmeas5G.skttotalpostdaejun = request.POST['skttotalpostdaejun']
-        postmeas5G.skttotalpostgyunggi = request.POST['skttotalpostgyunggi']
-        postmeas5G.skttotalpostgyungbuk = request.POST['skttotalpostgyungbuk']
-        postmeas5G.skttotalpostjunnam = request.POST['skttotalpostjunnam']
-        postmeas5G.skttotalpostjunbuk = request.POST['skttotalpostjunbuk']
-        postmeas5G.skttotalpostchungnam = request.POST['skttotalpostchungnam']
-        postmeas5G.skttotalpostchungbuk = request.POST['skttotalpostchungbuk']
-        postmeas5G.skttotalpostsejong = request.POST['skttotalpostsejong']
-        #L사 사후 종합 결과
-        postmeas5G.lgtotalposttotal=request.POST["lgtotalposttotal"]
-        postmeas5G.lgtotalpostseoul=request.POST["lgtotalpostseoul"]
-        postmeas5G.lgtotalpostincheon=request.POST["lgtotalpostincheon"]
-        postmeas5G.lgtotalpostulsan=request.POST["lgtotalpostulsan"]
-        postmeas5G.lgtotalpostdaegu=request.POST["lgtotalpostdaegu"]
-        postmeas5G.lgtotalpostgwangju=request.POST["lgtotalpostgwangju"]
-        postmeas5G.lgtotalpostdaejun=request.POST["lgtotalpostdaejun"]
-        postmeas5G.lgtotalpostgyunggi=request.POST["lgtotalpostgyunggi"]
-        postmeas5G.lgtotalpostgyungbuk=request.POST["lgtotalpostgyungbuk"]
-        postmeas5G.lgtotalpostjunnam=request.POST["lgtotalpostjunnam"]
-        postmeas5G.lgtotalpostjunbuk=request.POST["lgtotalpostjunbuk"]
-        postmeas5G.lgtotalpostchungnam=request.POST["lgtotalpostchungnam"]
-        postmeas5G.lgtotalpostchungbuk=request.POST["lgtotalpostchungbuk"]
-        postmeas5G.lgtotalpostsejong=request.POST["lgtotalpostsejong"]
-        #KT
-        postmeas5G.kthjdtotal=request.POST["kthjdtotal"]
-        postmeas5G.kthjdseoul=request.POST["kthjdseoul"]
-        postmeas5G.kthjdincheon=request.POST["kthjdincheon"]
-        postmeas5G.kthjdulsan=request.POST["kthjdulsan"]
-        postmeas5G.kthjddaegu=request.POST["kthjddaegu"]
-        postmeas5G.kthjdgwangju=request.POST["kthjdgwangju"]
-        postmeas5G.kthjddaejun=request.POST["kthjddaejun"]
-        postmeas5G.kthjdgyunggi=request.POST["kthjdgyunggi"]
-        postmeas5G.kthjdgyungbuk=request.POST["kthjdgyungbuk"]
-        postmeas5G.kthjdjunnam=request.POST["kthjdjunnam"]
-        postmeas5G.kthjdjunbuk=request.POST["kthjdjunbuk"]
-        postmeas5G.kthjdchungnam=request.POST["kthjdchungnam"]
-        postmeas5G.kthjdchungbuk=request.POST["kthjdchungbuk"]
-        postmeas5G.kthjdsejong=request.POST["kthjdsejong"]
-        #KT
-        postmeas5G.kthjdposttotal=request.POST["kthjdposttotal"]
-        postmeas5G.kthjdpostseoul=request.POST["kthjdpostseoul"]
-        postmeas5G.kthjdpostincheon=request.POST["kthjdpostincheon"]
-        postmeas5G.kthjdpostulsan=request.POST["kthjdpostulsan"]
-        postmeas5G.kthjdpostdaegu=request.POST["kthjdpostdaegu"]
-        postmeas5G.kthjdpostgwangju=request.POST["kthjdpostgwangju"]
-        postmeas5G.kthjdpostdaejun=request.POST["kthjdpostdaejun"]
-        postmeas5G.kthjdpostgyunggi=request.POST["kthjdpostgyunggi"]
-        postmeas5G.kthjdpostgyungbuk=request.POST["kthjdpostgyungbuk"]
-        postmeas5G.kthjdpostjunnam=request.POST["kthjdpostjunnam"]
-        postmeas5G.kthjdpostjunbuk=request.POST["kthjdpostjunbuk"]
-        postmeas5G.kthjdpostchungnam=request.POST["kthjdpostchungnam"]
-        postmeas5G.kthjdpostchungbuk=request.POST["kthjdpostchungbuk"]
-        postmeas5G.kthjdpostsejong=request.POST["kthjdpostsejong"]
-        #S사
-        postmeas5G.skthjdposttotal=request.POST["skthjdposttotal"]
-        postmeas5G.skthjdpostseoul=request.POST["skthjdpostseoul"]
-        postmeas5G.skthjdpostincheon=request.POST["skthjdpostincheon"]
-        postmeas5G.skthjdpostulsan=request.POST["skthjdpostulsan"]
-        postmeas5G.skthjdpostdaegu=request.POST["skthjdpostdaegu"]
-        postmeas5G.skthjdpostgwangju=request.POST["skthjdpostgwangju"]
-        postmeas5G.skthjdpostdaejun=request.POST["skthjdpostdaejun"]
-        postmeas5G.skthjdpostgyunggi=request.POST["skthjdpostgyunggi"]
-        postmeas5G.skthjdpostgyungbuk=request.POST["skthjdpostgyungbuk"]
-        postmeas5G.skthjdpostjunnam=request.POST["skthjdpostjunnam"]
-        postmeas5G.skthjdpostjunbuk=request.POST["skthjdpostjunbuk"]
-        postmeas5G.skthjdpostchungnam=request.POST["skthjdpostchungnam"]
-        postmeas5G.skthjdpostchungbuk=request.POST["skthjdpostchungbuk"]
-        postmeas5G.skthjdpostsejong=request.POST["skthjdpostsejong"]
-        #L사
-        postmeas5G.lghjdposttotal=request.POST["lghjdposttotal"]
-        postmeas5G.lghjdpostseoul=request.POST["lghjdpostseoul"]
-        postmeas5G.lghjdpostincheon=request.POST["lghjdpostincheon"]
-        postmeas5G.lghjdpostulsan=request.POST["lghjdpostulsan"]
-        postmeas5G.lghjdpostdaegu=request.POST["lghjdpostdaegu"]
-        postmeas5G.lghjdpostgwangju=request.POST["lghjdpostgwangju"]
-        postmeas5G.lghjdpostdaejun=request.POST["lghjdpostdaejun"]
-        postmeas5G.lghjdpostgyunggi=request.POST["lghjdpostgyunggi"]
-        postmeas5G.lghjdpostgyungbuk=request.POST["lghjdpostgyungbuk"]
-        postmeas5G.lghjdpostjunnam=request.POST["lghjdpostjunnam"]
-        postmeas5G.lghjdpostjunbuk=request.POST["lghjdpostjunbuk"]
-        postmeas5G.lghjdpostchungnam=request.POST["lghjdpostchungnam"]
-        postmeas5G.lghjdpostchungbuk=request.POST["lghjdpostchungbuk"]
-        postmeas5G.lghjdpostsejong=request.POST["lghjdpostsejong"]
-        #KT
-        postmeas5G.ktsidetotal=request.POST["ktsidetotal"]
-        postmeas5G.ktsideseoul=request.POST["ktsideseoul"]
-        postmeas5G.ktsideincheon=request.POST["ktsideincheon"]
-        postmeas5G.ktsideulsan=request.POST["ktsideulsan"]
-        postmeas5G.ktsidedaegu=request.POST["ktsidedaegu"]
-        postmeas5G.ktsidegwangju=request.POST["ktsidegwangju"]
-        postmeas5G.ktsidedaejun=request.POST["ktsidedaejun"]
-        postmeas5G.ktsidegyunggi=request.POST["ktsidegyunggi"]
-        postmeas5G.ktsidegyungbuk=request.POST["ktsidegyungbuk"]
-        postmeas5G.ktsidejunnam=request.POST["ktsidejunnam"]
-        postmeas5G.ktsidejunbuk=request.POST["ktsidejunbuk"]
-        postmeas5G.ktsidechungnam=request.POST["ktsidechungnam"]
-        postmeas5G.ktsidechungbuk=request.POST["ktsidechungbuk"]
-        postmeas5G.ktsidesejong=request.POST["ktsidesejong"]
-        #KT
-        postmeas5G.ktsideposttotal=request.POST["ktsideposttotal"]
-        postmeas5G.ktsidepostseoul=request.POST["ktsidepostseoul"]
-        postmeas5G.ktsidepostincheon=request.POST["ktsidepostincheon"]
-        postmeas5G.ktsidepostulsan=request.POST["ktsidepostulsan"]
-        postmeas5G.ktsidepostdaegu=request.POST["ktsidepostdaegu"]
-        postmeas5G.ktsidepostgwangju=request.POST["ktsidepostgwangju"]
-        postmeas5G.ktsidepostdaejun=request.POST["ktsidepostdaejun"]
-        postmeas5G.ktsidepostgyunggi=request.POST["ktsidepostgyunggi"]
-        postmeas5G.ktsidepostgyungbuk=request.POST["ktsidepostgyungbuk"]
-        postmeas5G.ktsidepostjunnam=request.POST["ktsidepostjunnam"]
-        postmeas5G.ktsidepostjunbuk=request.POST["ktsidepostjunbuk"]
-        postmeas5G.ktsidepostchungnam=request.POST["ktsidepostchungnam"]
-        postmeas5G.ktsidepostchungbuk=request.POST["ktsidepostchungbuk"]
-        postmeas5G.ktsidepostsejong=request.POST["ktsidepostsejong"]
-        #S사
-        postmeas5G.sktsideposttotal=request.POST["sktsideposttotal"]
-        postmeas5G.sktsidepostseoul=request.POST["sktsidepostseoul"]
-        postmeas5G.sktsidepostincheon=request.POST["sktsidepostincheon"]
-        postmeas5G.sktsidepostulsan=request.POST["sktsidepostulsan"]
-        postmeas5G.sktsidepostdaegu=request.POST["sktsidepostdaegu"]
-        postmeas5G.sktsidepostgwangju=request.POST["sktsidepostgwangju"]
-        postmeas5G.sktsidepostdaejun=request.POST["sktsidepostdaejun"]
-        postmeas5G.sktsidepostgyunggi=request.POST["sktsidepostgyunggi"]
-        postmeas5G.sktsidepostgyungbuk=request.POST["sktsidepostgyungbuk"]
-        postmeas5G.sktsidepostjunnam=request.POST["sktsidepostjunnam"]
-        postmeas5G.sktsidepostjunbuk=request.POST["sktsidepostjunbuk"]
-        postmeas5G.sktsidepostchungnam=request.POST["sktsidepostchungnam"]
-        postmeas5G.sktsidepostchungbuk=request.POST["sktsidepostchungbuk"]
-        postmeas5G.sktsidepostsejong=request.POST["sktsidepostsejong"]
-        #L사
-        postmeas5G.lgsideposttotal=request.POST["lgsideposttotal"]
-        postmeas5G.lgsidepostseoul=request.POST["lgsidepostseoul"]
-        postmeas5G.lgsidepostincheon=request.POST["lgsidepostincheon"]
-        postmeas5G.lgsidepostulsan=request.POST["lgsidepostulsan"]
-        postmeas5G.lgsidepostdaegu=request.POST["lgsidepostdaegu"]
-        postmeas5G.lgsidepostgwangju=request.POST["lgsidepostgwangju"]
-        postmeas5G.lgsidepostdaejun=request.POST["lgsidepostdaejun"]
-        postmeas5G.lgsidepostgyunggi=request.POST["lgsidepostgyunggi"]
-        postmeas5G.lgsidepostgyungbuk=request.POST["lgsidepostgyungbuk"]
-        postmeas5G.lgsidepostjunnam=request.POST["lgsidepostjunnam"]
-        postmeas5G.lgsidepostjunbuk=request.POST["lgsidepostjunbuk"]
-        postmeas5G.lgsidepostchungnam=request.POST["lgsidepostchungnam"]
-        postmeas5G.lgsidepostchungbuk=request.POST["lgsidepostchungbuk"]
-        postmeas5G.lgsidepostsejong=request.POST["lgsidepostsejong"]
-        #KT
-        postmeas5G.ktranktotal=request.POST["ktranktotal"]
-        postmeas5G.ktrankseoul=request.POST["ktrankseoul"]
-        postmeas5G.ktrankincheon=request.POST["ktrankincheon"]
-        postmeas5G.ktrankulsan=request.POST["ktrankulsan"]
-        postmeas5G.ktrankdaegu=request.POST["ktrankdaegu"]
-        postmeas5G.ktrankgwangju=request.POST["ktrankgwangju"]
-        postmeas5G.ktrankdaejun=request.POST["ktrankdaejun"]
-        postmeas5G.ktrankgyunggi=request.POST["ktrankgyunggi"]
-        postmeas5G.ktrankgyungbuk=request.POST["ktrankgyungbuk"]
-        postmeas5G.ktrankjunnam=request.POST["ktrankjunnam"]
-        postmeas5G.ktrankjunbuk=request.POST["ktrankjunbuk"]
-        postmeas5G.ktrankchungnam=request.POST["ktrankchungnam"]
-        postmeas5G.ktrankchungbuk=request.POST["ktrankchungbuk"]
-        postmeas5G.ktranksejong=request.POST["ktranksejong"]
-        #KT
-        postmeas5G.ktrankhjdtotal=request.POST["ktrankhjdtotal"]
-        postmeas5G.ktrankhjdseoul=request.POST["ktrankhjdseoul"]
-        postmeas5G.ktrankhjdincheon=request.POST["ktrankhjdincheon"]
-        postmeas5G.ktrankhjdulsan=request.POST["ktrankhjdulsan"]
-        postmeas5G.ktrankhjddaegu=request.POST["ktrankhjddaegu"]
-        postmeas5G.ktrankhjdgwangju=request.POST["ktrankhjdgwangju"]
-        postmeas5G.ktrankhjddaejun=request.POST["ktrankhjddaejun"]
-        postmeas5G.ktrankhjdgyunggi=request.POST["ktrankhjdgyunggi"]
-        postmeas5G.ktrankhjdgyungbuk=request.POST["ktrankhjdgyungbuk"]
-        postmeas5G.ktrankhjdjunnam=request.POST["ktrankhjdjunnam"]
-        postmeas5G.ktrankhjdjunbuk=request.POST["ktrankhjdjunbuk"]
-        postmeas5G.ktrankhjdchungnam=request.POST["ktrankhjdchungnam"]
-        postmeas5G.ktrankhjdchungbuk=request.POST["ktrankhjdchungbuk"]
-        postmeas5G.ktrankhjdsejong=request.POST["ktrankhjdsejong"]
-
-        #KT 다중이용시설/교통/아파트/대학 순위
-        postmeas5G.ktranksidetotal = request.POST['ktranksidetotal']
-        postmeas5G.ktranksideseoul = request.POST['ktranksideseoul']
-        postmeas5G.ktranksideincheon = request.POST['ktranksideincheon']
-        postmeas5G.ktranksideulsan = request.POST['ktranksideulsan']
-        postmeas5G.ktranksidedaegu = request.POST['ktranksidedaegu']
-        postmeas5G.ktranksidegwangju = request.POST['ktranksidegwangju']
-        postmeas5G.ktranksidedaejun = request.POST['ktranksidedaejun']
-        postmeas5G.ktranksidegyunggi = request.POST['ktranksidegyunggi']
-        postmeas5G.ktranksidegyungbuk = request.POST['ktranksidegyungbuk']
-        postmeas5G.ktranksidejunnam = request.POST['ktranksidejunnam']
-        postmeas5G.ktranksidejunbuk = request.POST['ktranksidejunbuk']
-        postmeas5G.ktranksidechungnam = request.POST['ktranksidechungnam']
-        postmeas5G.ktranksidechungbuk = request.POST['ktranksidechungbuk']
-        postmeas5G.ktranksidesejong = request.POST['ktranksidesejong']
-
-
+        postmeas = PostMeasure5G()
+        postmeas.district = request.POST['district']
+        postmeas.lasttotal5g = request.POST['lasttotal5g']
+        postmeas.kttotaltotal5g = request.POST['kttotaltotal5g']
+        postmeas.kttotalposttotal5g = request.POST['kttotalposttotal5g']
+        postmeas.skttotalposttotal5g = request.POST['skttotalposttotal5g']
+        postmeas.lgtotalposttotal5g = request.POST['lgtotalposttotal5g']
+        postmeas.kthjdtotal5g = request.POST['kthjdtotal5g']
+        postmeas.kthjdposttotal5g = request.POST['kthjdposttotal5g']
+        postmeas.skthjdposttotal5g = request.POST['skthjdposttotal5g']
+        postmeas.lghjdposttotal5g = request.POST['lghjdposttotal5g']
+        postmeas.ktsidetotal5g = request.POST['ktsidetotal5g']
+        postmeas.ktsideposttotal5g = request.POST['ktsideposttotal5g']
+        postmeas.sktsideposttotal5g = request.POST['sktsideposttotal5g']
+        postmeas.lgsideposttotal5g = request.POST['lgsideposttotal5g']
+        postmeas.ktranktotal5g = request.POST['ktranktotal5g']
+        postmeas.ktrankhjdtotal5g = request.POST['ktrankhjdtotal5g']
+        postmeas.ktranksidetotal5g = request.POST['ktranksidetotal5g']
+     
+        
         PostMeasure5G.objects.all().delete()
 
-        postmeas5G.save()
+        postmeas.save()
 
     return redirect("analysis:report")
+
+
+def create_postmeasureLTE(request):
+    if request.method == "POST":
+        # 빈 객체를 생성한다.
+        postmeas = PostMeasureLTE()
+        postmeas.district = request.POST['district']
+        
+        postmeas.lasttotallte = request.POST['lasttotallte']
+        postmeas.ktdllte = request.POST['ktdllte']
+        postmeas.ktpostdllte = request.POST['ktpostdllte']
+        postmeas.sktpostdllte = request.POST['sktpostdllte']
+        postmeas.lgpostdllte = request.POST['lgpostdllte']
+        postmeas.ktullte = request.POST['ktullte']
+        postmeas.ktpostullte = request.POST['ktpostullte']
+        postmeas.sktpostullte = request.POST['sktpostullte']
+        postmeas.lgpostullte = request.POST['lgpostullte']
+        
+        PostMeasureLTE.objects.all().delete()
+
+        postmeas.save()
+
+    return redirect("analysis:report")
+      
+       
 
 
 # -------------------------------------------------------------------------------------------------
