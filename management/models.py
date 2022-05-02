@@ -248,6 +248,7 @@ class ChatMemberList(models.Model):
     chatId = models.CharField(max_length=25, null=True, blank=True, verbose_name="채팅방ID")  # 유저가 속한 채팅방 chat id
     allowed = models.BooleanField(default=False, verbose_name="허용")  # 허용된 유저인지 여부
     isBot = models.BooleanField(default=False, verbose_name="Is Bot")  # 봇(관리자)인지 아닌지 여부
+    join = models.BooleanField(null=True, blank=True, verbose_name="참여")  # 현재 채팅방에 참여 중인지 여부
     
     class Meta:
         verbose_name = ('채팅방 멤버 리스트')

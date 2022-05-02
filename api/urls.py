@@ -33,5 +33,7 @@ urlpatterns = [
     path("message/delete/<int:message_id>/", views.delete_message, name='messageDelete'), # 텔레그램 메시지 전송취소
     path("message/send/", views.send_message, name='messageSend'), # 문자 메시지 전송
     path("message/get_chatmembers/<str:centerName>/", views.get_chatmembers, name='getChatMembers'),  # 채팅방 멤버 리스트
+    path("message/ban_chatmember/<int:member_id>/", views.ban_chatmember, name='banChatMember'),  # 개별 인원 강퇴
+    path("message/ban_chatmember/center/<str:centerName>/", views.ban_center_chatmembers, name='banCenterChatMembers'),  # 센터 전체 강퇴
     path('monitor/makemap/<int:phonegroup_id>/', views.make_map, name='makemap') # 측정데이터 지도맵
 ]

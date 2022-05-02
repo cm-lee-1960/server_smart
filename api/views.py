@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer
 from management.models import Center, Morphology, ChatMemberList
-from message.tele_msg import TelegramBot, update_members, ban_member_as_compared_db, ban_member_not_allowed
+from message.tele_msg import TelegramBot, update_members, ban_member_as_compared_db, ban_member_not_allowed, ban_member_not_allowed_all
 from monitor.geo import make_map_locations
 
 # 디버깅을 위한 로그를 선언한다.
@@ -352,7 +352,7 @@ def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 �
         ChatMembersList = []
         if ChatMembers.exists():
             for ChatMember in ChatMembers:
-                fields = ['id', 'userchatId', 'firstName', 'lastName', 'userName', 'centerName', 'chatId', 'allowed', 'isBot']
+                fields = ['id', 'userchatId', 'firstName', 'lastName', 'userName', 'centerName', 'chatId', 'allowed', 'isBot', 'join']
                 serializer = ChatMemberListSerializer(ChatMember, fields=fields)
                 data = serializer.data
                 ChatMembersList.append(data)
@@ -361,6 +361,33 @@ def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 �
         print("get_chatmembers():", str(e))
         raise Exception("get_chatmembers(): %s" % e)
     return JsonResponse(data=data, safe=False)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 텔레그램 채팅방 멤버 강퇴 API(5.2)
+# ----------------------------------------------------------------------------------------------------------------------
+# 1) 버튼 클릭으로 개별 강퇴
+@api_view(['GET'])
+def ban_chatmember(request, member_id):
+    try:
+        member = ChatMemberList.objects.get(id=member_id)
+        result = TelegramBot().ban_member(member.chatId, member.userchatId)
+        if result == True:
+            ChatMemberList.objects.get(chatId=member.chatId, userchatId=member.userchatId).delete()  # DB에서 해당 멤버 삭제
+    except Exception as e:
+        print("ban_chatmember():", str(e))
+        raise Exception("ban_chatmember(): %s" % e)
+    return JsonResponse(data=result, safe=False)
+
+# 2) 해당 센터에 대해서 allowed=False인 멤버 전체 강퇴
+@api_view(['GET'])
+def ban_center_chatmembers(request, centerName):
+    try:
+        center = Center.obejcts.get(centerName=centerName)
+        result = ban_member_not_allowed(center)
+    except Exception as e:
+        print("ban_center_chatmembers():", str(e))
+        raise Exception("ban_center_chatmembers(): %s" % e)
+    return JsonResponse(data=result, safe=False)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정데이터 지도맵을 작성하는 API
