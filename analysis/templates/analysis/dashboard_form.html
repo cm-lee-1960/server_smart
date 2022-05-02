@@ -490,9 +490,7 @@
                             <i id="message-trash"
                             class="fa fa-trash-o mt-2"
                             style="font-size:24px;"
-                            v-on:click="clickClearMessage" v-show="TelegramClick==false"></i></button>
-                        <button type="button" class="fa fa-bars" style="color:rgb(15, 15, 219);border:none;background:none;font-size:24px;" aria-hidden="true"
-                                v-show="TelegramClick==true"></button>
+                            v-on:click="clickClearMessage"></i></button>
 
                     </div>
                     <!-- Tabs navs End -->
@@ -502,7 +500,7 @@
                         <div class="tab-pane fade show active mt-1" id="msgdtl-message" role="tabpanel"
                             aria-labelledby="msgdtl-message-tab">
                             <textarea class="form-control mb-2" id="message_contents"
-                                    rows="5">[[message.message]]</textarea>
+                                    rows="5" v-model="message_text"></textarea>
                             <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
                             <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage"
                                     :disabled="message.sendType === 'ALL' || message.sendType === 'XMCS'">회수</button>
@@ -517,35 +515,31 @@
                         </div>
                         <!-- 텔레그램 채팅방 현황 및 강퇴를 위한 탭 -->
                         <div class="tab-pane fade mt-1" id="msgdtl-chatmember" role="tabpanel" aria-labelledby="msgdtl-chatmember-tab">
-                            <table id="chatmember_table" class='table table-hover'>
-                                <thead id='chatmember_head' style="height:50px;">
-                                <tr class="bg-light d-flex text-center">
-                                    <th style="width: 16%;">본부</th>
-                                    <th style="width: 15%;">firstName</th>
-                                    <th style="width: 15%;">lastName</th>
-                                    <th style="width: 32%;">userName</th>
-                                    <th style="width: 11%;">허용</th>
-                                    <th style="width: 11%;">추방</th>
-                                </tr>
-                                </thead>
-                                <tbody id='chatmember_body' class="table-hover"
-                                    style="height:130px; overflow-y:auto; display:block">
-                                <tr v-for="ChatMember in selectedChatMembers" 
-                                    v-if="ChatMember.join"
-                                    :class="['d-flex text-center']">
-                                    <td style="width: 16%;" >[[ ChatMember.centerName ]]</td>
-                                    <td style="width: 15%;">[[ ChatMember.firstName ]]</td>
-                                    <td style="width: 15%;">[[ ChatMember.lastName ]]</td>
-                                    <td style="width: 32%;">[[ ChatMember.userName ]]</td>
-                                    <td style="width: 11%;">
-                                        <i class="fa fa-check" aria-hidden="true" style="color:green" v-if="ChatMember.allowed"></i>
-                                        <i class="fa fa-times" aria-hidden="true" style="color:rgb(115, 5, 5)" v-else="ChatMember.allowed"></i>
-                                    </td>
-                                    <td style="width: 11%;"><i class="fa fa-ban" aria-hidden="true" style="color:red;cursor:pointer"
-                                        @click="[selectedChatMemberId=ChatMember.id, clickBanChatMember(ChatMember.id)]" title="강퇴"></i></td>
-                                </tr>
-                                </tbody>
-                            </table>
+                            <p class="tab-pane fade" id="chatmember" role="tabpanel" aria-labelledby="msg-chatmember-tab" style="height:100%;">
+                                <table id="all_table" class='table table-hover'>
+                                    <thead id='all-header' style="height:50px;">
+                                    <tr class="bg-light d-flex text-center">
+                                        <th style="width: 18%;">center</th>
+                                        <th style="width: 20%;">firstName</th>
+                                        <th style="width: 20%;">lastName</th>
+                                        <th style="width: 32%;">userName</th>
+                                        <th style="width: 10%;">allowed</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id='allDetail_body' class="table-hover"
+                                        style="height:130px; overflow-y:auto; display:block" ref='allDetail_body'>
+                                    <tr v-for="ChatMember in selectedChatMembers"
+                                        :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
+                                        v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
+                                        <td style="width: 18%;" >[[ ChatMember.centerName ]]</td>
+                                        <td style="width: 20%;">[[ ChatMember.firstName ]]</td>
+                                        <td style="width: 32%;">[[ ChatMember.lastName ]]</td>
+                                        <td style="width: 34%;">[[ ChatMember.userName ]]</td>
+                                        <td style="width: 10%;">[[ ChatMember.allowed ]]</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </p>
                         </div>
                     </div>
                     <!-- Tabs content End-->
@@ -616,8 +610,8 @@
     <!-- Modify PhoneGroup Info Modal End -->
         <!-- Progress Dialog Modal -->
         <!-- 출처: https://codepen.io/easyisez/pen/GELWXR -->
-        <div id="progressModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" 
-             role="dialog" 
+        <div id="progressModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog"
              aria-hidden="true">
             <div class="modal-dialog modal-m modal-dialog-centered">
                 <div class="modal-content">
@@ -698,7 +692,7 @@
          *              (전송유형: ALL)
          * 2022.04.12 - 화면처리 흐름도 및 주석 추가
 
-         * 2022.04.18 - 
+         * 2022.04.18 -
          =============================================================================================================*/
         const vm = new Vue({
             delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
@@ -719,6 +713,7 @@
                     allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
                     //checkedCount: 0,
                     isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
+                    message_text: null, // 메시지 텍스트
                     recipient_text: null, // 수신자 리스트
                     selectedPhoneGroup: {},
                     centerListAll: [], // 전체 센터 리스트
@@ -735,7 +730,6 @@
                     TelegramClick : false,
                     //////텔레그램 강퇴 기능을 위한 멤버 리스트
                     selectedChatMembers: [],
-                    selectedChatMemberId: 0,
 
                     ///////종요 알랏을위한 종료체크변수
                     phoneGroupActiveCheck : 0,
@@ -745,7 +739,7 @@
                         width : "33%"
                     }
 
-                    
+
                 }
             },
             computed: {
@@ -850,7 +844,7 @@
                             }
                         }
                     }
-        
+
                     for(let p_Id in Object.keys(this.phoneGroupList)){
                         this.phoneGroupListChangeCheck[this.phoneGroupList[p_Id].id] = this.phoneGroupList[p_Id].last_updated_dt
                         //종료 알랏을 위한 액티브 체크
@@ -862,7 +856,7 @@
                     this.phoneGroupActiveCheck = this.phoneGroupActiveCheckSave
                     // console.log(this.phoneGroupActiveCheck)
                     this.upDateEndWidth();
-                
+
                 },
                 async colorChange(p_c_Id) {
                     //클릭 상태이면 색상 변환 이펙트 안한다.
@@ -870,10 +864,10 @@
                       $("#" + p_c_Id).stop().animate({"background-color":"#D4D4D4","color":"black"},2000,function() {
                             $("#" + p_c_Id).stop().animate({"background-color":"#FFFFFF","color":"black"},2000);
                         });
-                    
-                    
+
+
                 },
-                
+
                 // 모든 센터 정보 및 모폴로지를 불러오는 함수
                 async fetch_all_centerANDmorphology(phoneGroup) {
                     const res = await fetch("/api/phonegroup/update/centerANDmorphology/");
@@ -881,7 +875,7 @@
                     this.centerListAll = data['centerListAll']
                     this.morphologyList = data['morphologyList']
                 },
-                
+
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정 단말그릅 리스트에서 특정 내역을 클랙했을 동작한다.
                  -----------------------------------------------------------------------------------------------------*/
@@ -916,7 +910,7 @@
                         this.messageEventListsplit.push(this.messageEventList[i].message.substring(startPosition))
                         }*/
 
-                    
+
                     }else{
                         Swal.fire({
                             icon: 'error',
@@ -932,6 +926,7 @@
                     this.tabChangeCheck = true
                     this.message = message
                     this.activeMessage = message
+                    this.message_text = message.message
                     // console.log(this.activeMessage)
                 },
                 /* -----------------------------------------------------------------------------------------------------
@@ -966,7 +961,7 @@
                  * 측정종료 및 측정마감에 관련된 함수
                  -----------------------------------------------------------------------------------------------------*/
                 // 1) 해당 단말그룹에 대한 측정을 종료한다.
-              
+
                 async measuring_end() {
                     /*
                     let end_error_count = 0;
@@ -980,7 +975,7 @@
                                             title: '진행하시겠습니까',
                                             text:  selectedPhoneGroupList[i].userInfo1 + '지역 최근 5분 내 업데이트 이력이 있습니다.',
                                             showCancelButton: true,
-                                        }).then( async (result) => { 
+                                        }).then( async (result) => {
                                                 if (result.isConfirmed) {   //확인을 누른뒤 실행된다
                                                     const res = await fetch("/monitor/end/" + selectedPhoneGroupList[i].id);
                                                     const data = await res.json();
@@ -994,8 +989,8 @@
                                                         end_error_count += 1;
                                                     }
 
-                                                    
-                                                } 
+
+                                                }
                                             })
                             }else{
                                 const res = await fetch("/monitor/end/" + selectedPhoneGroupList[i].id)
@@ -1010,7 +1005,7 @@
                                     end_error_count += 1;
                                 }
                             }
-                       
+
                     }
                     await this.end_message_alert(end_success_count, end_error_count)
                     await this.fetch_all_phoneGroup();
@@ -1050,7 +1045,7 @@
                 */
                 upDateEndWidth: function() {
                     //return "0%"
-                    //return this.phoneGroupActiveChecked ? "100%" : "0%" 
+                    //return this.phoneGroupActiveChecked ? "100%" : "0%"
                     //String(Math.floor(this.phoneGroupActiveCheck/this.phoneGroupList.length * 100))+"%" : "100%"
                     //this.testtt.width = String(Math.floor(this.phoneGroupActiveCheck/this.phoneGroupList.length * 100))+"%"
                     this.testtt.width = "50%"
@@ -1072,15 +1067,15 @@
                                 icon: 'success',
                                 title: '일일마감완료',
                                 text: '금일 마감이 완료되었습니다.',
-                            }).then( async (result) => { 
+                            }).then( async (result) => {
                                     if (result.isConfirmed) {   //확인을 누른뒤 실행된다
                                         $("#progressModal").modal('hide');
                                         await this.fetch_all_phoneGroup;
-                                    } 
+                                    }
                                 })
                             });
                     }
-                    
+
 
                 },
                 /* -----------------------------------------------------------------------------------------------------
@@ -1185,8 +1180,6 @@
                         this.cancelMeasuringEnd()
                     } else if (e.target.innerText === "병합") {
                         this.phoneGroupUnion()
-                    } else if (e.target.innerText === "강퇴") {
-                        this.BanChatMember()
                     } else if (e.target.innerText === "지도맵") {
                         this.phoneGroupMap()
                     }
@@ -1243,7 +1236,8 @@
                         },
                         body: JSON.stringify({
                             'receiver_list': this.recipient_text,
-                            'message': this.message.message,
+                            // 'message': this.message.message,
+                            'message': this.message_text,
                             'id': this.message.id,
                             'sendType': this.message.sendType,
                             'channelId': this.message.channelId,
@@ -1328,40 +1322,13 @@
                     const res = await fetch("/api/message/get_chatmembers/" + this.selectedPhoneGroup.centerName);
                     const data = await res.json()
                     this.selectedChatMembers = data['ChatMembers']
+                    console.log(this.selectedChatMembers)
                 },
 
-                // 3-2) 특정 인원 강퇴 버튼 클릭 시 추방 함수
-                clickBanChatMember(e) {
-                    $("#modal-btn-confirm").html('강퇴');
-                    $("#modal_body").html("해당 인원을 강제 추방 하시겠습니까?");
-                    $("#mi-modal").modal('show');
-                    $("#mi-modal").modal('hide');
-                },
-
-                async BanChatMember(selectedChatMemberId) {
-                    const res = await fetch("/api/message/ban_chatmember/" + this.selectedChatMemberId);
-                    const data = await res.json();
-                    console.log(data)
-                    if(data === true) {
-                        await Swal.fire({
-                            icon: 'success',
-                            title: '강제추방 성공',
-                            text: '선택하신 인원을 텔레그램 채팅방에서 추방하였습니다.',
-                        })
-                    } else {
-                        await Swal.fire({
-                            icon: 'error',
-                            title: '강제추방 실패',
-                            text: '오류가 발생하였습니다.',
-                        })
-                    }
-                    await this.fetch_chatmembers();
-                },
-                
                 /*---------------------------------------------------------------------------------------
                  * 측정종료 취소 클릭 시 측정종료 질의 팝업 및 진행하는 함수
                  --------------------------------------------------------------------------------------*/
-                clickCancelMeasuringEnd(e) {
+                 clickCancelMeasuringEnd(e) {
                     if (this.selectedPhoneGroup.active === false) {
                         this.isModelConfirmDisabled = true
                         $("#modal-btn-confirm").html('종료취소');
@@ -1475,7 +1442,7 @@
                             'morphologyName': this.selectedPhoneGroup.morphologyName  // 모폴로지 이름
                         })
                     };
-                    const response = await fetch("/api/phonegroup/update/info/", requestOptions);
+                    const response = await fetch("/api/phonegroup/update/info", requestOptions);
                     await this.fetch_all_phoneGroup();
                 },
                 clickClearMessage() {
@@ -1504,7 +1471,7 @@
                 }
                 //인터벌종료
             }
-        });       
+        });
 
         /* -------------------------------------------------------------------------------------------------------------
          * 전송 메시지 내용을 줄여서 표현하는 필터를 선언한다.
