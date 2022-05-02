@@ -13,6 +13,8 @@ from management.models import AddressRegion
 # - 카카오 개발문서 : https://developers.kakao.com/docs/latest/ko/local/dev-guide
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.22 - 코딩 및 주석 작성 룰에 벗어나는 내용 수정
+# 2022.05.02 - 지도맵 작성시 모폴로지가 행정동일 때만 경계구역을 그린다.
+#
 ########################################################################################################################
 class KakaoLocalAPI:
     """Kakao Local API 컨트롤러"""
@@ -352,20 +354,22 @@ def make_map_locations(phoneGroup):
 
     # 지도상에 행정동 경계구역을 표시한다.
     # 동일한 필드명으로 조건을 두번 쓸수 없고, 필터를 두번 걸어야 함
-    qs = AddressRegion.objects.filter(addressDetail__contains=mdata.phone.addressDetail) \
-        .filter(addressDetail__contains=mdata.phone.guGun)
-    if qs.exists():
-        json_data = qs[0].json_data
-        #         print(json_data)
-        #         geo = {
-        #             "type": "FeatureCollection",
-        #             "name": "HangJeongDong_ver20220309",
-        #             "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-        #             "bbox": [ 124.609681415304, 33.1118678527544, 131.871294250487, 38.616952080675 ],
-        #             "features": [ json_data
-        #         ]}
-        #         folium.GeoJson(geo, name='seoul_municipalities').add_to(map)
-        folium.GeoJson(data=json_data, name='AddressRegion').add_to(map)
+    # 2022.05.02 모폴로지가 행정동일때만 경계구역을 표시한다.
+    if phoneGroup.morphology.morphology == "행정동":
+        qs = AddressRegion.objects.filter(addressDetail__contains=mdata.phone.addressDetail) \
+            .filter(addressDetail__contains=mdata.phone.guGun)
+        if qs.exists():
+            json_data = qs[0].json_data
+            #         print(json_data)
+            #         geo = {
+            #             "type": "FeatureCollection",
+            #             "name": "HangJeongDong_ver20220309",
+            #             "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+            #             "bbox": [ 124.609681415304, 33.1118678527544, 131.871294250487, 38.616952080675 ],
+            #             "features": [ json_data
+            #         ]}
+            #         folium.GeoJson(geo, name='seoul_municipalities').add_to(map)
+            folium.GeoJson(data=json_data, name='AddressRegion').add_to(map)
 
     # 지도맵에 이동경로를 표시한다.
     folium.PolyLine(locations=locations).add_to(polyline)
