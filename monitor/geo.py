@@ -294,6 +294,7 @@ def make_map_locations(phoneGroup):
     polyline = folium.FeatureGroup(name="PolyLine", show=False)
 
     locations = []
+    max_distance = 0
     for phone in phoneGroup.phone_set.all():
 
         # 첫번째 측정위치를 지도맵에 표시한다.
@@ -303,6 +304,7 @@ def make_map_locations(phoneGroup):
             icon_size=(10, 10),
         ).add_to(map)
 
+        start_loc = (phone.latitude, phone.longitude)
         for mdata in phone.measurecalldata_set.all():
             # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
             if mdata.networkId == '5G':
@@ -340,6 +342,12 @@ def make_map_locations(phoneGroup):
                     weight=1
                 ).add_to(ul_points)
 
+            # 측정 시작위치와 현재위치의 거리를 계산한다.
+            current_loc = (mdata.latitude, mdata.longitude)
+            distance = haversine(start_loc, current_loc)  # 킬로(km)
+            if distance > max_distance :
+                max_distance = distance
+
             locations.append([mdata.latitude, mdata.longitude])
 
     # 지도상에 행정동 경계구역을 표시한다.
@@ -369,9 +377,10 @@ def make_map_locations(phoneGroup):
     polyline.add_to(map)
 
     # 지도 자동줌 기능(모든 POT과 시설이 지도상에 보여질 수 있도록 자동확대)
-    sw = pd.DataFrame(locations).min().values.tolist()
-    ne = pd.DataFrame(locations).max().values.tolist()
-    map.fit_bounds([sw, ne])
+    if max_distance > 3:
+        sw = pd.DataFrame(locations).min().values.tolist()
+        ne = pd.DataFrame(locations).max().values.tolist()
+        map.fit_bounds([sw, ne])
 
     # 화면 왼쪽 상단에 컨트롤들을 표시하기
     plugins.Fullscreen(
