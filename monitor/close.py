@@ -86,16 +86,20 @@ def measuring_end(phoneGroup):
         return_value = {'result' : 'ERROR: 이미 측정 종료한 지역'}
         return return_value
     else:
+        phone_list = phoneGroup.phone_set.all()
         # 해당 단말그룹에 묶여 있는 단말기들을 가져온다.
         try:
             # --------------------------------------------------------------------------------------------------------------
             # 1) 측정종료된 단말그룹에 대한 측정종료 메시지를 생성한다.
             # --------------------------------------------------------------------------------------------------------------
-            phone_list = phoneGroup.phone_set.all()
-            # 총 콜카운트를 가져온다.
+            # 측정종료 처리가 완료된 단말그룹과 측정단말의 상태를 비활성화 시킨다.
+            phoneGroup.active = False # 단말그룹
+            phoneGroup.save()
+            phone_list.update(active=False) # 측정단말
+            # 필요한 데이터 계산
             avg_bandwidth = cal_avg_bw_call(phoneGroup)  # 평균속도 계산
             nr_percent = cal_nr_percent(phoneGroup)  # 5G -> LTE 전환율 계산
-            total_count = max(phoneGroup.dl_count + phoneGroup.dl_nr_count, phoneGroup.ul_count + phoneGroup.ul_nr_count)
+            total_count = max(phoneGroup.dl_count + phoneGroup.dl_nr_count, phoneGroup.ul_count + phoneGroup.ul_nr_count)  # 총 콜 카운트 수
             # 측정시작 시간과 측정종료 시간을 확인한다.
             qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
             meastime_max_min = qs.aggregate(Max('meastime'), Min('meastime'))
@@ -154,10 +158,6 @@ def measuring_end(phoneGroup):
                     sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
                 )
             
-            # 측정종료 처리가 완료된 단말그룹과 측정단말의 상태를 비활성화 시킨다.
-            phoneGroup.active = False # 단말그룹
-            phoneGroup.save()
-            phone_list.update(active=False) # 측정단말
 
             # --------------------------------------------------------------------------------------------------------------
             # 2) 측정종료된 단말그룹에 대한 마감데이터를 생성한다.
@@ -319,6 +319,10 @@ def measuring_end(phoneGroup):
         ###########################################################################################################################   
         except Exception as e:
             print("측정종료 메시지 및 데이터 저장: ", str(e))
+            # 단말그룹과 측정단말의 상태를 다시 활성화 시킨다.
+            phoneGroup.active = True # 단말그룹
+            phoneGroup.save()
+            phone_list.update(active=True) # 측정단말
             raise Exception("measuring_end() - 측정종료 메시지 및 데이터 저장: %s" % e)
         
 

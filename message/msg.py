@@ -227,7 +227,9 @@ def make_message(mdata: MeasureCallData):
                 messages = f"{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 이벤트 메시지 내용 추가
-            messages +=  f"\n- 이벤트(전송실패/속도저하, 건): {msg.filter(message__contains='전송실패').count()}/{msg.filter(message__contains='속도저하').count()}"
+            messages +=  f"\n- 전송실패 이벤트(DL/UL, 건): {msg.filter(message__contains='DL전송실패').count()}/{msg.filter(message__contains='UL전송실패').count()}" + \
+                         f"\n- 속도저하 이벤트(DL/UL, 건): {msg.filter(message__contains='DL속도저하').count()}/{msg.filter(message__contains='UL속도저하').count()}"
+
 
         # [측정종료 메시지] --------------------------------------------------------------------------------------------
         # 2022-03-11 - 측정종료 메시지는 수기로 해당지역 측정종료 및 당일 측정종료를 실행할 때 생성되기 때문에 여기에 있는 코드를 사용하지 않음
