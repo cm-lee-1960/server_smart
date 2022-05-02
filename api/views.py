@@ -347,7 +347,7 @@ def update_phonegroup_info(request):
 def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 리스트 업데이트 하여 전달 (해당 센터)
     try:
         channelId = Center.objects.get(centerName=centerName).channelId
-        #update_members(str(channelId))
+        update_members(str(channelId), Center.objects.get(centerName=centerName))
         ChatMembers = ChatMemberList.objects.filter(center__centerName=centerName).order_by('id')
         ChatMembersList = []
         if ChatMembers.exists():

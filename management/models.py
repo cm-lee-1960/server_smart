@@ -241,9 +241,9 @@ class ChatMemberList(models.Model):
         - 허용(allowed) 컬럼이 False 인 대상이 추방 대상자
     """
     userchatId = models.CharField(max_length=25, verbose_name="채팅ID")  # 텔레그램 가입 시 가지는 고유 Chat ID (ex:5295955513)
-    firstName = models.CharField(max_length=100, verbose_name="First Name")  # 유저가 지정한, 본인의 first name
-    lastName = models.CharField(max_length=100, verbose_name="Last Name")  # 유저가 지정한, 본인의 last name
-    userName = models.CharField(max_length=100, verbose_name="User Name")  # 유저가 지정한, 본인의 username
+    firstName = models.CharField(max_length=100, null=True, blank=True, verbose_name="First Name")  # 유저가 지정한, 본인의 first name
+    lastName = models.CharField(max_length=100, null=True, blank=True, verbose_name="Last Name")  # 유저가 지정한, 본인의 last name
+    userName = models.CharField(max_length=100, null=True, blank=True, verbose_name="User Name")  # 유저가 지정한, 본인의 username
     center = models.ForeignKey(Center, null=True, on_delete=models.DO_NOTHING, verbose_name="센터")  # 유저가 속한 센터
     chatId = models.CharField(max_length=25, null=True, blank=True, verbose_name="채팅방ID")  # 유저가 속한 채팅방 chat id
     allowed = models.BooleanField(default=False, verbose_name="허용")  # 허용된 유저인지 여부

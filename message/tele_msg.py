@@ -199,7 +199,7 @@ class RunTelethon():
         self.api_id = settings.TELEGRAM_API_ID
         self.api_hash = settings.TELEGRAM_API_HASH
         self.token = settings.BOT_TOKEN
-        self.session_file = 'smartproject'
+        self.session_file = 'smart_project'
 
     # Telethon 연결
     def connect(self):
@@ -233,7 +233,7 @@ class RunTelethon():
 ######################################################################################################
 ### 채팅방 멤버 업데이트/강퇴 함수(03.29)
 
-def update_members(chat_id):
+def update_members(chat_id, center):
     '''특정 채팅방 멤버 업데이트 함수
         . 파라미터
          - chat_id : 받은 채팅방ID에 대해 멤버 업데이트를 진행한다.'''
@@ -243,24 +243,20 @@ def update_members(chat_id):
         print("Telethon Run ERROR: ", str(e))
         raise Exception("update_members(): %s" % e)
     for member in members_list:
-        if ChatMemberList.objects.filter(userchatId = member[0], chatId = chat_id):  # 기존 멤버 업데이트
-            ChatMemberList.objects.filter(userchatId = member[0], chatId = chat_id).update(
+        if ChatMemberList.objects.filter(userchatId = member[0], chatId = chat_id, center=center):  # 기존 멤버 업데이트
+            ChatMemberList.objects.filter(userchatId = member[0], chatId = chat_id, center=center).update(
                 firstName = member[1],
                 lastName = member[2],
                 userName = member[3],
                 isBot = member[4],
             )
         else:   # 신규 멤버 생성
-            try:   # center name을 center 모델에서 가져오고, 예외일 경우 center name은 None 처리
-                centername = Center.objects.get(channelId=chat_id).centerName
-            except ObjectDoesNotExist:
-                centername = None
             ChatMemberList.objects.create(
                 userchatId = member[0],
                 firstName = member[1],
                 lastName = member[2],
                 userName = member[3],
-                center = centername,
+                center = center,
                 chatId = chat_id,
                 allowed = False,
                 isBot = member[4],
