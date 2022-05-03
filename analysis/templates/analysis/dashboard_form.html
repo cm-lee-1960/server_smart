@@ -1562,11 +1562,12 @@
                     // window.open("monitor/maps/20211101_3855,3942.html" , '_blank');
                 },
                 async phoneGroupMap() {
+                    console.log(window.location.host);
                     const res = await fetch("/api/monitor/makemap/" + this.selectedPhoneGroup.id);
                     const data = await res.json();
                     if (data['result'] === 'ok') {
                         //console.log(data['result'])
-                        window.open(data['filename'], '_blank');
+                        window.open("http://" + window.location.host + "/" +  data['filename'], '_blank');
                     }
                 },
                 /* -----------------------------------------------------------------------------------------------------
