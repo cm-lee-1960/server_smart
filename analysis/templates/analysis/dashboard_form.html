@@ -300,7 +300,7 @@
                         <ul class="nav nav-tabs nav-pills" id="msg" role="tablist" style="height:44px">
                             <li class="nav-item">
                                 <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
-                                aria-controls="msg-event" aria-selected="true" v-on:click="[messageColor(), TelegramClick=false]">이벤트</a>
+                                aria-controls="msg-event" aria-selected="true" v-on:click="[messageColor(), TelegramClick=true]">이벤트</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
@@ -476,7 +476,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class= "nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
-                                role="tab"
+                                role="tab"  v-show="TelegramClick==false"
                                 aria-controls="msgdtl-recipient" aria-selected="false" v-on:click="change_check">수신자 리스트</a>
                             </li>
                             <li class="nav-item">
@@ -520,9 +520,9 @@
                         <div class="tab-pane fade mt-1" id="msgdtl-recipient" role="tabpanel"
                             aria-labelledby="msgdtl-recipient-tab">
                                 <textarea class="form-control mb-1" id="recipient_list"
-                                        rows="5" v-model="recipient_text"
+                                        rows="5" v-model="recipient_text" v-show="TelegramClick==false"
                                         placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다." ref = "phoneNumberArea" value></textarea>
-                            <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
+                            <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile" v-show="TelegramClick==false"
                                 @change="selectedFile"/>
                         </div>
                         <!-- 텔레그램 채팅방 현황 및 강퇴를 위한 탭 -->
@@ -745,7 +745,7 @@
                     clickPhoneGroup : null,
 
                     //////텔레그램 탭 선택 시 별도 메뉴 활성화를 위한 값
-                    TelegramClick : false,
+                    TelegramClick : true,
                     //////텔레그램 강퇴 기능을 위한 멤버 리스트
                     selectedChatMembers: [],
 
@@ -1341,19 +1341,23 @@
                     const res = await fetch("/api/message/get_chatmembers/" + centerName);
                     const data = await res.json()
                     this.selectedChatMembers = data['ChatMembers']
-
                     const Toast = Swal.mixin({
-                        toast: true,
-                        // icon: 'success',
-                        position: 'bottom-right',
-                        showConfirmButton: false,
-                        timer: 3000
-                        });
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: '채팅방 멤버 새로고침'
-                    })
+                            toast: true,
+                            position: 'bottom-right',
+                            showConfirmButton: false,
+                            timer: 3000
+                    });
+                    if (this.selectedChatMembers === 'fail') {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: '단말그룹 미선택'
+                        })
+                    } else {
+                        Toast.fire({
+                            icon: 'success',
+                            title: '채팅방 멤버 새로고침'
+                        })
+                    }
                 },
 
                 // 3-2-1) 특정 인원 강퇴 버튼 클릭 시 추방 함수
@@ -1409,6 +1413,12 @@
                             icon: 'success',
                             title: '강제추방 성공',
                             text: '센터 내 미허용 인원들을 텔레그램 채팅방에서 추방하였습니다.',
+                        })
+                    } else if(data === 'fail') {
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: '잘못된 요청',
+                            text: '단말그룹 선택 후 진행해주세요.',
                         })
                     } else {
                         await Swal.fire({

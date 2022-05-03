@@ -350,24 +350,30 @@ def update_phonegroup_info(request):
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['GET'])
 def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 리스트 업데이트 하여 전
-    try:
-        if centerName.startswith('ALL'):  # 전체 채팅방에 대한 refresh 요청일 경우 추가 처리
-            update_members_allchat()
-            centerName = centerName[3:]
-        channelId = Center.objects.get(centerName=centerName).channelId
-        update_members(channelId, Center.objects.get(centerName=centerName))
-        ChatMembers = ChatMemberList.objects.filter(center__centerName=centerName).order_by('id')
-        ChatMembersList = []
-        if ChatMembers.exists():
-            for ChatMember in ChatMembers:
-                fields = ['id', 'userchatId', 'firstName', 'lastName', 'userName', 'centerName', 'chatId', 'allowed', 'isBot', 'join']
-                serializer = ChatMemberListSerializer(ChatMember, fields=fields)
-                data = serializer.data
-                ChatMembersList.append(data)
-        data = {'ChatMembers':ChatMembersList}
-    except Exception as e:
-        print("get_chatmembers():", str(e))
-        raise Exception("get_chatmembers(): %s" % e)
+    if centerName == 'undefined':  # 폰그룹 미선택 상태로 요청이 왔을 시
+        data = {'ChatMembers':'fail'}   # fail : 대쉬보드에서 토스트 팝업 띄우지 않음
+    else:
+        try:
+            if centerName.startswith('ALL'):  # 전체 채팅방에 대한 refresh 요청일 경우 추가 처리
+                update_members_allchat()
+                centerName = centerName[3:]
+            if centerName == 'undefined':    # 폰그룹 미선택 상태로 전체 업데이트 요청이 왔을 시
+                data = {'ChatMembers':'pass'}  # pass: 화면 refresh 하지 않음
+            else:
+                channelId = Center.objects.get(centerName=centerName).channelId
+                update_members(channelId, Center.objects.get(centerName=centerName))
+                ChatMembers = ChatMemberList.objects.filter(center__centerName=centerName).order_by('id')
+                ChatMembersList = []
+                if ChatMembers.exists():
+                    for ChatMember in ChatMembers:
+                        fields = ['id', 'userchatId', 'firstName', 'lastName', 'userName', 'centerName', 'chatId', 'allowed', 'isBot', 'join']
+                        serializer = ChatMemberListSerializer(ChatMember, fields=fields)
+                        data = serializer.data
+                        ChatMembersList.append(data)
+                data = {'ChatMembers':ChatMembersList}
+        except Exception as e:
+            print("get_chatmembers():", str(e))
+            raise Exception("get_chatmembers(): %s" % e)
     return JsonResponse(data=data, safe=False)
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -392,6 +398,8 @@ def ban_center_chatmembers(request, centerName):
     try:
         if centerName == 'ALL':  # 전체 추방 요청일 경우
             result = ban_member_not_allowed_all()  # 전체 채팅방에 대해 진행
+        elif centerName == 'undefined':  # 단말그룹 미선택 상태로 요청 시
+            result = 'fail'
         else:
             center = Center.objects.get(centerName=centerName)  # 특정 센터에 대한 추방 요청일 경우
             result = ban_member_not_allowed(center)  # 특정 센터만 진행
