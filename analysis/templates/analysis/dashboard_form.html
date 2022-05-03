@@ -141,7 +141,6 @@
             height: auto;
         }
 
-
     </style>
 
 {% endblock %}
@@ -490,8 +489,21 @@
                             <i id="message-trash"
                             class="fa fa-trash-o mt-2"
                             style="font-size:24px;"
-                            v-on:click="clickClearMessage"></i></button>
-
+                            v-on:click="clickClearMessage" v-show="TelegramClick==false"></i></button>
+                        <div class="dropdown-menu-left flex p-0, m-0" v-show="TelegramClick==true">
+                            <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown"
+                                    style="color:rgb(21, 21, 181);border:none;background:none;font-size:18px;">
+                                <i id="message-trash" class="fa fa-telegram" style="color:rgb(21, 21, 181);font-size:24px;"></i>
+                                <span class="caret"></span></button>
+                            <div dropdown-toggle class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
+                                <a class="dropdown-item" @click="fetch_chatmembers(selectedPhoneGroup.centerName)" title="채팅방 멤버 새로고침">채팅방 멤버 새로고침</a>
+                                <a class="dropdown-item" @click="clickBanChatCenterMembers" title="센터 내 미허용된 인원 전체 추방">미허용 인원 전체 추방</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" @click="fetch_chatmembers(('ALL')+(selectedPhoneGroup.centerName))"
+                                    title="모든 채팅방 새로고침">전체 채팅방 새로고침</a>
+                                <a class="dropdown-item" @click="clickBanChatAllMembers" title="전체 채팅방의 미허용 인원 강제 추방">전체 채팅방 강제추방</a>
+                            </div>
+                        </div>
                     </div>
                     <!-- Tabs navs End -->
 
@@ -514,32 +526,36 @@
                                 @change="selectedFile"/>
                         </div>
                         <!-- 텔레그램 채팅방 현황 및 강퇴를 위한 탭 -->
-                        <div class="tab-pane fade mt-1" id="msgdtl-chatmember" role="tabpanel" aria-labelledby="msgdtl-chatmember-tab">
-                            <p class="tab-pane fade" id="chatmember" role="tabpanel" aria-labelledby="msg-chatmember-tab" style="height:100%;">
-                                <table id="all_table" class='table table-hover'>
-                                    <thead id='all-header' style="height:50px;">
-                                    <tr class="bg-light d-flex text-center">
-                                        <th style="width: 18%;">center</th>
-                                        <th style="width: 20%;">firstName</th>
-                                        <th style="width: 20%;">lastName</th>
-                                        <th style="width: 32%;">userName</th>
-                                        <th style="width: 10%;">allowed</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id='allDetail_body' class="table-hover"
-                                        style="height:130px; overflow-y:auto; display:block" ref='allDetail_body'>
-                                    <tr v-for="ChatMember in selectedChatMembers"
-                                        :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
-                                        v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
-                                        <td style="width: 18%;" >[[ ChatMember.centerName ]]</td>
-                                        <td style="width: 20%;">[[ ChatMember.firstName ]]</td>
-                                        <td style="width: 32%;">[[ ChatMember.lastName ]]</td>
-                                        <td style="width: 34%;">[[ ChatMember.userName ]]</td>
-                                        <td style="width: 10%;">[[ ChatMember.allowed ]]</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </p>
+                        <div class="tab-pane fade mt-1" id="msgdtl-chatmember" role="tabpanel" aria-labelledby="msgdtl-chatmember-tab" v-show="TelegramClick==true">
+                            <table id="chatmember_table" class='table table-hover'>
+                                <thead id='chatmember_head' style="height:50px;">
+                                <tr class="bg-light d-flex text-center">
+                                    <th style="width: 16%;">본부</th>
+                                    <th style="width: 15%;">firstName</th>
+                                    <th style="width: 15%;">lastName</th>
+                                    <th style="width: 32%;">userName</th>
+                                    <th style="width: 11%;">허용</th>
+                                    <th style="width: 11%;">추방</th>
+                                </tr>
+                                </thead>
+                                <tbody id='chatmember_body' class="table-hover"
+                                    style="height:130px; overflow-y:auto; display:block">
+                                <tr v-for="ChatMember in selectedChatMembers" 
+                                    v-if="ChatMember.join"
+                                    :class="['d-flex text-center']">
+                                    <td style="width: 16%;" >[[ ChatMember.centerName ]]</td>
+                                    <td style="width: 15%;">[[ ChatMember.firstName ]]</td>
+                                    <td style="width: 15%;">[[ ChatMember.lastName ]]</td>
+                                    <td style="width: 32%;">[[ ChatMember.userName ]]</td>
+                                    <td style="width: 11%;">
+                                        <i class="fa fa-check" aria-hidden="true" style="color:green" v-if="ChatMember.allowed"></i>
+                                        <i class="fa fa-times" aria-hidden="true" style="color:rgb(115, 5, 5)" v-else="ChatMember.allowed"></i>
+                                    </td>
+                                    <td style="width: 11%;"><i class="fa fa-ban" aria-hidden="true" style="color:red;cursor:pointer"
+                                        @click="[selectedChatMemberId=ChatMember.id, clickBanChatMember(ChatMember.isBot)]" title="강퇴"></i></td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <!-- Tabs content End-->
@@ -1180,6 +1196,12 @@
                         this.cancelMeasuringEnd()
                     } else if (e.target.innerText === "병합") {
                         this.phoneGroupUnion()
+                    } else if (e.target.innerText === "강퇴") {
+                        this.BanChatMember()
+                    } else if (e.target.innerText === "센터강퇴") {
+                        this.BanChatCenterMembers()
+                    } else if (e.target.innerText === "전체강퇴") {
+                        this.BanChatAllMembers()
                     } else if (e.target.innerText === "지도맵") {
                         this.phoneGroupMap()
                     }
@@ -1317,12 +1339,114 @@
                 },
 
                 // 3) 채팅방 멤버 리스트 : DB 리스트 긁어오기, 현재 멤버 긁어오기, 수동 강퇴기능, 자동 강퇴기능
-                // 3-1) 현재 채팅방 멤버를 업데이트 후 받아오기
-                async fetch_chatmembers() {
-                    const res = await fetch("/api/message/get_chatmembers/" + this.selectedPhoneGroup.centerName);
+                // 3-1) 현재 채팅방 멤버를 업데이트 후 fetch_chatmembers받아오기
+                async fetch_chatmembers(centerName) {
+                    const res = await fetch("/api/message/get_chatmembers/" + centerName);
                     const data = await res.json()
                     this.selectedChatMembers = data['ChatMembers']
-                    console.log(this.selectedChatMembers)
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        // icon: 'success',
+                        position: 'bottom-right',
+                        showConfirmButton: false,
+                        timer: 3000
+                        });
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: '채팅방 멤버 새로고침'
+                    })
+                },
+
+                // 3-2-1) 특정 인원 강퇴 버튼 클릭 시 추방 함수
+                clickBanChatMember(isBot) {
+                    if (isBot === true) {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('강퇴');
+                        $("#modal_body").html("상황실 봇은 추방할 수 없습니다.");
+                        $("#mi-modal").modal('show');
+                        $("#mi-modal").modal('hide');
+                    } else {
+                        this.isModelConfirmDisabled = true
+                        $("#modal-btn-confirm").html('강퇴');
+                        $("#modal_body").html("해당 인원을 강제 추방 하시겠습니까?");
+                        $("#mi-modal").modal('show');
+                        $("#mi-modal").modal('hide');
+                    }
+
+                },
+
+                async BanChatMember() {
+                    const res = await fetch("/api/message/ban_chatmember/" + this.selectedChatMemberId);
+                    const data = await res.json();
+                    if(data === true) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '강제추방 성공',
+                            text: '선택하신 인원을 텔레그램 채팅방에서 추방하였습니다.',
+                        })
+                    } else {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: '강제추방 실패',
+                            text: '오류가 발생하였습니다.',
+                        })
+                    }
+                    await this.fetch_chatmembers(this.selectedPhoneGroup.centerName);
+                },
+                
+                clickBanChatCenterMembers(e) {
+                    $("#modal-btn-confirm").html('센터강퇴');
+                    $("#modal_body").html("센터 대화방 내 미허용 인원들 강제 추방 하시겠습니까?");
+                    $("#mi-modal").modal('show');
+                    $("#mi-modal").modal('hide');
+                },
+                
+                // 3-2-2) 특정 센터 내 미허용 인원 전체 추방 함수
+                async BanChatCenterMembers() {
+                    const res = await fetch("/api/message/ban_chatmember/center/" + this.selectedPhoneGroup.centerName);
+                    const data = await res.json();
+                    if(data === true) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '강제추방 성공',
+                            text: '센터 내 미허용 인원들을 텔레그램 채팅방에서 추방하였습니다.',
+                        })
+                    } else {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: '강제추방 실패',
+                            text: '오류가 발생하였습니다.',
+                        })
+                    }
+                    await this.fetch_chatmembers(this.selectedPhoneGroup.centerName);
+                },
+                // 3-2-3) 전체 센터 내 미허용 인원 전체 추방 함수
+                clickBanChatAllMembers(e) {
+                    $("#modal-btn-confirm").html('전체강퇴');
+                    $("#modal_body").html("전체 채팅방에 대해 미허용 인원들을 강제 추방 하시겠습니까?");
+                    $("#mi-modal").modal('show');
+                    $("#mi-modal").modal('hide');
+                },
+
+                async BanChatAllMembers() {
+                    const res = await fetch("/api/message/ban_chatmember/center/" + 'ALL');
+                    const data = await res.json();
+                    if(data === true) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '강제추방 성공',
+                            text: '모든 미허용 인원들을 텔레그램 채팅방에서 추방하였습니다.',
+                        })
+                    } else {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: '강제추방 실패',
+                            text: '오류가 발생하였습니다.',
+                        })
+                    }
+                    await this.fetch_chatmembers(this.selectedPhoneGroup.centerName);
                 },
 
                 /*---------------------------------------------------------------------------------------
@@ -1486,7 +1610,7 @@
         };
 
         Vue.filter('truncate', filter);
-
+        
         $(document).ready(function () {
             var today = new Date();
 
@@ -1529,6 +1653,7 @@
                 document.getElementById('eventDetail_body').style.height = message_height_size + 'px'
                 document.getElementById('xroshotDetail_body').style.height = message_height_size + 'px'
                 document.getElementById('teleDetail_body').style.height = message_height_size + 'px'
+                document.getElementById('chatmember_body').style.height = message_height_size + 'px'
 
                 if(bottom_body_height_size < 260){
                     document.getElementById('message_contents').rows = 5

@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer
 from management.models import Center, Morphology, ChatMemberList
-from message.tele_msg import TelegramBot, update_members, ban_member_as_compared_db, ban_member_not_allowed, ban_member_not_allowed_all
+from message.tele_msg import TelegramBot, update_members, update_members_allchat, ban_member_as_compared_db, ban_member_not_allowed, ban_member_not_allowed_all
 from monitor.geo import make_map_locations
 
 # 디버깅을 위한 로그를 선언한다.
@@ -156,7 +156,7 @@ def centerANDmorphology_list(request):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# 단말그룹 리스트 조회 API
+# 메시지 리스트 조회 API
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['GET'])
 def message_list(request, phonegroup_id):
@@ -349,10 +349,13 @@ def update_phonegroup_info(request):
 # 텔레그램 채팅방 멤버 조회 API (04.29)
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['GET'])
-def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 리스트 업데이트 하여 전달 (해당 센터)
+def get_chatmembers(request, centerName):  # 현재 채팅방의 채팅멤버 리스트 업데이트 하여 전
     try:
+        if centerName.startswith('ALL'):  # 전체 채팅방에 대한 refresh 요청일 경우 추가 처리
+            update_members_allchat()
+            centerName = centerName[3:]
         channelId = Center.objects.get(centerName=centerName).channelId
-        update_members(str(channelId), Center.objects.get(centerName=centerName))
+        update_members(channelId, Center.objects.get(centerName=centerName))
         ChatMembers = ChatMemberList.objects.filter(center__centerName=centerName).order_by('id')
         ChatMembersList = []
         if ChatMembers.exists():
@@ -377,19 +380,23 @@ def ban_chatmember(request, member_id):
         member = ChatMemberList.objects.get(id=member_id)
         result = TelegramBot().ban_member(member.chatId, member.userchatId)
         if result == True:
-            ChatMemberList.objects.get(chatId=member.chatId, userchatId=member.userchatId).delete()  # DB에서 해당 멤버 삭제
+            ChatMemberList.objects.get(id=member_id).delete()  # DB에서 해당 멤버 삭제
     except Exception as e:
         print("ban_chatmember():", str(e))
         raise Exception("ban_chatmember(): %s" % e)
     return JsonResponse(data=result, safe=False)
 
-# 2) 해당 센터에 대해서 allowed=False인 멤버 전체 강퇴
+# 2) 특정 or 전체 센터에 대해서 allowed=False인 멤버 전체 강퇴
 @api_view(['GET'])
 def ban_center_chatmembers(request, centerName):
     try:
-        center = Center.obejcts.get(centerName=centerName)
-        result = ban_member_not_allowed(center)
+        if centerName == 'ALL':  # 전체 추방 요청일 경우
+            result = ban_member_not_allowed_all()  # 전체 채팅방에 대해 진행
+        else:
+            center = Center.objects.get(centerName=centerName)  # 특정 센터에 대한 추방 요청일 경우
+            result = ban_member_not_allowed(center)  # 특정 센터만 진행
     except Exception as e:
+        result = False
         print("ban_center_chatmembers():", str(e))
         raise Exception("ban_center_chatmembers(): %s" % e)
     return JsonResponse(data=result, safe=False)

@@ -266,13 +266,15 @@ def update_members(chat_id, center):
                 isBot = member[4],
                 join = True,
             )
-        # 현재 리스트와 DB 비교 후, DB에 더미 데이터가 남아있으면 삭제? - 시나리오 검토 후
+    ChatMemberList.objects.filter(chatId = chat_id, center=center, allowed=False, join=False).delete()  # 미허용/미참석 상태 인원은 DB에서 삭제
 
 def update_members_allchat():
     '''모든 채팅방에 대해 멤버 Update 진행'''
-    chat_id_list = ChatMemberList.objects.values_list('chatId', flat=True).distinct()  # 모든 채팅방ID 추출
-    for chat_id in chat_id_list:
-        update_members(chat_id)  # 개별 채팅방 함수 반복 실행으로 모든 채팅방 업데이트
+    for center in Center.objects.all():
+        update_members(center.channelId, center)
+    # chat_id_list = ChatMemberList.objects.values_list('chatId', 'center')  # 모든 채팅방ID-센터 추출
+    # for chat_id in chat_id_list:
+        # update_members(chat_id)  # 개별 채팅방 함수 반복 실행으로 모든 채팅방 업데이트
 
 def ban_member_as_compared_db(chat_id):
     ''' 저장된 DB와 비교하여 DB에 없는 사용자 강퇴 함수(특정 채팅방)
@@ -309,18 +311,24 @@ def ban_member_not_allowed_all():
     . 반환값(dict):  {chat : 채팅방ID, 유저ID : 강퇴결과}
     . 강퇴 대상 없을 경우 Null Dictionary 반환'''
     update_members_allchat()  # 모든 채팅방에 대해 현재 멤버 업데이트
-    #chat_id_list = ChatMemberList.objects.values_list('chatId', flat=True).distinct()  # 모든 채팅방ID 추출
-    not_allowed_members_list = ChatMemberList.objects.filter(allowed=False).values('userchatId', 'chatId')  # 입장 허용안된 유저 정보 추출
-    result = {}
-    for member in not_allowed_members_list:
-        try:
-            result_ban = TelegramBot().ban_member(member['chatId'], member['userchatId'])
-            result.update({'chat' : member['chatId'], member['userchatId'] : result_ban})
+    not_allowed_members_list = ChatMemberList.objects.filter(allowed=False)  # 입장 허용안된 유저 정보 추출
+    result_list = []
+    try:
+        for member in not_allowed_members_list:
+            result_ban = TelegramBot().ban_member(member.chatId, member.userchatId)
+            result_list.append(result_ban)
+            #result.update({'chat' : member['chatId'], member['userchatId'] : result_ban})
             if result_ban == True:  # 강퇴 성공하면 해당 유저 정보는 DB에서 삭제
-                ChatMemberList.objects.filter(userchatId=member['userchatId'], chatId=member['chatId']).delete()
-        except Exception as e:
-            print("Telegram Ban All-Member Error: ", str(e))
-            raise Exception("ban_member_not_allowed_all(): %s" % e)
+                member.delete()
+                # ChatMemberList.objects.filter(userchatId=member.userchatId, chatId=member.chatId).delete()
+        if False not in result_list:
+            result = True
+        else:
+            result = False
+    except Exception as e:
+        result = False
+        print("Telegram Ban All-Member Error: ", str(e))
+        raise Exception("ban_member_not_allowed_all(): %s" % e)
     return result
 
 
@@ -329,17 +337,21 @@ def ban_member_not_allowed(center):
     . 반환값(dict):  {result : True/False, chat : 채팅방ID, 유저ID : 강퇴결과}
     . 강퇴 대상 없을 경우 Null Dictionary 반환'''
     update_members(center.channelId, center)  # 해당 채팅방에 대해 현재 멤버 업데이트
-    not_allowed_members_list = ChatMemberList.objects.filter(center=center, chatId=center.channelId, allowed=False).values('userchatId', 'chatId')  # 입장 허용안된 유저 정보 추출
-    result = {}
-    for member in not_allowed_members_list:
-        try:
-            result_ban = TelegramBot().ban_member(member['chatId'], member['userchatId'])
-            result.update({'result' : result_ban, 'chat' : member['chatId'], member['userchatId'] : result_ban})
+    not_allowed_members = ChatMemberList.objects.filter(center=center, chatId=center.channelId, allowed=False)  # 입장 허용안된 유저 정보 추출
+    result_list = []
+    try:
+        for member in not_allowed_members:
+            result_ban = TelegramBot().ban_member(member.chatId, member.userchatId)
+            result_list.append(result_ban)
             if result_ban == True:  # 강퇴 성공하면 해당 유저 정보는 DB에서 삭제
                 member.delete()
-                #ChatMemberList.objects.filter(userchatId=member['userchatId'], center=center, allowed=False, chatId=member['chatId']).delete()
-        except Exception as e:
-            print("Telegram Ban Member Error: ", str(e))
-            raise Exception("ban_member_not_allowed(): %s" % e)
+        if False not in result_list:
+            result = True
+        else:
+            result = False
+    except Exception as e:
+        result = False
+        print("Telegram Ban Center-Member Error: ", str(e))
+        raise Exception("ban_member_not_allowed(): %s" % e)
     return result
 ######################################################################################################
