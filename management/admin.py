@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib import auth
 from django.conf import settings
 from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam, ReportCycle, MorphologyMap, \
-    CenterManageArea, ChatMemberList, PhoneInfo
+    CenterManageArea, ChatMemberList, PhoneInfo, MorphologyDetail
 
 ########################################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
@@ -136,6 +136,20 @@ class PhoneInfoAdmin(admin.ModelAdmin):
     # 정렬에는 @property를 사용할 수 없음
     ordering = ('networkId', 'measuringTeam', 'phone_no', )
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 측정단말 사전정보
+# ----------------------------------------------------------------------------------------------------------------------
+class MorphologyDetailAdmin(admin.ModelAdmin):
+    """어드민 페이지에 측정단말 사전정보(PhoneInfo)를 보여주기 위한 클래스"""
+    list_display = ['network_type', 'main_class', 'middle_class', 'sub_class', ]
+    # list_display_links = ['main_class']
+    search_fields = ('network_type', 'main_class', )
+    list_filter = ['network_type', 'main_class', ]
+    # 정렬에는 @property를 사용할 수 없음
+    ordering = ('id', )
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 관리자 페이지에 모델을 등록한다.
 # ----------------------------------------------------------------------------------------------------------------------
@@ -152,6 +166,7 @@ admin.site.register(CenterManageArea, CenterManageAreaAdmin) # 센터별 관할�
 admin.site.register(ChatMemberList, ChatMemberListAdmin) # 채팅방 멤버 리스트
 
 admin.site.register(PhoneInfo, PhoneInfoAdmin) # 측정단말 사전정보
+admin.site.register(MorphologyDetail, MorphologyDetailAdmin) # 측정단말 사전정보
 
 # 사용자 인증관련 그룹을 어드민 페이지에서 제외한다.
 admin.site.unregister(auth.models.Group)

@@ -290,3 +290,16 @@ class PhoneInfo(models.Model):
     class Meta:
         verbose_name = ("측정단말 사전정보")
         verbose_name_plural = ("측정단말 사전정보")
+
+class MorphologyDetail(models.Model):
+    """ 모폴로지 상세정보 """
+    network_type = models.CharField(max_length=100, null=True, blank=True, verbose_name="네트워크")
+    main_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="대분류")
+    middle_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="중분류")
+    sub_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="소분류")
+
+    class Meta:
+        verbose_name = ("모폴로지 상세")
+        verbose_name_plural = ("모폴로지 상세")
+
+# Large Category Medium Category Small Category
