@@ -276,30 +276,32 @@ def send_message(request):
         if 'sendType' in data.keys():
             sendType = data['sendType'] # 전송유형(sendType)
             receiver_list = data['receiver_list'] # 수신자 리스트
-            message = data['message'] # 메시지 내용
+            message_text = data['message_text'] # 메시지 내용
             channelId = data['channelId'] # 채널ID
             message_id = data['id'] # 메시지ID
-            message_qs = Message.objects.get(id=message_id)
-            message_qs.message = message
-            message_qs.save()  # 메시지 수정 시 메시지 내용 DB에 업데이트
-            
+            message = Message.objects.get(id=message_id)
+
+            # DB에서 가저온 메시지 객체의 메시지 내용을 브라우저에서 보내온 변경된 메시지 내용으로 변경한다.
+            message.message = message_text
+            # message.save()  # 메시지 수정 시 메시지 내용 DB에 업데이트
+
             # 1) 문자 메시지를 전송한다.
             if sendType == 'XMCS' or sendType == 'ALL':
                 from message.xmcs_msg import send_sms_queryset
                 receiver_list = receiver_list.replace(' ','').replace('\n','').split(',')
-                result_sms = send_sms_queryset(message_qs, receiver_list)
+                result_sms = send_sms_queryset(message, receiver_list)
                 result = {'result': result_sms}
 
             # 2) 텔레그램 메시지를 재전송 한다.
             elif sendType == 'TELE':
                 bot = TelegramBot()
-                result = bot.send_message_bot(channelId, message)
-                message_qs.telemessageId = result['message_id'] # 텔레그램 메시지ID
-                message_qs.sendTime = datetime.now() # 전송시간(보낸시간)
-                message_qs.isDel = False # 메시지 회수여부
+                result = bot.send_message_bot(channelId, message.message)
+                message.telemessageId = result['message_id'] # 텔레그램 메시지ID
+                message.sendTime = datetime.now() # 전송시간(보낸시간)
+                message.isDel = False # 메시지 회수여부
 
                 # 메시지를 저장한다.
-                message_qs.save()
+                message.save()
 
                 result = {'result': 'ok'}
 
