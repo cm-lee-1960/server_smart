@@ -439,7 +439,7 @@
                                 </thead>
                                 <tbody id='allDetail_body' class="table-hover"
                                     style="height:130px; overflow-y:auto; display:block" ref='allDetail_body'>
-                                <tr v-for="message in messageSmsList" 
+                                <tr v-for="message in messageSmsAllList" 
                                     :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
                                     v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
                                     <td style="width: 11%; display:none" >[[ message.id ]]</td>
@@ -470,14 +470,14 @@
                         <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
                         <ul class="nav nav-tabs nav-pills" id="msgdtl" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
+                                <a class= "nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
                                 role="tab"
-                                aria-controls="msgdtl-message" aria-selected="true">메시지 상세내용</a>
+                                aria-controls="msgdtl-message" aria-selected="true" v-on:click="change_check">메시지 상세내용</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
+                                <a class= "nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
                                 role="tab"
-                                aria-controls="msgdtl-recipient" aria-selected="false">수신자 리스트</a>
+                                aria-controls="msgdtl-recipient" aria-selected="false" v-on:click="change_check">수신자 리스트</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msgdtl-chatmember-tab" data-toggle="tab" href="#msgdtl-chatmember"
@@ -707,7 +707,6 @@
          *            - 문자 메시지 조회시 측정단말 및 단말그룹이 없는 경우 해당 측정일자에 생성된 건이 조회 추가
          *              (전송유형: ALL)
          * 2022.04.12 - 화면처리 흐름도 및 주석 추가
-
          * 2022.04.18 -
          =============================================================================================================*/
         const vm = new Vue({
@@ -715,6 +714,7 @@
             el: '#app',
             data() {
                 return {
+                    bottomRightClickCheck : true,
                     date: "2021-11-01", // 측정일자
                     measuringTeam_count: 0, // 측정조 건수
                     total_count: 0, // 총 측정건수
@@ -724,6 +724,7 @@
                     messageEventListsplit: [], // 이벤트 메시지 유형 리스트
                     messageSmsList: [], // 문자 메시지 리스트
                     messageTeleList: [], // 텔레그램 메시지 리스트
+                    messageSmsAllList: [],
                     message: {}, // 메시지 상세내역
                     timer: null, // 폰그룹 타이머
                     allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
@@ -731,6 +732,7 @@
                     isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
                     message_text: null, // 메시지 텍스트
                     recipient_text: null, // 수신자 리스트
+                    phoneNumber_file: null, //전화번호 파일
                     selectedPhoneGroup: {},
                     centerListAll: [], // 전체 센터 리스트
                     morphologyList: [], // 모폴로지 리스트
@@ -916,9 +918,9 @@
                         this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
                         this.messageSmsList = data['messageSmsList']; // 문자 메시지 리스트
                         this.messageTeleList = data['messageTeleList']; // 텔레그램 메시지 리스트
+                        this.messageSmsAllList = data['messageSmsAllList']; // 텔레그램 메시지 리스트
 
                         /*this.messageEventListsplit = []
-
                         //*를 기준으로 이벤트 메시지 내용을 잘라서 필요 내용만 보게 한다. messageEventListsplit 에 넣어서 표기
                         for(let i=0 ; i < this.messageEventList.length; i++){
                             startPosition = this.messageEventList[i].message.indexOf('*')
@@ -995,7 +997,6 @@
                                                 if (result.isConfirmed) {   //확인을 누른뒤 실행된다
                                                     const res = await fetch("/monitor/end/" + selectedPhoneGroupList[i].id);
                                                     const data = await res.json();
-
                                                     if(data['result'] == 'ok'){
                                                         selectedPhoneGroupList[i].selected = false;
                                                         end_success_count += 1;
@@ -1004,14 +1005,11 @@
                                                         selectedPhoneGroupList[i].selected = true;
                                                         end_error_count += 1;
                                                     }
-
-
                                                 }
                                             })
                             }else{
                                 const res = await fetch("/monitor/end/" + selectedPhoneGroupList[i].id)
                                 const data = await res.json();
-
                                 if(data['result'] == 'ok'){
                                     selectedPhoneGroupList[i].selected = false;
                                     end_success_count += 1;
@@ -1021,7 +1019,6 @@
                                     end_error_count += 1;
                                 }
                             }
-
                     }
                     await this.end_message_alert(end_success_count, end_error_count)
                     await this.fetch_all_phoneGroup();
@@ -1056,7 +1053,6 @@
                                 text: '총' + String(listLen) + '건 중'+ String(errorCount) + '건 실패 하였습니다.',
                             })
                     }
-
                 },
                 */
                 upDateEndWidth: function() {
@@ -1191,7 +1187,8 @@
                         this.deleteMessage()
                     } else if (e.target.innerText === "전송") {
                         this.sendMessage()
-                        this.recipient_text = null; //수신자 리스트 제거
+                        this.recipient_text = null //수신자 리스트 제거
+                        this.$refs.myFile.value = null //전화번호 파일 제거
                     } else if (e.target.innerText === "종료취소") {
                         this.cancelMeasuringEnd()
                     } else if (e.target.innerText === "병합") {
@@ -1569,9 +1566,20 @@
                     const response = await fetch("/api/phonegroup/update/info", requestOptions);
                     await this.fetch_all_phoneGroup();
                 },
+                change_check() {
+                    if(this.bottomRightClickCheck){
+                        this.bottomRightClickCheck = false
+                    }else{
+                        this.bottomRightClickCheck = true
+                    }
+                },
                 clickClearMessage() {
-                    this.message = {};
-                    this.recipient_text = null;
+                    if(this.bottomRightClickCheck){
+                        this.message_text = null;
+                    }else{
+                        this.recipient_text = null;
+                        this.$refs.myFile.value = null;
+                    }
                 },
             },
             beforeDestroy() {
