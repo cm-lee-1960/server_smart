@@ -7,7 +7,7 @@ import random
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
 from message.xmcs_msg import send_sms  # 2022.03.04 크로샷 메시지 전송 함수 호출
-from management.models import Center, Morphology, MorphologyMap, CenterManageArea, PhoneInfo
+from management.models import Center, Morphology, MorphologyMap, CenterManageArea, PhoneInfo, MorphologyDetail
 
 # import logging
 # logger = logging.getLogger(__name__)
@@ -61,6 +61,7 @@ class PhoneGroup(models.Model):
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="유형")  # 네트워크ID(5G, LTE, 3G, WiFi)
     center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="센터")
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
+    morphologyDetail = models.ForeignKey(MorphologyDetail, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="모풀로지상세")
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
                                      choices=sorted(MEASURINGTEAM_CHOICES, key=itemgetter(0)), verbose_name='측정조')
     ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, \
