@@ -1563,7 +1563,7 @@
                             'morphologyName': this.selectedPhoneGroup.morphologyName  // 모폴로지 이름
                         })
                     };
-                    const response = await fetch("/api/phonegroup/update/info", requestOptions);
+                    const response = await fetch("/api/phonegroup/update/info/", requestOptions);
                     await this.fetch_all_phoneGroup();
                 },
                 change_check() {

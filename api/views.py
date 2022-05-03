@@ -320,8 +320,8 @@ def send_message(request):
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
 def update_phonegroup_info(request):
-    ''' 대쉬보드에서 단말그룹 더블클릭하여 정보 수정할 때 함수
-        반환값: {result : 'ok' / 'fail'} '''
+    """ 대쉬보드에서 단말그룹 더블클릭하여 정보 수정할 때 함수
+        반환값: {result : 'ok' / 'fail'} """
     data = request.data
     try:
         phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
