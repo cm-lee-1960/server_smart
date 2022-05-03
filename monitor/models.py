@@ -37,6 +37,7 @@ from management.models import Center, Morphology, MorphologyMap, CenterManageAre
 # 2022.05.01 - 측정시작시간 필드 및 문자 메시지 미전송여부 항목(Decorator) 추가
 #            - 문자 메시지 전송여부 속성(데코레이터) 항목 추가
 #            - DL/UL LTE전환 건수, DL/UL 전송실패 건수 표기
+# 2022.05.03 - 모폴로지상세(morphologyDetail) 항목 추가
 #
 ########################################################################################################################
 class PhoneGroup(models.Model):
