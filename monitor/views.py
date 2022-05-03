@@ -197,6 +197,10 @@ def receive_json(request):
             # 초단위 측정 데이터를 등록한다. 
             mdata = MeasureSecondData.objects.create(phone=phone, **data)
         
+        if mdata.phone.status == 'START_F': make_message(mdata)
+        # 측정시작 메시지(전체대상)
+        #  - 전체대상 측정시작 메시지는 통신사, 측정유형에 상관없이 무조건 측정을 시작하면 한번 메시지를 보낸다.
+        
         # 측정 단말기의 통계값들을 업데이트 한다. 
         # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
         # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).
@@ -227,20 +231,16 @@ def receive_json(request):
         # 2022.02.27 - 측정시작 메시지 분리
         #            - 통신사 및 기타 조건에 상관없이 해당일자 측정이 시작하면 측정시작 메시지를 전송하도록 한다.
         # 2022.03.10 - 측정시작 메시지를 2개로 분리
-        #              1) 측정시작 메시지(전체대상)
+        #              1) 측정시작 메시지(전체대상)  --> 누락 방지를 위해 앞쪽으로 순서 변경 (2022.05.03)
         #              2) 해당지역 측정시작 메시지
-        if 'START' in mdata.phone.status:
-            # 1) 측정시작 메시지(전체대상)
-            #    - 전체대상 측정시작 메시지는 통신사, 측정유형에 상관없이 무조건 측정을 시작하면 한번 메시지를 보낸다.
-            if mdata.phone.status == 'START_F': make_message(mdata)
 
             # 2) 해당지역 측정시작 메시지
             #    - 해당 지역에 대해서 측정을 시작하면 측정시작 메시지를 한번 보낸다.
             #    - 두개의 단말기로 측정을 진행하니 메시지가 한번만 갈 수 있도록 유의히야 한다.
             # (조건: KT 속도측정 데이터에 대해서만 적용)
-            if mdata.phone.status == 'START_M' and mdata.ispId == '45008' and mdata.testNetworkType == 'speed': 
-                make_message(mdata)  # 메시지 작성
-                event_occur_check(mdata)  # 이벤트 발생여부 체크
+        if mdata.phone.status == 'START_M' and mdata.ispId == '45008' and mdata.testNetworkType == 'speed': 
+            make_message(mdata)  # 메시지 작성
+            event_occur_check(mdata)  # 이벤트 발생여부 체크
 
         # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
         elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
