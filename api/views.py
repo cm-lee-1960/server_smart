@@ -7,7 +7,7 @@ import json
 from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer
-from management.models import Center, Morphology, ChatMemberList
+from management.models import Center, Morphology, ChatMemberList, MorphologyDetail
 from message.tele_msg import TelegramBot, update_members, update_members_allchat, ban_member_as_compared_db, ban_member_not_allowed, ban_member_not_allowed_all
 from monitor.geo import make_map_locations
 
@@ -147,7 +147,9 @@ def centerANDmorphology_list(request):
         # 모든 센터 및 모폴로지 추출하여 Json 반환
         centerListAll = list(Center.objects.values_list('centerName', flat=True).order_by('id'))
         morphologyList = list(Morphology.objects.values_list('morphology', flat=True).order_by('id'))
-        data = {'morphologyList': morphologyList, 'centerListAll': centerListAll} # 센터 및 모폴로지 리스트
+        ## 모폴로지 상세 임시데이터 전달 : 수정필요! (05.03)
+        morphDetailDict = {'mainclass1':{'middle1':['a','b','c'],'middle2':['c','b','a']}, 'big2':{'middle1':['a','c'], 'middle3':['e','f','g']}} 
+        data = {'morphologyList': morphologyList, 'centerListAll': centerListAll, 'MorphDetailDict': morphDetailDict} # 센터 및 모폴로지 리스트
     except Exception as e:
         print("morphology_list():", str(e))
         raise Exception("morphology_list(): %s" % e)

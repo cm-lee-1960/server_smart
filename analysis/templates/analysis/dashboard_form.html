@@ -615,6 +615,17 @@
                             <option v-for="morphology in morphologyList" v-bind:value="morphology">[[morphology]]</option>
                         </select>
                     </p>
+                    <p class="mt-1"><label for="morph_detail" class="m-lg-1" style="width: 80px">모폴로지 상세</label>
+                        <select style="width: 90px;" v-on:input="updateMorphDetail_middle($event.target.value)">
+                            <option v-for="(value, key) in MorphDetailDict" :value="key">[[key]]</option>
+                        </select>
+                        <select style="width: 90px;" v-on:input="updateMorphDetail_sub($event.target.value)">
+                            <option v-for="(value, key) in MorphDetailDict_middle" :value="key">[[key]]</option>
+                        </select>
+                        <select style="width: 90px;" v-model="selectedPhoneGroup.morphologyDetail">
+                            <option v-for="morphdetail in MorphDetailDict_sub" :value="morphdetail">[[morphdetail]]</option>
+                        </select>
+                    </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm">저장</button>
@@ -741,8 +752,11 @@
                     activeMessage: {},
 
                     ///////폰그룹 내용 변경 확인 사전
-                    phoneGroupListChangeCheck : {},
-                    clickPhoneGroup : null,
+                    phoneGroupListChangeCheck: {},
+                    clickPhoneGroup: null,
+                    MorphDetailDict: {},
+                    MorphDetailDict_middle: {},
+                    MorphDetailDict_sub: [],
 
                     //////텔레그램 탭 선택 시 별도 메뉴 활성화를 위한 값
                     TelegramClick : true,
@@ -829,6 +843,13 @@
                 // 어떤 속성이 있는지 확인 중,...
             },
             methods: {
+                updateMorphDetail_middle: function (mainclass) {
+                    this.MorphDetailDict_middle = this.MorphDetailDict[mainclass];
+                },
+                updateMorphDetail_sub: function (middleclass) {
+                    this.MorphDetailDict_sub = this.MorphDetailDict_middle[middleclass];
+                },
+
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정일자에 해당하는 측정단말 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
@@ -890,8 +911,10 @@
                 async fetch_all_centerANDmorphology(phoneGroup) {
                     const res = await fetch("/api/phonegroup/update/centerANDmorphology/");
                     const data = await res.json();
-                    this.centerListAll = data['centerListAll']
-                    this.morphologyList = data['morphologyList']
+                    this.centerListAll = data['centerListAll']  // 전체 센터 리스트
+                    this.morphologyList = data['morphologyList']  // 전체 모폴로지 리스트
+                    this.MorphDetailDict = data['MorphDetailDict']; // 모폴로지 상세
+                    console.log(this.MorphDetailDict)
                 },
 
                 /* -----------------------------------------------------------------------------------------------------
@@ -1270,16 +1293,16 @@
                     if(response.ok){
                         Swal.fire({
                             icon: 'success',
-                            title: '문자전송내용',
-                            text: '문자전송이 성공하였습니다.',
+                            title: '메시지전송내용',
+                            text: '메시지 전송이 성공하였습니다.',
                         });
 
                     }else{
 
                         Swal.fire({
                             icon: 'error',
-                            title: '문자전송내용',
-                            text: '문자전송이 실패하였습니다.',
+                            title: '메시지전송내용',
+                            text: '메시지 전송이 실패하였습니다.',
                         });
                     }
                     // 메시지 재전송 완료 후 메시지 리스트를 다시 조회한다.
