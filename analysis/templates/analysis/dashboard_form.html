@@ -603,28 +603,29 @@
                 </div>
                 <div class="modal-body">
                     <font color='blue' size="5pt"><b>[[selectedPhoneGroup.userInfo1]]</b></font>
-                    <p class="mt-1"><label for="center" class="m-lg-1" style="width: 80px">본부</label>
+                    <p class="mt-1"><label for="center" class="m-lg-1" style="width: 110px">본부</label>
                         <select name="center" style="width: 90px;" id="center" v-model="selectedPhoneGroup.centerName">
                             <option v-for="center in centerListAll" v-bind:value="center">[[center]]</option>
                         </select>
                     </p>
-                    <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 80px">측정 조</label>
+                    <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 110px">측정 조</label>
                         <input type="text" style="width: 90px;" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
-                    <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 80px">모폴로지</label>
+                    <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 110px">모폴로지</label>
                         <select name="morphology" style="width: 90px;" id="morphology" v-model="selectedPhoneGroup.morphologyName">
                             <option v-for="morphology in morphologyList" v-bind:value="morphology">[[morphology]]</option>
                         </select>
                     </p>
-                    <p class="mt-1"><label for="morph_detail" class="m-lg-1" style="width: 80px">모폴로지 상세</label>
-                        <select style="width: 90px;" v-on:input="updateMorphDetail_middle($event.target.value)">
-                            <option v-for="(value, key) in MorphDetailDict" :value="key">[[key]]</option>
+                    <p class="mt-1"><label for="morph_detail" class="m-lg-1" style="width: 110px">모폴로지 상세</label>
+                        <select v-model="selectedPhoneGroup.morphologyDetail_main" style="width: 90px;" @change="updateMorphDetail_middle($event)">
+                            <option v-for="(value, key) in MorphDetailDict" v-bind:value="key">[[key]]</option>
                         </select>
-                        <select style="width: 90px;" v-on:input="updateMorphDetail_sub($event.target.value)">
-                            <option v-for="(value, key) in MorphDetailDict_middle" :value="key">[[key]]</option>
+                        <select v-model="selectedPhoneGroup.morphologyDetail_middle" style="width: 90px;" @change="updateMorphDetail_sub($event)">
+                            <option v-for="(value, key) in MorphDetailChoice.middle" v-bind:value="key">[[key]]</option>
                         </select>
                         <select style="width: 90px;" v-model="selectedPhoneGroup.morphologyDetail">
-                            <option v-for="morphdetail in MorphDetailDict_sub" :value="morphdetail">[[morphdetail]]</option>
+                            <option v-for="(value, key) in MorphDetailChoice.sub" v-bind:value="value">[[key]]</option>
                         </select>
+
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -755,8 +756,8 @@
                     phoneGroupListChangeCheck: {},
                     clickPhoneGroup: null,
                     MorphDetailDict: {},
-                    MorphDetailDict_middle: {},
-                    MorphDetailDict_sub: [],
+                    MorphDetailChoice: {'middle':{}, 'sub':{}},
+
 
                     //////텔레그램 탭 선택 시 별도 메뉴 활성화를 위한 값
                     TelegramClick : true,
@@ -843,11 +844,13 @@
                 // 어떤 속성이 있는지 확인 중,...
             },
             methods: {
-                updateMorphDetail_middle: function (mainclass) {
-                    this.MorphDetailDict_middle = this.MorphDetailDict[mainclass];
+                updateMorphDetail_middle: function (event) {
+                    this.MorphDetailChoice['middle'] = '중분류'
+                    this.MorphDetailChoice['middle'] = this.MorphDetailDict[event.target.value];
                 },
-                updateMorphDetail_sub: function (middleclass) {
-                    this.MorphDetailDict_sub = this.MorphDetailDict_middle[middleclass];
+                updateMorphDetail_sub: function (event) {
+                    this.MorphDetailChoice['sub'] = null
+                    this.MorphDetailChoice['sub'] = this.MorphDetailChoice['middle'][event.target.value];
                 },
 
                 /* -----------------------------------------------------------------------------------------------------
@@ -914,7 +917,7 @@
                     this.centerListAll = data['centerListAll']  // 전체 센터 리스트
                     this.morphologyList = data['morphologyList']  // 전체 모폴로지 리스트
                     this.MorphDetailDict = data['MorphDetailDict']; // 모폴로지 상세
-                    console.log(this.MorphDetailDict)
+                    this.MorphDetailChoice = {'middle':{}, 'sub':{}, 'values':{'main':null, 'middle':null, 'id':null}};
                 },
 
                 /* -----------------------------------------------------------------------------------------------------
@@ -1594,7 +1597,8 @@
                             'phoneGroup_id': this.selectedPhoneGroup.id,  // 단말그룹 ID
                             'centerName': this.selectedPhoneGroup.centerName,  // 본부
                             'measuringTeam': this.selectedPhoneGroup.measuringTeam,  // 측정조
-                            'morphologyName': this.selectedPhoneGroup.morphologyName  // 모폴로지 이름
+                            'morphologyName': this.selectedPhoneGroup.morphologyName,  // 모폴로지 이름
+                            'morphologyDetail': this.selectedPhoneGroup.morphologyDetail
                         })
                     };
                     const response = await fetch("/api/phonegroup/update/info/", requestOptions);

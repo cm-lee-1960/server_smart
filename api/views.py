@@ -147,12 +147,24 @@ def centerANDmorphology_list(request):
         # 모든 센터 및 모폴로지 추출하여 Json 반환
         centerListAll = list(Center.objects.values_list('centerName', flat=True).order_by('id'))
         morphologyList = list(Morphology.objects.values_list('morphology', flat=True).order_by('id'))
-        ## 모폴로지 상세 임시데이터 전달 : 수정필요! (05.03)
-        morphDetailDict = {'mainclass1':{'middle1':['a','b','c'],'middle2':['c','b','a']}, 'big2':{'middle1':['a','c'], 'middle3':['e','f','g']}} 
-        data = {'morphologyList': morphologyList, 'centerListAll': centerListAll, 'MorphDetailDict': morphDetailDict} # 센터 및 모폴로지 리스트
+        
+        ## 모폴로지 상세 데이터 전달을 위한 Dictionary 생성
+        MorphDetailDict = {}
+        morphDetails_main = list(dict.fromkeys(MorphologyDetail.objects.values_list('main_class', flat=True).order_by('id')))
+        for morphDetail_main in morphDetails_main:
+            morphDetails_middle = MorphologyDetail.objects.filter(main_class=morphDetail_main).values_list('middle_class', flat=True)
+            MorphDetailDict[morphDetail_main] = dict.fromkeys(morphDetails_middle)
+            for morphDetail_middle in morphDetails_middle:
+                morphDetails_sub = MorphologyDetail.objects.filter(main_class=morphDetail_main, middle_class=morphDetail_middle).values_list('sub_class', 'id')
+                morphDetail_sub = {}
+                for sub_key in morphDetails_sub:
+                    morphDetail_sub[sub_key[0]] = sub_key[1]
+                MorphDetailDict[morphDetail_main][morphDetail_middle] = morphDetail_sub
+
+        data = {'morphologyList': morphologyList, 'centerListAll': centerListAll, 'MorphDetailDict': MorphDetailDict} # 센터 및 모폴로지 리스트
     except Exception as e:
-        print("morphology_list():", str(e))
-        raise Exception("morphology_list(): %s" % e)
+        print("centerANDmorphology_list():", str(e))
+        raise Exception("centerANDmorphology_list(): %s" % e)
 
     return JsonResponse(data=data, safe=False)
 
@@ -330,12 +342,14 @@ def update_phonegroup_info(request):
         centerName = data['centerName']
         measuringTeam = data['measuringTeam'] # 측정조
         morphology = data['morphologyName'] # 모폴로지 이름
+        morphologyDetail = data['morphologyDetail']  # 모폴로지 상세
         qs = PhoneGroup.objects.filter(id=phoneGroup_id)
         if qs.exists():
             phoneGroup = qs[0]
             phoneGroup.center = Center.objects.filter(centerName=centerName)[0]  # 본부
             phoneGroup.measuringTeam = measuringTeam  # 측정조
             phoneGroup.morphology = Morphology.objects.filter(morphology=morphology)[0]  # 모폴로지
+            phoneGroup.morphologyDetail = MorphologyDetail.objects.filter(id=morphologyDetail)[0]  # 모폴로지 상세
             phoneGroup.manage = Morphology.objects.filter(morphology=morphology).values_list('manage', flat=True)[0]  # 모폴로지 값에 따른 Manage 값
             phoneGroup.save()
             result = {'result' : 'ok'}
