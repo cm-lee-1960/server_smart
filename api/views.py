@@ -70,8 +70,8 @@ def phonegroup_list(request, measdate):
         phoneGroupList = []
         if qs.exists():
             fields = ['id', 'measdate', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
-                      'starttime', 'morphologyName', 'networkId',
-                      'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent',
+                      'starttime', 'morphologyName', 'morphologyDetailId', 'morphologyDetailNetwork', 'morphologyDetailMain', 'morphologyDetailMiddle',
+                      'networkId', 'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent',
                       'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended',
                       'dl_nr_count', 'ul_nr_count', 'dl_nr_count_z', 'ul_nr_count_z',
                       'event_count', 'send_failure_dl_count_z', 'send_failure_ul_count_z', ]
@@ -150,16 +150,16 @@ def centerANDmorphology_list(request):
         
         ## 모폴로지 상세 데이터 전달을 위한 Dictionary 생성
         MorphDetailDict = {}
-        morphDetails_main = list(dict.fromkeys(MorphologyDetail.objects.values_list('main_class', flat=True).order_by('id')))
-        for morphDetail_main in morphDetails_main:
-            morphDetails_middle = MorphologyDetail.objects.filter(main_class=morphDetail_main).values_list('middle_class', flat=True)
-            MorphDetailDict[morphDetail_main] = dict.fromkeys(morphDetails_middle)
-            for morphDetail_middle in morphDetails_middle:
-                morphDetails_sub = MorphologyDetail.objects.filter(main_class=morphDetail_main, middle_class=morphDetail_middle).values_list('sub_class', 'id')
-                morphDetail_sub = {}
-                for sub_key in morphDetails_sub:
-                    morphDetail_sub[sub_key[0]] = sub_key[1]
-                MorphDetailDict[morphDetail_main][morphDetail_middle] = morphDetail_sub
+        morphDetails_network = list(dict.fromkeys(MorphologyDetail.objects.values_list('network_type', flat=True).order_by('id')))
+        for morphDetail_network in morphDetails_network:
+            morphDetails_main = MorphologyDetail.objects.filter(network_type=morphDetail_network).values_list('main_class', flat=True)
+            MorphDetailDict[morphDetail_network] = dict.fromkeys(morphDetails_main)
+            for morphDetail_main in morphDetails_main:
+                morphDetails_middle = MorphologyDetail.objects.filter(network_type=morphDetail_network, main_class=morphDetail_main).values_list('middle_class', 'id')
+                morphDetail_middle = {}
+                for morphDetail_id in morphDetails_middle:
+                    morphDetail_middle[morphDetail_id[0]] = morphDetail_id[1]
+                MorphDetailDict[morphDetail_network][morphDetail_main] = morphDetail_middle
 
         data = {'morphologyList': morphologyList, 'centerListAll': centerListAll, 'MorphDetailDict': MorphDetailDict} # 센터 및 모폴로지 리스트
     except Exception as e:
@@ -342,14 +342,14 @@ def update_phonegroup_info(request):
         centerName = data['centerName']
         measuringTeam = data['measuringTeam'] # 측정조
         morphology = data['morphologyName'] # 모폴로지 이름
-        morphologyDetail = data['morphologyDetail']  # 모폴로지 상세
+        morphologyDetailId = data['morphologyDetailId']  # 모폴로지 상세
         qs = PhoneGroup.objects.filter(id=phoneGroup_id)
         if qs.exists():
             phoneGroup = qs[0]
             phoneGroup.center = Center.objects.filter(centerName=centerName)[0]  # 본부
             phoneGroup.measuringTeam = measuringTeam  # 측정조
             phoneGroup.morphology = Morphology.objects.filter(morphology=morphology)[0]  # 모폴로지
-            phoneGroup.morphologyDetail = MorphologyDetail.objects.filter(id=morphologyDetail)[0]  # 모폴로지 상세
+            phoneGroup.morphologyDetail = MorphologyDetail.objects.filter(id=morphologyDetailId)[0]  # 모폴로지 상세
             phoneGroup.manage = Morphology.objects.filter(morphology=morphology).values_list('manage', flat=True)[0]  # 모폴로지 값에 따른 Manage 값
             phoneGroup.save()
             result = {'result' : 'ok'}
