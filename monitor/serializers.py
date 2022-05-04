@@ -108,10 +108,10 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     # center = CenterSerializer(many=False, read_only=True)
     # morphology_id = serializers.ReadOnlyField(source = 'mSorphology.id') # 모폴로지
     morphologyName = serializers.ReadOnlyField(source = 'morphology.morphology') # 모폴로지명
-    morphologyDetailId = serializers.ReadOnlyField(source = 'morphologydetail.id')  # 모폴로지 상세 ID
-    morphologyDetailNetwork = serializers.ReadOnlyField(source = 'morphologydetail.network_type')  # 모폴로지 상세 대분류
-    morphologyDetailMain = serializers.ReadOnlyField(source = 'morphologydetail.main_class')  # 모폴로지 상세 중분류
-    morphologyDetailMiddle = serializers.ReadOnlyField(source = 'morphologydetail.middle_class')  # 모폴로지 상세 소분류
+    morphologyDetailId = serializers.ReadOnlyField(source = 'morphologyDetail.id')  # 모폴로지 상세 ID
+    morphologyDetailNetwork = serializers.ReadOnlyField(source = 'morphologyDetail.network_type')  # 모폴로지 상세 대분류
+    morphologyDetailMain = serializers.ReadOnlyField(source = 'morphologyDetail.main_class')  # 모폴로지 상세 중분류
+    morphologyDetailMiddle = serializers.ReadOnlyField(source = 'morphologyDetail.middle_class')  # 모폴로지 상세 소분류
     p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조 (@property decorator)
     phone_list = serializers.ReadOnlyField()  # 단말번호 리스트
     last_updated_time = serializers.ReadOnlyField() # 최종 측정위치보고 시간 (@property decorator) (예: 12:05)

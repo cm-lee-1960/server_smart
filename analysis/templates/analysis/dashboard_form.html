@@ -622,9 +622,8 @@
                         <select v-model="selectedPhoneGroup.morphologyDetailMain" style="width: 90px;" @change="updateMorphDetail_middle($event)">
                             <option v-for="(value, key) in MorphDetailChoice.main" v-bind:value="key">[[key]]</option>
                         </select>
-                        <select style="width: 90px;" v-model="selectedPhoneGroup.morphologyDetailMiddle">
-                            <option v-for="(value, key) in MorphDetailChoice.middle" v-bind:value="key"
-                            :selected="selectedPhoneGroup.morphologyDetailId = value">[[key]]</option>
+                        <select style="width: 90px;" v-model="selectedPhoneGroup.morphologyDetailId">
+                            <option v-for="(value, key) in MorphDetailChoice.middle" v-bind:value="value">[[key]]</option>
                         </select>
                     </p>
                 </div>
@@ -844,17 +843,6 @@
                 // 어떤 속성이 있는지 확인 중,...
             },
             methods: {
-                updateMorphDetail_main: function (event) {
-                    this.MorphDetailChoice['main'] = this.MorphDetailDict[this.selectedPhoneGroup.morphologyDetailNetwork];
-                    // this.MorphDetailChoice['sub'] = this.MorphDetailChoice['middle'][this.selectedPhoneGroup.morphologyDetailMain];
-                },
-                updateMorphDetail_middle: function (event) {
-                    this.MorphDetailChoice['middle'] = this.MorphDetailChoice['main'][event.target.value];
-                },
-                updateMorphDetail_id: function (event) {
-                    this.selectedPhoneGroup.morphologyDetailId = event.target.value;
-                },
-
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정일자에 해당하는 측정단말 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
@@ -919,6 +907,10 @@
                     this.centerListAll = data['centerListAll']  // 전체 센터 리스트
                     this.morphologyList = data['morphologyList']  // 전체 모폴로지 리스트
                     this.MorphDetailDict = data['MorphDetailDict']; // 모폴로지 상세
+                    if (this.selectedPhoneGroup.morphologyDetailId != null) {
+                        this.MorphDetailChoice['main'] = this.MorphDetailDict[this.selectedPhoneGroup.morphologyDetailNetwork];
+                        this.MorphDetailChoice['middle'] = this.MorphDetailChoice['main'][this.selectedPhoneGroup.morphologyDetailMain];
+                    }
                 },
 
                 /* -----------------------------------------------------------------------------------------------------
@@ -1577,6 +1569,13 @@
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹에 대한 정보를 변경하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/
+                updateMorphDetail_main: function (event) {
+                    this.MorphDetailChoice['main'] = this.MorphDetailDict[event.target.value];
+                },
+                updateMorphDetail_middle: function (event) {
+                    this.MorphDetailChoice['middle'] = this.MorphDetailChoice['main'][event.target.value];
+                },
+
                 doubleclickModifyInfo(phoneGroup) {
                     this.fetch_all_centerANDmorphology(phoneGroup);
                     $("#modifyInfoModal").modal('show');
