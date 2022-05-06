@@ -495,7 +495,7 @@
                                     style="color:rgb(21, 21, 181);border:none;background:none;font-size:18px;">
                                 <i id="message-trash" class="fa fa-telegram" style="color:rgb(21, 21, 181);font-size:24px;"></i>
                                 <span class="caret"></span></button>
-                            <div dropdown-toggle class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
+                            <div dropdown-toggle id="telemenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
                                 <a class="dropdown-item" @click="fetch_chatmembers(selectedPhoneGroup.centerName)" title="채팅방 멤버 새로고침">채팅방 멤버 새로고침</a>
                                 <a class="dropdown-item" @click="clickBanChatCenterMembers" title="센터 내 미허용된 인원 전체 추방">미허용 인원 전체 추방</a>
                                 <div class="dropdown-divider"></div>
@@ -1437,7 +1437,7 @@
                         await Swal.fire({
                             icon: 'warning',
                             title: '잘못된 요청',
-                            text: '단말그룹 선택 후 진행해주세요.',
+                            text: '센터를 선택 후 진행해주세요.',
                         })
                     } else {
                         await Swal.fire({
@@ -1732,6 +1732,10 @@
                     $tbody.find('.no-result').remove();
                     $tbody.find('tr').show();
                 }
+            });
+
+            $("a.dropdown-item").click(function() {
+                $("#telemenu").dropdown("toggle");
             });
 
             $('.filterable .filters .filter-input').keyup(function(e){
