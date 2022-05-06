@@ -361,9 +361,11 @@ class Phone(models.Model):
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.nr_count += 1
                 phoneGroup.dl_nr_count += 1
+                self.meastype = 'DL'  # 5.6 추가 (첫데이터 NR일 시 meastype NULL로 전송되)
             elif mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.nr_count += 1
                 phoneGroup.ul_nr_count += 1
+                self.meastype = 'UL'  # 5.6 추가
         else:
             # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
@@ -576,6 +578,17 @@ class MeasureCallData(models.Model):
     def ul(self):
         """UL 속도를 반환한다."""
         if self.uploadBandwidth is not None and self.uploadBandwidth > 0:
+            return f"{self.uploadBandwidth:.1f}"
+        else:
+            return '-'
+    
+    # 속도값을 반환한다. (5.6추가 : 문자 포맷 변경에 인함)
+    @property
+    def bw(self):
+        '''UL 또는 DL 속도값 반환'''
+        if self.downloadBandwidth is not None and self.downloadBandwidth > 0:
+            return f"{self.downloadBandwidth:.1f}"
+        elif self.uploadBandwidth is not None and self.uploadBandwidth > 0:
             return f"{self.uploadBandwidth:.1f}"
         else:
             return '-'
