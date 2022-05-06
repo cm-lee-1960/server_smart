@@ -339,21 +339,19 @@ def update_phonegroup_info(request):
     data = request.data
     try:
         phoneGroup_id = data['phoneGroup_id']  # 단말그룹ID
-        centerName = data['centerName']
-        measuringTeam = data['measuringTeam'] # 측정조
-        morphology = data['morphologyName'] # 모폴로지 이름
-        morphologyDetailId = data['morphologyDetailId']  # 모폴로지 상세
         qs = PhoneGroup.objects.filter(id=phoneGroup_id)
         if qs.exists():
             phoneGroup = qs[0]
-            phoneGroup.center = Center.objects.filter(centerName=centerName)[0]  # 본부
-            phoneGroup.measuringTeam = measuringTeam  # 측정조
-            phoneGroup.morphology = Morphology.objects.filter(morphology=morphology)[0]  # 모폴로지
-            phoneGroup.morphologyDetail = MorphologyDetail.objects.filter(id=morphologyDetailId)[0]  # 모폴로지 상세
-            phoneGroup.manage = Morphology.objects.filter(morphology=morphology).values_list('manage', flat=True)[0]  # 모폴로지 값에 따른 Manage 값
+            if 'centerName' in data.keys() : phoneGroup.center = Center.objects.filter(centerName=data['centerName'])[0]  # 센터
+            if 'measuringTeam' in data.keys() : phoneGroup.measuringTeam = data['measuringTeam']  # 측정조
+            if 'morphologyName' in data.keys() :
+                phoneGroup.morphology = Morphology.objects.filter(morphology=data['morphologyName'])[0]  # 모폴로지
+                phoneGroup.manage = Morphology.objects.filter(morphology=data['morphologyName']).values_list('manage', flat=True)[0]  # 모폴로지 값에 따른 Manage 값
+            if 'morphologyDetailId' in data.keys() : phoneGroup.morphologyDetail = MorphologyDetail.objects.filter(id=data['morphologyDetailId'])[0]  # 모폴로지 상세
             phoneGroup.save()
             result = {'result' : 'ok'}
-
+        else:
+          result = {'result' : 'fail'}
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
         result = {'result' : 'fail'}
