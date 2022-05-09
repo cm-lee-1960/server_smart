@@ -530,10 +530,9 @@
                             <table id="chatmember_table" class='table table-hover'>
                                 <thead id='chatmember_head' style="height:50px;">
                                 <tr class="bg-light d-flex text-center">
-                                    <th style="width: 16%;">본부</th>
-                                    <th style="width: 15%;">firstName</th>
-                                    <th style="width: 15%;">lastName</th>
-                                    <th style="width: 32%;">userName</th>
+                                    <th style="width: 18%;">본부</th>
+                                    <th style="width: 30%;">이름</th>
+                                    <th style="width: 30%;">닉네임</th>
                                     <th style="width: 11%;">허용</th>
                                     <th style="width: 11%;">추방</th>
                                 </tr>
@@ -543,10 +542,9 @@
                                 <tr v-for="ChatMember in selectedChatMembers" 
                                     v-if="ChatMember.join"
                                     :class="['d-flex text-center']">
-                                    <td style="width: 16%;" >[[ ChatMember.centerName ]]</td>
-                                    <td style="width: 15%;">[[ ChatMember.firstName ]]</td>
-                                    <td style="width: 15%;">[[ ChatMember.lastName ]]</td>
-                                    <td style="width: 32%;">[[ ChatMember.userName ]]</td>
+                                    <td style="width: 18%;" >[[ ChatMember.centerName ]]</td>
+                                    <td style="width: 30%;">[[ ChatMember.firstName ]] [[ ChatMember.lastName ]]</td>
+                                    <td style="width: 30%;">[[ ChatMember.userName ]]</td>
                                     <td style="width: 11%;">
                                         <i class="fa fa-check" aria-hidden="true" style="color:green" v-if="ChatMember.allowed"></i>
                                         <i class="fa fa-times" aria-hidden="true" style="color:rgb(115, 5, 5)" v-else="ChatMember.allowed"></i>
