@@ -1150,6 +1150,22 @@
                 // 2) 측정마감 버튼을 클릭했을 때
                 clickMeasuringClose(e) {
 
+                    // 운용센터가 지정되지 않은 단말그룹이 있는지 확인한다.
+                    let isNullCenter = false;
+                    this.phoneGroupList.forEach(phoneGroup => {
+                        if (typeof phoneGroup.centerName === "undefined"  || phoneGroup.centerName === null || phoneGroup.centerName === "") isNullCenter = true;
+                        // console.log(phoneGroup.centerName, phoneGroup.centerName === null, phoneGroup.centerName === "")
+                        // console.log(phoneGroup.centerName,typeof phoneGroup.centerName === "undefined" )
+                        if (isNullCenter) return
+                    });
+                    if (isNullCenter) {
+                        this.isModelConfirmDisabled = false
+                        $("#modal-btn-confirm").html('일일마감');
+                        $("#modal_body").html("운용센터가 지정되지 않은 단말그룹이 있습니다.");
+                        $("#mi-modal").modal('show');
+                        return
+                    }
+
                     this.isModelConfirmDisabled = true
                     $("#modal-btn-confirm").html('일일마감');
                     $("#modal_body").html("당일(" + this.date + ") 측정을 마감하시겠습니까?");
