@@ -275,7 +275,7 @@
                             <td style="width: 4%;" >
                                 <div class="dropdown flex p-0, m-0">
                                     <button id = "browsersButton" class="btn btn-outline-secondary dropdown-toggle btn-sm"
-                                            type="button" data-toggle="dropdown">
+                                            type="button" data-toggle="dropdown" v-on:click="clickPhoneGroupList(phoneGroup, $event)">
                                         <span class="caret"></span></button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
                                         <a class="dropdown-item" @click="clickCancelMeasuringEnd" title="측정종료 상태를 측정 중으로 변경합니다.">측정종료 취소</a>
