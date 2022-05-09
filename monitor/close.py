@@ -129,6 +129,7 @@ def measuring_end(phoneGroup):
                 message_end = Message.objects.create(
                     phoneGroup=phoneGroup,
                     phone=None, # 측정단말
+                    center=phoneGroup.center,
                     status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
                     measdate=phoneGroup.measdate, # 측정일자
                     sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
@@ -145,6 +146,7 @@ def measuring_end(phoneGroup):
                 message_end = Message.objects.create(
                     phoneGroup=phoneGroup,
                     phone=None, # 측정단말
+                    center=phoneGroup.center,
                     status='END', # 진행상태(POWERON:파워온, START_F:측정첫시작, START_M:측정시작, MEASURING:측정중, END:측정정료)
                     measdate=phoneGroup.measdate, # 측정일자
                     sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
@@ -243,6 +245,7 @@ def measuring_end(phoneGroup):
                     message_last_exists = Message.objects.create(
                         phoneGroup=phoneGroup,
                         phone=None, # 측정단말
+                        center=None,
                         status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
                         measdate=phoneGroup.measdate, # 측정일자
                         sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
@@ -259,6 +262,7 @@ def measuring_end(phoneGroup):
                     message_last_exists = Message.objects.create(
                         phoneGroup=phoneGroup,
                         phone=None, # 측정단말
+                        center=None,
                         status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
                         measdate=phoneGroup.measdate, # 측정일자
                         sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
@@ -417,6 +421,7 @@ def measuring_day_close(phoneGroup_list, measdate):
                 Message.objects.create(
                     phoneGroup=phoneGroup,
                     phone=None,
+                    center=phoneGroup.center,
                     status='REPORT',  # REPORT : 일일보고용 메시지
                     measdate=measdate,
                     sendType='XMCS',
@@ -433,24 +438,60 @@ def measuring_day_close(phoneGroup_list, measdate):
         except Exception as e:
             print("마감 데이터 계산, 일일보고 메시지 생성:", str(e))
             raise Exception("measuring_day_close/data_calculate and message_report: %s" % e)
+   
+    # 일일보고용 메시지를 수합하여 하나로 작성한다 (센터 별)
+    try:
+        messages = Message.objects.filter(status='REPORT', measdate=measdate)
+        if messages.count() != 0:
+            centers = messages.values_list('center', flat=True).distinct()
+            for center in centers:
+                message_report_center = f'[{Center.objects.get(id=center).centerName}]\n\n[평가지역 일일보고]\n\n수신: \n\n금일 품질 측정 결과를 공유해 드리오니 참고하시기 바랍니다.'
+                for message in messages.filter(center=center):
+                    message_report_center += '\n\n' + message.message  # 센터 별 메시지 수합
+                # 메시지를 저장한다.  //  메시지가 이미 존재하면 Update, 없으면 신규 생성
+                message_center_exists = Message.objects.filter(status='REPORT_CENTER', measdate=measdate, center=center)
+                if message_center_exists.exists():
+                    message_center_exists.update(message=message_report_center, updated_at=datetime.now())
+                else:
+                    Message.objects.create(
+                        phoneGroup=None,
+                        phone=None,
+                        center_id=center,
+                        status='REPORT_CENTER',  # REPORT_CENTER : 센터 별, 일일보고용 메시지 전체 수합
+                        measdate=measdate,
+                        sendType='XMCS',
+                        userInfo1=None,
+                        phone_no=None,
+                        downloadBandwidth=None,
+                        uploadBandwidth=None,
+                        messageType='SMS',
+                        message=message_report_center,
+                        channelId='',
+                        sended=False
+                    )
+    except Exception as e:
+        print("일일보고 메시지 수합, 생성(센터 별):", str(e))
+        raise Exception("measuring_day_close/message_report_all(center): %s" % e)
 
-    # 일일보고용 메시지를 수합하여 하나로 작성한다
+    # 일일보고용 메시지를 수합하여 하나로 작성한다 (전체)
     try:
         if Message.objects.filter(status='REPORT', measdate=measdate).count() != 0:
-            message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.\n'
-            messages = Message.objects.filter(status='REPORT', measdate=measdate).values_list('message')
-            for i in range(len(messages)):
-                message_report_all += messages[i][0] + "\n"
+            message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.'
+            messages = Message.objects.filter(status='REPORT', measdate=measdate).order_by('center')
+            for message in messages:
+                message_report_all += "\n\n" + message.message  # 운용본부용 전체 메시지 수합
+                message.delete()  # 수합한 개별 메시지 삭제
 
             # 메시지를 저장한다.  //  메시지가 이미 존재하면 Update, 없으면 신규 생성
-            message_all_exists = Message.objects.filter(status='REPORT_ALL', measdate=measdate, updated_at=datetime.now())
+            message_all_exists = Message.objects.filter(status='REPORT_ALL', measdate=measdate)
             if message_all_exists.exists():
-                message_all_exists.update(message=message_report_all)
+                message_all_exists.update(message=message_report_all, updated_at=datetime.now())
             else:
                 Message.objects.create(
                     phoneGroup=None,
                     phone=None,
-                    status='REPORT_ALL',  # REPORT_ALL : 일일보고용 메시지 전체 수합
+                    center=None,
+                    status='REPORT_ALL',  # REPORT_ALL : 운용본부용, 일일보고용 전체 메시지 전체 수합
                     measdate=measdate,
                     sendType='XMCS',
                     userInfo1=None,
@@ -461,10 +502,10 @@ def measuring_day_close(phoneGroup_list, measdate):
                     message=message_report_all,
                     channelId='',
                     sended=False
-                    )
+                )
     except Exception as e:
-        print("일일보고 메시지 수합, 생성:", str(e))
-        raise Exception("measuring_day_close/message_report_all: %s" % e)
+        print("일일보고 메시지 수합, 생성(전체):", str(e))
+        raise Exception("measuring_day_close/message_report_all(ALL): %s" % e)
     
     # 5G 및 LTE의 커버리지 측정 대상 수를 계산 및 저장한다.  // total_count 컬럼에 대상 수 저장
     measuring_day_close_coverage(measdate)

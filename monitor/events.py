@@ -414,6 +414,7 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
         Message.objects.create(
             phoneGroup=mdata.phone.phoneGroup, # 단말그룹
             phone=mdata.phone,  # 측정단말
+            center=mdata.phone.phoneGroup.center,
             status=mdata.phone.status,  # 측정단말 상태
             measdate=str(mdata.meastime)[0:8],  # 측정일자
             sendType='TELE',  # 메시지 전송유형(TELE: 텔레그램, XMCS: 크로샷)

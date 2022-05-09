@@ -783,7 +783,8 @@ class Message(models.Model):
     """전송 메시지 정보"""
     phoneGroup = models.ForeignKey(PhoneGroup, null=True, on_delete=models.DO_NOTHING)
     phone = models.ForeignKey(Phone, null=True, on_delete=models.DO_NOTHING)
-    status = models.CharField(max_length=10, null=True)  # 메시지 전송시 측정단말의 상태
+    center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING)
+    status = models.CharField(max_length=20, null=True)  # 메시지 전송시 측정단말의 상태
     measdate = models.CharField(max_length=10) # 측정일자(예: 20211101)
     sendType = models.CharField(max_length=10)  # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 텔레그램, 크로샷 모두 전송)
     #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정) ###########

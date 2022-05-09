@@ -247,6 +247,7 @@ def make_message(mdata: MeasureCallData):
         Message.objects.create(
             phoneGroup=phone.phoneGroup, # 단말그룹
             phone=phone,  # 측정단말
+            center=phone.phoneGroup.center,
             status=phone.status,
             # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료,END_LAST:마지막지역측정종료,REPORT:일일보고용,REPORT_ALL:일일보고용전체)
             measdate=str(mdata.meastime)[0:8],  # 측정일자
