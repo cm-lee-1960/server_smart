@@ -166,6 +166,7 @@ class MessageSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 class ChatMemberListSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     centerName = serializers.ReadOnlyField(source = 'center.centerName')  # 유저가 속한 센터
     chatId = serializers.ReadOnlyField(source = 'center.channelId')  # 유저가 속한 채팅방 chat id // 중복 채널 입장 가능?
+    centerName = serializers.ReadOnlyField(source='center.centerName')  # 운용센터명
 
     class Meta:
         model = ChatMemberList

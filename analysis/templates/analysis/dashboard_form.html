@@ -335,7 +335,7 @@
                                 <tr class="bg-light d-flex text-center">
                                     <th style="width: 11%;">생성시간</th>
                                     <th style="width: 11%;">측정단말</th>
-                                    <th style="width: 46%;">메세지</th>
+                                    <th style="width: 45%;">메세지</th>
                                     <th style="width: 11%;">전송시간</th>
                                     <th style="width: 11%;">전송여부</th>
                                     <th style="width: 11%;">회수여부</th>
@@ -347,12 +347,11 @@
                                     :class="['d-flex text-center clickEvent', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
             
                                     v-on:click="clickMessageList(message, $event)" ref = "clickevent_Tr">
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
                                     <td style="width: 11%;" >[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
                                     <!--<td style="width: 46%;" v-html="messageEventListsplit[index]"></td>-->
-                                    <td style="width: 46%;">[[ message.message.split('*')[1] | truncate(75,'...')]]</td>
+                                    <td style="width: 45%;">[[ message.message.split('*')[1] | truncate(75,'...')]]</td>
                                     <td style="width: 11%;">[[ message.sended_time ]]</td>
                                     <td style="width: 11%;" v-if="message.sended">전송</td>
                                     <td style="width: 11%;" v-else="message.sended">미전송</td>
@@ -381,7 +380,6 @@
                                 <tr v-for="message in messageTeleList"
                                     :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
                                     v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
                                     <td style="width: 11%;">[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
@@ -413,7 +411,6 @@
                                 <tr v-for="message in messageSmsList" 
                                     :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
                                     v-on:click="clickMessageList(message, $event)" >
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
                                     <td style="width: 12%;">[[ message.create_time ]]</td>
                                     <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 12%;" v-else="message.phone_no_sht" ref="endmessage_td">-</td>
@@ -431,11 +428,12 @@
                             <table id="all_table" class='table table-hover'>
                                 <thead id='all-header' style="height:50px;">
                                 <tr class="bg-light d-flex text-center">
-                                    <th style="width: 12%;">생성시간</th>
-                                    <th style="width: 12%;">센터</th>
-                                    <th style="width: 52%;">메세지</th>
-                                    <th style="width: 12%;">전송시간</th>
-                                    <th style="width: 12%;">전송여부</th>
+                                    <th style="width: 10%;">센터</th>
+                                    <th style="width: 11%;">생성시간</th>
+                                    <th style="width: 11%;">측정단말</th>
+                                    <th style="width: 46%;">메세지</th>
+                                    <th style="width: 11%;">전송시간</th>
+                                    <th style="width: 11%;">전송여부</th>
                                 </tr>
                                 </thead>
                                 <tbody id='allDetail_body' class="table-hover"
@@ -443,11 +441,11 @@
                                 <tr v-for="message in messageSmsAllList" 
                                     :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
                                     v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
+                                    <td style="width: 11%;">[[ message.centerName ]]</td>
                                     <td style="width: 11%;">[[ message.create_time ]]</td>
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
-                                    <td style="width: 45%;">[[ message.message | truncate(75,'...')]]</td>
+                                    <td style="width: 46%;">[[ message.message | truncate(75,'...')]]</td>
                                     <td style="width: 11%;">[[ message.sended_time ]]</td>
                                     <td style="width: 11%;" v-if="message.sended">전송</td>
                                     <td style="width: 11%;" v-else="message.sended">미전송</td>

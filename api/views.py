@@ -200,7 +200,7 @@ def message_list(request, phonegroup_id):
                     # 1) 이벤트 메시지 내역을 가져온다.
                     event_qs = qs.filter(messageType='EVENT')
                     fields = ['id', 'phone_no_sht', 'create_time', 'message', 'sended_time', 'sended', 'sendType',
-                              'telemessageId', 'channelId', 'isDel']
+                              'telemessageId', 'channelId', 'isDel', 'centerName', ]
                     if event_qs.exists():
                         for message in event_qs:
                             serializer = MessageSerializer(message, fields=fields)
