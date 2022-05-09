@@ -1041,6 +1041,7 @@
                     await this.end_message_alert(end_success_count, end_error_count)
                     await this.fetch_all_phoneGroup();
                     */
+
                     for (let i in this.phoneGroupList) {
                         if (this.phoneGroupList[i].selected) {
                             // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
@@ -1054,7 +1055,9 @@
                         }
                     }
                     return "OK";
+
                 },
+
                 /*
                 //end 메세지 알람 펑션 체크한 내용과 에러 개수 넘긴다 error개수가 0개면 성공 1개라도 잇으면 경고 메세지
                 end_message_alert(listLen, errorCount) {
@@ -1085,14 +1088,14 @@
 
                 // 2) 해당 일자에 대한 측정을 마감한다.
                 async measuring_day_close() {
-                    $("#progressModal").modal('show');
+                    // $("#progressModal").modal('show');
                     //clearInterval(this.timer);
                     //this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
                     const res = await fetch("/monitor/day_close/" + this.date);
+                    /*
                     const data = await res.json();
 
                     if(data['result'] == 'ok'){
-                        //여기서는 백
                         //this.testtt.width = "100%"
                         Swal.fire({
                             icon: 'success',
@@ -1105,6 +1108,7 @@
                             }
                         });
                     }
+                    */
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
@@ -1147,6 +1151,7 @@
                 },
                 // 2) 측정마감 버튼을 클릭했을 때
                 clickMeasuringClose(e) {
+
                     this.isModelConfirmDisabled = true
                     $("#modal-btn-confirm").html('일일마감');
                     $("#modal_body").html("당일(" + this.date + ") 측정을 마감하시겠습니까?");
