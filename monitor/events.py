@@ -400,10 +400,11 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
     # filename = make_map_locations(mdata)
 
     # 메시지를 작성한다.
-    message = f"{mdata.address}에서 측정단말에 이벤트가 발생했습니다. ({mdata.phone.networkId})\n" + \
-              f"* 발생 이벤트({len(events_list)}건): {', '.join(events_list)}\n" + \
-              f"(단말/시간/콜/{mdata.phone.meastype}속도/RSRP/SINR)\n" + \
-              f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / {mdata.bw} / {mdata.rsrp} / {mdata.p_sinr}"
+    message = f"[{mdata.userInfo1} 측정 단말]\n" + \
+            f"{mdata.address}에서 이벤트가 발생했습니다. ({mdata.phone.networkId})\n" + \
+            f"* 발생 이벤트({len(events_list)}건): {', '.join(events_list)}\n" + \
+            f"(단말/시간/콜/{mdata.phone.meastype}속도/RSRP/SINR)\n" + \
+            f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / {mdata.bw} / {mdata.rsrp} / {mdata.p_sinr}"
 
     # 2022.03.17 - 보안이슈로 지도맵 제공기능 취소함
     # message += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
