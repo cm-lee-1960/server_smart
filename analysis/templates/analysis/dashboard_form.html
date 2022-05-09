@@ -300,15 +300,15 @@
                         <ul class="nav nav-tabs nav-pills" id="msg" role="tablist" style="height:44px">
                             <li class="nav-item">
                                 <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
-                                aria-controls="msg-event" aria-selected="true" v-on:click="[messageColor(), TelegramClick=true]">이벤트</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
-                                aria-controls="msg-sms" aria-selected="false" v-on:click="[messageColor(), TelegramClick=false]">문자</a>
+                                aria-controls="msg-event" aria-selected="true" v-on:click="[messageColor(), TelegramClick=true]">텔레그램(이벤트)</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
-                                aria-controls="msg-tele" aria-selected="false" v-on:click="[messageColor(), TelegramClick=true]">텔레그램</a>
+                                aria-controls="msg-tele" aria-selected="false" v-on:click="[messageColor(), TelegramClick=true]">텔레그램(진행)</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
+                                aria-controls="msg-sms" aria-selected="false" v-on:click="[messageColor(), TelegramClick=false]">문자(센터)</a>
                             </li>
                             <!--일마감 메세지 생성-->
                             <li class="nav-item">
@@ -363,6 +363,38 @@
                             </table>
 
                         </div>
+                        <div class="tab-pane fade" id="msg-tele" role="tabpanel" aria-labelledby="msg-tele-tab" style="height:100%;">
+
+                            <table id="tele_table" class='table table-hover'>
+                                <thead id='tele-header' style="height:50px;">
+                                <tr class="bg-light d-flex text-center">
+                                    <th style="width: 11%;">생성시간</th>
+                                    <th style="width: 11%;">측정단말</th>
+                                    <th style="width: 45%;">메세지</th>
+                                    <th style="width: 11%;">전송시간</th>
+                                    <th style="width: 11%;">전송여부</th>
+                                    <th style="width: 11%;">회수여부</th>
+                                </tr>
+                                </thead>
+                                <tbody id='teleDetail_body' class="table-hover"
+                                    style="height:130px; overflow-y:auto; display:block" ref='teleDetail_body'>
+                                <tr v-for="message in messageTeleList"
+                                    :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
+                                    v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
+                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
+                                    <td style="width: 11%;">[[ message.create_time ]]</td>
+                                    <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                    <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                    <td style="width: 45%;">[[ message.message | truncate(75,'...')]]</td>
+                                    <td style="width: 11%;">[[ message.sended_time ]]</td>
+                                    <td style="width: 11%;" v-if="message.sended">전송</td>
+                                    <td style="width: 11%;" v-else="message.sended">미전송</td>
+                                    <td style="width: 11%;" v-if="message.isDel">회수</td>
+                                    <td style="width: 11%;" v-else="message.idDel">-</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <div class="tab-pane fade" id="msg-sms" role="tabpanel" aria-labelledby="msg-sms-tab" style="height:100%;">
 
@@ -394,38 +426,7 @@
                             </table>
 
                         </div>
-                        <div class="tab-pane fade" id="msg-tele" role="tabpanel" aria-labelledby="msg-tele-tab" style="height:100%;">
 
-                            <table id="tele_table" class='table table-hover'>
-                                <thead id='tele-header' style="height:50px;">
-                                <tr class="bg-light d-flex text-center">
-                                    <th style="width: 11%;">생성시간</th>
-                                    <th style="width: 11%;">측정단말</th>
-                                    <th style="width: 45%;">메세지</th>
-                                    <th style="width: 11%;">전송시간</th>
-                                    <th style="width: 11%;">전송여부</th>
-                                    <th style="width: 11%;">회수여부</th>
-                                </tr>
-                                </thead>
-                                <tbody id='teleDetail_body' class="table-hover"
-                                    style="height:130px; overflow-y:auto; display:block" ref='teleDetail_body'>
-                                <tr v-for="message in messageTeleList" 
-                                    :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
-                                    v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
-                                    <td style="width: 11%; display:none" >[[ message.id ]]</td>
-                                    <td style="width: 11%;">[[ message.create_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                    <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
-                                    <td style="width: 45%;">[[ message.message | truncate(75,'...')]]</td>
-                                    <td style="width: 11%;">[[ message.sended_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.sended">전송</td>
-                                    <td style="width: 11%;" v-else="message.sended">미전송</td>
-                                    <td style="width: 11%;" v-if="message.isDel">회수</td>
-                                    <td style="width: 11%;" v-else="message.idDel">-</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
                         <div class="tab-pane fade" id="msg-all" role="tabpanel" aria-labelledby="msg-all-tab" style="height:100%;">
                             <table id="all_table" class='table table-hover'>
                                 <thead id='all-header' style="height:50px;">
