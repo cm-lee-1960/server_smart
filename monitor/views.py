@@ -325,7 +325,8 @@ def measuring_day_close_view(request, measdate):
     #    - 측정마감 메시지가 이미 생성되어 있는 경우(status='REPORT_ALL')
     elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
         Message.objects.filter(status='REPORT_ALL', measdate=date).count() is not 0:
-        return_value = {'result': '해당일자에 측정마감이 이미 처리되었습니다.'}
+        # return_value = {'result': '해당일자에 측정마감이 이미 처리되었습니다.'}
+        return_value = {'result': 'ok'}
 
     # 3) 해당일자에 대한 측정마감을 처리한다.
     else:
