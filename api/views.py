@@ -342,7 +342,9 @@ def update_phonegroup_info(request):
         qs = PhoneGroup.objects.filter(id=phoneGroup_id)
         if qs.exists():
             phoneGroup = qs[0]
-            if 'centerName' in data.keys() : phoneGroup.center = Center.objects.filter(centerName=data['centerName'])[0]  # 센터
+            if 'centerName' in data.keys() :
+                phoneGroup.center = Center.objects.filter(centerName=data['centerName'])[0]  # 센터
+                Message.objects.filter(phoneGroup=phoneGroup).update(center=phoneGroup.center)  # 센터 변경될 경우 메시지의 센터도 일괄 변경
             if 'measuringTeam' in data.keys() : phoneGroup.measuringTeam = data['measuringTeam']  # 측정조
             if 'morphologyName' in data.keys() :
                 phoneGroup.morphology = Morphology.objects.filter(morphology=data['morphologyName'])[0]  # 모폴로지
