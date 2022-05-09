@@ -217,7 +217,7 @@
                             <th style="width: 18%;"><input type="text" class="form-control text-center filter-input" placeholder="측정지역" disabled></th>
                             <th style="width: 7%;"><input type="text" class="form-control text-center filter-input" placeholder="모폴로지" disabled></th>
                             <th style="width: 6%;"><input type="text" class="form-control text-center filter-input" placeholder="네트워크" disabled></th>-->
-                            <th style="width: 4%;" onclick="sortTable(1)">본부 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 4%;" onclick="sortTable(1)">센터 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
                             <th style="width: 4%;" onclick="sortTable(2)">조 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
                             <th style="width: 7%;" onclick="sortTable(3)">단말번호 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
                             <th style="width: 16%;" onclick="sortTable(4)">측정지역 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
@@ -1093,20 +1093,17 @@
                     if(data['result'] == 'ok'){
                         //여기서는 백
                         //this.testtt.width = "100%"
-                        setTimeout(function() {
-                            Swal.fire({
-                                icon: 'success',
-                                title: '일일마감완료',
-                                text: '금일 마감이 완료되었습니다.',
-                            }).then( async (result) => {
-                                    if (result.isConfirmed) {   //확인을 누른뒤 실행된다
-                                        $("#progressModal").modal('hide');
-                                        await this.fetch_all_phoneGroup;
-                                    }
-                                })
-                            });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '일일마감완료',
+                            text: '금일 마감이 완료되었습니다.',
+                        }).then( async (result) => {
+                            if (result.isConfirmed) {   //확인을 누른뒤 실행된다
+                                $("#progressModal").modal('hide');
+                                await this.fetch_all_phoneGroup;
+                            }
+                        });
                     }
-
                 },
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정종료 및 측정마감 버튼을 클릭했을 때 모달창을 띄우는 함수 관련 모듈
