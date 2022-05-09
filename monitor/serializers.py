@@ -147,12 +147,14 @@ class PhoneSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 ########################################################################################################################
 # 메시지 직렬화 클래스
 # ----------------------------------------------------------------------------------------------------------------------
+# 2022.05.09 - 운용센터명 항목 추가
 ########################################################################################################################
 class MessageSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 
     phone_no_sht = serializers.ReadOnlyField()  # 전화번호(끝 4자리) (@property decorator)
     create_time = serializers.ReadOnlyField()  # 메시지 생성시간(예: 12:10) (@property decorator)
     sended_time = serializers.ReadOnlyField()  # 메시지 전송시간(예: 14:20) (@property decorator)
+    centerName = serializers.ReadOnlyField(source='center.centerName')  # 운용센터명
 
     class Meta:
         model = Message
@@ -166,7 +168,6 @@ class MessageSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 class ChatMemberListSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     centerName = serializers.ReadOnlyField(source = 'center.centerName')  # 유저가 속한 센터
     chatId = serializers.ReadOnlyField(source = 'center.channelId')  # 유저가 속한 채팅방 chat id // 중복 채널 입장 가능?
-    centerName = serializers.ReadOnlyField(source='center.centerName')  # 운용센터명
 
     class Meta:
         model = ChatMemberList
