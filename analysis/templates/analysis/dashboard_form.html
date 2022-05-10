@@ -304,21 +304,21 @@
                         <ul class="nav nav-tabs nav-pills" id="msg" role="tablist" style="height:44px">
                             <li class="nav-item">
                                 <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
-                                aria-controls="msg-event" aria-selected="true" v-on:click="[messageColor(), TelegramClick=true]">텔레그램(이벤트)</a>
+                                aria-controls="msg-event" aria-selected="true" v-on:click="message_tele()">텔레그램(이벤트)</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
-                                aria-controls="msg-tele" aria-selected="false" v-on:click="[messageColor(), TelegramClick=true]">텔레그램(진행)</a>
+                                aria-controls="msg-tele" aria-selected="false" v-on:click="message_tele()">텔레그램(진행)</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
-                                aria-controls="msg-sms" aria-selected="false" v-on:click="[messageColor(), TelegramClick=false]">문자(센터)</a>
+                                aria-controls="msg-sms" aria-selected="false" v-on:click="message_xro()">문자(센터)</a>
                             </li>
                             {%  if request.user.is_superuser %}
                             <!--일마감 메세지 생성-->
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
-                                aria-controls="msg-all" aria-selected="false" v-on:click="[messageColor(), TelegramClick=false]">문자(전체)</a>
+                                aria-controls="msg-all" aria-selected="false" v-on:click="message_xro()">문자(전체)</a>
                             </li>
                             {% endif %}
                         </ul>
@@ -477,19 +477,19 @@
                         <!-- 출처: https://bootstrapcreative.com/pattern/basic-responsive-nav-tabs-example/ -->
                         <ul class="nav nav-tabs nav-pills" id="msgdtl" role="tablist">
                             <li class="nav-item">
-                                <a class= "nav-link active" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
+                                <a class= "nav-link" v-bind:class="{'active show': isActiveMessage}" id="msgdtl-message-tab" data-toggle="tab" href="#msgdtl-message"
                                 role="tab"
                                 aria-controls="msgdtl-message" aria-selected="true" v-on:click="change_check">메시지 상세내용</a>
                             </li>
                             <li class="nav-item">
-                                <a class= "nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
-                                role="tab"  v-show="TelegramClick==false"
-                                aria-controls="msgdtl-recipient" aria-selected="false" v-on:click="change_check">수신자 리스트</a>
+                                <a class="nav-link" id="msgdtl-recipient-tab" data-toggle="tab" href="#msgdtl-recipient"
+                                role="tab" v-show="TelegramClick==false"
+                                aria-controls="msgdtl-recipient" aria-selected="false" v-on:click="change_check" ref="channelList_tab_message">수신자 리스트</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msgdtl-chatmember-tab" data-toggle="tab" href="#msgdtl-chatmember"
                                 role="tab" v-show="TelegramClick==true"
-                                aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(selectedPhoneGroup.centerName)">채팅방 멤버</a>
+                                aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(selectedPhoneGroup.centerName)" ref="channelList_tab_xro">채팅방 멤버</a>
                             </li>
                         </ul>
                         <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
@@ -515,8 +515,9 @@
                     <!-- Tabs navs End -->
 
                     <!-- Tabs content -->
+                    {% comment %} v-show="TelegramClick==true" {% endcomment %}
                     <div class="tab-content text-center" id="myTabContent">
-                        <div class="tab-pane fade show active mt-1" id="msgdtl-message" role="tabpanel"
+                        <div class="tab-pane fade mt-1" v-bind:class="{'active show': isActiveMessage}" id="msgdtl-message" role="tabpanel"
                             aria-labelledby="msgdtl-message-tab">
                             <textarea class="form-control mb-2" id="message_contents"
                                     rows="5" v-model="message_text"></textarea>
@@ -524,16 +525,16 @@
                             <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage"
                                     :disabled="message.sendType === 'ALL' || message.sendType === 'XMCS'">회수</button>
                         </div>
-                        <div class="tab-pane fade mt-1" id="msgdtl-recipient" role="tabpanel"
-                            aria-labelledby="msgdtl-recipient-tab">
+                        <div class="tab-pane fade mt-1" id="msgdtl-recipient" role="tabpanel" v-show="TelegramClick==false"
+                            aria-labelledby="msgdtl-recipient-tab" ref="channelList_tab_message_info">
                                 <textarea class="form-control mb-1" id="recipient_list"
-                                        rows="5" v-model="recipient_text" v-show="TelegramClick==false"
+                                        rows="5" v-model="recipient_text" 
                                         placeholder="전화번호는 데시(-)를 제거 후 콤마(,)로 분리하여 다수를 입력 가능합니다." ref = "phoneNumberArea" value></textarea>
-                            <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile" v-show="TelegramClick==false"
+                            <input class="form-control form-control-sm" id="formFileSm" type="file" ref="myFile"
                                 @change="selectedFile"/>
                         </div>
                         <!-- 텔레그램 채팅방 현황 및 강퇴를 위한 탭 -->
-                        <div class="tab-pane fade mt-1" id="msgdtl-chatmember" role="tabpanel" aria-labelledby="msgdtl-chatmember-tab" v-show="TelegramClick==true">
+                        <div class="tab-pane fade mt-1" id="msgdtl-chatmember" role="tabpanel" aria-labelledby="msgdtl-chatmember-tab" v-show="TelegramClick==true" ref="channelList_tab_xro_info">
                             <table id="chatmember_table" class='table table-hover'>
                                 <thead id='chatmember_head' style="height:50px;">
                                 <tr class="bg-light d-flex text-center">
@@ -730,6 +731,8 @@
             el: '#app',
             data() {
                 return {
+                    isActiveMessage : true,
+                    ///////////////////////////
                     bottomRightClickCheck : true,
                     date: "2021-11-01", // 측정일자
                     measuringTeam_count: 0, // 측정조 건수
@@ -927,9 +930,46 @@
                     this.message = {};
 
                 },
-                messageColor: function(){
+                message_tele: function(){
+                    this.TelegramClick=true;
+                    this.isActiveMessage = true;
                     this.tabChangeCheck = false;
+
+                    const clist1 = this.$refs.channelList_tab_message.classList
+                    const clist_info1 = this.$refs.channelList_tab_message_info.classList
+                    if(clist1.contains("active")){
+                        clist1.remove("active", "show")
+                        clist_info1.remove("active", "show")
+                    }
+
+                    const clist2 = this.$refs.channelList_tab_xro.classList
+                    const clist_info2 = this.$refs.channelList_tab_xro_info.classList
+                    if(clist2.contains("active")){
+                        clist2.remove("active", "show")
+                        clist_info2.remove("active", "show")
+                    }
                 },
+                // tele 메세지 탭할때 동작-> 채팅방리스트나 수신자 리스트에 active 나 show가 들어잇으면 class에서 삭제한다 ref사용
+                message_xro: function(){
+                    this.TelegramClick = false;
+                    this.isActiveMessage = true;
+                    this.tabChangeCheck = false;
+
+                    const clist1 = this.$refs.channelList_tab_xro.classList
+                    const clist_info1 = this.$refs.channelList_tab_xro_info.classList
+                    if(clist1.contains("active")){
+                        clist1.remove("active", "show")
+                        clist_info1.remove("active", "show")
+                    }
+
+                    const clist2 = this.$refs.channelList_tab_message.classList
+                    const clist_info2 = this.$refs.channelList_tab_message_info.classList
+                    if(clist2.contains("active")){
+                        clist2.remove("active", "show")
+                        clist_info2.remove("active", "show")
+                    }
+                },
+                // xro 메세지 탭할때 동작 -> 수신자리스트나 채팅방 리스트에 active 나 show가 들어잇으면 class에서 삭제한다 ref사용
                 /* -----------------------------------------------------------------------------------------------------
                  * 전송 메시지(이벤트/문자/텔레그램) 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
@@ -1396,6 +1436,8 @@
                 // 3) 채팅방 멤버 리스트 : DB 리스트 긁어오기, 현재 멤버 긁어오기, 수동 강퇴기능, 자동 강퇴기능
                 // 3-1) 현재 채팅방 멤버를 업데이트 후 fetch_chatmembers받아오기
                 async fetch_chatmembers(centerName) {
+                    this.isActiveMessage = false
+                    console.log(this.isActiveMessage)
                     const res = await fetch("/api/message/get_chatmembers/" + centerName);
                     const data = await res.json()
                     this.selectedChatMembers = data['ChatMembers']
@@ -1644,11 +1686,13 @@
                     await this.fetch_all_phoneGroup();
                 },
                 change_check() {
+                    this.isActiveMessage = false
                     if(this.bottomRightClickCheck){
                         this.bottomRightClickCheck = false
                     }else{
                         this.bottomRightClickCheck = true
                     }
+
                 },
                 clickClearMessage() {
                     if(this.bottomRightClickCheck){
@@ -1659,6 +1703,7 @@
                     }
                 },
             },
+
             beforeDestroy() {
                 // console.log(this.timer); // returns a progressive integer
                 clearInterval(this.timer);
@@ -1666,8 +1711,10 @@
                 this.timer = 0;
                 // console.log("destroyed");
             },
-        });
+            
+        })
 
+    
         const hm = new Vue({
             el: '#head',
             methods: {
