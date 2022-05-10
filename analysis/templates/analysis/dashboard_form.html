@@ -180,6 +180,7 @@
                     </div>
                 </div>
             </div>
+            {%  if request.user.is_superuser %}
             <div class="col-2" align="right">
                 <button type="button" class="btn btn-secondary btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringEnd()" title="선택한 단말그룹을 측정종료 처리하며 해당 지역의 종료 메시지를 생성합니다.">
                     <h5>측정종료</h5>
@@ -187,6 +188,7 @@
                 <button type="button" class="btn btn-danger btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringClose()" title="전체 단말그룹을 측정종료 처리하고 최종보고 메시지를 생성합니다.">
                     <h5>일일마감</h5></button>
             </div>
+            {% endif %}
         </div>
 
         <!-- 금일 측정그룹 -->
@@ -310,11 +312,13 @@
                                 <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
                                 aria-controls="msg-sms" aria-selected="false" v-on:click="[messageColor(), TelegramClick=false]">문자(센터)</a>
                             </li>
+                            {%  if request.user.is_superuser %}
                             <!--일마감 메세지 생성-->
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
                                 aria-controls="msg-all" aria-selected="false" v-on:click="[messageColor(), TelegramClick=false]">문자(전체)</a>
                             </li>
+                            {% endif %}
                         </ul>
                         <div style="display:flex; align-items: center;">
                             <strong><span>[[selectedPhoneGroup.userInfo1]]</span></strong>
@@ -424,6 +428,7 @@
 
                         </div>
 
+                        {%  if request.user.is_superuser %}
                         <div class="tab-pane fade" id="msg-all" role="tabpanel" aria-labelledby="msg-all-tab" style="height:100%;">
                             <table id="all_table" class='table table-hover'>
                                 <thead id='all-header' style="height:50px;">
@@ -455,6 +460,7 @@
                                 </tbody>
                             </table>
                         </div>
+                        {% endif %}
                     </div>
                     <!-- Tabs content End -->
 
