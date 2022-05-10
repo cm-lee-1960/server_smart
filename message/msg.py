@@ -219,12 +219,12 @@ def make_message(mdata: MeasureCallData):
                            f"{phone.networkId}(상용): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 5G 측정 데이터의 경우
             elif phone.networkId == '5G':
-                messages = f"{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 기타(LTE, 3G) 측정데이터의 경우
             else:
-                messages = f"{phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 이벤트 메시지 내용 추가
             messages +=  f"\n- 전송실패 이벤트(DL/UL, 건): {msg.filter(message__contains='DL전송실패').count()}/{msg.filter(message__contains='UL전송실패').count()}" + \

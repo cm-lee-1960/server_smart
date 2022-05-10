@@ -325,6 +325,15 @@ class Phone(models.Model):
         """전화번호 끝 4자리를 반환한다."""
         return str(self.phone_no)[-4:]
 
+    # 측정조를 반환한다.
+    @property
+    def measuringTeam(self):
+        """측정조를 반환한다."""
+        if self.phoneGroup.measuringTeam is None:
+            return ''
+        else:
+            return self.phoneGroup.measuringTeam
+
     # ------------------------------------------------------------------------------------------------------------------
     # 모델을 DB에 저장하는 함수(오버라이딩)
     # - 모델을 DB에 저장하기 전에 처리해야 하는 것들을 작선하다.
