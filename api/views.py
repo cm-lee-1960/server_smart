@@ -48,6 +48,9 @@ db_logger = logging.getLogger('db')
 # 2022.05.01 - 측정시작시간 필드 및 문자 메시지 미전송여부 항목(Decorator) 추가
 #            - 문자 메시지 전송여부 속성(데코레이터) 항목 추가
 #            - DL/UL LTE전환 건수 표기
+# 2022.05.10 - 운용본부 및 현장 사용자 계정에 따라 데이터 필터링 기능 추가
+#            - 운용본부: superuser
+#            - 현장 운용센터: staff
 #
 ########################################################################################################################
 
@@ -66,7 +69,11 @@ def phonegroup_list(request, measdate):
 
     try:
         # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
-        qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
+        if request.user.is_superuser:
+            qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
+        else:
+            qs = PhoneGroup.objects.filter(measdate=measdate, center=request.user.profile.center, ispId='45008', \
+                                           manage=True).order_by('-last_updated_dt')
         phoneGroupList = []
         if qs.exists():
             fields = ['id', 'measdate', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
@@ -88,17 +95,21 @@ def phonegroup_list(request, measdate):
         centerList = []
         total_count = 0
         cursor = connection.cursor()
-        cursor.execute(
-                " SELECT management_center.centerName AS centerName, COUNT( * ) AS count, " + \
+        sql =  " SELECT management_center.centerName AS centerName, COUNT( * ) AS count, " + \
                 " CAST(SUM(IF(monitor_phonegroup.active = true, 0, 1)) AS UNSIGNED) AS end_count, " + \
                 " CAST(SUM(IF(monitor_phonegroup.active = true, 1, 0)) AS UNSIGNED) AS measuring_count " + \
                 " FROM monitor_phonegroup, management_center " + \
                 " WHERE ( monitor_phonegroup.center_id = management_center.id ) " + \
                 f" AND monitor_phonegroup.measdate = '{measdate}' " + \
                 " AND monitor_phonegroup.ispId = '45008' " + \
-                " AND monitor_phonegroup.manage = true " + \
-                " GROUP BY management_center.centerName "
-            )
+                " AND monitor_phonegroup.manage = true "
+        # 관리자가 아닌 경우(현장 운용센터 사용자) 해당 운영센터 데이터만 조회할 수 있도록 한다.
+        if request.user.is_superuser:
+            pass
+        else:
+            sql += f"AND center_id = '{request.user.profile.center_id}' "
+        sql += " GROUP BY management_center.centerName "
+        cursor.execute(sql)
         for centerInfo in cursor.fetchall():
             centerList.append(
                 {'centerName': centerInfo[0], # 센터명
