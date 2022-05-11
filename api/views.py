@@ -2,7 +2,6 @@ from django.http import JsonResponse, HttpResponse
 from django.db import connection
 from django.db.models import Q
 from datetime import datetime
-import json
 
 from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
