@@ -7,7 +7,7 @@ import json
 from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer
-from management.models import Center, Morphology, ChatMemberList, MorphologyDetail
+from management.models import Center, Morphology, ChatMemberList, MorphologyDetail, PhoneInfo
 from message.tele_msg import TelegramBot, update_members, update_members_allchat, ban_member_as_compared_db, ban_member_not_allowed, ban_member_not_allowed_all
 from monitor.geo import make_map_locations
 
@@ -51,6 +51,7 @@ db_logger = logging.getLogger('db')
 # 2022.05.10 - 운용본부 및 현장 사용자 계정에 따라 데이터 필터링 기능 추가
 #            - 운용본부: superuser
 #            - 현장 운용센터: staff
+# 2022.05.12 - 측정단말에 대한 사전정보(측정조)가 등록되지 않은 경우 신규 등록하고, 변경된 경우 업데이트 하는 기능 추가
 #
 ########################################################################################################################
 
@@ -362,6 +363,21 @@ def update_phonegroup_info(request):
                 phoneGroup.manage = Morphology.objects.filter(morphology=data['morphologyName']).values_list('manage', flat=True)[0]  # 모폴로지 값에 따른 Manage 값
             if 'morphologyDetailId' in data.keys() : phoneGroup.morphologyDetail = MorphologyDetail.objects.filter(id=data['morphologyDetailId'])[0]  # 모폴로지 상세
             phoneGroup.save()
+
+            # 측정단말에 대한 사전정보(측정조)가 없거나 다른 경우 역방향 업데이를 한다.
+            for phone in phoneGroup.phone_set.all():
+                qs = PhoneInfo.objects.filter(phone_no=phone.phone_no)
+                if qs.exists():
+                    # 1) 해당 측정단말에 대한 사전정보(측정조)가 등록되어 있는 경우 등록된 측정조가 일치하는지 확인한다.
+                    #    일치하지 않는 경우 측정단말에 대한 사전정보를 업데이트 한다.
+                    phoneInfo = qs[0]
+                    if phoneGroup.measuringTeam is not phoneInfo.measuringTeam:
+                        phoneInfo.measuringTeam = phoneGroup.measuringTeam
+                        phoneInfo.save()
+                else:
+                    # 2) 해당 측정단말에 대한 사전정보가 등록되어 있지 않은 경우 신규 등록한다.
+                    PhoneInfo.objects.create(phone_no=phone.phone_no, networkId=phoneGroup.networkId,
+                                             measuringTeam=phoneGroup.measuringTeam)
             result = {'result' : 'ok'}
         else:
           result = {'result' : 'fail'}
