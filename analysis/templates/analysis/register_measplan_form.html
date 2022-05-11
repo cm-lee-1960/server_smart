@@ -1,13 +1,12 @@
 {% extends "analysis/base.html" %}
 {% load static %}
 {% block extra-style %}
-<!-- Bootstrap core CSS -->
-<link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
+
 <link rel="stylesheet" type="text/css" href="{% static "css/nav.css" %}">
 
 <!-- 부트스트랩 -->
 <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">
-<link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
+<!-- <link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css"> -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
 
 <!-- CSS,JS 호출 -->
@@ -32,7 +31,7 @@
         z-index:10; 
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     } 
-    button{
+    button, span{
 	    display:inline;
 	    margin-left:10px;
 }
@@ -106,7 +105,7 @@
 	
 	
 	body {
-		font-family: 'Poppins', sans-serif;
+		font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 		background: #fafafa;
 	}
 	
@@ -133,7 +132,7 @@
 	
 	#sidebar .sidebar-header {
 		padding: 20px;
-		background: #212529;
+		background: #343a40;
 	}
 	
 	#sidebar ul.components {
@@ -165,6 +164,9 @@
 		padding-left: 30px !important;
 		background: grey;
 	}
+    .bg-dark{
+	background-color: #343a40 !important;
+}
 	</style>
 
 {% endblock %}
@@ -190,16 +192,28 @@
             <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
                 <label style="font-weight: bold;">5G</label><br/>
                 <div class="col-md-2" style="text-align:center">
-                    <label for="area1" class="col-form-label"></br>행정동</br></label>
-                    <input type="text" class="form-control" id="area1" name="hjd5G">
+                    <label for="area1" class="col-form-label"></br>행정동(NSA)</br></label>
+                    <input type="text" class="form-control" id="area1" name="nsahjd5G">
                 </div>
                 <div class="col-md-2" style="text-align:center">
-                    <label for="area2" class="col-form-label">다중이용시설/</br>교통인프라</label>
-                    <input type="text" class="form-control" id="area2" name="dg5G">
+                    <label for="area2" class="col-form-label">다중시설/</br>교통인프라(NSA)</label>
+                    <input type="text" class="form-control" id="area2" name="nsadg5G">
                 </div>
                 <div class="col-md-2" style="text-align:center">
-                    <label for="area3" class="col-form-label"></br>커버리지</br></label>
-                    <input type="text" class="form-control" id="area3" name="cv5G">
+                    <label for="area3" class="col-form-label"></br>SA</br></label>
+                    <input type="text" class="form-control" id="area3" name="sa5G">
+                </div>
+                <div class="col-md-2" style="text-align:center">
+                    <label for="area3" class="col-form-label"></br>공동망</br></label>
+                    <input type="text" class="form-control" id="area3" name="public5G">
+                </div>
+                <div class="col-md-2" style="text-align:center">
+                    <label for="area3" class="col-form-label">다중시설/</br>교통인프라(커버리지)</br></label>
+                    <input type="text" class="form-control" id="area3" name="cvdg5G">
+                </div>
+                <div class="col-md-2" style="text-align:center">
+                    <label for="area3" class="col-form-label"></br>중소시설(커버리지)</br></label>
+                    <input type="text" class="form-control" id="area3" name="cvjs5G">
                 </div>
             </div></br>
             <div class="row"  style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
@@ -217,11 +231,11 @@
                     <input type="text" class="form-control" id="area6" name="sctLTE">
                 </div>
                 <div class="col-md-2" style="text-align:center">
-                    <label for="area7" class="col-form-label">다중이용시설/</br>교통인프라(인빌딩)</label>
+                    <label for="area7" class="col-form-label">다중시설/</br>교통인프라(인빌딩)</label>
                     <input type="text" class="form-control" id="area7" name="ibLTE">
                 </div>
                 <div class="col-md-2" style="text-align:center">
-                    <label for="area8" class="col-form-label">다중이용시설/</br>교통인프라(테마)</label>
+                    <label for="area8" class="col-form-label">다중시설/</br>교통인프라(테마)</label>
                     <input type="text" class="form-control" id="area8" name="tmLTE">
                 </div>
                 <div class="col-md-2" style="text-align:center">
@@ -238,6 +252,10 @@
                 <div class="col-md-2" style="text-align:center">
                     <label for="area11" class="col-form-label"></br>개방</label>
                     <input type="text" class="form-control" id="area11" name="gbWiFi">
+                </div>
+                <div class="col-md-2" style="text-align:center">
+                    <label for="area11" class="col-form-label"></br>공공</label>
+                    <input type="text" class="form-control" id="area11" name="publicWiFi">
                 </div>
             </div></br>
             <div class="row" style="border-bottom: 1px solid rgb(228, 223, 223); padding-bottom: 10px;">
@@ -306,30 +324,10 @@
                     </li>
                 </ul>
             </li>
-            
-            <!-- <li>
-                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
-                <ul class="collapse list-unstyled" id="pageSubmenu">
-                    <li>
-                        <a href="#">Page 1</a>
-                    </li>
-                    <li>
-                        <a href="#">Page 2</a>
-                    </li>
-                    <li>
-                        <a href="#">Page 3</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">Portfolio</a>
-            </li>
-            <li>
-                <a href="#">Contact</a>
-            </li> -->
+         
         </ul>
     </nav>
-	<div id="content">
+	<div id="content" style="height:10px; width:10px;">
 
 		<nav class="navbar navbar-expand-lg">
 			<div class="container-fluid">
@@ -348,7 +346,7 @@
             <div id = 'btnzone'> 
 		        
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#regi_measplan">추가 <i class="icon-fixed-width icon-plus" aria-hidden="true"></i></button>
-                <button class="btn btn-secondary btn-sm" id="modify" >수정 <i class="icon-fixed-width icon-pencil"></i></button>
+                <span class="btn btn-secondary btn-sm" id="modify" onclick="text_modify()" >수정 <i class="icon-fixed-width icon-pencil"></i></span>
                 <button type="submit" class="btn btn-secondary btn-sm" id="complete" form="planmodify" >완료 <i class="icon-fixed-width icon-check"></i></button>
                 
             </div>
@@ -376,21 +374,34 @@
                 <table id="5Ghh" class="table table-hover table-bordered">
                     <thead class="bg-light">
                         <tr>
-                            <th style="width:20%;vertical-align: middle">구분</th>
-                            <th style="width:20%;vertical-align: middle">계</th>
-                            <th style="width:20%;vertical-align: middle">행정동</th>
-                            <th style="width:20%;vertical-align: middle">다중이용시설/<br>교통인프라</th>
-                            <th style="width:20%;vertical-align: middle">커버리지</th>
+                            <th style="width:10%; vertical-align: middle" rowspan ="2">구분</th>
+							<th style="width:30%; vertical-align: middle" colspan="3">NSA</th>
+							<th style="width:10%; vertical-align: middle" rowspan="2">SA</th>
+							<th style="width:10%; vertical-align: middle" rowspan="2">공동망</th>
+							<th style="width:20%; vertical-align: middle" colspan="2">커버리지</th>
+							<th style="width:10%; vertical-align: middle" rowspan="2">계</th>
+                        </tr>
+                        <tr>
+                            <th>행정동</th>
+                            <th>다중시설/<br>교통인프라</th>
+                            <th>소계</th>
+                            <th >다중시설/<br>교통인프라</th>
+                            <th >중소시설</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td >대상</td>
                             {% for yy_list in yy_list %}
-                            <td><p>{{yy_list.total5G}}</p></td>
-                            <td><p>{{yy_list.hjd5G}} </p><input style="display:inline; width:100px;height:20px;" class="form-control" type="text" name="hjd5G" id="textmod2" value="{{yy_list.hjd5G}}"></input></td>
-                            <td><p>{{yy_list.dg5G}} </p><input style="display:inline; width:100px;height:20px" class="form-control" type="text" name="dg5G" id="textmod3" value="{{yy_list.dg5G}}"></input></td>
-                            <td><p>{{yy_list.cv5G}} </p><input style="display:inline; width:100px;height:20px" class="form-control" type="text" name="cv5G" id="textmod4" value="{{yy_list.cv5G}}"></input></td>
+                            <td><p>{{yy_list.nsahjd5G}}</p><input style="display:inline; width:100px;height:20px;" class="form-control mod" type="text" name="nsahjd5G" id="textmod2" value="{{yy_list.nsahjd5G}}"></input></td>
+                            <td><p>{{yy_list.nsadg5G}} </p><input style="display:inline; width:100px;height:20px;" class="form-control mod" type="text" name="nsadg5G" id="textmod2" value="{{yy_list.nsadg5G}}"></input></td>
+                            <td><p>{{yy_list.totalnsa5G}} </p></td>
+                            <td><p>{{yy_list.sa5G}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="sa5G" id="textmod4" value="{{yy_list.sa5G}}"></input></td>
+                            <td><p>{{yy_list.public5G}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="public5G" id="textmod4" value="{{yy_list.public5G}}"></input></td>
+                            <td><p>{{yy_list.cvdg5G}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="cvdg5G" id="textmod4" value="{{yy_list.cvdg5G}}"></input></td>
+                            <td><p>{{yy_list.cvjs5G}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="cvjs5G" id="textmod4" value="{{yy_list.cvjs5G}}"></input></td>
+                            <td><p>{{yy_list.total5G}} </p></td>
+                            
                             {% endfor %}
                         </tr>
                     </tbody>
@@ -422,12 +433,12 @@
                             <td >대상</td>
                             {% for yy_list in yy_list %}
                             <td><p>{{yy_list.totalLTE}}</p></td>
-                            <td><p>{{yy_list.bctLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control" type="text" name="bctLTE" id="textmod6" value="{{yy_list.bctLTE}}"></input></td>
-                            <td><p>{{yy_list.mctLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control" type="text" name="mctLTE" id="textmod7" value="{{yy_list.mctLTE}}"></input></td>
-                            <td><p>{{yy_list.sctLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control" type="text" name="sctLTE" id="textmod8" value="{{yy_list.sctLTE}}"></input></td>
-                            <td><p>{{yy_list.ibLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control" type="text" name="ibLTE" id="textmod9" value="{{yy_list.ibLTE}}"></input></td>
-                            <td><p>{{yy_list.tmLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control" type="text" name="tmLTE" id="textmod10" value="{{yy_list.tmLTE}}"></input></td>
-                            <td><p>{{yy_list.cvLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control" type="text" name="cvLTE" id="textmod11" value="{{yy_list.cvLTE}}"></input></td>
+                            <td><p>{{yy_list.bctLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control mod" type="text" name="bctLTE" id="textmod6" value="{{yy_list.bctLTE}}"></input></td>
+                            <td><p>{{yy_list.mctLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control mod" type="text" name="mctLTE" id="textmod7" value="{{yy_list.mctLTE}}"></input></td>
+                            <td><p>{{yy_list.sctLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control mod" type="text" name="sctLTE" id="textmod8" value="{{yy_list.sctLTE}}"></input></td>
+                            <td><p>{{yy_list.ibLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control mod" type="text" name="ibLTE" id="textmod9" value="{{yy_list.ibLTE}}"></input></td>
+                            <td><p>{{yy_list.tmLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control mod" type="text" name="tmLTE" id="textmod10" value="{{yy_list.tmLTE}}"></input></td>
+                            <td><p>{{yy_list.cvLTE}} </p><input style="display:inline; width:90px;height:20px" class="form-control mod" type="text" name="cvLTE" id="textmod11" value="{{yy_list.cvLTE}}"></input></td>
                             {% endfor %}
                         </tr>
                     </tbody>
@@ -440,10 +451,11 @@
                 <table id="wifihh" class="table table-hover table-bordered ">
                     <thead class="bg-light">
                         <tr>
-                            <th style="width:25%;">구분</th>
-                            <th style="width:25%;">계</th>
-                            <th style="width:25%;">상용</th>
-                            <th style="width:25%;">개방</th>
+                            <th style="width:20%;">구분</th>
+                            <th style="width:20%;">계</th>
+                            <th style="width:20%;">상용</th>
+                            <th style="width:20%;">개방</th>
+                            <th style="width:20%;">공공</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -451,8 +463,9 @@
                             <td>대상</td>
                             {% for yy_list in yy_list %}
                             <td><p>{{yy_list.totalWiFi}}</p></td>
-                            <td><p>{{yy_list.syWiFi}} </p><input style="display:inline; width:100px;height:20px" class="form-control" type="text" name="syWiFi" id="textmod13" value="{{yy_list.syWiFi}}"></input></td>
-                            <td><p>{{yy_list.gbWiFi}} </p><input style="display:inline; width:100px;height:20px" class="form-control" type="text" name="gbWiFi" id="textmod14" value="{{yy_list.gbWiFi}}"></input></td>
+                            <td><p>{{yy_list.syWiFi}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="syWiFi" id="textmod13" value="{{yy_list.syWiFi}}"></input></td>
+                            <td><p>{{yy_list.gbWiFi}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="gbWiFi" id="textmod14" value="{{yy_list.gbWiFi}}"></input></td>
+                            <td><p>{{yy_list.publicWiFi}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="publicWiFi" id="textmod14" value="{{yy_list.publicWiFi}}"></input></td>
                             {% endfor %}
                         </tr>
                     </tbody>
@@ -478,10 +491,10 @@
                         <td >대상</td>
                         {% for yy_list in yy_list %}
                         <td><p >{{yy_list.totalWeakArea}}</p></td>
-                        <td><p>{{yy_list.dsrWeak}} </p><input style="display:inline; width:100px;height:20px" class="form-control" type="text" name="dsrWeak" id="textmod16" value="{{yy_list.dsrWeak}}"></input></td>
-                        <td><p>{{yy_list.yghrWeak}} </p><input style="display:inline; width:100px;height:20px" class="form-control" type="text" name="yghrWeak" id="textmod17" value="{{yy_list.yghrWeak}}"></input></td>
-                        <td><p>{{yy_list.yidsWeak}} </p><input style="display:inline; width:100px;height:20px" class="form-control" type="text" name="yidsWeak" id="textmod18" value="{{yy_list.yidsWeak}}"></input></td>
-                        <td><p>{{yy_list.hadrWeak}} </p><input style="display:inline; width:100px;height:20px" class="form-control" type="text" name="hadrWeak" id="textmod19" value="{{yy_list.hadrWeak}}"></input></td>
+                        <td><p>{{yy_list.dsrWeak}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="dsrWeak" id="textmod16" value="{{yy_list.dsrWeak}}"></input></td>
+                        <td><p>{{yy_list.yghrWeak}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="yghrWeak" id="textmod17" value="{{yy_list.yghrWeak}}"></input></td>
+                        <td><p>{{yy_list.yidsWeak}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="yidsWeak" id="textmod18" value="{{yy_list.yidsWeak}}"></input></td>
+                        <td><p>{{yy_list.hadrWeak}} </p><input style="display:inline; width:100px;height:20px" class="form-control mod" type="text" name="hadrWeak" id="textmod19" value="{{yy_list.hadrWeak}}"></input></td>
                         {% endfor %}
                     </tr>
                 </tbody>
@@ -501,6 +514,7 @@
 <script src="https://unpkg.com/vue@2.4.2"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 <!-- 테스트 사이드바 -->
 <script>
     $(document).ready(function () {
@@ -548,26 +562,13 @@ $(document).ready(function() {
 <script>
 // 수정 완료 이벤트
 $(document).ready(function() {
-	var arr = ['#textmod1','#textmod2','#textmod3','#textmod4','#textmod5','#textmod6','#textmod7','#textmod8','#textmod9','#textmod10','#textmod11','#textmod12','#textmod13',
-    '#textmod14','#textmod15','#textmod16','#textmod17','#textmod18','#textmod19'];
-    
-    for (var i = 0; i<arr.length; i++){
-        $(arr[i]).hide();
-    }
-
-        $('#modify').click(function() {
-            for (var i = 0; i<arr.length; i++){
-            $(arr[i]).toggle();
-            $('p').toggle();
-        }
-    });
-        
-        $('#complete').click(function() {
-            for (var i = 0; i<arr.length; i++){
-            $(arr[i]).hide();
-            $('p').toggle();
-        }
-    });
+    $('.mod').hide();
 });
+
+async function text_modify(){
+    $('.mod').toggle();
+    $('p').toggle();
+}
+
 </script>
 {% endblock %}

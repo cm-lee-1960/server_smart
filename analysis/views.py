@@ -14,7 +14,7 @@ from django.forms import CharField
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from monitor.models import Phone
-from analysis.models import MeasPlan, MeasResult,ReportMessage, MeasLastyear5G, MeasLastyearLTE, PostMeasure5G
+from analysis.models import *
 import pandas as pd
 import datetime
 from django.db.models import Sum
@@ -26,7 +26,7 @@ from monitor.models import *
 from management.models import *
 import json
 from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponsePermanentRedirect, JsonResponse
 from .ajax import *
 
 from django.views.generic import ListView
@@ -36,6 +36,7 @@ from monitor.serializers import MessageSerializer
 from PyPDF2 import PdfFileReader, PdfFileMerger#피디에프병합
 import openpyxl#엑셀업로드
 from django.views.generic import View
+from rest_framework.decorators import api_view
 ###################################################################################################
 # 분석 처리모듈
 # -------------------------------------------------------------------------------------------------
@@ -177,6 +178,7 @@ def dashboard(request):
     if request.user.is_authenticated:
         
         return render(request, "analysis/dashboard_form.html")
+        ##return render(request, "analysis/test.html")
     else:
         return redirect(reverse('accounts:login'))
 
@@ -282,7 +284,7 @@ def report(request):
 # -------------------------------------------------------------------------------------------------
 def report_measplan(request):
     """일일보고 대상등록 페이지 뷰"""
-    context = get_measresult_cntx(request)
+    context = get_measplan_cntx(request)
     return render(request, "analysis/register_measplan_form.html", context)
 
 # -------------------------------------------------------------------------------------------------
@@ -290,7 +292,7 @@ def report_measplan(request):
 # -------------------------------------------------------------------------------------------------
 def report_list(request):
     """일일보고 대상등록 페이지 뷰"""
-    context = get_measresult_cntx(request)
+    context = {}
     return render(request, "analysis/daily_report_list.html", context)
 
 # -------------------------------------------------------------------------------------------------
@@ -299,6 +301,7 @@ def report_list(request):
 def report_measresult(request):
     """일일보고 대상등록 페이지 뷰"""
     context = get_measclose_cntx(request)
+    
     return render(request, "analysis/register_measresult_form.html", context)
 
 # -------------------------------------------------------------------------------------------------
@@ -355,34 +358,143 @@ def delete_measplan(request):
 # - 로직 검토가 필요 임의로 삭제하는 로직이 들어 가 있는데, 기존에 데이터가 있으면 보여주고,
 #   사용자가 삭제할 수 있도록 하는 것이 바람직해 보임
 # -------------------------------------------------------------------------------------------------
-def create_measresult(request):
-    """ 측정완료 등록 및 수정 뷰"""
+###########
+#ajax 테스트
+#####
+###################
+#마감데이터 등록 및 수정
+####################
+@api_view(['POST'])
+def update_closedata(request):
     if request.method == "POST":
+        """ 대쉬보드에서 단말그룹 더블클릭하여 정보 수정할 때 함수
+        반환값: {result : 'ok' / 'fail'} """
+        data = request.data
+        data_len = data['select_tr']
+        try:
+            closedata = LastMeasDayClose.objects.filter(phoneGroup=int(data['select_tr'][0]),measdate=data['select_tr'][1],userInfo1=data['select_tr'][2])
+            # if closedata.exists():
+               
+            closedata.phoneGroup = int(data_len[0])
+            closedata.measdate = data_len[1]
+            closedata.userInfo1 = data_len[2]
+            closedata.networkId = data_len[3]
+            closedata.center = data_len[4]
+            closedata.morphology = data_len[5]
+            closedata.district = data_len[6]
+            closedata.guGun = data_len[7]
+            closedata.address = data_len[8]
+            closedata.downloadBandwidth = float(data_len[9])
+            closedata.uploadBandwidth = float(data_len[10])
+            closedata.lte_percent =float(data_len[11])
+            closedata.success_rate = float(data_len[12])
+            closedata.connect_time = float(data_len[13])
+            closedata.udpJitter = float(data_len[14])
+            closedata.plus = data_len[14]
+            # 기존에 등록된 측정결과 데이터가 있으면 삭제한다.
+            # LastMeasDayClose.objects.filter(phoneGroup=int(closedata.phoneGroup), measdate=closedata.measdate, userInfo1=closedata.userInfo1).delete()
+            # 측정결과를 저장한다.
+            closedata.save()
+           
+            result = {'result' : 'ok',}
+            print("존재") 
+            # else:
+            #     print("존재X")
+            #     closedata_new = LastMeasDayClose.objects.create( 
+            #         phoneGroup_id = int(data_len[0]),
+            #         measdate = data_len[1],
+            #         userInfo1 = data_len[2],
+            #         networkId = data_len[3],
+            #         Center = data_len[4],
+            #         Morphology = data_len[5],
+            #         district = data_len[6],
+            #         address = data_len[7],
+            #         downloadBandwidth = float(data_len[8]),
+            #         uploadBandwidth = float(data_len[9]),
+            #         lte_percent =float(data_len[10]),
+            #         success_rate = float(data_len[11]),
+            #         connect_time = float(data_len[12]),
+            #         udpJitter = float(data_len[13]),
+            #         plus = data_len[14]
+            #     )
+    
+            #     result = {'result' : 'ok',}
+            #         ###############
+            
         
-      
-        measresult1 = TestDayClose()
-        measresult1.phoneGroup_id = request.POST['phoneGroup_id']
-        measresult1.measdate = request.POST['measdate']
-        measresult1.userInfo1 = request.POST['userInfo1']
-        measresult1.networkId = request.POST['networkId']
-        measresult1.district = request.POST['district']
-        measresult1.mopo = request.POST['mopo']
-        measresult1.address = request.POST['address']
-        measresult1.downloadBandwidth = request.POST['downloadBandwidth']
-        measresult1.uploadBandwidth = request.POST['uploadBandwidth']
-        measresult1.lte_percent = request.POST['lte_percent']
-        measresult1.success_rate = request.POST['success_rate']
-        measresult1.connect_time = request.POST['connect_time']
-        measresult1.udpJitter = request.POST['udpJitter']
-        measresult1.plus = request.POST['plus']
-        # 기존에 등록된 측정결과 데이터가 있으면 삭제한다.
-        TestDayClose.objects.filter(phoneGroup_id=measresult1.phoneGroup_id, measdate=measresult1.measdate, userInfo1=measresult1.userInfo1).delete()
+        except Exception as e:
+           
+            closedata_new = LastMeasDayClose.objects.create( 
+                phoneGroup = int(data_len[0]),
+                measdate = data_len[1],
+                userInfo1 = data_len[2],
+                networkId = data_len[3],
+                center = data_len[4],
+                morphology = data_len[5],
+                district = data_len[6],
+                guGun = data_len[7],
+                address = data_len[8],
+                downloadBandwidth = float(data_len[9]),
+                uploadBandwidth = float(data_len[10]),
+                lte_percent =float(data_len[11]),
+                success_rate = float(data_len[12]),
+                connect_time = float(data_len[13]),
+                udpJitter = float(data_len[14]),
+                plus = data_len[15]
+            )
 
-        # 측정결과를 저장한다.
-        measresult1.save()
+            result = {'result' : 'ok',}
+                ###############
+        
+            print("존재X")
+            
+            
+            
+            # print("에러.")
+            # # 오류 코드 및 내용을 반환한다.
+            # result = {'result' : 'fail'}
 
-    return redirect("analysis:report_measresult")
+             
+            
+            
+            
+    return JsonResponse(data=result, safe=False)
 
+
+###################
+#마감데이터 삭제
+####################
+@api_view(['POST'])
+def delete_closedata(request):
+    if request.method == "POST":
+        """ 대쉬보드에서 단말그룹 더블클릭하여 정보 수정할 때 함수
+        반환값: {result : 'ok' / 'fail'} """
+        data = request.data
+        data_len = data['select_tr']
+        try:
+            print("존재")    
+            LastMeasDayClose.objects.filter(phoneGroup=int(data['select_tr'][0]),measdate=data['select_tr'][1],userInfo1=data['select_tr'][2]).delete()
+            result = {'result' : 'ok',}
+    
+        
+        except Exception as e:
+            print("에러.")
+            # 오류 코드 및 내용을 반환한다.
+            result = {'result' : 'fail'}
+        
+            
+            
+            
+            
+            # print("에러.")
+            # # 오류 코드 및 내용을 반환한다.
+            # result = {'result' : 'fail'}
+
+            
+            
+            
+            
+    return JsonResponse(data=result, safe=False)
 
 # -------------------------------------------------------------------------------------------------
 # 6) 측정완료 삭제
@@ -484,6 +596,40 @@ def create_postmeasureLTE(request):
 
     return redirect("analysis:report")
       
+
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 측정마감데이터 조회 API
+# ----------------------------------------------------------------------------------------------------------------------
+@api_view(['GET'])
+def closedata_list(request, measdate):
+    # 측정일자가 파라미터로 넘어오지 않는 경우 현재 날짜로 측정일자를 설정한다.
+    if measdate is not None:
+        # 측정일자에서 데시(-)를 제거한다(2021-11-01 -> 20211101).
+        measdate = measdate.replace('-', '')
+    else:
+        # 측정일자를 널(Null)인 경우 현재 일자로 설정한다.
+       measdate = datetime.now().strftime("%Y%m%d")
+
+    try:
+        # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
+        measclose = LastMeasDayClose.objects.filter(measdate=measdate, manage=True).order_by('-last_updated_dt')
+        
+        if measclose.exists():
+            context = {'measclose':measclose}
+            return render(request, "analysis/register_measresult_form.html", context)
+        
+
+    except Exception as e:
+        print("closedata_list():", str(e))
+        # db_logger.error("phonegroup_list(): %s" % e)
+        raise Exception("closedata_list(): %s" % e)
+
+    # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
+    
+
+
        
 
 

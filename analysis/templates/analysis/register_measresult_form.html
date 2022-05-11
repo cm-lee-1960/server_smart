@@ -1,8 +1,7 @@
 {% extends "analysis/base.html" %}
 {% load static %}
 {% block extra-style %}
-<!-- Bootstrap core CSS -->
-<link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
+
 <link rel="stylesheet" type="text/css" href="{% static "css/nav.css" %}">
 
 <!-- 부트스트랩 -->
@@ -17,6 +16,7 @@
 <!-- 아이콘 -->
 
 <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
     #btnzone{
         border-radius:0px 0px 10px 10px;
@@ -95,7 +95,7 @@
 	
 	
 	body {
-		font-family: 'Poppins', sans-serif;
+		font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 		background: #fafafa;
 	}
 	
@@ -122,7 +122,7 @@
 	
 	#sidebar .sidebar-header {
 		padding: 20px;
-		background: #212529;
+		background: #343a40;
 	}
 	
 	#sidebar ul.components {
@@ -154,13 +154,16 @@
 		padding-left: 30px !important;
 		background: grey;
 	}
+    .bg-dark{
+	background-color: #343a40 !important;
+}
 	</style>
 
 {% endblock %}
 {% block contents %}
 
 <body>
-    
+<div id="app" v-cloak>    
    
 <!-- 메인화면 -->
 <div  style="display:flex; flex-flow: row nowrap;">
@@ -197,29 +200,10 @@
                 </ul>
             </li>
             
-            <!-- <li>
-                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
-                <ul class="collapse list-unstyled" id="pageSubmenu">
-                    <li>
-                        <a href="#">Page 1</a>
-                    </li>
-                    <li>
-                        <a href="#">Page 2</a>
-                    </li>
-                    <li>
-                        <a href="#">Page 3</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">Portfolio</a>
-            </li>
-            <li>
-                <a href="#">Contact</a>
-            </li> -->
+           
         </ul>
     </nav>
-	<div id="content">
+	<div id="content" style="height:10px; width:10px;">
 
 		<nav class="navbar navbar-expand-lg">
 			<div class="container-fluid">
@@ -235,24 +219,31 @@
 
 <div id="blank" style="width:250px;"></div>
 
-<div id="show1" style="margin:20px;border: 1px solid rgb(228, 223, 223); padding: 10px; width:80%;">
+<div id="show1" style="margin:20px;border: 1px solid rgb(228, 223, 223); padding: 10px; width:95%;">
     <!-- <div id="search zone" style="text-align: right;">
         <input type="search" class="form-control" style="width:200px;display:inline;"></input>
         <button class="btn btn-primary" style="display:inline;" type="submit">검색</button>
     </div></br> -->
-    <div id="search zone" style="text-align: right;">
-        <input type="search" class="form-control" style="width:200px;display:inline;"></input>
-        <button class="btn btn-primary" style="display:inline;" type="button" >날짜 검색</button>
+    <div id="utility zone" style="text-align: right;">
+         <!-- 날짜검색 -->
+        <div class="mt-1">
+            <input style="height: 24px; width:160px;" type="date" class="form-control"
+                   v-model="date">
+        </div>
+        <button class="btn btn-secondary" style="display:inline;" type="button" id="plus_meas" onclick="plus_meas()" >추가</button>
+       
     </div></br>
     <div id="output" style="text-align: center;">
-        <table id="5Ghh" class="table table-hover table-bordered ">
+        <table id="closedata_table" class="table table-hover table-bordered ">
             <thead class="bg-light" id="cloasdata-header">
                 <tr>
                     <th>날짜</th>
                     <th>측정명</th>
-                    <th>구분</th>
-                    <th>지역</th>
+                    <th>구분{{price1}}</th>
+                    <th>센터</th>
                     <th>모폴로지</th>
+                    <th>지역</th>
+                    <th>구군</th>
                     <th>상세정보</th>
                     <th>DL</th>
                     <th>UL</th>
@@ -261,62 +252,41 @@
                     <th>접속</th>
                     <th>지연</th>
                     <th>추가사항</th>
-                    
+                    <th>수정</th>
                 </tr>
             </thead>
             <tbody id="closedata-body">
-                <form action="{% url 'analysis:create_measresult' %}" method="POST" style="display:inline;" id="measresult">{% csrf_token %}
+                
                 {% for measclose in measclose %}
-                
-                <tr v-for="measclose in measclose">
-                    <input type = 'text' style="display:none;" name="phoneGroup_id" value="{{measclose.phoneGroup_id}}"></input>
-                    <!-- <td style="width:5%"><p>{{measclose.measdate}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="measdate" id="textmod1" value="{{measclose.measdate}}"></input></td>
-                    <td style="width:15%"><p>{{measclose.userInfo1}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="userInfo1" id="textmod2" value="{{measclose.userInfo1}}"></input></td> 
-                    <td style="width:5%"><p>{{measclose.networkId}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="networkId" id="textmod3" value="{{measclose.networkId}}"></input></td>
-                    <td style="width:5%"><p>{{measclose.district}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="district" id="textmod4" value="{{measclose.district}}"></input></td>
-                    <td style="width:5%"><p>{{measclose.mopo}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="mopo" id="textmod5" value="{{measclose.mopo}}"></input></td>
-                    <td style="width:5%"><p>{{measclose.address}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="address" id="textmod7" value="{{measclose.address}}"></input></td></td>
-                    <td style="width:5%"><p>{{measclose.downloadBandwidth}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="downloadBandwidth" id="textmod6" value="{{measclose.downloadBandwidth}}"></input></td></td>
-                    <td style="width:5%"><p>{{measclose.uploadBandwidth}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="uploadBandwidth" id="textmod7" value="{{measclose.uploadBandwidth}}"></input></td></td>
-                    <td style="width:5%"><p>{{measclose.lte_percent}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="lte_percent" id="textmod7" value="{{measclose.lte_percent}}"></input></td></td>
-                    <td style="width:5%"><p>{{measclose.success_rate}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="success_rate" id="textmod7" value="{{measclose.success_rate}}"></input></td></td>
-                    <td style="width:5%"><p>{{measclose.connect_time}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="connect_time" id="textmod7" value="{{measclose.connect_time}}"></input></td>
-                    <td style="width:5%"><p>{{measclose.udpJitter}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="udpJitter" id="textmod7" value="{{measclose.udpJitter}}"></input></td>
-                    <td style="width:5%"><p>{{measclose.plus}}</p> <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="plus" id="textmod7" value="{{measclose.plus}}"></input></td> -->
-                    <td style="width:5%">{{measclose.measdate}}</td>
-                    <td style="width:15%">{{measclose.userInfo1}}</td> 
-                    <td style="width:5%">{{measclose.networkId}}</td>
-                    <td style="width:5%" v-on:dblclick="doubleclickdistrict(measclose)"data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
-                    title="마우스로 더블클릭하면 지역을 변경할 수 있습니다."><p id="currentdistrict">{{measclose.district}}</p>
-                    <input style="display:inline; width:110%;height:20px" class="form-control mod" type="text" name="district" id="inputdistrict" value="{{measclose.district}}"></input></td>
-                    <td style="width:5%" v-on:dblclick="doubleclickmopo(measclose)"
-                    data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
-                    title="마우스로 더블클릭하면 모폴로지를 변경할 수 있습니다.">{{measclose.mopo}}</td>
-                    <td style="width:5%"v-on:dblclick="doubleclickaddress(measclose)"
-                    data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
-                    title="마우스로 더블클릭하면 상세지역을 변경할 수 있습니다.">{{measclose.address}}</td>
-                    <td style="width:5%">{{measclose.downloadBandwidth}}</td>
-                    <td style="width:5%">{{measclose.uploadBandwidth}}</td>
-                    <td style="width:5%">{{measclose.lte_percent}}</td>
-                    <td style="width:5%">{{measclose.success_rate}}</td>
-                    <td style="width:5%">{{measclose.connect_time}}</td>
-                    <td style="width:5%">{{measclose.udpJitter}}</td>
-                    <td style="width:5%"v-on:dblclick="doubleclickplus(measclose)"
-                    data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center"
-                    title="마우스로 더블클릭하면 기타사항을 변경할 수 있습니다.">{{measclose.plus}}</td>
-                </form>
-                    
-                    
+                 
+                <tr data-value ="${measclose}">
+                    <td style="display:none;"><p></p><input type = 'text'  name="phoneGroup" value="{{measclose.phoneGroup}}"></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.measdate}}</p> <input style="display:inline;" class="form-control mod" type="text" name="measdate" id="textmod1" value="{{measclose.measdate}}"></input></td>
+                    <td style="width:15%"><p class="measclosedata">{{measclose.userInfo1}}</p> <input style="display:inline;" class="form-control mod" type="text" name="userInfo1" id="textmod2" value="{{measclose.userInfo1}}"></input></td> 
+                    <td style="width:5%"><p class="measclosedata">{{measclose.networkId}}</p> <input style="display:inline;" class="form-control mod" type="text" name="networkId" id="textmod3" value="{{measclose.networkId}}"></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.center}}</p> <input style="display:inline;" class="form-control mod" type="text" name="center" id="textmod4" value="{{measclose.center}}"></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.morphology}}</p> <input style="display:inline;" class="form-control mod" type="text" name="morphology" id="textmod5" value="{{measclose.morphology}}"></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.district}}</p> <input style="display:inline;" class="form-control mod" type="text" name="district" id="textmod7" value="{{measclose.district}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.guGun}}</p> <input style="display:inline;" class="form-control mod" type="text" name="guGun" id="textmod7" value="{{measclose.guGun}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.address}}</p> <input style="display:inline;" class="form-control mod" type="text" name="address" id="textmod7" value="{{measclose.address}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.downloadBandwidth}}</p> <input style="display:inline;" class="form-control mod" type="text" name="downloadBandwidth" id="textmod6" value="{{measclose.downloadBandwidth}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.uploadBandwidth}}</p> <input style="display:inline;" class="form-control mod" type="text" name="uploadBandwidth" id="textmod7" value="{{measclose.uploadBandwidth}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.lte_percent}}</p> <input style="display:inline; " class="form-control mod" type="text" name="lte_percent" id="textmod7" value="{{measclose.lte_percent}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.success_rate}}</p> <input style="display:inline;" class="form-control mod" type="text" name="success_rate" id="textmod7" value="{{measclose.success_rate}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.connect_time}}</p> <input style="display:inline;" class="form-control mod" type="text" name="connect_time" id="textmod7" value="{{measclose.connect_time}}"></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.udpJitter}}</p> <input style="display:inline;" class="form-control mod" type="text" name="udpJitter" id="textmod7" value="{{measclose.udpJitter}}"></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.plus}}</p> <input style="display:inline;" class="form-control mod" type="text" name="plus" id="textmod7" value='{{measclose.plus}}'></input></td>
+                    <td style="width:10%"><button class="btn btn-secondary btn-sm modifybtn" onclick="modify_closedata()">수정 <i class="icon-fixed-width icon-pencil" onclick="event.stopPropagation()"></i></button> <button class="btn btn-secondary btn-sm completebtn" onclick="update_closedata()">완료 <i class="icon-fixed-width icon-check" onclick="event.stopPropagation()"></i></button>
+                    <button class="btn btn-secondary btn-sm deletebtn" onclick="delete_closedata()">삭제 <i class="icon-trash" onclick="event.stopPropagation()"></i></button><button class="btn btn-secondary btn-sm canclebtn" onclick="cancle_closedata()">취소 <i class="icon-ban-circle" onclick="event.stopPropagation()"></i></button></td>    
+                </tr>
                
-               </tr>
-              
-                
-            </div>
-            {% endfor %}
+                {% endfor %}
+            
         
             </tbody>
         </table>
     </div>
+</div>
 </div>
 </body>
 {% endblock %}
@@ -338,50 +308,235 @@
     $('#report_nav').addClass('nav-item active');
 	$('#dashboard_nav').removeClass('nav-item active');
 	$('#dashboard_nav').addClass('nav-item');
-    </script>
-<!-- <script>
-// 수정 완료 이벤트
-$(document).ready(function() {
-	var arr = ['#textmod1','#textmod2','#textmod3','#textmod4','#textmod5','#textmod6','#textmod7','#textmod8','#textmod9','#textmod10','#textmod11','#textmod12','#textmod13',
-    '#textmod14','#textmod15','#textmod16','#textmod17','#textmod18','#textmod19'];
+    // 수정 완료 이벤트
+    $('.canclebtn').hide();
     $('.mod').hide();
-    $('.complete').hide();
-
-
-});
-
-</script> -->
-<script>
-
-
-/*
-* @description 사용자 정보 수정
-*/
-// function onClickUpdate(){	
-// 	$('.complete').toggle();
-//     $('.measdelete').toggle();
-// 	var targetBtn = event.target;
-// 	var parentTr = targetBtn.parentNode.parentNode;
-// 	var tdNode = parentTr.childNodes;
-// 	var row = document.querySelectorAll('.updateRow')
-  
-// 	parentTr.className = "updateRow";
-//     $('.updateRow').find('.mod').toggle();
-//     $('.updateRow').find('p').toggle();	
-// 	parentTr.classList.remove("updateRow");	
-	
-// }
+    $(".completebtn").hide();
 </script>
+
 <script>
-const vm = new Vue({
-    methods: {
-        // 마감데이터 더블클릭 수정
-        doubleclickdistrict(measclose) {
-            $("#inputdistrict").toggle();
-            $("#currentdistrict").toggle();
-            }
+
+
+async function update_closedata(){
+    var targetBtn = event.target;
+    var parentTr = targetBtn.parentNode.parentNode;
+    var data_len = []
+    for(let i=0; i < parentTr.children.length-1; i++){
+        console.log($(parentTr.children[i].children[1]).val())
+        data_len.push($(parentTr.children[i].children[1]).val())
     }
-});
+    console.log(data_len)
+    const requestOptions = {         
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}',
+                    "Content-Type": "application/json",
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    'select_tr': data_len
+                    
+                })
+            };
+                           
+    const res = await fetch("/analysis/measresult/create/", requestOptions);
+    const data = await res.json();
+    
+    console.log(data)
+    if(data['result'] == 'ok'){
+        window.location.reload()
+    }
+}
+async function delete_closedata(){
+    var targetBtn = event.target;
+    var parentTr = targetBtn.parentNode.parentNode;
+    var data_len = []
+    for(let i=0; i < parentTr.children.length-1; i++){
+        console.log($(parentTr.children[i].children[1]).val())
+        data_len.push($(parentTr.children[i].children[1]).val())
+    }
+    console.log(data_len)
+    const requestOptions = {         
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}',
+                    "Content-Type": "application/json",
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    'select_tr': data_len
+                    
+                })
+            };
+                           
+    const res = await fetch("/analysis/measresult/delete/", requestOptions);
+    const data = await res.json();
+    
+    console.log(data)
+    if(data['result'] == 'ok'){
+        window.location.reload()
+    }
+}
+function modify_closedata(){
+ 
+    var targetBtn = event.target;
+	var parentTr = targetBtn.parentNode.parentNode;
+	var tdNode = parentTr.childNodes;
+    parentTr.className = "updateRow";
+	var row = document.querySelectorAll('.updateRow')
+    $('.updateRow').find('.mod').show();
+    $('.updateRow').find('.canclebtn').show();
+    $('.updateRow').find('.completebtn').show();
+    $('.updateRow').find('.modifybtn').hide();
+    $('.updateRow').find('.deletebtn').hide();
+    $('.updateRow').find('.measclosedata').hide();	
+	parentTr.classList.remove("updateRow");
+}
+
+function cancle_closedata(){
+     
+    var targetBtn = event.target;
+    var parentTr = targetBtn.parentNode.parentNode;
+    var tdNode = parentTr.childNodes;
+    parentTr.className = "updateRow";
+    var row = document.querySelectorAll('.updateRow')
+    $('.updateRow').find('.modifybtn').show();
+    $('.updateRow').find('.canclebtn').hide();
+    $('.updateRow').find('.completebtn').hide();
+    $('.updateRow').find('.deletebtn').show();
+    $('.updateRow').find('.mod').hide();
+    $('.updateRow').find('.measclosedata').show();	
+    parentTr.classList.remove("updateRow");
+}
+
+async function plus_meas(){
+    $("#closedata_table").find("thead tr:first").after('<tr><td style="display:none;"><p></p><input value=999></input></td>\
+    <td><p></p><input class="form-control mod " value="추가"></input></td><td><p></p><input class="form-control mod " value="추가"></input></td>\
+    <td><p></p><input class="form-control mod " value="추가"></input></td><td><p></p><input class="form-control mod " value="추가"></input></td><td><p></p><input class="form-control mod " value="추가"></input></td><td><p></p><input class="form-control mod " value="추가"></input></td><td><p></p><input class="form-control mod " value="추가"></input></td>\
+    <td><p></p><input class="form-control mod " value="추가"></input></td><td><p></p><input class="form-control mod " value=0></input></td><td><p></p><input class="form-control mod " value=0></input></td><td><p></p><input class="form-control mod " value=0></input></td>\
+    <td><p></p><input class="form-control mod " value=0></input></td><td><p></p><input class="form-control mod " value=0></input></td><td><p></p><input class="form-control mod " value=0></input></td><td><p></p><input class="form-control mod " value="추가"></input></td><td>\
+    <button class="btn btn-secondary btn-sm completebtn" onclick="update_closedata()">완료 <i class="icon-fixed-width icon-check" onclick="event.stopPropagation()"></i></button>\
+    <button class="btn btn-secondary btn-sm deletebtn"onclick="plus_meascancle()"">삭제 <i class="icon-trash" onclick="event.stopPropagation()"></i></button></td></tr>');
+    
+     
+}async function plus_meascancle(){
+    $("#closedata_table").find("thead tr:last").remove();
+    
+     
+}
+async function fetch_all_phoneGroup() {
+                    const res = await fetch("/api/measresult/closedatalist/" + this.date);
+                    
+                            
+}
+                
 </script>
+<!-- <script>
+    const vm = new Vue({
+            delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
+            el: '#app',
+            data() {
+                return {
+                    measclose : []
+                }
+
+            },
+            methods:{
+                async update_closedata(){
+                    var targetBtn = event.target;
+                    var parentTr = targetBtn.parentNode.parentNode;
+                    var data_len = []
+                    for(let i=0; i < parentTr.children.length-1; i++){
+                        console.log($(parentTr.children[i].children[1]).val())
+                        data_len.push($(parentTr.children[i].children[1]).val())
+                    }
+                    console.log(data_len)
+                    const requestOptions = {         
+                                method: "POST",
+                                headers: {
+                                    "X-CSRFToken": '{{csrf_token}}',
+                                    "Content-Type": "application/json",
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    'select_tr': data_len
+                                    
+                                })
+                            };
+                                        
+                    const res = await fetch("/analysis/measresult/create/", requestOptions);
+                    const data = await res.json();
+                    
+                    console.log(data)
+                    if(data['result'] == 'ok'){
+                        window.location.reload()
+                    }
+                },
+
+                modify_closedata(){
+                
+                    var targetBtn = event.target;
+                    var parentTr = targetBtn.parentNode.parentNode;
+                    var tdNode = parentTr.childNodes;
+                    parentTr.className = "updateRow";
+                    var row = document.querySelectorAll('.updateRow')
+                    $('.updateRow').find('.mod').show();
+                    $('.updateRow').find('.canclebtn').show();
+                    $('.updateRow').find('.completebtn').show();
+                    $('.updateRow').find('.modifybtn').hide();
+                    $('.updateRow').find('.deletebtn').hide();
+                    $('.updateRow').find('.measclosedata').hide();	
+                    parentTr.classList.remove("updateRow");
+                },
+
+                cancle_closedata(){
+                    
+                    var targetBtn = event.target;
+                    var parentTr = targetBtn.parentNode.parentNode;
+                    var tdNode = parentTr.childNodes;
+                    parentTr.className = "updateRow";
+                    var row = document.querySelectorAll('.updateRow')
+                    $('.updateRow').find('.modifybtn').show();
+                    $('.updateRow').find('.canclebtn').hide();
+                    $('.updateRow').find('.completebtn').hide();
+                    $('.updateRow').find('.deletebtn').show();
+                    $('.updateRow').find('.mod').hide();
+                    $('.updateRow').find('.measclosedata').show();	
+                    parentTr.classList.remove("updateRow");
+                },
+
+                async plus_meas(){
+                    
+                    var data_len = []
+                    for(let i=0; i < 15; i++){
+                        
+                        data_len.push($(parentTr.children[i].children[1]).val())
+                    }
+                    console.log(data_len)
+                    const requestOptions = {         
+                                method: "POST",
+                                headers: {
+                                    "X-CSRFToken": '{{csrf_token}}',
+                                    "Content-Type": "application/json",
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    'select_tr': data_len
+                                    
+                                })
+                            };
+                                        
+                    const res = await fetch("/analysis/measresult/create/", requestOptions);
+                    const data = await res.json();
+                    
+                    console.log(data)
+                    if(data['result'] == 'ok'){
+                        window.location.reload()
+                    } 
+                    
+                }
+                            }
+                    })
+</script> -->
 
 {% endblock %}

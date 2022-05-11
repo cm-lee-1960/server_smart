@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q
 from django.db import connection
 
-from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose, TestDayClose
+from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose
 from management.models import Center, Morphology
 
 from .serializers import PhoneGroupSerializer

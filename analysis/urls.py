@@ -19,8 +19,14 @@ urlpatterns = [
     path('report/makereport/', views.register_measdata, name='register_measdata'), # 레포트정보등록페이지(측정대상, 측정완료, 전년도결과, 추가사항)
     path('measplan/create/',views.create_measplan,name='create_measplan'), # 측정대상 등록 및 수정
     path('measplan/delete/',views.delete_measplan,name='delete_measplan'), # 측정대상 삭제
-    path('measresult/create/',views.create_measresult,name='create_measresult'), # 측정완료 등록 및 수정
-    path('measresult/delete/',views.delete_measresult,name='delete_measresult'), # 측정완료 삭제
+    
+    path('measresult/create/',views.update_closedata,name='create_measresult'), # 측정완료 등록 및 수정  #############
+    path('measresult/delete/',views.delete_closedata,name='delete_measresult'), # 측정완료 등록 및 수정  #############
+    path('measresult/closedatalist/',views.closedata_list,name='closedata_list'), # 측정완료데이터 날짜 검색
+    
+
+    
+    
     path('reportmsg/create/',views.create_reportmsg,name='create_reportmsg'), # 추가사항 등록 및 수정
     path('reportmsg/delete/',views.delete_reportmsg,name='delete_reportmsg'), # 추가사항 삭제
     path('measlastyear5G/create/',views.create_measlastyear5G,name='create_measlastyear5G'), # 전년도 결과 등록 및 수정(5G)

@@ -2,7 +2,7 @@ import enum
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from monitor.models import Phone
-from analysis.models import MeasPlan, MeasResult,ReportMessage, MeasLastyear5G, MeasLastyearLTE
+from analysis.models import MeasPlan,ReportMessage, MeasLastyear5G, MeasLastyearLTE
 import pandas as pd
 import datetime
 from django.db.models import Sum

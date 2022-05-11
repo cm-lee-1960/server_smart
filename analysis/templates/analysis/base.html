@@ -24,7 +24,7 @@
     <script src="//layout.jquery-dev.com/lib/js/jquery.layout-latest.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <!--출처: https://wooncloud.tistory.com/12 [Wooncloud Blog]-->
-
+    
     {% block extra-style %}{% endblock %}
 
 </head>
@@ -32,22 +32,24 @@
 <body>
     <!-- Fixed navbar -->
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="{% url 'analysis:dashboard' %}">KT 스마트상황실</a>
+      <a class="navbar-brand" href="{% url 'dashboard' %}">KT 스마트상황실</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div id = "head" class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto" id="navtitle">
           <li class="nav-item active" id="dashboard_nav">
-            <a class="nav-link"  href="{% url 'analysis:dashboard' %}">실시간감시
+            <a class="nav-link"  href="{% url 'dashboard' %}">실시간감시
               <span class="sr-only">(current)</span></a>
           </li>
+          {%  if request.user.is_superuser %}
           <li class="nav-item" id="report_nav">
             <a class="nav-link"  href="{% url 'analysis:report' %}" @click="timerEnd">일일보고</a>
           </li>
           <li class="nav-item" id="management_nav">       
             <a class="nav-link" href="{% url 'admin:index' %}" @click="timerEnd">관리자페이지</a>
           </li>
+          {% endif %}
         </ul>
             <form class="form-inline mt-2 mt-md-0">
                 <!-- <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search"> <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
