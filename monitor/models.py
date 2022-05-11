@@ -936,7 +936,7 @@ def send_message_hj(sender, instance, created, **kwargs):
     """
     # 메시지가 생성되었을 때만 처리한다.
     if created:
-
+        pass
         # cursor = connection.cursor()
         # cursor.execute(
         #         " SELECT (너가필요한 필드들) from monitor_mesuringdayclose " + \
@@ -981,7 +981,7 @@ def send_message_hj(sender, instance, created, **kwargs):
         #     instance.sendTime = result['date'].astimezone(timezone(timedelta(hours=9)))  ## 텔레그램 전송시각 저장
         #     instance.telemessageId = result['message_id']  ## 텔레그램 메시지ID 저장
         #     instance.save()
-        print("성공성공 들어왔다.")
+        # print("성공성공 들어왔다.")
         # # 2) 크로샷으로 메시지를 전송한다.
         # if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
         #     # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
