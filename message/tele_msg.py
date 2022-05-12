@@ -6,7 +6,6 @@ from telegram.ext import CommandHandler, MessageHandler
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from . import tele_chatbot
-from .models import SentTelegramMessage
 from management.models import ChatMemberList, Center
 
 
@@ -83,7 +82,8 @@ class TelegramBot:
             # now = datetime.strptime("2022-03-11 22:30:08", "%Y-%m-%d %H:%M:%S")
             now = datetime.now()
             from_dt = now - timedelta(seconds=5)
-            qs = SentTelegramMessage.objects.filter(chat_date__gte=from_dt).filter(chat_date__lte=now)
+            from monitor.models import Message
+            qs = Message.objects.filter(sendTime=from_dt).filter(sendTime=now)
             if qs.exists() and qs.count() >= 2:
                 time.sleep(2)
             
@@ -92,14 +92,6 @@ class TelegramBot:
 
             # 메시지를 텔레그램으로 전송한다.
             sent_msg = self.bot.sendMessage(channelId, text=message, parse_mode='HTML')
-            # 전송된 메시지를 데이터베이스에 저장한다.   -- 제거 예정
-            SentTelegramMessage.objects.create(
-                chat_id = sent_msg['chat']['id'],
-                chat_type = sent_msg['chat']['type'],
-                chat_title = sent_msg['chat']['title'],
-                chat_message_id = sent_msg['message_id'],
-                chat_text = sent_msg['text'],
-            )
             return sent_msg
 
         except Exception as e:

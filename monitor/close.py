@@ -445,7 +445,8 @@ def measuring_day_close(phoneGroup_list, measdate):
         if messages.count() != 0:
             centers = messages.values_list('center', flat=True).distinct()
             for center in centers:
-                message_report_center = f'[{Center.objects.get(id=center).centerName}]\n\n[평가지역 일일보고]\n\n수신: \n\n금일 품질 측정 결과를 공유해 드리오니 참고하시기 바랍니다.'
+                mCenter = Center.objects.get(id=center)
+                message_report_center = f'[{mCenter.centerName}]\n\n[평가지역 일일보고]\n\n수신: {mCenter.recipientOfficer}\n\n금일 품질 측정 결과를 공유해 드리오니 참고하시기 바랍니다.'
                 for message in messages.filter(center=center):
                     message_report_center += '\n\n' + message.message  # 센터 별 메시지 수합
                 # 메시지를 저장한다.  //  메시지가 이미 존재하면 Update, 없으면 신규 생성

@@ -38,6 +38,7 @@ class Center(models.Model):
     centerEngName = models.CharField(max_length=100, null=True, blank=True, verbose_name="센터영문명")
     channelId = models.CharField(max_length=25, verbose_name="채널ID")
     permissionLevel = models.IntegerField(default=1, verbose_name="권한레벨")
+    recipientOfficer = models.CharField(max_length=30, null=True, blank=True, verbose_name="수신 임원")  ## 보고 메시지를 위함
     active = models.BooleanField(default=True, verbose_name="상태")
     class Meta:
         verbose_name = ('센터정보')
