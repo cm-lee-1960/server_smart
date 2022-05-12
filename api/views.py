@@ -198,8 +198,10 @@ def message_list(request, phonegroup_id):
                 qs = PhoneGroup.objects.filter(id=phonegroup_id)
                 if qs.exists():
                     measdate = qs[0].measdate
+                    center = qs[0].center
                 else:
                     measdate = datetime.now().strftime("%Y%m%d")
+                    center = None
 
                 # 해당 단말그룹에 대한 모든 메시지를 가져온다.
                 qs = Message.objects.filter(
@@ -223,9 +225,14 @@ def message_list(request, phonegroup_id):
                             serializer = MessageSerializer(message, fields=fields)
                             messageFailEventList.append(serializer.data)
 
-                    # 2) 문자 메시지 내역을 가져온다.
-                    sms_qs = qs.filter(Q(sendType='XMCS') | Q(sendType='ALL'))
-                    # print("#### SMS", sms_qs.count(), phonegroup_id)
+                    # 2) 문자(센터) 메시지 내역을 가져온다.
+                    ## 센터 보고용 메시지 추가 (5.12)
+                    sms_center_qs = Message.objects.filter(Q(measdate=measdate, center=center, status="REPORT_CENTER")).order_by('-updated_at')
+                    if sms_center_qs.exists():
+                        for message in sms_center_qs:
+                            serializer = MessageSerializer(message, fields=fields)
+                            messageSmsList.append(serializer.data)
+                    sms_qs = qs.filter(Q(sendType='XMCS') | Q(sendType='ALL'))  # 해당 단말그룹의 메시지를 가져온다.
                     if sms_qs.exists():
                         for message in sms_qs:
                             serializer = MessageSerializer(message, fields=fields)
@@ -238,7 +245,7 @@ def message_list(request, phonegroup_id):
                             serializer = MessageSerializer(message, fields=fields)
                             messageTeleList.append(serializer.data)
                     
-                    # 4) 전체 단말그룹의 문자 메시지 내역을 가져온다.
+                    # 4) 문자(전체) 메시지 내역을 가져온다.
                     sms_all_qs = Message.objects.filter(measdate=measdate).order_by('-updated_at').filter(Q(sendType='XMCS') | Q(sendType='ALL'))
                     if sms_all_qs.exists():
                         for message in sms_all_qs:
