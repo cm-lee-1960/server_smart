@@ -81,7 +81,7 @@ def phonegroup_list(request, measdate):
                       'networkId', 'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent',
                       'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended',
                       'dl_nr_count', 'ul_nr_count', 'dl_nr_count_z', 'ul_nr_count_z',
-                      'event_count', 'send_failure_dl_count_z', 'send_failure_ul_count_z', ]
+                      'event_count', 'send_failure_dl_count_z', 'send_failure_ul_count_z', 'all_count_event',]
             for phoneGroup in qs:
                 serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
                 data = serializer.data
@@ -171,7 +171,7 @@ def centerANDmorphology_list(request):
                 for morphDetail_id in morphDetails_middle:
                     morphDetail_middle[morphDetail_id[0]] = morphDetail_id[1]
                 MorphDetailDict[morphDetail_network][morphDetail_main] = morphDetail_middle
-
+                
         data = {'morphologyList': morphologyList, 'centerListAll': centerListAll, 'MorphDetailDict': MorphDetailDict} # 센터 및 모폴로지 리스트
     except Exception as e:
         print("centerANDmorphology_list():", str(e))

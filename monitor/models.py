@@ -197,6 +197,16 @@ class PhoneGroup(models.Model):
             return self.send_failure_ul_count
         else:
             return '-'
+        
+    @property
+    def all_count_event(self):
+        """전체 이벤트 건수를 반환한다."""
+        qs = Message.objects.filter(phoneGroup_id=self.id, messageType='EVENT')
+        
+        if qs.exists():
+            return len(qs)
+        else:
+            return 0
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.
@@ -991,6 +1001,3 @@ def send_message_hj(sender, instance, created, **kwargs):
     else:
         # 메시지가 업데이트 되었을 때는 아무런 처리를 하지 않는다.
         pass
-
-
-

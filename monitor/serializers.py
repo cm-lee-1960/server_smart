@@ -1,3 +1,4 @@
+(2)
 from rest_framework import serializers, relations
 from monitor.models import Phone, PhoneGroup, MeasuringDayClose, Message
 from management.models import Center, Morphology, ChatMemberList
@@ -121,6 +122,7 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     ul_nr_count_z = serializers.ReadOnlyField() # UL LTE전환 건수(Zero시 Dash(-) 리턴) (@property decorator)
     send_failure_dl_count_z = serializers.ReadOnlyField() # DL 전송실패 건수(Zero시 Dash(-) 리턴) (@property decorator)
     send_failure_ul_count_z = serializers.ReadOnlyField() # UL 전송실패 건수(Zero시 Dash(-) 리턴) (@property decorator)
+    all_count_event = serializers.ReadOnlyField() # 전체 이벤트 건수 (Zero시 0 리턴) (@property decorator)
 
     class Meta:
         model = PhoneGroup
