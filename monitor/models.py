@@ -201,7 +201,7 @@ class PhoneGroup(models.Model):
     @property
     def all_count_event(self):
         """전체 이벤트 건수를 반환한다."""
-        qs = Message.objects.filter(phoneGroup_id=self.id, messageType='EVENT')
+        qs = self.message_set.filter(messageType='EVENT')
         
         if qs.exists():
             return len(qs)
