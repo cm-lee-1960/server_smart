@@ -506,10 +506,12 @@
                             <div dropdown-toggle id="telemenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
                                 <a class="dropdown-item" @click="fetch_chatmembers(selectedPhoneGroup.centerName)" title="채팅방 멤버 새로고침">채팅방 멤버 새로고침</a>
                                 <a class="dropdown-item" @click="clickBanChatCenterMembers" title="센터 내 미허용된 인원 전체 추방">미허용 인원 전체 추방</a>
+                                {% if request.user.is_superuser %}
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" @click="fetch_chatmembers(('ALL')+(selectedPhoneGroup.centerName))"
                                     title="모든 채팅방 새로고침">전체 채팅방 새로고침</a>
                                 <a class="dropdown-item" @click="clickBanChatAllMembers" title="전체 채팅방의 미허용 인원 강제 추방">전체 채팅방 강제추방</a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
