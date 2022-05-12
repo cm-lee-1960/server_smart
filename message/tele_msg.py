@@ -83,7 +83,7 @@ class TelegramBot:
             now = datetime.now()
             from_dt = now - timedelta(seconds=5)
             from monitor.models import Message
-            qs = Message.objects.filter(sendTime=from_dt).filter(sendTime=now)
+            qs = Message.objects.filter(sendTime__gte=from_dt).filter(sendTime__lte=now)
             if qs.exists() and qs.count() >= 2:
                 time.sleep(2)
             
