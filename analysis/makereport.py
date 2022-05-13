@@ -20,6 +20,7 @@ from django.db.models import Q
 # [ 고민해야 하는 사항 ]
 #  - JSON형태의 컨텍스트를 만드는 코드 정규화
 # -------------------------------------------------------------------------------------------------
+networkid_list = ["5G NSA", "5G SA", "5G 공동망", "LTE", "WiFi", "품질취약지역"]
 district_list = ['서울','인천','부산','울산','대구','광주','대전','경기','강원','경남','경북','전남','전북','충남','충북','세종','전국']
 center_list = ['서울강북','강원','경기북부','서울강남','경기남부','경기서부','부산','경남','대구','경북','전남','전북','충남','충북']
 city_list = ["대도시",'중소도시','농어촌']
@@ -62,7 +63,7 @@ def get_report_cntx():
     tregi5G6 = LastMeasDayClose.objects.filter((Q(networkId = "5G NSA")|Q(networkId = "5G SA")|Q(networkId = "5G 공동망")) & Q(morphology = "커버리지") & Q(address = "다중이용시설/교통인프라")&Q(measdate = datetime.date.today().strftime('%Y%m%d'))).count()
     tregi5G7 = LastMeasDayClose.objects.filter((Q(networkId = "5G NSA")|Q(networkId = "5G SA")|Q(networkId = "5G 공동망")) & Q(morphology = "커버리지") & Q(address = "중소시설")&Q(measdate = datetime.date.today().strftime('%Y%m%d'))).count()
     tregi5G8 = LastMeasDayClose.objects.filter((Q(networkId = "5G NSA")|Q(networkId = "5G SA")|Q(networkId = "5G 공동망"))&Q(measdate = datetime.date.today().strftime('%Y%m%d'))).count()
-    
+    #5G 개수
     district5gcount = []
     for i in district_list:
         district5gcount.append(LastMeasDayClose.objects.filter((Q(networkId = "5G NSA")|Q(networkId = "5G SA")|Q(networkId = "5G 공동망"))&Q(district = i)).count())
@@ -72,6 +73,29 @@ def get_report_cntx():
     facility5gcount = []
     for i in facility5g_list:
         facility5gcount.append(LastMeasDayClose.objects.filter((Q(networkId = "5G NSA")|Q(networkId = "5G SA")|Q(networkId = "5G 공동망"))&Q(address = i)).count())
+    traffic5gcount = []
+    for i in traffic5g_list:
+        traffic5gcount.append(LastMeasDayClose.objects.filter((Q(networkId = "5G NSA")|Q(networkId = "5G SA")|Q(networkId = "5G 공동망"))&Q(address = i)).count())
+    districtsa5gcount = []
+    for i in district_list:
+        districtsa5gcount.append(LastMeasDayClose.objects.filter(networkId = "5G SA", district = i).count())
+    
+    #LTE 개수
+    bctltecount = []
+    for i in district_list:
+        bctltecount.append(LastMeasDayClose.objects.filter(networkId = "LTE", address = "대도시" ,district = i).count())
+    mctltecount = []
+    for i in district_list:
+        bctltecount.append(LastMeasDayClose.objects.filter(networkId = "LTE", address = "중소도시" ,district = i).count())
+    sctltecount = []
+    for i in district_list:
+        bctltecount.append(LastMeasDayClose.objects.filter(networkId = "LTE", address = "농어촌" ,district = i).count())
+    ibltecount = []
+    for i in inbuildinglte_list:
+        bctltecount.append(LastMeasDayClose.objects.filter(networkId = "LTE", morphology = "인빌딩" ,district = i).count())
+    tmltecount = []
+    for i in themelte_list:
+        bctltecount.append(LastMeasDayClose.objects.filter(networkId = "LTE", morphology = "테마" ,district = i).count())
     sregiLTE1 = LastMeasDayClose.objects.filter(networkId = "LTE", address = "대도시").count()
     sregiLTE2 = LastMeasDayClose.objects.filter(networkId = "LTE", address = "중소도시").count()
     sregiLTE3 = LastMeasDayClose.objects.filter(networkId = "LTE", address = "농어촌").count()
@@ -647,6 +671,10 @@ def get_report_cntx():
     tresultweak = LastMeasDayClose.objects.filter(networkId = "취약지역", measdate = datetime.date.today())
    
     context = {
+        
+    'district5gcount':district5gcount,'city5gcount':city5gcount,'facility5gcount':facility5gcount,'traffic5gcount':traffic5gcount,'districtsa5gcount':districtsa5gcount,
+    'bctltecount':bctltecount,'mctltecount':mctltecount,'sctltecount':sctltecount,'ibltecount':ibltecount,'tmltecount':tmltecount,
+   
     # 'bigcityLTE':bigcityLTE,
     'tresult5g':tresult5g,'tresultlte':tresultlte,'tresultwifi':tresultwifi,'tresultweak':tresultweak,
     'regi':regi, 'reportmsg':reportmsg,'sregi':sregi,'firstdate':firstdate,'lastdate':lastdate,
@@ -752,7 +780,9 @@ def get_measclose_cntx(request):
     
     
 
-    context = {'measclose':measclose,
+    context = {'measclose':measclose,'networkid_list':networkid_list,
+               'district_list':district_list,'center_list':center_list,'city_list':city_list ,'facility5g_list':facility5g_list,'traffic5g_list':traffic5g_list,
+    'inbuildinglte_list':inbuildinglte_list,'themelte_list':themelte_list,
     }
 
     return context

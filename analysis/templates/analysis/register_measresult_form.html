@@ -263,8 +263,18 @@
                     <td style="display:none;"><p></p><input type = 'text'  name="phoneGroup" value="{{measclose.phoneGroup}}"></input></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.measdate}}</p> <input style="display:inline;" class="form-control mod" type="text" name="measdate" id="textmod1" value="{{measclose.measdate}}"></input></td>
                     <td style="width:15%"><p class="measclosedata">{{measclose.userInfo1}}</p> <input style="display:inline;" class="form-control mod" type="text" name="userInfo1" id="textmod2" value="{{measclose.userInfo1}}"></input></td> 
-                    <td style="width:5%"><p class="measclosedata">{{measclose.networkId}}</p> <input style="display:inline;" class="form-control mod" type="text" name="networkId" id="textmod3" value="{{measclose.networkId}}"></input></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.center}}</p> <input style="display:inline;" class="form-control mod" type="text" name="center" id="textmod4" value="{{measclose.center}}"></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.networkId}}</p> 
+                        <select style="display:inline;" class="form-control mod" type="text" name="center" id="textmod4">
+                            {% for networkid in networkid_list %}
+                            <option value="{{networkid}}">{{networkid}}</option>
+                            {% endfor %}
+                        </select></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.center}}</p> 
+                        <select style="display:inline;" class="form-control mod" type="text" name="center" id="textmod4">
+                            {% for district in district_list %}
+                            <option value="{{district}}">{{district}}</option>
+                            {% endfor %}
+                        </select></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.morphology}}</p> <input style="display:inline;" class="form-control mod" type="text" name="morphology" id="textmod5" value="{{measclose.morphology}}"></input></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.district}}</p> <input style="display:inline;" class="form-control mod" type="text" name="district" id="textmod7" value="{{measclose.district}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.guGun}}</p> <input style="display:inline;" class="form-control mod" type="text" name="guGun" id="textmod7" value="{{measclose.guGun}}"></input></td></td>

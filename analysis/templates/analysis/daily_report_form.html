@@ -375,9 +375,83 @@ button{
 		
 		</div>
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p>※ 지역별 : </p><p>※ 모폴로지 : </p><p>※ SA : </p>
-		</br><p>※ 행정동 : </p><p id="hjd5gseoul">{{hjd5gseoul}}</p><p id="hjd5gincheon">{{hjd5gincheon}}</p><p id="hjd5gulsan">{{hjd5gulsan}}</p><p id="hjd5gdaegu">{{hjd5gdaegu}}</p><p id="hjd5ggwangju">{{hjd5ggwangju}}</p><p id="hjd5gdaejun">{{hjd5gdaejun}}</p><p id="hjd5ggyunggi">{{hjd5ggyunggi}}</p><p id="hjd5ggyungbuk">{{hjd5ggyungbuk}}</p><p id="hjd5gjunnam">{{hjd5gjunnam}}</p><p id="hjd5gjunbuk">{{hjd5gjunbuk}}</p><p id="hjd5gchungnam">{{hjd5gchungnam}}</p><p id="hjd5gchungbuk">{{hjd5gchungbuk}}</p><p id="hjd5gsejong">{{hjd5gsejong}}</p>
-		</br><p>※ 다중이용시설/교통인프라 :</p><p id="dagyo5gseoul">{{dagyo5gseoul}}</p><p id="dagyo5gincheon">{{dagyo5gincheon}}<p id="dagyo5gulsan">{{dagyo5gulsan}}</p><p id="dagyo5gdaegu">{{dagyo5gdaegu}}</p><p id="dagyo5ggwangju">{{dagyo5ggwangju}}</p><p id="dagyo5gdaejun">{{dagyo5gdaejun}}</p><p id="dagyo5ggyunggi">{{dagyo5ggyunggi}}</p><p id="dagyo5ggyungbuk">{{dagyo5ggyungbuk}}</p><p id="dagyo5gjunnam">{{dagyo5gjunnam}}</p><p id="dagyo5gjunbuk">{{dagyo5gjunbuk}}</p><p id="dagyo5gchungnam">{{dagyo5gchungnam}}</p><p id="dagyo5gchungbuk">{{dagyo5gchungbuk}}</p><p id="dagyo5gsejong">{{dagyo5gsejong}}</p><p id="dagyo5gsudo">{{dagyo5gsudo}}</p>
+			<p>※ 지역별 : </p><p id="district5gcount"></p>
+			<script>
+				let district_list = ['서울','인천','부산','울산','대구','광주','대전','경기','강원','경남','경북','전남','전북','충남','충북','세종','전국'];
+				let msg = "";
+				let count = {{district5gcount}};
+				for( var i in district_list ){
+					if(parseInt(count[i])>0){
+						msg += district_list[i]+parseInt(count[i]);
+					}
+				}
+				document.getElementById("district5gcount").innerText = msg;
+			</script>
+			<br><p>※ 모폴로지 : </p><p id = "hjd5gttcount" style="font-weight:bold"></p><p id = "hjd5gcount"></p>
+			<p id = "facility5gttcount" style="font-weight:bold"></p><p id = "facility5gcount"></p>
+			<p id = "traffic5gttcount" style="font-weight:bold"></p><p id = "traffic5gcount"></p>
+			<script>
+				let city_list = ["대도시",'중소도시','농어촌'];
+				let facility5g_list = ['대형점포','대학교','아파트','병원','영화관','공항','거리','시장','지하상가','놀이공원','도서관','전시시설','터미널'];
+				let traffic5g_list = ['지하철노선','고속도로','지하철역사','KTX.SRT역사','KTX.SRT노선'];
+				let networkid_list = ["5G NSA", "5G SA", "5G 공동망", "LTE", "WiFi", "품질취약지역"];
+				let inbuildinglte_list = ['대형점포','KTX.SRT역사','대형병원','터미널','지하철역사','공항','전시시설','지하상가'];
+				let themelte_list = ['지하철','전통시장','대학교','놀이공원','주요거리','고속도로','KTX.SRT노선'];
+				let msg1 = "";
+				let count1 = {{city5gcount}};
+				let msg11 = 0;
+				for( var i in city_list ){
+					if(parseInt(count1[i])>0){
+						msg1 += city_list[i]+parseInt(count1[i]);
+						msg11 += parseInt(count1[i]);
+					}
+				}
+				if(msg11 > 0){
+					document.getElementById("hjd5gttcount").innerText = "행정동 " + parseInt(msg11) + "-";
+				}
+				document.getElementById("hjd5gcount").innerText = msg1;
+				let msg2 = "";
+				let count2 = {{facility5gcount}};
+				let msg22 = 0;
+				for( var i in facility5g_list ){
+					if(parseInt(count2[i])>0){
+						msg2 += facility5g_list[i]+parseInt(count2[i]);
+						msg22 += parseInt(count2[i]);
+					}
+				}
+				if(msg22 > 0){
+					document.getElementById("facility5gttcount").innerText = "다중이용시설 " + parseInt(msg22) + "-";
+				}
+				document.getElementById("facility5gcount").innerText = msg2;
+				let msg3 = "";
+				let count3 = {{traffic5gcount}};
+				let msg33 = 0;
+				for( var i in traffic5g_list ){
+					if(parseInt(count3[i])>0){
+						msg3 += traffic5g_list[i]+parseInt(count3[i]);
+						msg33 += parseInt(count3[i]);
+					}
+				}
+				if(msg33 > 0){
+					document.getElementById("traffic5gttcount").innerText = "교통인프라 " + parseInt(msg33) + "-";
+				}
+				document.getElementById("traffic5gcount").innerText = msg3;
+			</script>
+			<br><p>※ SA : </p><p id="districtsa5gcount"></p>
+			<script>
+				let msg4 = "";
+				let count4 = {{districtsa5gcount}};
+				
+				for( var i in district_list ){
+					if(parseInt(count4[i])>0){
+						msg4 += district_list[i]+parseInt(count4[i]);
+						
+					}
+				}
+				
+				document.getElementById("districtsa5gcount").innerText = msg4;
+				
+			</script>
 		</div>
 		
 			<br><br>
@@ -454,13 +528,70 @@ button{
 		</div>
 		
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p>※ 행정동 : 대도시:</p><p>중소도시:</p><p>농어촌:</p><p>※ 인빌딩:</p><p>※ 테마:</p><br>
-			<p>※ 행정동 : 대도시(</p><p id="bigcityLTEseoul">{{bigcityLTEseoul}}</p><p id="bigcityLTEincheon">{{bigcityLTEincheon}}</p><p id="bigcityLTEulsan">{{bigcityLTEulsan}}</p><p id="bigcityLTEdaegu">{{bigcityLTEdaegu}}</p><p id="bigcityLTEgwangju">{{bigcityLTEgwangju}}</p><p id="bigcityLTEdaejun">{{bigcityLTEdaejun}}</p><p id="bigcityLTEgyunggi">{{bigcityLTEgyunggi}}</p><p id="bigcityLTEgyungbuk">{{bigcityLTEgyungbuk}}</p><p id="bigcityLTEjunnam">{{bigcityLTEjunnam}}</p><p id="bigcityLTEjunbuk">{{bigcityLTEjunbuk}}</p><p id="bigcityLTEchungnam">{{bigcityLTEchungnam}}</p><p id="bigcityLTEchungbuk">{{bigcityLTEchungbuk}}</p><p id="bigcityLTEsejong">{{bigcityLTEsejong}}</p><p id="bigcityLTEsudo">{{bigcityLTEsudo}}</p><p>), </p>
-			<p>중소도시(</p><p id="smallcityLTEseoul">{{smallcityLTEseoul}}</p><p id="smallcityLTEincheon">{{smallcityLTEincheon}}</p><p id="smallcityLTEulsan">{{smallcityLTEulsan}}</p><p id="smallcityLTEdaegu">{{smallcityLTEdaegu}}</p><p id="smallcityLTEgwangju">{{smallcityLTEgwangju}}</p><p id="smallcityLTEdaejun">{{smallcityLTEdaejun}}</p><p id="smallcityLTEgyunggi">{{smallcityLTEgyunggi}}</p><p id="smallcityLTEgyungbuk">{{smallcityLTEgyungbuk}}</p><p id="smallcityLTEjunnam">{{smallcityLTEjunnam}}</p><p id="smallcityLTEjunbuk">{{smallcityLTEjunbuk}}</p><p id="smallcityLTEchungnam">{{smallcityLTEchungnam}}</p><p id="smallcityLTEchungbuk">{{smallcityLTEchungbuk}}</p><p id="smallcityLTEsejong">{{smallcityLTEsejong}}</p><p id="smallcityLTEsudo">{{smallcityLTEsudo}}</p><p>), </p>
-			<p>농어촌(</p><p id="nongLTEseoul">{{nongLTEseoul}}</p><p id="nongLTEincheon">{{nongLTEincheon}}</p><p id="nongLTEulsan">{{nongLTEulsan}}</p><p id="nongLTEdaegu">{{nongLTEdaegu}}</p><p id="nongLTEgwangju">{{nongLTEgwangju}}</p><p id="nongLTEdaejun">{{nongLTEdaejun}}</p><p id="nongLTEgyunggi">{{nongLTEgyunggi}}</p><p id="nongLTEgyungbuk">{{nongLTEgyungbuk}}</p><p id="nongLTEjunnam">{{nongLTEjunnam}}</p><p id="nongLTEjunbuk">{{nongLTEjunbuk}}</p><p id="nongLTEchungnam">{{nongLTEchungnam}}</p><p id="nongLTEchungbuk">{{nongLTEchungbuk}}</p><p id="nongLTEsejong">{{nongLTEsejong}}</p><p id="nongLTEsudo">{{nongLTEsudo}}</p><p>)</p>
-		
-		</br><p>※ 인빌딩 :</p><p id="inbuildingLTEcdys">{{inbuildingLTEcdys}}</p><p id="inbuildingLTEdhbw">{{inbuildingLTEdhbw}}<p id="inbuildingLTEbhj">{{inbuildingLTEbhj}}</p><p id="inbuildingLTEtmn">{{inbuildingLTEtmn}}</p><p id="inbuildingLTEgh">{{inbuildingLTEgh}}</p><p id="inbuildingLTEdhjp">{{inbuildingLTEdhjp}}</p><p id="inbuildingLTEjsj">{{inbuildingLTEjsj}}</p><p id="inbuildingLTEjhcys">{{inbuildingLTEjhcys}}</p>
-		</br><p>※ 테마 :</p><p id="themeLTEjunnam">{{themeLTEjunnam}}</p><p id="themeLTEjunbuk">{{themeLTEjunbuk}}<p id="themeLTEchungnam">{{themeLTEchungnam}}</p><p id="themeLTEchungbuk">{{themeLTEchungbuk}}</p><p id="themeLTEsejong">{{themeLTEsejong}}</p>
+			<p>※ 행정동 : </p><p id = "bctltettcount" style="font-weight:bold"></p><p id="bctltecount"></p>
+							<p id = "mctltettcount" style="font-weight:bold"></p><p id="mctltecount"></p>
+							<p id = "sctltettcount" style="font-weight:bold"></p><p id="sctltecount"></p>
+			<br><p>※ 인빌딩:</p>
+			<br><p>※ 테마:</p><br>
+			<script>
+				
+				let msg5 = "";
+				let count5 = {{bctltecount}};
+				let msg55 = 0;
+				for( var i in district_list ){
+					if(parseInt(count5[i])>0){
+						msg5 += district_list[i]+parseInt(count5[i]);
+						msg55 += parseInt(count5[i]);
+					}
+				}
+				if(msg55 > 0){
+					document.getElementById("bctltettcount").innerText = "대도시 " + parseInt(msg55) + "-";
+				}
+				document.getElementById("bctltecount").innerText = msg5;
+				
+				let msg6 = "";
+				let count6 = {{mctltecount}};
+				let msg66 = 0;
+				for( var i in district_list ){
+					if(parseInt(count6[i])>0){
+						msg6 += district_list[i]+parseInt(count6[i]);
+						msg66 += parseInt(count6[i]);
+					}
+				}
+				if(msg66 > 0){
+					document.getElementById("mctltettcount").innerText = "중소도시 " + parseInt(msg66) + "-";
+				}
+				document.getElementById("mctltecount").innerText = msg6;
+
+				let msg7 = "";
+				let count7 = {{sctltecount}};
+				let msg77 = 0;
+				for( var i in district_list ){
+					if(parseInt(count7[i])>0){
+						msg7 += district_list[i]+parseInt(count7[i]);
+						msg77 += parseInt(count7[i]);
+					}
+				}
+				if(msg77 > 0){
+					document.getElementById("sctltettcount").innerText = "농어촌 " + parseInt(msg77) + "-";
+				}
+				document.getElementById("sctltecount").innerText = msg7;
+
+				let msg8 = "";
+				let count8 = {{sctltecount}};
+				let msg88 = 0;
+				for( var i in district_list ){
+					if(parseInt(count8[i])>0){
+						msg8 += district_list[i]+parseInt(count8[i]);
+						msg88 += parseInt(count7[i]);
+					}
+				}
+				if(msg77 > 0){
+					document.getElementById("sctltettcount").innerText = "농어촌 " + parseInt(msg77) + "-";
+				}
+				document.getElementById("sctltecount").innerText = msg7;
+			</script>
+			
 		<br>	
 		</div>
 		
@@ -1853,7 +1984,7 @@ $(document).ready(function() {
 				});
 	
 	
-	</script>
+</script>
 <!-- 테스트 사이드바 -->
 <script>
 $(document).ready(function () {
@@ -1874,6 +2005,6 @@ $(document).ready(function () {
 	$('#dashboard_nav').addClass('nav-item');
 	
 </script>
-</script>
+
 
 {% endblock %}
