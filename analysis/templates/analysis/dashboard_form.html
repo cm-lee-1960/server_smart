@@ -509,11 +509,11 @@
                                 aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(selectedPhoneGroup.centerName)" ref="channelList_tab_xro">채팅방 멤버</a>
                             </li>
                         </ul>
-                        <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
+                        <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;" v-show="TelegramClick==false">
                             <i id="message-trash"
                             class="fa fa-trash-o mt-2"
                             style="font-size:24px;"
-                            v-on:click="clickClearMessage" v-show="TelegramClick==false"></i></button>
+                            v-on:click="clickClearMessage"></i></button>
                         <div class="dropdown-menu-left flex p-0, m-0" v-show="TelegramClick==true">
                             <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown"
                                     style="color:rgb(21, 21, 181);border:none;background:none;font-size:18px;">
@@ -1859,7 +1859,7 @@
             });
 
             $("a.dropdown-item").click(function() {
-                $("#telemenu").dropdown("toggle");
+                $("#telemenu").dropdown();
             });
 
             $('.filterable .filters .filter-input').keyup(function(e){
