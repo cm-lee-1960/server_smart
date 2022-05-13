@@ -310,6 +310,11 @@ def measuring_end_cancel(phoneGroup):
             phoneGroup.active = True # 단말그룹
             phoneGroup.save()
             phone_list.update(active=True) # 측정단말
+
+            # 3) 측정종료 메시지를 삭제한다.
+            qs = Message.objects.filter(phoneGroup=phoneGroup, status='END', messageType='SMS')
+            qs.delete()
+
             return_value = {'result' : 'ok'}
         except Exception as e:
             return_value = {'result' : 'error', 'add' : False}
