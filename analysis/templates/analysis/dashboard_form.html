@@ -279,8 +279,7 @@
                             <td style="width: 7%;" >[[phoneGroup.downloadBandwidth]] / [[phoneGroup.uploadBandwidth]]</td>
                             <td style="width: 8%;" >[[phoneGroup.nr_percent]]([[phoneGroup.dl_nr_count_z]]/[[phoneGroup.ul_nr_count_z]])</td>
                             <td style="width: 8%;" >[[phoneGroup.event_count]]([[phoneGroup.send_failure_dl_count_z]]/[[phoneGroup.send_failure_ul_count_z]])
-                                {% comment %} <i id="event-alert" class="fa fa-bell" style="color:rgb(255, 200, 0);font-size:24px;"></i> {% endcomment %}
-                                <img class="alarmNomal" style="margin-left:5px; margin-bottom:5px;" src="static/images/event.png" alt="event alarm" width="30" height="30">
+                                <img class="alarmNomal" style="margin-left:5px; margin-bottom:5px;" src= {% static "images/event.png" %} alt="event alarm" width="25" height="25">
                             </td>
                             <td style="width: 8%;" >
                                 [[phoneGroup.last_updated_time]]/<span v-if="phoneGroup.active" style="color:red;">([[phoneGroup.elapsed_time]]분)</span>
