@@ -95,7 +95,7 @@
         }
         .table tbody::-webkit-scrollbar-thumb {
             border-radius: 3px; 
-            background-color: gray;
+            background-color: black;
         }
         .table tbody::-webkit-scrollbar-button {
             width: 0;
@@ -164,7 +164,7 @@
         <div class="row" style="height:100px;">
             <div class="col-10 px-2">
                 <div class="row text-center">
-                    <div class="card text-white bg-primary mx-4" style="width: 12rem; height: 100px;">
+                    <div class="card text-white bg-primary mx-4" style="width: 13rem; height: 100px; text-align: center;">
                         <!-- 출저: https://getbootstrap.com/docs/4.0/components/card/#background-and-color -->
                         <div class="card-header p-0">오늘의 측정</div>
                         <div class="card-body mt-0 pt-0 pb-0">
@@ -175,8 +175,8 @@
                             <span style="font-size: 24px;" v-if="total_count > 0">[[total_count]]</span>
                             <span style="font-size: 24px;" v-else="total_count > 0">-</span>
                             <span style="font-size: 16px;">개</span>
-                            <div class="mt-1">
-                                <input style="height: 24px; width:160px;" type="date" class="form-control"
+                            <div class="mt-1" style="display:block">
+                                <input style="height: 24px; width:160px; margin: 0 auto;" type="date" class="form-control"
                                        v-model="date">
                             </div>
                         </div>
@@ -233,19 +233,19 @@
                             <th style="width: 18%;"><input type="text" class="form-control text-center filter-input" placeholder="측정지역" disabled></th>
                             <th style="width: 7%;"><input type="text" class="form-control text-center filter-input" placeholder="모폴로지" disabled></th>
                             <th style="width: 6%;"><input type="text" class="form-control text-center filter-input" placeholder="네트워크" disabled></th>-->
-                            <th style="width: 5%;" onclick="sortTable(1)">센터 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
-                            <th style="width: 4%;" onclick="sortTable(2)">조 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
-                            <th style="width: 7%;" onclick="sortTable(3)">단말번호 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
-                            <th style="width: 16%;" onclick="sortTable(4)">측정지역 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
-                            <th style="width: 5%;" onclick="sortTable(5)">모폴로지 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
-                            <th style="width: 5%;" onclick="sortTable(6)">네트워크 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
-                            <th style="width: 6%;" onclick="sortTable(7)">측정시작 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 5%;" onclick="sortTable(1, event">센터 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 4%;" onclick="sortTable(2, event)">조 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 7%;" onclick="sortTable(3, event)">단말번호 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 16%;" onclick="sortTable(4, event)">측정지역 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 5%;" onclick="sortTable(5, event)">모폴로지 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 5%;" onclick="sortTable(6, event)">네트워크 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 6%;" onclick="sortTable(7, event)">측정시작 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
                             <th style="width: 7%;">DL/UL콜수</th>
                             <th style="width: 7%;">DL/UL속도</th>
                             <th style="width: 8%;">전환율(DL/UL)</th>
                             <th style="width: 8%;" >이벤트(DL/UL)</th>
-                            <th style="width: 8%;" onclick="sortTable(12)">최종측정(경과) <i class="fa fa-caret-down" aria-hidden="true"></i></th>
-                            <th style="width: 7%;" onclick="sortTable(13)">상태 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 8%;" onclick="sortTable(12, event)">최종측정(경과) <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 7%;" onclick="sortTable(13, event)">상태 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
                             <th style="width: 4%;">
                                 <i id="refreshIcon" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                                 style="font-size:20px; color:blue" v-on:click="fetch_all_phoneGroup"
@@ -260,7 +260,7 @@
                             v-bind:id="phoneGroup.id" v-on:click="clickPhoneGroupList(phoneGroup, $event)" ref="clickphone_Tr"
                             data-toggle="tooltip" data-placement="top" class="tooltip-primary text-center" v-on:dblclick="doubleclickModifyInfo(phoneGroup)"
                             title="마우스로 더블클릭하면 단말그룹 정보를 변경할 수 있습니다."/>
-                            <td style="width: 3%;" class="text-center" onclick="event.cancelBubble=true">
+                            <td style="width: 3%;" class="text-center">
                                 <input type="checkbox" 
                                     :id="'check_' + phoneGroup.id"
                                     :value="phoneGroup.id"
@@ -1900,12 +1900,17 @@
          * 컬럼헤더를 클릭시 테이블을 정렬하는 함수(토글)
          * 출처: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_sort_table_desc
          * -----------------------------------------------------------------------------------------------------------*/
-        function sortTable(n) {
+        function sortTable(n, event) {
             var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
             table = document.getElementById("phonegroup-table");
             switching = true;
             // Set the sorting direction to ascending:
             dir = "asc";
+            if($(event.target).hasClass("fa-caret-down")){
+                $(event.target).addClass('fa-caret-up').removeClass("fa-caret-down");
+            }else{
+                $(event.target).addClass('fa-caret-down').removeClass("fa-caret-up");
+            }
             // Make a loop that will continue until no switching has been done:
             while (switching) {
                 // start by saying: no switching is done:
@@ -1934,6 +1939,7 @@
                         }
                     }
                 }
+                
                 if (shouldSwitch) {
                     // If a switch has been marked, make the switch and mark that a switch has been done:
                     rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
