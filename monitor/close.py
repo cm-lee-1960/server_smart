@@ -414,10 +414,12 @@ def measuring_day_close(phoneGroup_list, measdate):
             # LTE일 경우 CA비율 추가
             elif phoneGroup.networkId == 'LTE':
                 message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
-                                  f"  .{md.ca4_rate}/{md.ca3_rate}/{md.ca2_rate}/{md.ca1_rate}"
+                                  f"  .\"{md.ca4_rate}/{md.ca3_rate}/{md.ca2_rate}/{md.ca1_rate}\""
             # WiFi일 경우 및 음성호일 경우 : 계산식 확인 후 업데이트 예정
             elif phoneGroup.networkId == "WiFi":
-                pass
+                message_report += f" - 속도(DL/UL, Mbps)\n" + \
+                                  f"  . WiFi(상용)\"{md.downloadBandwidth}/{md.uploadBandwidth}\"" + \
+                                  f"  . WiFi(개방)\"{md.downloadBandwidth}/{md.uploadBandwidth}\""
 
             # 생성한 메시지를 저장한다 : 기존 메시지 있는 경우 Update, 없는 경우 신규 생성
             message_exists = Message.objects.filter(measdate=measdate, status='REPORT', userInfo1=md.userInfo1)
@@ -647,14 +649,16 @@ def cal_connect_time(phoneGroup):
         connect_time_dl = round(qs_dl.aggregate(Avg('downloadConnectionSuccess'))['downloadConnectionSuccess__avg'], 1)  # DL 접속시간
         dl_sum = qs_dl.aggregate(Sum('downloadConnectionSuccess'))['downloadConnectionSuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
         dl_count = qs_dl.count()
-    else: connect_time_dl = 0.0
+    else:
+        connect_time_dl, dl_sum, dl_count = 0.0, 0, 1
     
     qs_ul = qs.filter(uploadElapse=9, uploadNetworkValidation=55, uploadConnectionSuccess__isnull=False)
     if qs_ul.exists():
         connect_time_ul = round(qs_ul.aggregate(Avg('uploadConnectionSuccess'))['uploadConnectionSuccess__avg'], 1)  # UL 접속시간
         ul_sum = qs_ul.aggregate(Sum('uploadConnectionSuccess'))['uploadConnectionSuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
         ul_count = qs_ul.count()
-    else: connect_time_ul = 0.0
+    else:
+        connect_time_ul, ul_sum, ul_count = 0.0, 0, 1
 
     connect_time = (dl_sum + ul_sum) / (dl_count + ul_count)  # 접속시간 전체평균
     return {'connect_time_dl':connect_time_dl, 'connect_time_ul':connect_time_ul, 'connect_time':connect_time}
