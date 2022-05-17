@@ -931,8 +931,8 @@
                         $("#" + p_c_Id + " img").attr("class", "alarmCheck")
                     }
 
-                    //업데이트 되고 5분이 지나면 다시 본래 색상으로 변경
-                    if(this.phoneGroupList[p_Id].elapsed_time > 5){
+                    //업데이트 되고 5분이 지나면 다시 본래 색상으로 변경   //테스트용도
+                    if(this.phoneGroupList[p_Id].elapsed_time > 20){
                         $("#" + p_c_Id + " img").attr("class", "alarmNomal")
                     }
                 },
@@ -1790,8 +1790,13 @@
             var row_middle_size
             //폰그룹 바디 사이즈 초기 셋팅
             var middle_phonegroup_size = $('#middle_phonegroup').innerHeight();
+            if(middle_phonegroup_size > 460){
+                middle_phonegroup_size = 450
+            }
             phonegroup_body_size = middle_phonegroup_size - 50;
             document.getElementById('phonegroup-body').style.height = phonegroup_body_size + 'px'
+            console.log(middle_phonegroup_size)
+            console.log(phonegroup_body_size)
 
             $('[data-toggle="tooltip"]').tooltip()
             
