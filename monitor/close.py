@@ -123,7 +123,7 @@ def measuring_end(phoneGroup):
                 print("메시지의 channelId가 없습니다. 센터 정보를 확인해주세요.: ", str(e))
                 raise Exception("measuring_end() - no channelId: %s" % e)
             
-            message_end = Message.objects.filter(measdate=phoneGroup.measdate, userInfo1=phoneGroup.userInfo1, status='END')
+            message_end = Message.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup, userInfo1=phoneGroup.userInfo1, status='END')
             if message_end.exists():
                 message_end.delete()  # 메시지는 생성될 때에만 전송되기때문에 이전 메시지는 삭제
                 message_end = Message.objects.create(
@@ -422,7 +422,7 @@ def measuring_day_close(phoneGroup_list, measdate):
                                   f"  . WiFi(개방)\"{md.downloadBandwidth}/{md.uploadBandwidth}\""
 
             # 생성한 메시지를 저장한다 : 기존 메시지 있는 경우 Update, 없는 경우 신규 생성
-            message_exists = Message.objects.filter(measdate=measdate, status='REPORT', userInfo1=md.userInfo1)
+            message_exists = Message.objects.filter(measdate=measdate, phoneGroup=phoneGroup, status='REPORT', userInfo1=md.userInfo1)
             if message_exists.exists():
                 message_exists.update(downloadBandwidth=md.downloadBandwidth, uploadBandwidth=md.uploadBandwidth, message=message_report, updated_at=datetime.now(), sended=False)
             else:
@@ -562,7 +562,7 @@ def measuring_day_reclose(measdate):
                                 total_count=total_count, \
                                 udpJitter=udpJitter, success_rate=success_rate, \
                                 connect_time_dl=connect_time['connect_time_dl'], connect_time_ul=connect_time['connect_time_ul'], connect_time=connect_time['connect_time'],
-                                ca4_rate=lte_ca[0], ca3_rate=lte_ca[1], ca2_rate=lte_ca[2], ca1_rate =lte_ca[3]
+                                ca4_rate=lte_ca[0], ca3_rate=lte_ca[1], ca2_rate=lte_ca[2], ca1_rate=lte_ca[3],
                                 **serializer.data)
             # 5G 및 LTE의 커버리지 측정 대상 수를 계산 및 저장한다.  // total_count 컬럼에 대상 수 저장
             measuring_day_close_coverage(measdate)

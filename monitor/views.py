@@ -96,14 +96,15 @@ def receive_json(request):
     # meastime '20211101063756701'
     try: 
         measdate = str(data['meastime'])[:8] # 측정일자
-        morphology = get_morphology(data['userInfo2']) # 모폴로지
-        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], morphology=morphology, \
-            ispId=data['ispId'], active=True)
+        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
+            ispId=data['ispId'], active=True).order_by('-last_updated_dt')
         if qs.exists():
             phoneGroup = qs[0]    
         else:
             # 측정 단말기 그룹을 생성한다.
             meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
+            morphology = get_morphology(data['userInfo2']) # 모폴로지
+            
             phoneGroup = PhoneGroup.objects.create(
                             measdate=measdate, # 측정일자
                             starttime=meastime_s[8:10]+ ':' + meastime_s[10:12], # 측정 시작시간
