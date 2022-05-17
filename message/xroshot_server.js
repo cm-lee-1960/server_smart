@@ -22,12 +22,13 @@ app.post('/',function(req,res){
   if (request_type == 'send') {
     var message_body = req.body.message;
     var message_receiver = req.body.receiver;
+    var message_sender = req.body.sender;
 
     /////// 메시지 전송을 위한 Body 생성
     var requestBody = {
       MessageType 		: 4,					// 메시지 유형 (1:SMS, 2:VMS, 3:FMS, 4:MMS)
       MessageSubType 		: 1,					// MessageType에 따른 메시지 세부 유형 (1:일반텍스트(SMS,VMS,FMS,MMS), 2:url(SMS,VMS,FMS))
-      CallbackNumber 		: '01044700193',		// 회신번호   /// 등록된 번호만 사용 가능 (현재 김종현 차장님 번호)
+      CallbackNumber 		: message_sender,		// 회신번호   /// 등록된 번호만 사용 가능 (현재 김종현 차장님 번호)
 
       //SendNumber 			: '01098880025',		// Option) 발신 과금번호
       ReserveType 		: 1, 					// Option) 예약 타입 (1:즉시 - Default, 2:예약)

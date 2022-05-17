@@ -21,7 +21,7 @@ from datetime import datetime
 def run_xmcs_server():   # 크로샷 서버 실행
   execute_send_sms_nodejs = os.popen('node ./message/xroshot_server.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast.js
 
-def send_sms(message, receiver):
+def send_sms(message, sender, receiver):
   '''크로샷 전송 함수
    .파라미터:
     - message: 보낼 메시지 내용 (Text)
@@ -29,6 +29,7 @@ def send_sms(message, receiver):
    .반환값:
     - Dict {status_code : 200, Body : 전송결과}'''
   url = "http://127.0.0.1:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
+  sender = '01098880025'
   # 수신자 리스트를 적절한 형태로 변환한다.
   receivers = []
   for i in range(len(receiver)):
@@ -39,7 +40,7 @@ def send_sms(message, receiver):
     if (message.isspace() == True) or not(len(receiver[0]) == len(receiver[-1]) == 11):  # 메시지가 공백이거나 or 수신자번호 11자리 아니면 오류
       print('Error: 메시지 또는 수신자 번호를 확인해주세요.')
     else:  # 보낼 Data 생성 후 nodejs로 post 전송한다
-      data = {'type': 'send', 'message': message, 'receiver': receivers}
+      data = {'type': 'send', 'message': message, 'sender': sender, 'receiver': receivers}
       headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
       response = requests.post(url, data=json.dumps(data), headers=headers)
       result = {'status_code' : response.status_code, 'body': json.loads(response.text)}
@@ -56,8 +57,9 @@ def send_sms_queryset(queryset, receiver):
    - receiver: 수신자 번호(str) 리스트
    .반환값: Dict {status_code : 200, Body : 전송결과} '''
   try:
-    msg = queryset.message
-    result_sms = send_sms(msg, receiver)  # 크로샷 전송 함수
+    msg = queryset.message  # 메시지내용
+    sender = queryset.center.senderNum  # 발신번호
+    result_sms = send_sms(msg, sender, receiver)  # 크로샷 전송 함수
     if result_sms['status_code'] == 200:
       queryset.sended = True if result_sms['body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
       queryset.sendTime = datetime.strptime(result_sms['body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
