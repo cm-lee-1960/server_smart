@@ -278,107 +278,14 @@ def send_message_hj(sender, instance, created, **kwargs):
           . kwargs: 키워트 파라미터
         - 반환값: 없음
     """
-   
+    
     if created:
-        a = Phone.objects.filter(phoneGroup_id = instance.phoneGroup_id, userInfo1 = instance.userInfo1, measdate = instance.measdate)
+        a = Phone.objects.filter(phoneGroup = instance.phoneGroup, userInfo1 = instance.userInfo1, measdate = instance.measdate)
+        b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
+        c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
         print("a 만들어짐")
-        # if a[0].morphology_id == 1:
-        #                 mopo = "행정동"
-        #                 if "특별시" in a[0].siDo or "광역시" in a[0].siDo:
-        #                         address = "대도시"
-        #                 elif a[0].guGun.endswith("읍") or  a[0].guGun.endswith("면"):
-        #                         address = "농어촌"
-        #                 else:
-        #                         address = "중소도시"
-        # elif a[0].morphology_id == 2:
-        #                 mopo = "테마"
-        #                 if "병원" in a[0].userInfo1:
-        #                     mopo = "인빌딩"
-        #                     address = "대형병원"
-        #                 elif "백화점" in a[0].userInfo1:
-        #                     mopo = "인빌딩"
-        #                     address = "백화점"
-        #                 elif "터미널" in a[0].userInfo1:
-        #                     mopo = "인빌딩"
-        #                     address = "터미널"
-        #                 elif "역" in a[0].userInfo1:
-        #                     mopo = "인빌딩"
-        #                     address = "역사"
-        #                 elif "공항" in a[0].userInfo1:
-        #                     mopo = "인빌딩"
-        #                     address = "공항" 
-        #                 elif "대학" in a[0].userInfo1 or "학생" in a[0].userInfo1:
-        #                     mopo = "테마"
-        #                     address = "대학교"
-        #                 elif "공원" in a[0].userInfo1:
-        #                     mopo = "테마"
-        #                     address = "놀이공원"
-        #                 elif "거리" in a[0].userInfo1:
-        #                     mopo = "테마"
-        #                     address = "주요거리" 
-        #                 else:
-        #                     address = "수정필요"           
-        # elif a[0].morphology_id == 3:
-        #                 mopo = "인빌딩"
-        # elif a[0].morphology_id== 4:
-        #                 mopo = "커버리지"
-        # elif a[0].morphology_id== 5 or a[0].userInfo2 == "L" or a[0].userInfo2 == "3":
-        #                 mopo = "취약지역"
-        #                 if a[0].userInfo1.endswith("도"):
-        #                     address = "유인도서"
-        #                 elif a[0].userInfo1.endswith("산"):
-        #                     address = "등산로"
-        #                 elif "해안도로" in a[0].userInfo1:
-        #                     address = "해안도로"
-        #                 elif "-" in a[0].userInfo1:
-        #                     address = "여객항로"
-        #                 else: 
-        #                     address = "-"
-        # else:
-        #                 pass
-        # # 와이파이
-        # if a[0].networkId == "WiFi":
-        #                 if "개" in a[0].userInfo2: 
-        #                     mopo = "개방"
-        #                 elif "상" in a[0].userInfo2:
-        #                     mopo = "상용"
-        #                 elif "공" in a[0].userInfo2:
-        #                     mopo = "공공"    
-        #                 else:
-        #                     mopo = "-" 
-        # else:
-        #                 pass
-        # if "서울" in a[0].siDo or "서울" in a[0].guGun:
-        #                 district = "서울"
-        # elif "인천" in a[0].siDo or "인천" in a[0].guGun:
-        #                 district = "인천"
-        # elif "울산" in a[0].siDo or "울산" in a[0].guGun:
-        #                 district = "울산"
-        # elif "대구" in a[0].siDo or "대구" in a[0].guGun:
-        #                 district = "대구"
-        # elif "광주" in a[0].siDo or "광주" in a[0].guGun:
-        #                 district = "광주"
-        # elif "대전" in a[0].siDo or "대전" in a[0].guGun:
-        #                 district = "대전"
-        # elif "경기" in a[0].siDo or "경기" in a[0].guGun:
-        #                 district = "경기"
-        # elif "경상북" in a[0].siDo or "경상북" in a[0].guGun:
-        #                 district = "경북"
-        # elif "경상남" in a[0].siDo or "경상남" in a[0].guGun:
-        #                 district = "경남"
-        # elif "전라남" in a[0].siDo or "전라남" in a[0].guGun:
-        #                 district = "전남"
-        # elif "전라북" in a[0].siDo or "전라북" in a[0].guGun:
-        #                 district = "전북"
-        # elif "충청남" in a[0].siDo or "충청남" in a[0].guGun:
-        #                 district = "충남"
-        # elif "충청북" in a[0].siDo or "충청북" in a[0].guGun:
-        #                 district = "충북"
-        # elif "세종" in a[0].siDo or "세종" in a[0].guGun:
-        #                 district = "세종"
-        # else:
-        #                 district = "수도권"
-        # print("나이거보고싶다.")
+
+        
         LastMeasDayClose.objects.create(
                     measdate =  instance.measdate,  # 측정일자(예: 20211101)
                     phoneGroup = instance.phoneGroup_id,  # 단말그룹
@@ -399,16 +306,15 @@ def send_message_hj(sender, instance, created, **kwargs):
                     guGun = a[0].guGun,
                     addressDetail = a[0].addressDetail,
                     district = a[0].siDo,
-                    mopo = instance.morphology,
-                    address = "",
+                    
+                    nettype = c[0].network_type,
+                    mopho = c[0].main_class,
+                    detailadd = c[0].middle_class,
+                    subadd = c[0].sub_class,
+                    mopho_id = b[0].morphologyDetail_id,
                 )
         print("성공성공 들어왔다.")
-        # # 2) 크로샷으로 메시지를 전송한다.
-        # if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
-        #     # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
-        #     # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
-        #     # npm install request 명령어로 모듈 설치 후 사용 가능
-        #     send_sms()
+       
     else:
         # 메시지가 업데이트 되었을 때는 아무런 처리를 하지 않는다.
         print("안대따")
@@ -446,8 +352,8 @@ class LastMeasDayClose(models.Model):
     guGun = models.CharField(max_length=100, null=True, blank=True, verbose_name="군,구", default='')  # 구,군
     addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="상세주소", default='')  # 주소상세
     district = models.CharField(max_length=100, null=True, blank=True,verbose_name="지역",default='')
-    address = models.CharField(max_length=100, null=True, blank=True,verbose_name="상세지역",default='')
-    mopo = models.CharField(max_length=100, null=True, blank=True,verbose_name="모폴로지명",default='')
+    mopho = models.CharField(max_length=100, null=True, blank=True,verbose_name="모폴로지",default='')
+    nettype = models.CharField(max_length=100, null=True, blank=True,verbose_name="네트타입",default='')
     plus = models.CharField(max_length=100, null=True, blank=True,verbose_name="추가사항",default='')
     postktdl = models.FloatField(null=True, default=0)
     postsktdl= models.FloatField(null=True, default=0)
@@ -455,7 +361,9 @@ class LastMeasDayClose(models.Model):
     postktul= models.FloatField(null=True, default=0)
     postsktul= models.FloatField(null=True, default=0)
     postlgul= models.FloatField(null=True, default=0)
-    
+    detailadd = models.CharField(max_length=100, null=True, blank=True,default='')
+    subadd = models.CharField(max_length=100, null=True, blank=True,default='')
+    mopho_id = models.IntegerField(null=True, blank=True,verbose_name='모폴로지아이디',default='999')
     class Meta:
         ordering = ['-measdate']
 
@@ -463,133 +371,3 @@ post_save.connect(send_message_hj, sender=MeasuringDayClose)
 
 
 
-########
-#   # 측정마감 테스트################################################################
-#             hj = TestDayClose.objects.filter(measdate=phoneGroup.measdate, phoneGroup=phoneGroup)
-#             a = Phone.objects.filter(phoneGroup_id = phoneGroup.id, userInfo1 = phoneGroup.userInfo1, userInfo2 = phoneGroup.userInfo2, measdate = phoneGroup.measdate)
-#             siDo = a[0].siDo
-#             guGun = a[0].guGun
-#             addressDetail = a[0].addressDetail
-#             if a[0].morphology_id == 1:
-#                 mopo = "행정동"
-#                 if "특별시" in a[0].siDo or "광역시" in a[0].siDo:
-#                         address = "대도시"
-#                 elif a[0].guGun.endswith("읍") or  a[0].guGun.endswith("면"):
-#                         address = "농어촌"
-#                 else:
-#                         address = "중소도시"
-#             elif a[0].morphology_id == 2:
-#                 mopo = "테마"
-#                 if "병원" in a[0].userInfo1:
-#                     mopo = "인빌딩"
-#                     address = "대형병원"
-#                 elif "백화점" in a[0].userInfo1:
-#                     mopo = "인빌딩"
-#                     address = "백화점"
-#                 elif "터미널" in a[0].userInfo1:
-#                     mopo = "인빌딩"
-#                     address = "터미널"
-#                 elif "역" in a[0].userInfo1:
-#                     mopo = "인빌딩"
-#                     address = "역사"
-#                 elif "공항" in a[0].userInfo1:
-#                     mopo = "인빌딩"
-#                     address = "공항" 
-#                 elif "대학" in a[0].userInfo1 or "학생" in a[0].userInfo1:
-#                     mopo = "테마"
-#                     address = "대학교"
-#                 elif "공원" in a[0].userInfo1:
-#                     mopo = "테마"
-#                     address = "놀이공원"
-#                 elif "거리" in a[0].userInfo1:
-#                     mopo = "테마"
-#                     address = "주요거리" 
-#                 else:
-#                     address = "수정필요"           
-#             elif a[0].morphology_id == 3:
-#                 mopo = "인빌딩"
-#             elif a[0].morphology_id== 4:
-#                 mopo = "커버리지"
-#             elif a[0].morphology_id== 5 or a[0].userInfo2 == "L" or a[0].userInfo2 == "3":
-#                 mopo = "취약지역"
-#                 if a[0].userInfo1.endswith("도"):
-#                     address = "유인도서"
-#                 elif a[0].userInfo1.endswith("산"):
-#                     address = "등산로"
-#                 elif "해안도로" in a[0].userInfo1:
-#                     address = "해안도로"
-#                 elif "-" in a[0].userInfo1:
-#                     address = "여객항로"
-#                 else: 
-#                     address = "수정필요"
-#             else:
-#                 pass
-#             if a[0].networkId == "WiFi":
-#                 if "개" in a[0].userInfo2: 
-#                     address = "개방"
-#                 elif "상" in a[0].userInfo2:
-#                     address = "상용"
-#                 else:
-#                     address = "수정필요" 
-#             else:
-#                 pass
-#             if "서울" in a[0].siDo or "서울" in a[0].guGun:
-#                 district = "서울"
-#             elif "인천" in a[0].siDo or "인천" in a[0].guGun:
-#                 district = "인천"
-#             elif "울산" in a[0].siDo or "울산" in a[0].guGun:
-#                 district = "울산"
-#             elif "대구" in a[0].siDo or "대구" in a[0].guGun:
-#                 district = "대구"
-#             elif "광주" in a[0].siDo or "광주" in a[0].guGun:
-#                 district = "광주"
-#             elif "대전" in a[0].siDo or "대전" in a[0].guGun:
-#                 district = "대전"
-#             elif "경기" in a[0].siDo or "경기" in a[0].guGun:
-#                 district = "경기"
-#             elif "경상북" in a[0].siDo or "경상북" in a[0].guGun:
-#                 district = "경북"
-#             elif "경상남" in a[0].siDo or "경상남" in a[0].guGun:
-#                 district = "경남"
-#             elif "전라남" in a[0].siDo or "전라남" in a[0].guGun:
-#                 district = "전남"
-#             elif "전라북" in a[0].siDo or "전라북" in a[0].guGun:
-#                 district = "전북"
-#             elif "충청남" in a[0].siDo or "충청남" in a[0].guGun:
-#                 district = "충남"
-#             elif "충청북" in a[0].siDo or "충청북" in a[0].guGun:
-#                 district = "충북"
-#             elif "세종" in a[0].siDo or "세종" in a[0].guGun:
-#                 district = "세종"
-#             else:
-#                 district = "수도권"
-#             lte_percent = ((a[0].nr_count)/a[0].total_count)*100
-#              # 직렬화 대상 필드를 지정한다.
-#             # fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'userInfo2', 'networkId', \
-#             #         'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count']
-#             fields = ['center_id','measdate', 'userInfo1', 'networkId']
-#             serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
-#             if hj.exists():
-#                 # 해당 단말그룹에 대한 측정종료 데이터를 데이터베이스에 저장한다.
-#                 hj.update(**serializer.data)
-                
-                
-#                 # 평균속도, 전환율, 총 콜 수는 새로이 계산한 값으로 저장한다.
-                
-#                 hj.update(downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'], \
-#                         uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
-#                         # siDo = siDo, guGun = guGun, addressDetail = addressDetail,\
-#                         # dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
-#                         address=address, mopo=mopo,district=district,lte_percent=lte_percent)
-#                         # total_count=total_count)
-#             else:
-                
-#                 # 해당 단말그룹에 대한 측정종료 데이터를 업데이트 한다
-#                 TestDayClose.objects.create(phoneGroup=phoneGroup, \
-#                                                 # siDo =siDo, guGun = guGun, addressDetail =addressDetail, \
-#                                                 downloadBandwidth=avg_bandwidth['avg_downloadBandwidth'], \
-#                                                 uploadBandwidth=avg_bandwidth['avg_uploadBandwidth'], \
-#                                                 # dl_nr_percent=nr_percent['dl_nr_percent'], ul_nr_percent=nr_percent['ul_nr_percent'], \
-#                                                 address=address, mopo=mopo,district=district,lte_percent=lte_percent, \
-#                                                 # total_count=total_count, \
-#                                                 **serializer.data)

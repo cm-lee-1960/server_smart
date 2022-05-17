@@ -263,29 +263,37 @@
                     <td style="display:none;"><p></p><input type = 'text'  name="phoneGroup" value="{{measclose.phoneGroup}}"></input></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.measdate}}</p> <input style="display:inline;" class="form-control mod" type="text" name="measdate" id="textmod1" value="{{measclose.measdate}}"></input></td>
                     <td style="width:15%"><p class="measclosedata">{{measclose.userInfo1}}</p> <input style="display:inline;" class="form-control mod" type="text" name="userInfo1" id="textmod2" value="{{measclose.userInfo1}}"></input></td> 
-                    <td style="width:5%"><p class="measclosedata">{{measclose.networkId}}</p> 
-                        <select style="display:inline;" class="form-control mod" type="text" name="center" id="textmod4">
+                    <td style="width:5%"><p class="measclosedata">{{measclose.nettype}}</p> 
+                        <select style="display:inline;" class="form-control mod" type="text" name="nettype" id="textmod4" value="{{measclose.nettype}}">
+                            <option value="{{measclose.nettype}}">{{measclose.nettype}}</option>
                             {% for networkid in networkid_list %}
                             <option value="{{networkid}}">{{networkid}}</option>
                             {% endfor %}
                         </select></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.center}}</p> 
-                        <select style="display:inline;" class="form-control mod" type="text" name="center" id="textmod4">
+                        <select style="display:inline;" class="form-control mod" type="text" name="center" id="textmod4" value="{{measclose.center}}">
+                            <option value="{{measclose.center}}">{{measclose.center}}</option>
+                            {% for center in center_list %}
+                            <option value="{{center}}">{{center}}</option>
+                            {% endfor %}
+                        </select></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.mopho}}</p> <input style="display:inline;" class="form-control mod" type="text" name="mopho" id="textmod5" value="{{measclose.mopho}}"></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.district}}</p> 
+                        <select style="display:inline;" class="form-control mod" type="text" name="district" id="textmod4" value="{{measclose.district}}">
+                            <option value="{{measclose.district}}">{{measclose.district}}</option>
                             {% for district in district_list %}
                             <option value="{{district}}">{{district}}</option>
                             {% endfor %}
                         </select></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.morphology}}</p> <input style="display:inline;" class="form-control mod" type="text" name="morphology" id="textmod5" value="{{measclose.morphology}}"></input></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.district}}</p> <input style="display:inline;" class="form-control mod" type="text" name="district" id="textmod7" value="{{measclose.district}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.guGun}}</p> <input style="display:inline;" class="form-control mod" type="text" name="guGun" id="textmod7" value="{{measclose.guGun}}"></input></td></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.address}}</p> <input style="display:inline;" class="form-control mod" type="text" name="address" id="textmod7" value="{{measclose.address}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.detailadd}}</p> <input style="display:inline;" class="form-control mod" type="text" name="detailadd" id="textmod7" value="{{measclose.detailadd}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.downloadBandwidth}}</p> <input style="display:inline;" class="form-control mod" type="text" name="downloadBandwidth" id="textmod6" value="{{measclose.downloadBandwidth}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.uploadBandwidth}}</p> <input style="display:inline;" class="form-control mod" type="text" name="uploadBandwidth" id="textmod7" value="{{measclose.uploadBandwidth}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.lte_percent}}</p> <input style="display:inline; " class="form-control mod" type="text" name="lte_percent" id="textmod7" value="{{measclose.lte_percent}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.success_rate}}</p> <input style="display:inline;" class="form-control mod" type="text" name="success_rate" id="textmod7" value="{{measclose.success_rate}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.connect_time}}</p> <input style="display:inline;" class="form-control mod" type="text" name="connect_time" id="textmod7" value="{{measclose.connect_time}}"></input></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.udpJitter}}</p> <input style="display:inline;" class="form-control mod" type="text" name="udpJitter" id="textmod7" value="{{measclose.udpJitter}}"></input></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.plus}}</p> <input style="display:inline;" class="form-control mod" type="text" name="plus" id="textmod7" value='{{measclose.plus}}'></input></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.subadd}}</p> <input style="display:inline;" class="form-control mod" type="text" name="subadd" id="textmod7" value='{{measclose.subadd}}'></input></td>
                     <td style="width:10%"><button class="btn btn-secondary btn-sm modifybtn" onclick="modify_closedata()">수정 <i class="icon-fixed-width icon-pencil" onclick="event.stopPropagation()"></i></button> <button class="btn btn-secondary btn-sm completebtn" onclick="update_closedata()">완료 <i class="icon-fixed-width icon-check" onclick="event.stopPropagation()"></i></button>
                     <button class="btn btn-secondary btn-sm deletebtn" onclick="delete_closedata()">삭제 <i class="icon-trash" onclick="event.stopPropagation()"></i></button><button class="btn btn-secondary btn-sm canclebtn" onclick="cancle_closedata()">취소 <i class="icon-ban-circle" onclick="event.stopPropagation()"></i></button></td>    
                 </tr>

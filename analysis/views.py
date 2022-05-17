@@ -378,21 +378,21 @@ def update_closedata(request):
             closedata.phoneGroup = int(data_len[0])
             closedata.measdate = data_len[1]
             closedata.userInfo1 = data_len[2]
-            closedata.networkId = data_len[3]
+            closedata.nettype = data_len[3]
             closedata.center = data_len[4]
-            closedata.morphology = data_len[5]
+            closedata.mopho = data_len[5]
             closedata.district = data_len[6]
             closedata.guGun = data_len[7]
-            closedata.address = data_len[8]
+            closedata.detailadd = data_len[8]
             closedata.downloadBandwidth = float(data_len[9])
             closedata.uploadBandwidth = float(data_len[10])
             closedata.lte_percent =float(data_len[11])
             closedata.success_rate = float(data_len[12])
             closedata.connect_time = float(data_len[13])
             closedata.udpJitter = float(data_len[14])
-            closedata.plus = data_len[14]
+            closedata.subadd = data_len[14]
             # 기존에 등록된 측정결과 데이터가 있으면 삭제한다.
-            # LastMeasDayClose.objects.filter(phoneGroup=int(closedata.phoneGroup), measdate=closedata.measdate, userInfo1=closedata.userInfo1).delete()
+            LastMeasDayClose.objects.filter(phoneGroup=int(data['select_tr'][0]),measdate=data['select_tr'][1],userInfo1=data['select_tr'][2]).delete()
             # 측정결과를 저장한다.
             closedata.save()
            
@@ -408,7 +408,7 @@ def update_closedata(request):
             #         Center = data_len[4],
             #         Morphology = data_len[5],
             #         district = data_len[6],
-            #         address = data_len[7],
+            #         mopho = data_len[7],
             #         downloadBandwidth = float(data_len[8]),
             #         uploadBandwidth = float(data_len[9]),
             #         lte_percent =float(data_len[10]),
@@ -428,21 +428,21 @@ def update_closedata(request):
                 phoneGroup = int(data_len[0]),
                 measdate = data_len[1],
                 userInfo1 = data_len[2],
-                networkId = data_len[3],
+                nettype = data_len[3],
                 center = data_len[4],
-                morphology = data_len[5],
+                mopho = data_len[5],
                 district = data_len[6],
                 guGun = data_len[7],
-                address = data_len[8],
+                detailadd = data_len[8],
                 downloadBandwidth = float(data_len[9]),
                 uploadBandwidth = float(data_len[10]),
                 lte_percent =float(data_len[11]),
                 success_rate = float(data_len[12]),
                 connect_time = float(data_len[13]),
                 udpJitter = float(data_len[14]),
-                plus = data_len[15]
+                subadd = data_len[15]
             )
-
+  
             result = {'result' : 'ok',}
                 ###############
         
@@ -473,7 +473,7 @@ def delete_closedata(request):
         data_len = data['select_tr']
         try:
             print("존재")    
-            LastMeasDayClose.objects.filter(phoneGroup=int(data['select_tr'][0]),measdate=data['select_tr'][1],userInfo1=data['select_tr'][2]).delete()
+            LastMeasDayClose.objects.filter(phoneGroup=int(data['select_tr'][0]),measdate=data['select_tr'][1],userInfo1=data['select_tr'][2],nettype=data['select_tr'][3],center=data['select_tr'][4],mopho=data['select_tr'][5],district=data['select_tr'][6],guGun=data['select_tr'][7],detailadd=data['select_tr'][8]).delete()
             result = {'result' : 'ok',}
     
         
