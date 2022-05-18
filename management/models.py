@@ -24,6 +24,7 @@ from operator import itemgetter
 # 2022.03.18 - 센터별 관할지역(CenterManageArea) 맵핑 정보 추가
 # 2022.03.28 - 센터정보 모델에 센터영문명(centerEngName) 항목 추가
 # 2022.04.28 - 측정단말에 대한 사전 정보 추가
+# 2022.05.18 - 센터정보 전송번호를 대표번호로 변경
 #
 ########################################################################################################################
 
@@ -37,7 +38,7 @@ class Center(models.Model):
     centerName = models.CharField(max_length=100, verbose_name="센터명")
     centerEngName = models.CharField(max_length=100, null=True, blank=True, verbose_name="센터영문명")
     channelId = models.CharField(max_length=25, verbose_name="채널ID")
-    senderNum = models.CharField(max_length=25, null=True, blank=True, verbose_name="전송번호")  ## 문자메시지 전송 시 발신번호
+    senderNum = models.CharField(max_length=25, null=True, blank=True, verbose_name="대표번호")  ## 문자메시지 전송 시 발신번호
     permissionLevel = models.IntegerField(default=1, verbose_name="권한레벨")
     recipientOfficer = models.CharField(max_length=30, null=True, blank=True, verbose_name="수신 임원")  ## 보고 메시지를 위함
     active = models.BooleanField(default=True, verbose_name="상태")
