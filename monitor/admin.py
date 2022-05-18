@@ -77,62 +77,6 @@ class PhoneGroupAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # 측정단말 관리자 페이지에서 선택된 단말그룹에 대해 종료처리하는 액션 함수
-    # ------------------------------------------------------------------------------------------------------------------
-    def get_measuring_end_action(self, request, queryset):
-        """ 해당지역 측정을 종료하는 함수
-            - 파라미터
-              . queryset : 선택된 단말그룹에 대한 쿼리셋
-            - 반환값: 없음
-        """
-        if queryset.exists():
-            try: 
-                result_list = []  # 여러개 그룹을 종료 시킬 수 있으므로 결과값을 리스트 선언
-                # 관리자 페이지에서 넘겨 받은 쿼리셋에서 선택된 단말그룹을 하나씩 가져와서 측정종료 처리를 한다.
-                for phoneGroup in queryset:
-                    result = measuring_end(phoneGroup)
-                    result_list.append(result)  # 결과 리스트 append
-            except Exception as e:
-                # 오류 코드 및 내용을 반환한다.
-                print("get_measuring_end_action():", str(e))
-                raise Exception("get_measuring_end_action(): %s" % e)
-
-            #결과 메시지를 크로샷 전송 테스트 페이지로 넘긴다. (임시, 중복 종료 처리할 경우 결과 리스트의 첫 번째 메시지를 넘김)
-            return render(request, 'message/xroshot_page.html', {'sendType': 'XMCS', 'message' : result_list[0]['message']})
-
-    get_measuring_end_action.short_description = '선택한 측정그룹 종료처리'
-
-    # # 2022.03.24 - 향후 홈페이지가 생기면 그곳에서 호출 가능핟록 측정 모니터링앱(monitor) 뷰 함수로 이동함
-    # # 당일측정 마감 버튼을 추가한다.
-    # change_list_template = "entities/heroes_changelist.html"
-    # # overriding get_urls -> 당일측정 마감 path 추가
-    # def get_urls(self):
-    #     urls = super().get_urls()
-    #     day_close_urls = [
-    #         path('close/', self.day_close),
-    #     ]
-    #     return day_close_urls + urls
-    # # 버튼 클릭 시의 당일측정 마감 함수 실행  //  마감할 건이 없을 경우 예외처리 필요?
-    # def day_close(self, request):
-    #     date = request.POST['date'].replace('-','')
-    #     # 측정 이력이 없는 날짜일 경우 : 측정 중인 지역 없다는 메시지 노출
-    #     if self.model.objects.filter(measdate=date, ispId=45008).count() == 0:
-    #         self.message_user(request, "측정 중인 지역이 없습니다.", level=messages.ERROR)
-    #     # 이미 마감한 날짜를 재마감할 경우 : 이미 마감한 지역 메시지 노출
-    #     elif (not self.model.objects.filter(measdate=date, ispId=45008, active=True).exists()) & \
-    #          (Message.objects.filter(measdate=date, status='REPORT_ALL').exists()):   # 해당 날짜에 Active 폰그룹이 없 and 마감 메시지 없으면
-    #         self.message_user(request, "이미 마감한 날짜입니다.", level=messages.ERROR)
-    #     # 나머지 경우 마감 진행
-    #     else:
-    #         phoneGroup_list = self.model.objects.filter(measdate=date, ispId=45008, active=True)  # 현재 Active 상태 단말그룹 리스트 추출
-    #         measuring_day_close(phoneGroup_list, date)  # 당일 측정 마감 함수 실행
-    #         self.message_user(request, "해당일 측정 마감처리 되었습니다.")  # 실행 후 알람 메시지 생성
-    #     return HttpResponseRedirect("../")
-
-    # 단말그룹 관리자 페이지에서 "측정마감" 버튼을 추가한 커스터마이징한 페이지를 사용한다.
-    change_list_template = "admin/change_list_close_btn.html"
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정단말 관리자 페이지 설정
