@@ -288,7 +288,9 @@ def check_message_send(message):
     """메시지 전송여부 함수
         .파라미터 : 메시지 쿼리셋
         .반환값 : Boolean(True or False)"""
-    if message.messageType == 'EVENT':
+    if message.sendType == "XMCS":
+        return False
+    elif message.messageType == 'EVENT':
         eventTypes = event_type_check(message)
         eventStatus = MessageConfig.objects.all().values()
         sendStatus = []
