@@ -543,11 +543,13 @@
                             <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
                             <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage"
                                     v-if="message.sendType !== 'ALL' && message.sendType !== 'XMCS'">회수</button>
-                            {% else %}
+                                <!--
+{#                            {% else %}#}
                             <button type="button" class="btn btn-primary" v-on:click="clickSendMessage"
                                     v-if="message.sendType !== 'ALL' && message.sendType !== 'XMCS'">전송</button>
                             <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage"
                                     v-if="message.sendType !== 'ALL' && message.sendType !== 'XMCS'">회수</button>
+                                    -->
                             {% endif%}
                         </div>
                         <div class="tab-pane fade mt-1" id="msgdtl-recipient" role="tabpanel" v-show="TelegramClick==false"
