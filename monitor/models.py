@@ -825,7 +825,7 @@ class Message(models.Model):
     message = models.TextField(default=False) # 메시지 내용
     channelId = models.CharField(max_length=25) # 채널ID
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
-    sended = models.BooleanField(default=True) # 전송여부
+    sended = models.BooleanField(default=False) # 전송여부
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일시')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='최종 업데이트 시간')
     sendTime = models.DateTimeField(null=True, blank=True, verbose_name='보낸시간')
@@ -873,21 +873,24 @@ def send_message(sender, instance, created, **kwargs):
     """
     # 메시지가 생성되었을 때만 처리한다.
     if created:
-        bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
-        # 1) 텔레그램으로 메시지를 전송한다.
-        if instance.sendType == 'TELE' or instance.sendType == 'ALL':
-            result = bot.send_message_bot(instance.channelId, instance.message)
-            #instance.sendTime = result['date'].astimezone(timezone(timedelta(hours=9)))  ## 텔레그램 전송시각 저장
-            instance.telemessageId = result['message_id']  ## 텔레그램 메시지ID 저장
-            instance.sendTime = instance.updated_at
-            instance.save()
+        from message.msg import check_message_send
+        if check_message_send(instance):  ## 전송여부 확인
+            bot = TelegramBot()  ## 텔레그램 인스턴스 선언(3.3)
+            # 1) 텔레그램으로 메시지를 전송한다.
+            if instance.sendType == 'TELE' or instance.sendType == 'ALL':
+                result = bot.send_message_bot(instance.channelId, instance.message)
+                #instance.sendTime = result['date'].astimezone(timezone(timedelta(hours=9)))  ## 텔레그램 전송시각 저장
+                instance.telemessageId = result['message_id']  ## 텔레그램 메시지ID 저장
+                instance.sendTime = instance.updated_at
+                instance.sended = True
+                instance.save()
 
-        # # 2) 크로샷으로 메시지를 전송한다.
-        # if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
-        #     # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
-        #     # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
-        #     # npm install request 명령어로 모듈 설치 후 사용 가능
-        #     send_sms()
+            # # 2) 크로샷으로 메시지를 전송한다.
+            # if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
+            #     # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
+            #     # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
+            #     # npm install request 명령어로 모듈 설치 후 사용 가능
+            #     send_sms()
     else:
         # 메시지가 업데이트 되었을 때는 아무런 처리를 하지 않는다.
         pass

@@ -314,3 +314,28 @@ class MorphologyDetail(models.Model):
         verbose_name_plural = ("모폴로지 상세")
 
 # Large Category Medium Category Small Category
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 메시지 자동전송 여부 클래스
+# ----------------------------------------------------------------------------------------------------------------------
+class MessageConfig(models.Model):
+    """이벤트 메시지를 텔레그렘으로 전송할지 말지 여부 모델
+        : 폰그룹 별로, 이벤트 종류마다 전송할지 말지"""
+    # PhoneGroup = models.ForeignKey(PhoneGroup, null=True, on_delete=models.DO_NOTHING)
+    eventFailure = models.BooleanField(default=True, verbose_name="전송실패") # 전송실패 이벤트
+    eventLowThroughput = models.BooleanField(default=True, verbose_name="속도저하") # 속도저하 이벤트
+    eventVoiceDrop = models.BooleanField(default=True, verbose_name="음성 콜 드랍") # 음성 콜 드랍 이벤트
+    eventNR = models.BooleanField(default=True, verbose_name="LTE전환") # 5G->LTE 전환 이벤트
+    evntOffZone = models.BooleanField(default=True, verbose_name="측정범위 벗어남") # 측정범위 벗어나는 이벤트
+    eventStay = models.BooleanField(default=True, verbose_name="한 곳에 머뭄") # 측정콜 한군데 머무는 이벤트
+    eventDuplication = models.BooleanField(default=True, verbose_name="중복측정") # 측정단말의 중복측정 이벤트
+    START_F = models.BooleanField(default=True, verbose_name="최초시작") # 최초 측정시작 메시지
+    START_M = models.BooleanField(default=True, verbose_name="지역시작") # 해당지역 측정시작 메시지
+    MEASURING = models.BooleanField(default=True, verbose_name="주기보고") # 측정 주기보고 메시지
+    END = models.BooleanField(default=True, verbose_name="측정종료") # 측정종료 메시지
+    END_LAST = models.BooleanField(default=True, verbose_name="최종종료") # 마지막 단말 측정종료 메시지
+    
+    class Meta:
+        verbose_name = ("메시지 자동전송 설정")
+        verbose_name_plural = ("메시지 자동전송 설정")

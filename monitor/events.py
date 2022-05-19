@@ -427,7 +427,6 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
             messageType='EVENT',  # 메시지 유형(SMS: 단문메시지, EVENT: 이벤트발생 메시지)
             message=message,  # 메시지 내용
             channelId=channelId,  # 채널ID
-            sended=True  # 전송여부
         )
 
         # 단말그룹의 이벤트 발생건수를 하나 증가시킨다.

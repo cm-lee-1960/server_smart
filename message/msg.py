@@ -2,7 +2,7 @@ from datetime import datetime
 from django.conf import settings
 from django.db.models import Q
 from monitor.models import Phone, MeasureCallData, Message
-from management.models import MeasureingTeam, ReportCycle
+from management.models import MeasureingTeam, ReportCycle, MessageConfig
 from monitor.geo import make_map_locations
 
 
@@ -260,7 +260,43 @@ def make_message(mdata: MeasureCallData):
             messageType='SMS',  # 메시지 유형(SMS: 측정 메시지, EVENT: 이벤트발생 메시지)
             message=messages,  # 메시지 내용
             channelId=channelId,  # 채널ID
-            sended=True  # 전송여부
         )
 
 
+def event_type_check(message):
+    """메시지의 이벤트 유형 체크 함수
+        .파라미터 : 메시지 쿼리셋
+        .반환값 : 리스트"""
+    eventTypes = []
+    if '전송실패' in message.message:
+        eventTypes.append('eventFailure')
+    if '속도저하' in message.message:
+        eventTypes.append('eventLowThroughput')
+    if '음성 콜 드랍' in message.message:  # 음성 콜 드랍 메시지 확정 시 수정
+        eventTypes.append('eventVoiceDrop')
+    if 'LTE전환' in message.message:
+        eventTypes.append('eventNR')
+    if '측정범위 벗어남' in message.message:
+        eventTypes.append('evntOffZone')
+    if '측정단말 한곳에 머뭄' in message.message:
+        eventTypes.append('eventStay')
+    if '중복측정' in message.message:
+        eventTypes.append('eventDuplication')
+    return eventTypes
+
+def check_message_send(message):
+    """메시지 전송여부 함수
+        .파라미터 : 메시지 쿼리셋
+        .반환값 : Boolean(True or False)"""
+    if message.messageType == 'EVENT':
+        eventTypes = event_type_check(message)
+        eventStatus = MessageConfig.objects.all().values()
+        sendStatus = []
+        for event in eventTypes:
+            sendStatus.append(eventStatus[0][event])
+        if True in sendStatus:
+            return True
+        else:
+            return False
+    else:
+        return MessageConfig.objects.all().values()[0][message.status]

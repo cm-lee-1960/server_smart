@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib import auth
 from django.conf import settings
 from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam, ReportCycle, MorphologyMap, \
-    CenterManageArea, ChatMemberList, PhoneInfo, MorphologyDetail
+    CenterManageArea, ChatMemberList, PhoneInfo, MorphologyDetail, MessageConfig
 
 ########################################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
@@ -151,6 +151,17 @@ class MorphologyDetailAdmin(admin.ModelAdmin):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# 메시지 자동전송 여부
+# ----------------------------------------------------------------------------------------------------------------------
+class MessageConfigAdmin(admin.ModelAdmin):
+    """어드민 페이지에 메시지 자동전송 여부(MessageConfig)를 보여주기 위한 클래스"""
+    list_display = ['eventFailure', 'eventLowThroughput', 'eventVoiceDrop', 'eventNR', 'evntOffZone', 'eventStay', 'eventDuplication', \
+                    'START_F', 'START_M', 'MEASURING', 'END', 'END_LAST', ]
+    list_display_links = list_display
+    ordering = ('id', )
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # 관리자 페이지에 모델을 등록한다.
 # ----------------------------------------------------------------------------------------------------------------------
 admin.site.register(Morphology, MorphologyAdmin) # 모풀로지 등록
@@ -167,6 +178,8 @@ admin.site.register(ChatMemberList, ChatMemberListAdmin) # 채팅방 멤버 리�
 
 admin.site.register(PhoneInfo, PhoneInfoAdmin) # 측정단말 사전정보
 admin.site.register(MorphologyDetail, MorphologyDetailAdmin) # 측정단말 사전정보
+
+admin.site.register(MessageConfig, MessageConfigAdmin) # 측정단말 사전정보
 
 # 사용자 인증관련 그룹을 어드민 페이지에서 제외한다.
 admin.site.unregister(auth.models.Group)
