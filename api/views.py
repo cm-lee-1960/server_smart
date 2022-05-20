@@ -72,8 +72,8 @@ def phonegroup_list(request, measdate):
         if request.user.is_superuser:
             qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
         else:
-            qs = PhoneGroup.objects.filter(measdate=measdate, center=request.user.profile.center, ispId='45008', \
-                                           manage=True).order_by('-last_updated_dt')
+            qs = PhoneGroup.objects.filter(Q(center=request.user.profile.center) | Q(center_id=1), measdate=measdate, \
+                                           ispId='45008', manage=True).order_by('-last_updated_dt')
         phoneGroupList = []
         if qs.exists():
             fields = ['id', 'measdate', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
@@ -107,7 +107,7 @@ def phonegroup_list(request, measdate):
         if request.user.is_superuser:
             pass
         else:
-            sql += f"AND center_id = '{request.user.profile.center_id}' "
+            sql += f"AND (center_id = {request.user.profile.center_id} OR  center_id = 1) "
         sql += " GROUP BY management_center.centerName "
         cursor.execute(sql)
         for centerInfo in cursor.fetchall():
