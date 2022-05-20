@@ -286,15 +286,15 @@ def send_message_hj(sender, instance, created, **kwargs):
         print("a 만들어짐")
 
         
-        LastMeasDayClose.objects.create(
+        qs = LastMeasDayClose.objects.create(
                     measdate =  instance.measdate,  # 측정일자(예: 20211101)
                     phoneGroup = instance.phoneGroup_id,  # 단말그룹
                     
                     userInfo1 = instance.userInfo1,
                     networkId = instance.networkId,  # 네트워크ID(5G, LTE, 3G, WiFi)
-                    center = instance.center,
+                    center = instance.center.centerName,
                     
-                    morphology = instance.morphology,
+                    morphology = instance.morphology.morphology,
                     
                     downloadBandwidth = instance.downloadBandwidth,  # DL속도 (초단위 데이터 평균)
                     uploadBandwidth = instance.uploadBandwidth,  # UP속도 (초단위 데이터 평균)
@@ -306,13 +306,12 @@ def send_message_hj(sender, instance, created, **kwargs):
                     guGun = a[0].guGun,
                     addressDetail = a[0].addressDetail,
                     district = a[0].siDo,
-                    
-                    nettype = c[0].network_type,
-                    mopho = c[0].main_class,
-                    detailadd = c[0].middle_class,
-                    subadd = c[0].sub_class,
+
                     mopho_id = b[0].morphologyDetail_id,
-                )
+        )
+        if c.exists():
+            qs.nettype, qs.mopho, qs.detailadd, qs.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
+            qs.save()
         print("성공성공 들어왔다.")
        
     else:
