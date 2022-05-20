@@ -192,7 +192,7 @@ class RunTelethon():
         self.api_id = settings.TELEGRAM_API_ID
         self.api_hash = settings.TELEGRAM_API_HASH
         self.token = settings.BOT_TOKEN
-        self.session_file = 'smart_project'
+        self.session_file = 'smart_project_9473'
 
     # Telethon 연결
     def connect(self):
@@ -236,10 +236,11 @@ def update_members(chat_id, center):
     except Exception as e:
         print("Telethon Run ERROR: ", str(e))
         raise Exception("update_members(): %s" % e)
-    db_member_list = ChatMemberList.objects.filter(chatId = chat_id, center=center).update(join=False)  # 해당 센터에 대한 멤버 참석여부 초기화
+    ChatMemberList.objects.filter(center=center).update(join=False)  # 해당 센터에 대한 멤버 참석여부 초기화
     for member in members_list:
-        if ChatMemberList.objects.filter(userchatId = member[0], chatId = chat_id, center=center):  # 기존 멤버 업데이트
-            ChatMemberList.objects.filter(userchatId = member[0], chatId = chat_id, center=center).update(
+        if ChatMemberList.objects.filter(userchatId = member[0], center=center):  # 기존 멤버 업데이트
+            ChatMemberList.objects.filter(userchatId = member[0], center=center).update(
+                chatId = chat_id,
                 firstName = member[1],
                 lastName = member[2],
                 userName = member[3],
@@ -258,7 +259,7 @@ def update_members(chat_id, center):
                 isBot = member[4],
                 join = True,
             )
-    ChatMemberList.objects.filter(chatId = chat_id, center=center, allowed=False, join=False).delete()  # 미허용/미참석 상태 인원은 DB에서 삭제
+    ChatMemberList.objects.filter(center=center, allowed=False, join=False).delete()  # 미허용/미참석 상태 인원은 DB에서 삭제
 
 def update_members_allchat():
     '''모든 채팅방에 대해 멤버 Update 진행'''
