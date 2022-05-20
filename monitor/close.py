@@ -523,7 +523,7 @@ def measuring_day_close(phoneGroup_list, measdate):
     PhoneGroup.objects.filter(measdate=measdate).update(active=False)
     
     # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
-    return_value = {'result': 'ok'}
+    return_value = {'result': 'ok', 'type': 'close'}
     return return_value
 
 
@@ -575,7 +575,7 @@ def measuring_day_reclose(measdate):
     # PhoneGroup.objects.filter(measdate=measdate).update(active=False)
     
     # 반환값은 Front-End에서 요구하는 대로 추후 수정한다.
-    return_value = {'result': 'ok'}
+    return_value = {'result': 'ok', 'type': 'reclose'}
     return return_value
 
 

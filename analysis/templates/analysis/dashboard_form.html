@@ -228,12 +228,12 @@
                                     @click="checkedAll($event.target.checked)"
                                 >
                             </th>
-                            <!--<th style="width: 5%;"><input type="text" class="form-control text-center filter-input" placeholder="본부" disabled></th>
+                            <!--<th style="width: 5%;"><input type="text" class="form-control text-center filter-input" placeholder="센터" disabled></th>
                             <th style="width: 5%;"><input type="text" class="form-control text-center filter-input" placeholder="조" disabled></th>
                             <th style="width: 18%;"><input type="text" class="form-control text-center filter-input" placeholder="측정지역" disabled></th>
                             <th style="width: 7%;"><input type="text" class="form-control text-center filter-input" placeholder="모폴로지" disabled></th>
                             <th style="width: 6%;"><input type="text" class="form-control text-center filter-input" placeholder="네트워크" disabled></th>-->
-                            <th style="width: 5%;" onclick="sortTable(1, event">센터 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
+                            <th style="width: 5%;" onclick="sortTable(1, event)">센터 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
                             <th style="width: 4%;" onclick="sortTable(2, event)">조 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
                             <th style="width: 7%;" onclick="sortTable(3, event)">단말번호 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
                             <th style="width: 16%;" onclick="sortTable(4, event)">측정지역 <i class="fa fa-caret-down" aria-hidden="true"></i></th>
@@ -565,7 +565,7 @@
                             <table id="chatmember_table" class='table table-hover'>
                                 <thead id='chatmember_head' style="height:50px;">
                                 <tr class="bg-light d-flex text-center">
-                                    <th style="width: 15%;">본부</th>
+                                    <th style="width: 15%;">센터</th>
                                     <th style="width: 30%;">이름</th>
                                     <th style="width: 30%;">닉네임</th>
                                     <th style="width: 14%;">등록여부</th>
@@ -1177,6 +1177,8 @@
                     //clearInterval(this.timer);
                     //this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
                     const res = await fetch("/monitor/day_close/" + this.date);
+                    const data = await res.json();
+                    return data;
                     /*
                     const data = await res.json();
 
@@ -1297,20 +1299,40 @@
                         // 해당일자에 대한 측정을 마감한다.
                         $("#progressModal").modal('show');
                         const promise = this.measuring_day_close()
+
                         promise.then(res => {
+                            res_result = res['result']
                             // 일일마감 후 단말그룹을 다시 조회한다.
+                            if (res['type'] == 'reclose') {
+                                swal_text = '재마감의 경우 문자를 다시 생성하지 않습니다.'
+                            } else {
+                                swal_text = '해당일자의 마감문자를 확인해주세요.'
+                            }
                             const subpromise = this.fetch_all_phoneGroup();
                             subpromise.then(res => {
                                 $("#progressModal").modal('hide');
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '측정이 마감되었습니다.',
-                                    text: '해당일자의 마감문자를 확인해주세요.',
-                                }).then( async (result) => {
+                                if (res_result == 'ok') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '측정이 마감되었습니다.',
+                                        text: swal_text
+                                    }).then( async (result) => {
                                     if (result.isConfirmed) {   //확인을 누른뒤 실행된다
                                         $("#progressModal").modal('hide');
                                         //await this.fetch_all_phoneGroup;
                                     }});
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: '측정마감 중에 오류가 발생하였습니다.',
+                                        text: '데이터를 확인하여 주세요.'
+                                    }).then( async (result) => {
+                                    if (result.isConfirmed) {   //확인을 누른뒤 실행된다
+                                        $("#progressModal").modal('hide');
+                                        //await this.fetch_all_phoneGroup;
+                                    }});
+                                }
+                            
                                 // 마감 완료 후 메시지를 다시 조회한다.
                                 this.fetch_all_message();
                             }).catch(err => {
@@ -1495,7 +1517,7 @@
                     if (this.selectedChatMembers === 'fail') {
                         Toast.fire({
                             icon: 'warning',
-                            title: '본부를 선택해주세요.'
+                            title: '센터를 선택해주세요.'
                         })
                     } else {
                         Toast.fire({
@@ -1722,7 +1744,7 @@
                         },
                         body: JSON.stringify({
                             'phoneGroup_id': this.selectedPhoneGroup.id,  // 단말그룹 ID
-                            'centerName': this.selectedPhoneGroup.centerName,  // 본부
+                            'centerName': this.selectedPhoneGroup.centerName,  // 센터
                             'measuringTeam': this.selectedPhoneGroup.measuringTeam,  // 측정조
                             'morphologyName': this.selectedPhoneGroup.morphologyName,  // 모폴로지 이름
                             'morphologyDetailId': this.selectedPhoneGroup.morphologyDetailId  // 모폴로지 상세 ID
