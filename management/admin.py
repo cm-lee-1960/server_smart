@@ -34,6 +34,9 @@ class CenterAdmin(admin.ModelAdmin):
     list_display_links = ['centerName',  'centerEngName', ]
     search_fields = ('centerName', 'centerEngName',)
 
+    def get_ordering(self, request):
+        return ['id']
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 모풀로지 기준 관리자 페이지 설정
 # ----------------------------------------------------------------------------------------------------------------------
