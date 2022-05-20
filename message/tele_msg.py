@@ -85,7 +85,7 @@ class TelegramBot:
             from monitor.models import Message
             qs = Message.objects.filter(sendTime__gte=from_dt).filter(sendTime__lte=now)
             if qs.exists() and qs.count() >= 2:
-                time.sleep(2)
+                time.sleep(5)
             
             # 메시지 앞뒤로 <code></code> 래핑을 한다. (04.26)
             # message = '<code>' + message + '</code>'
