@@ -46,6 +46,7 @@ from monitor.geo import make_map_locations
 #              LTE전환 DL/UL 콜카운트를 가져감
 #            - 주기보고 시점은 단말그룸의 콜카운트 정보를 가지고 판단하게 수정함
 # 2022.04.08 - 메시지 모델에 단말그룹 추가에 따른 업데이트 코드 추가
+# 2022.05.23 - 채널ID를 센터정보에서 가져온다.
 #
 # ----------------------------------------------------------------------------------------------------------------------
 def current_count_check(mdata: MeasureCallData) -> bool:
@@ -125,7 +126,8 @@ def make_message(mdata: MeasureCallData):
 
     # 환경변수에서 채팅방 채널IF를 가져온다.
     # channelId = '-736183270'
-    channelId = settings.CHANNEL_ID
+    # channelId = settings.CHANNEL_ID
+    channelId = mdata.phone.center.channelId
 
     phone = mdata.phone
     status = ["POWERON", "START_F", "START_M", "MEASURING", "END"]

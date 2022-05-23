@@ -29,6 +29,7 @@ from .models import MeasureCallData, Phone, Message
 # 2022.03.30 - 전송실패 이벤트 발생시 시 속도저하 이벤트를 체크하지 않음
 # 2022.04.08 - 메시지 모델에 단말그룹 추가에 따른 업데이트 코드 추가
 # 2022.05.01 - 이벤트 건수에 전송실패 건수만 반영 및 DL/UL 전송실패 건수 항목 추가
+# 2022.05.23 - 채널ID를 센터정보에서 가져온다.
 #
 ########################################################################################################################
 def event_occur_check(mdata: MeasureCallData):
@@ -392,7 +393,8 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
         - 반환값: '중복측정' or None
     """
     # 환경변수에서 채널ID를 가져온다.
-    channelId = settings.CHANNEL_ID
+    # channelId = settings.CHANNEL_ID
+    channelId = mdata.phone.center.channelId
 
     # 해당 측정위치에 대한 지도맵을 작성하고, 메시지 하단에 [지도보기] 링크를 붙인다.
     # (단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSRP/SINR)
