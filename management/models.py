@@ -285,7 +285,7 @@ class PhoneInfo(models.Model):
                                      choices=sorted(MEASURINGTEAM_CHOICES, key=itemgetter(0)), verbose_name='측정조')
     siDo = models.CharField(max_length=100, null=True, blank=True, verbose_name="시,도")  # 시도
     guGun = models.CharField(max_length=100, null=True, blank=True, verbose_name="군,구")  # 구,군
-    addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="상세주소")  # 주소상세
+    addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="최종위치")  # 주소상세
     latitude = models.FloatField(null=True, blank=True, verbose_name="위도")  # 위도
     longitude = models.FloatField(null=True, blank=True, verbose_name="경도")  # 경도
     power = models.BooleanField(null=True, default=False, verbose_name="파워온/오프")  # 파워온/오프
