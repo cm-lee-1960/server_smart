@@ -508,25 +508,28 @@
                                 aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(selectedPhoneGroup.centerName)" ref="channelList_tab_xro">채팅방 멤버</a>
                             </li>
                         </ul>
-                        <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;" v-show="TelegramClick==false">
-                            <i id="message-trash"
-                            class="fa fa-trash-o mt-2"
-                            style="font-size:24px;"
-                            v-on:click="clickClearMessage"></i></button>
-                        <div class="dropdown-menu-left flex p-0, m-0" v-show="TelegramClick==true">
-                            <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown"
-                                    style="color:rgb(21, 21, 181);border:none;background:none;font-size:18px;">
-                                <i id="message-trash" class="fa fa-telegram" style="color:rgb(21, 21, 181);font-size:24px;"></i>
-                                <span class="caret"></span></button>
-                            <div dropdown-toggle id="telemenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
-                                <a class="dropdown-item" @click="fetch_chatmembers(selectedPhoneGroup.centerName)" title="채팅방 멤버 새로고침">채팅방 멤버 새로고침</a>
-                                <a class="dropdown-item" @click="clickBanChatCenterMembers" title="센터 내 미허용된 인원 전체 추방">미허용 인원 전체 추방</a>
-                                {% if request.user.is_superuser %}
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" @click="fetch_chatmembers(('ALL')+(selectedPhoneGroup.centerName))"
-                                    title="모든 채팅방 새로고침">전체 채팅방 새로고침</a>
-                                <a class="dropdown-item" @click="clickBanChatAllMembers" title="전체 채팅방의 미허용 인원 강제 추방">전체 채팅방 강제추방</a>
-                                {% endif %}
+                        <div style="display:flex; align-items: center;">
+                            <strong><span>[[selectedPhoneGroup.centerName]]</span></strong>
+                            <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;" v-show="TelegramClick==false">
+                                <i id="message-trash"
+                                class="fa fa-trash-o mt-2"
+                                style="font-size:24px;"
+                                v-on:click="clickClearMessage"></i></button>
+                            <div class="dropdown-menu-left flex p-0, m-0" v-show="TelegramClick==true">
+                                <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-toggle="dropdown"
+                                        style="color:rgb(21, 21, 181);border:none;background:none;font-size:18px;">
+                                    <i id="message-trash" class="fa fa-telegram" style="color:rgb(21, 21, 181);font-size:24px;"></i>
+                                    <span class="caret"></span></button>
+                                <div dropdown-toggle id="telemenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
+                                    <a class="dropdown-item" @click="fetch_chatmembers(selectedPhoneGroup.centerName)" title="채팅방 멤버 새로고침">채팅방 멤버 새로고침</a>
+                                    <a class="dropdown-item" @click="clickBanChatCenterMembers" title="센터 내 미허용된 인원 전체 추방">미허용 인원 전체 추방</a>
+                                    {% if request.user.is_superuser %}
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" @click="fetch_chatmembers(('ALL')+(selectedPhoneGroup.centerName))"
+                                        title="모든 채팅방 새로고침">전체 채팅방 새로고침</a>
+                                    <a class="dropdown-item" @click="clickBanChatAllMembers" title="전체 채팅방의 미허용 인원 강제 추방">전체 채팅방 강제추방</a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -662,7 +665,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm">저장</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="fetch_all_phoneGroup">취소</button>
                 </div>
             </div>
         </div>
@@ -1829,7 +1832,7 @@
             console.log(middle_phonegroup_size)
             console.log(phonegroup_body_size)
 
-            $('[data-toggle="tooltip"]').tooltip()
+            $('[data-toggle="tooltip"]').tooltip()  //드랍다운 메뉴 선택시 닫힘
             
             //메세지 테이블 높이 동적 사이즈변경
             $('#bottom_body_left').resize(function() {
