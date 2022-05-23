@@ -43,6 +43,39 @@ from .close import measuring_end, measuring_end_cancel, measuring_day_close, mea
 #                           - update_phone()                                      SIGNAL
 #                           - update_initial_data()
 #
+# [ json data ]
+#  * 'call' as dataType - 데이터유형(콜단위데이터: call, 초단위데이터: second)
+#  * phone_no - 측정 단말번호
+#  * meastime - 측정시간
+#  * networkId - 네트워크유형
+#  * groupId - 그룹ID
+#  * currentTime - 현재시간
+#  * timeline - 타입라인
+#  * cellId - 셀ID
+#  * currentCount - 현재 콜카운트
+#  * ispId - 통신사업자ID
+#  * testNetworkType - 네트워크타입('speed')
+#  * userInfo1 - 측정자입력값1
+#  * userInfo2 - 측정자입력값2
+#  * siDo - 시,도
+#  * guGun - 구,군,구
+#  * addressDetail - 상세주소
+#  * udpJitter
+#  * downloadBandwidth - DL속도
+#  * uploadBandwidth - UL속도
+#  * sinr - SINR
+#  * isWifi - WiFi여부
+#  * latitude - 위도
+#  * longitude - 경도
+#  * bandType - 벤드타입
+#  * p_dl_earfcn
+#  * p_pci - LTE PCI
+#  * p_rsrp - LTE RSRP
+#  * p_SINR - LTE SINR
+#  * NR_EARFCN - 5G 주파수
+#  * NR_PCI - 5G PCI
+#  * NR_RSRP - 5G RSRP
+#  * NR_SINR - 5G SINR
 # ----------------------------------------------------------------------------------------------------------------------------------
 # 2022.03.03 - 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 모듈 추가
 #            - 업데이트 항목: 단말기 행정동 위치, 모풀로지 맵핑 재지정
