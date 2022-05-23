@@ -62,6 +62,8 @@ class PhoneGroup(models.Model):
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="유형")  # 네트워크ID(5G, LTE, 3G, WiFi)
     center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="센터")
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
+    org_morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING,
+                                       verbose_name="모풀로지(Origin)", related_name="org_morphology")
     morphologyDetail = models.ForeignKey(MorphologyDetail, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="모풀로지상세")
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
                                      choices=sorted(MEASURINGTEAM_CHOICES, key=itemgetter(0)), verbose_name='측정조')
