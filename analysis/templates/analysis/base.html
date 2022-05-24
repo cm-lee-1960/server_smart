@@ -51,6 +51,8 @@
           </li>
           {% endif %}
         </ul>
+                   
+            <button style="margin-right: 5px;" class="btn btn-secondary"><a style= "color:white;text-decoration-line: none;" href="{% url 'accounts:changepwpage' %}" @click="timerEnd">비밀번호 변경</a></button>
             <form class="form-inline mt-2 mt-md-0">
                 <!-- <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search"> <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
                   <input type="button" class="btn btn-danger" value="로그아웃" @click="logOut">

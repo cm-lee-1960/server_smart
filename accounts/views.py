@@ -6,6 +6,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.urls import reverse
 
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.hashers import check_password
 ########################################################################################################################
 # 로그인 뷰
 # ----------------------------------------------------------------------------------------------------------------------
@@ -48,3 +53,43 @@ def login(request):
                             return render(request, 'accounts/login_boot.html', {'error': error_message , 'user_Name' : [0]}) 
     else:
          return render(request, 'accounts/login_boot.html', {'user_Name' : [0]})
+
+#비밀번호 변경#
+@login_required
+def change_password(request):
+  if request.method == "POST":
+    user = request.user
+    origin_password = request.POST["origin_password"]
+    if check_password(origin_password, user.password):
+      new_password = request.POST["new_password"]
+      confirm_password = request.POST["confirm_password"]
+      if new_password == confirm_password:
+        if new_password != origin_password:
+            user.set_password(new_password)
+            user.save()
+            auth.login(request, user)
+            messages.success(request,'변경완료')
+            return render(request, "accounts/change_password.html", {'error': '비밀번호가 변경되었습니다.'})
+        else:
+            messages.error(request, '이전 비밀번호와 일치합니다.')
+            return render(request, "accounts/change_password.html", {'error': '이전 비밀번호와 일치합니다.'}) 
+      else:
+        messages.error(request, '비밀번호가 일치하지 않습니다.')
+        return render(request, "accounts/change_password.html", {'error': '비밀번호가 일치하지 않습니다.'})
+    else:
+      messages.error(request, '비밀번호가 잘못 입력되었습니다.')
+      return render(request, "accounts/change_password.html", {'error': '비밀번호가 잘못 입력되었습니다.'})
+    messages.error(request, '비밀번호가 잘못 입력되었습니다.')
+    return render(request, "accounts/change_password.html", {'error': '비밀번호가 잘못 입력되었습니다.'})
+  else:
+    messages.success(request,'오류')  
+    return render(request, "accounts/change_password.html", {'error':'오류'})
+#비밀번호 변경 화면#
+@login_required
+def change_password_page(request):
+    """홈(Home) 페이지 뷰"""
+    if request.user.is_authenticated:
+
+        return render(request, "accounts/change_password.html")
+    else:
+        return redirect(reverse('accounts:login'))

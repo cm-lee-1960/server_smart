@@ -10,6 +10,8 @@ urlpatterns = [
     #path('logout/', auth_views.LogoutView.as_view(next_page=settings.LOGIN_URL), name='logout'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'), 
     #path('home/', views.home, name='home')
+    path('changepw/', views.change_password, name='changepw'), 
+    path('changepwpage/', views.change_password_page, name='changepwpage'),
 ]
 
 # from django.contrib import admin
