@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from message.msg import make_message
-from management.models import Morphology
+from management.models import Morphology, EtcConfig
 from .events import event_occur_check
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, Message
 from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union
@@ -121,6 +121,13 @@ def receive_json(request):
         return HttpResponse("Error")
 
     data = JSONParser().parse(request)
+    # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
+    if EtcConfig.objects.filter(category="보정값").exists():
+        correction = EtcConfig.objects.get(category="보정값").value_float
+        if data['downloadBandwidth']: data['downloadBandwidth'] -= correction
+        if data['uploadBandwidth']:  data['uploadBandwidth'] -= correction
+    else:
+        pass
 
     # ------------------------------------------------------------------------------------------------------------------
     # 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
@@ -181,7 +188,7 @@ def receive_json(request):
             phone.active = True
             phone.save()
         else:
-            # 측정 단말기의 관래대상 여부를 판단한다.
+            # 측정 단말기의 관리대상 여부를 판단한다.
             # 2022.02.24 - 네트워크유형(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.
             #            - 발견사례) 서울특별시-신분당선(강남-광교) 010-2921-3951 2021-11-08
             if data['networkId'] == 'NR':
