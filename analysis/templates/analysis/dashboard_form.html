@@ -1454,6 +1454,7 @@
                     await this.fetch_all_phoneGroup();
                     await this.fetch_all_message();
                     this.message = {};
+                    this.tabChangeCheck = false;  // 05.24 추가: 전송 후 table-success 를 false로 만들기 위함
                 },
 
                 // 1-3) 텍스트 파일 내용을 읽어 오는 함수(수신자 전화번호 리스트)
