@@ -29,7 +29,7 @@ def send_sms(message, sender, receiver):
    .반환값:
     - Dict {status_code : 200, Body : 전송결과}'''
   url = "http://127.0.0.1:3000"   # nodejs에서 리스닝 중인 주소 - 포트 변경 가능
-  sender = '01098880025'
+  
   # 수신자 리스트를 적절한 형태로 변환한다.
   receivers = []
   for i in range(len(receiver)):
