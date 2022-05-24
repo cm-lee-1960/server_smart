@@ -69,7 +69,8 @@ def change_password(request):
             user.save()
             auth.login(request, user)
             messages.success(request,'변경완료')
-            return render(request, "accounts/change_password.html", {'error': '비밀번호가 변경되었습니다.'})
+            # return render(request, "accounts/change_password.html", {'error': '비밀번호가 변경되었습니다.'})
+            return render(request, "analysis/dashboard_form.html")
         else:
             messages.error(request, '이전 비밀번호와 일치합니다.')
             return render(request, "accounts/change_password.html", {'error': '이전 비밀번호와 일치합니다.'}) 
