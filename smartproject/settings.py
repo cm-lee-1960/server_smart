@@ -252,6 +252,7 @@ MANAGEMENT_MODELS_ORDERING = {
     "센터별 관할구역": 10,
     "채팅방 멤버 리스트": 11,
     "메시지 자동전송 설정": 12,
+    "기타 환경설정": 13,
 }
 
 LOGIN_REDIRECT_URL = 'http://localhost:8000/'

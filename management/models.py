@@ -1,6 +1,8 @@
 from django.utils import timezone
 from django.db import models
 from operator import itemgetter
+from django.db.models.signals import post_save
+
 
 ########################################################################################################################
 # 환경설정 관리 관련 클래스
@@ -180,7 +182,7 @@ class MeasureingTeam(models.Model):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# 금일측정조 데이터
+# 측정 보고주기 설정 클래스
 # ----------------------------------------------------------------------------------------------------------------------
 class ReportCycle(models.Model):
     """ 측정 보고주기 정보
@@ -339,3 +341,49 @@ class MessageConfig(models.Model):
     class Meta:
         verbose_name = ("메시지 자동전송 설정")
         verbose_name_plural = ("메시지 자동전송 설정")
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 기타 환경설정 클래스
+# ----------------------------------------------------------------------------------------------------------------------
+class EtcConfig(models.Model):
+    """기타 환경설정 모델
+        : 보정값(NQI에서 받은 데이터에서 값 보정되었을 경우 받은 데이터에서 +- 연산처리)"""
+    CATEGORY__CHOICES = (('보정값','보정값'), )
+
+    category = models.CharField(max_length=20, choices=CATEGORY__CHOICES, verbose_name='구분')
+    value_float = models.FloatField(default=0, null=True, blank=True, verbose_name="값1")  # 값(Float)
+    # value_char = models.CharField(max_length=50, null=True, blank=True, verbose_name="값2")  # 값(Char)
+    # value_boolean = models.BooleanField(verbose_name="값3")  # 값(Boolean)
+
+    class Meta:
+        verbose_name = ("기타 환경설정")
+        verbose_name_plural = ("기타 환경설정")
+
+
+
+
+def row_limit(sender, instance, created, **kwargs):
+    """ 모델이 가지는 ROW 개수를 1개로 제한하는 함수
+        - 파라미터
+          . sender: 모델 클래스
+          . instace: 객체 (생성된 레코드 하나 데이터)
+          . created: 신규생성 여부(True or False)
+          . kwargs: 키워트 파라미터
+        - 반환값: 없음
+    """
+    field_list = []
+    for field in sender._meta.get_fields():
+        field_list.append(field.name)  ## 모델의 컬럼 리스트 추출
+
+    if created:  # 신규 row가 생성되면
+        if 'category' in field_list:  # 모델구분: category 필드가 없으면 MessageConfig, 있으면 EtcConfig
+            qs = sender.objects.filter(category=instance.category)
+        else:
+            qs = sender.objects.order_by('id')
+        
+        if qs.count() == 2:  # row가 2 이상이면 삭제
+            qs[0].delete()
+
+post_save.connect(row_limit, sender=MessageConfig)
+post_save.connect(row_limit, sender=EtcConfig)
