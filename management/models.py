@@ -306,10 +306,15 @@ class PhoneInfo(models.Model):
 
 class MorphologyDetail(models.Model):
     """ 모폴로지 상세정보 """
+    WORDSCOND_CHOICES = (('시작단어','시작단어'), ('포함단어','포함단어'))
+    
     network_type = models.CharField(max_length=100, null=True, blank=True, verbose_name="네트워크")
     main_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="대분류")
     middle_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="중분류")
     sub_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="소분류")
+    words = models.CharField(max_length=200, null=True, blank=True,
+                             verbose_name="단어(대분류)") # 모폴로지 판단 컬럼2 : 특정 단어 포함
+    wordsCond = models.CharField(max_length=20, null=True, blank=True, choices=WORDSCOND_CHOICES, verbose_name='조건(대분류)')
 
     class Meta:
         verbose_name = ("모폴로지 상세")

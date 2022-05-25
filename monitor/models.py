@@ -235,6 +235,30 @@ def get_morphology(userInfo2: str) -> Morphology:
                     break
     return morphology
 
+# ----------------------------------------------------------------------------------------------------------------------
+# 모폴로지 상세(대분류)를 자동 지정해준다. (WiFi일 경우 상용/개방/공공 구분)
+# ----------------------------------------------------------------------------------------------------------------------
+def get_morphology_mainclass(userInfo2: str) -> MorphologyDetail:
+    """ WiFi일 경우 userInfo2로 모폴로지 상세(대분류)를 반환한다.
+        - 파리미터: userInfo2(str)
+        - 반환값: 모폴러지상세(MorphologyDetail)
+    """
+    # 측정자 입력값2(userInfo2)에 따라 모폴로지 상세(대분류)를 결정한다.
+    if userInfo2 and userInfo2 is not None:
+    # 모풀로지상세 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지 상세를 반환한다.
+        userInfo2 = userInfo2.upper()
+        for mp in MorphologyDetail.objects.all():
+            if mp.wordsCond == '시작단어':
+                if userInfo2.startswith(mp.words.upper()):
+                    morphologyDetail_mainclass = mp.main_class
+                    break
+            elif mp.wordsCond == '포함단어':
+                if userInfo2.find(mp.words.upper()) >= 0:
+                    morphologyDetail_mainclass = mp.main_class
+                    break
+    return morphologyDetail_mainclass
+
+
 
 ########################################################################################################################
 # 측정단말 정보
@@ -578,6 +602,13 @@ class MeasureCallData(models.Model):
     NR_SINR = models.FloatField(null=True, blank=True)  # 5G SINR
     # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
+    wifi_rssi = models.CharField(max_length=100, null=True, blank=True)  # WiFi rssi
+    wifi_ssId = models.CharField(max_length=100, null=True, blank=True)  # WiFi SSID
+    wifi_bssId = models.CharField(max_length=100, null=True, blank=True)  # WiFi bssid
+    wifi_ipAddress = models.CharField(max_length=100, null=True, blank=True)  # WiFi IP주소
+    wifi_macAddress = models.CharField(max_length=100, null=True, blank=True)  # WiFi MAC주소
+    wifi_wifiSignalLevel = models.CharField(max_length=100, null=True, blank=True)  # WiFi SignalLevel
+
 
     # 전화번호 뒤에서 4자리를 반환한다.
     @property
@@ -766,6 +797,12 @@ class MeasureSecondData(models.Model):
     NR_SINR = models.FloatField(null=True, blank=True)  # 5G SINR
     # before_lat = models.FloatField(null=True, blank=True) # 이전 위도 - 의미없음(위도와 동일)
     # before_lon = models.FloatField(null=True, blank=True) # 이전 경도 - 의미없음(경도와 동일)
+    wifi_rssi = models.CharField(max_length=100, null=True, blank=True)  # WiFi rssi
+    wifi_ssId = models.CharField(max_length=100, null=True, blank=True)  # WiFi SSID
+    wifi_bssId = models.CharField(max_length=100, null=True, blank=True)  # WiFi bssid
+    wifi_ipAddress = models.CharField(max_length=100, null=True, blank=True)  # WiFi IP주소
+    wifi_macAddress = models.CharField(max_length=100, null=True, blank=True)  # WiFi MAC주소
+    wifi_wifiSignalLevel = models.CharField(max_length=100, null=True, blank=True)  # WiFi SignalLevel
 
     def __str__(self):
         return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}/"

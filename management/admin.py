@@ -145,7 +145,7 @@ class PhoneInfoAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 class MorphologyDetailAdmin(admin.ModelAdmin):
     """어드민 페이지에 측정단말 사전정보(PhoneInfo)를 보여주기 위한 클래스"""
-    list_display = ['network_type', 'main_class', 'middle_class', 'sub_class', ]
+    list_display = ['network_type', 'main_class', 'middle_class', 'sub_class', 'words', 'wordsCond']
     # list_display_links = ['main_class']
     search_fields = ('network_type', 'main_class', )
     list_filter = ['network_type', 'main_class', ]
