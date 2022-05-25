@@ -5,7 +5,7 @@ from django.db.models import Max, Min, Avg, Count, Q, Sum
 from django.db import connection
 
 from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose
-from management.models import Center, Morphology
+from management.models import Center, Morphology, MorphologyDetail
 
 from .serializers import PhoneGroupSerializer
 from message.tele_msg import TelegramBot
@@ -226,8 +226,10 @@ def measuring_end(phoneGroup):
                 total_count = fiveg_count + lte_count + threeg_count + wifi_count
                 # 네트워크 유형 별 userInfo1을 추출한다.
                 userInfo_byType = {'5G':'', 'LTE':'', '3G':'', 'WiFi':''}
-                for userInfo in PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True, ispId=45008).values('networkId', 'userInfo1'):
+                for userInfo in PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True, ispId=45008).values('networkId', 'userInfo1', 'morphologyDetail'):
                     userInfo_byType[userInfo['networkId']] += '\n  .' + userInfo['userInfo1']
+                    if userInfo['networkId'] == 'WiFi':  # WiFi일 경우 상용/공공/개방 구분자 추가
+                        userInfo_byType[userInfo['networkId']] += '(' + MorphologyDetail.objects.get(id=userInfo['morphologyDetail']).main_class +')'
 
                 # 메시지를 생성한다.
                 message_end_last = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
@@ -404,45 +406,43 @@ def measuring_day_close(phoneGroup_list, measdate):
             md.save()
 
             # 일일보고용 메시지 생성(3.22/ 지속 업데이트 예정) - 측정타입(5G/LTE/3G/WiFi/음성)에 따라 메시지 포맷이 달라진다.
-            message_report = f"ㅇ {md.userInfo1}({md.morphology})\n"
+            
             if phoneGroup.networkId != 'WiFi':
-                message_report += f" - (DL/UL/시도호/전송성공률)\n" + \
-                                  f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\"\n"
-            # 5G일 경우 LTE전환율/접속시간 추가
-            if phoneGroup.networkId == '5G':
-                message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
-                                  f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
-            # LTE일 경우 CA비율 추가
-            elif phoneGroup.networkId == 'LTE':
-                message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
-                                  f"  .\"{md.ca4_rate}/{md.ca3_rate}/{md.ca2_rate}/{md.ca1_rate}\""
-            # WiFi일 경우 및 음성호일 경우 : 계산식 확인 후 업데이트 예정
+                message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
+                                f" - (DL/UL/시도호/전송성공률)\n" + \
+                                f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\"\n"
+                # 5G일 경우 LTE전환율/접속시간 추가
+                if phoneGroup.networkId == '5G':
+                    message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
+                                    f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
+                # LTE일 경우 CA비율 추가
+                elif phoneGroup.networkId == 'LTE':
+                    message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
+                                    f"  .\"{md.ca4_rate}/{md.ca3_rate}/{md.ca2_rate}/{md.ca1_rate}\""
+                # 생성한 메시지를 저장한다 : 기존 메시지 있는 경우 Update, 없는 경우 신규 생성
+                message_exists = Message.objects.filter(measdate=measdate, phoneGroup=phoneGroup, status='REPORT', userInfo1=md.userInfo1)
+                if message_exists.exists():
+                    message_exists.update(downloadBandwidth=md.downloadBandwidth, uploadBandwidth=md.uploadBandwidth, message=message_report, updated_at=datetime.now(), sended=False)
+                else:
+                    Message.objects.create(
+                        phoneGroup=phoneGroup,
+                        phone=None,
+                        center=phoneGroup.center,
+                        status='REPORT',  # REPORT : 일일보고용 메시지
+                        measdate=measdate,
+                        sendType='XMCS',
+                        userInfo1=md.userInfo1,
+                        phone_no=None,
+                        downloadBandwidth=md.downloadBandwidth,
+                        uploadBandwidth=md.uploadBandwidth,
+                        messageType='SMS',
+                        message=message_report,
+                        channelId='',
+                        sended=False
+                    )
+            # WiFi일 경우 및 음성호일 경우
             elif phoneGroup.networkId == "WiFi":
-                message_report += f" - 속도(DL/UL, Mbps)\n" + \
-                                  f"  . WiFi(상용)\"{md.downloadBandwidth}/{md.uploadBandwidth}\"" + \
-                                  f"  . WiFi(개방)\"{md.downloadBandwidth}/{md.uploadBandwidth}\""
-
-            # 생성한 메시지를 저장한다 : 기존 메시지 있는 경우 Update, 없는 경우 신규 생성
-            message_exists = Message.objects.filter(measdate=measdate, phoneGroup=phoneGroup, status='REPORT', userInfo1=md.userInfo1)
-            if message_exists.exists():
-                message_exists.update(downloadBandwidth=md.downloadBandwidth, uploadBandwidth=md.uploadBandwidth, message=message_report, updated_at=datetime.now(), sended=False)
-            else:
-                Message.objects.create(
-                    phoneGroup=phoneGroup,
-                    phone=None,
-                    center=phoneGroup.center,
-                    status='REPORT',  # REPORT : 일일보고용 메시지
-                    measdate=measdate,
-                    sendType='XMCS',
-                    userInfo1=md.userInfo1,
-                    phone_no=None,
-                    downloadBandwidth=md.downloadBandwidth,
-                    uploadBandwidth=md.uploadBandwidth,
-                    messageType='SMS',
-                    message=message_report,
-                    channelId='',
-                    sended=False
-                )
+                    make_report_message_wifi(phoneGroup)
 
         except Exception as e:
             print("마감 데이터 계산, 일일보고 메시지 생성:", str(e))
@@ -697,25 +697,8 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
     else: avg_uploadBandwidth = 0
     return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
 
-def cal_avg_bw_wifi(phoneGroup):  ## WiFi의 경우 상용/개방/공공 속도 별도 계산한다.
-    ''' WiFi 평균속도 계산 함수 (콜데이터)
-     . 파라미터: phoneGroup
-     . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
-    phone_list = phoneGroup.phone_set.all()
-    qs = MeasureCallData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='speed').order_by("meastime")
-    # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (calldata에서 downloadbandwidth 존재 유무로 판단)
-    qs_dlbw = qs.exclude( Q(networkId='NR') | Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )
-    if qs_dlbw.exists():
-        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
-    else: avg_downloadBandwidth = 0
-    # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (calldata에서 uploadbandwidth 존재 유무로 판단)
-    qs_ulbw = qs.exclude( Q(networkId='NR') | Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )
-    if qs_ulbw.exists():
-        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
-    else: avg_uploadBandwidth = 0
-    return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
 
-
+# ---------------------------------------------------------------------------------------------------------------------------------------------
 # 측정 마감 시 커버리지 대상 수 계산 함수 --> morphology='커버리지'로 계산  // manage=False 인 애들로 할까? 검토중
 # total_count에 대상 수를 저장한다.
 def measuring_day_close_coverage(measdate):
@@ -740,3 +723,35 @@ def measuring_day_close_coverage(measdate):
         return coverage_count
     except Exception as e: # 묶인 center가 없으면 channelId는 None
         raise Exception("measuring_day_close_coverage(): %s" % e)
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+def make_report_message_wifi(phoneGroup):
+    ''' WiFi일 경우 및 음성호일 경우 메시지 생성하는 함수
+     . 파라미터: phoneGroup(폰그룹 쿼리셋)
+     . 반환값: 없음 '''
+    md = phoneGroup.measuringdayclose_set.all().last()
+    if Message.objects.filter(center=phoneGroup.center, status='REPORT', measdate=phoneGroup.measdate, userInfo1=phoneGroup.userInfo1).exists():  # userInfo1이 겹치는 메시지가 있는 경우
+        qs = Message.objects.get(status='REPORT', measdate=phoneGroup.measdate, userInfo1=phoneGroup.userInfo1)
+        qs.message += f"\n  . WiFi({phoneGroup.morphologyDetail.main_class})\"{md.downloadBandwidth}/{md.uploadBandwidth}\""
+        qs.save()
+    else:  # 겹치는 userInfo1이 없는 경우
+        message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
+                        f" - 속도(DL/UL, Mbps)\n" + \
+                        f"  . WiFi({phoneGroup.morphologyDetail.main_class})\"{md.downloadBandwidth}/{md.uploadBandwidth}\""
+        Message.objects.create(
+            phoneGroup=phoneGroup,
+            phone=None,
+            center=phoneGroup.center,
+            status='REPORT',  # REPORT : 일일보고용 메시지
+            measdate=phoneGroup.measdate,
+            sendType='XMCS',
+            userInfo1=md.userInfo1,
+            phone_no=None,
+            downloadBandwidth=md.downloadBandwidth,
+            uploadBandwidth=md.uploadBandwidth,
+            messageType='SMS',
+            message=message_report,
+            channelId='',
+            sended=False
+        )

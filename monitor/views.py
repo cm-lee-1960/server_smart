@@ -6,9 +6,9 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from message.msg import make_message
-from management.models import Morphology, EtcConfig
+from management.models import Morphology, MorphologyDetail, EtcConfig
 from .events import event_occur_check
-from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, Message
+from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, get_morphology_mainclass, Message
 from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union
 
 
@@ -148,7 +148,12 @@ def receive_json(request):
         # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
         #     ispId=data['ispId'], active=True).order_by('-last_updated_dt')
         morphology = get_morphology(data['userInfo2'])  # 모폴로지
-        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, \
+
+        if data['networkId'] == 'WiFi':  # WiFi일 경우 모폴로지 상세 지정
+            morphologyDetail = MorphologyDetail.objects.get(network_type='WiFi', main_class=get_morphology_mainclass(data['userInfo2']))
+        else: morphologyDetail = None  # WiFi가 아닐경우 모폴로지 상세 미지정
+
+        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, morphologyDetail=morphologyDetail,\
                                        ispId=data['ispId'], active=True).order_by('-last_updated_dt')
         if qs.exists():
             phoneGroup = qs[0]    
@@ -163,6 +168,7 @@ def receive_json(request):
                             userInfo1=data['userInfo1'], # 측정자 입력값1
                             userInfo2=data['userInfo2'], # 측정자 입력갑2
                             morphology=morphology, # 모폴로지
+                            morphologyDetail=morphologyDetail,
                             org_morphology=morphology,  # 모폴로지(Origin)
                             ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
                             manage=morphology.manage, # 관리대상 여부
