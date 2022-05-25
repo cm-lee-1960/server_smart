@@ -266,12 +266,12 @@ def make_message(mdata: MeasureCallData):
         )
 
         # 당일 첫 측정시작인 경우(START_F), 모든 채팅그룹에 메시지를 전송한다.
-        channelId_list = []
+        channelId_list = [channelId,]
         if phone.status == 'START_F':
             qs = Center.objects.all()
             if qs.exists():
                 for center in qs:
-                    if message.center_id is not center.id and center.channelId not in channelId_list:
+                    if center.channelId not in channelId_list:
                         message.pk = None
                         message.center = center
                         message.channelId = center.channelId
