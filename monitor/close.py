@@ -395,6 +395,7 @@ def measuring_day_close(phoneGroup_list, measdate):
             connect_time = cal_connect_time(phoneGroup)  # 접속시간 계산
             lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 계산
             avg_bw = cal_avg_bw_second(phoneGroup)  # 평균 속도(초데이터)
+            md.add_count = md.dl_count + md.ul_count  # 시도호 (DL카운트 + UL카운트)
         
             # 계산한 데이터 저장
             md.udpJitter, md.success_rate = udpJitter, success_rate
@@ -406,7 +407,7 @@ def measuring_day_close(phoneGroup_list, measdate):
             message_report = f"ㅇ {md.userInfo1}({md.morphology})\n"
             if phoneGroup.networkId != 'WiFi':
                 message_report += f" - (DL/UL/시도호/전송성공률)\n" + \
-                                  f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.total_count}/{md.success_rate}\"\n"
+                                  f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\"\n"
             # 5G일 경우 LTE전환율/접속시간 추가
             if phoneGroup.networkId == '5G':
                 message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
@@ -499,7 +500,7 @@ def measuring_day_close(phoneGroup_list, measdate):
                 Message.objects.create(
                     phoneGroup=None,
                     phone=None,
-                    center=None,
+                    center=Center.objects.get(centerName='운용본부'),
                     status='REPORT_ALL',  # REPORT_ALL : 운용본부용, 일일보고용 전체 메시지 전체 수합
                     measdate=measdate,
                     sendType='XMCS',
@@ -619,7 +620,7 @@ def cal_udpJitter(phoneGroup):
      . 반환값 : 평균 지연시간 (float) '''
     # 평균 지연시간 계산  :  testNetworkType이 latency인 데이터들의 udpJitter 평균값
     phone_list = phoneGroup.phone_set.all()
-    qs = MeasureSecondData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='latency').order_by("meastime")  # 초단위 데이터로 바꿔야함
+    qs = MeasureSecondData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='latency').order_by("meastime")  # 초단위 데이터
     if qs.filter(udpJitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
         udpJitter = round(qs.exclude(udpJitter__isnull=True).aggregate(Avg('udpJitter'))['udpJitter__avg'], 1)
     else: udpJitter = 0.0
@@ -691,6 +692,24 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
     else: avg_downloadBandwidth = 0
     # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (data에서 uploadbandwidth 존재 유무로 판단)
     qs_ulbw = qs.exclude( Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )  # Q(networkId='NR')
+    if qs_ulbw.exists():
+        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
+    else: avg_uploadBandwidth = 0
+    return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
+
+def cal_avg_bw_wifi(phoneGroup):  ## WiFi의 경우 상용/개방/공공 속도 별도 계산한다.
+    ''' WiFi 평균속도 계산 함수 (콜데이터)
+     . 파라미터: phoneGroup
+     . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
+    phone_list = phoneGroup.phone_set.all()
+    qs = MeasureCallData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+    # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (calldata에서 downloadbandwidth 존재 유무로 판단)
+    qs_dlbw = qs.exclude( Q(networkId='NR') | Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )
+    if qs_dlbw.exists():
+        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
+    else: avg_downloadBandwidth = 0
+    # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (calldata에서 uploadbandwidth 존재 유무로 판단)
+    qs_ulbw = qs.exclude( Q(networkId='NR') | Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )
     if qs_ulbw.exists():
         avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
     else: avg_uploadBandwidth = 0
