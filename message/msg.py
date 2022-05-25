@@ -2,7 +2,7 @@ from datetime import datetime
 from django.conf import settings
 from django.db.models import Q
 from monitor.models import Phone, MeasureCallData, Message
-from management.models import MeasureingTeam, ReportCycle, MessageConfig
+from management.models import MeasureingTeam, ReportCycle, MessageConfig, Center
 from monitor.geo import make_map_locations
 
 
@@ -47,6 +47,7 @@ from monitor.geo import make_map_locations
 #            - 주기보고 시점은 단말그룸의 콜카운트 정보를 가지고 판단하게 수정함
 # 2022.04.08 - 메시지 모델에 단말그룹 추가에 따른 업데이트 코드 추가
 # 2022.05.23 - 채널ID를 센터정보에서 가져온다.
+# 2022.05.25 - 당일 첫 측정시작인 경우(START_F), 모든 채팅그룹에 메시지를 전송한다.
 #
 # ----------------------------------------------------------------------------------------------------------------------
 def current_count_check(mdata: MeasureCallData) -> bool:
@@ -246,7 +247,7 @@ def make_message(mdata: MeasureCallData):
         # messages += f"\n<a href='http://127.0.0.1:8000/monitor/maps/{filename}'>지도보기</a>"
 
         # 전송 메시지를 생성한다.
-        Message.objects.create(
+        message = Message.objects.create(
             phoneGroup=phone.phoneGroup, # 단말그룹
             phone=phone,  # 측정단말
             center=phone.phoneGroup.center,
@@ -263,6 +264,19 @@ def make_message(mdata: MeasureCallData):
             message=messages,  # 메시지 내용
             channelId=channelId,  # 채널ID
         )
+
+        # 당일 첫 측정시작인 경우(START_F), 모든 채팅그룹에 메시지를 전송한다.
+        channelId_list = []
+        if phone.status == 'START_F':
+            qs = Center.objects.all()
+            if qs.exists():
+                for center in qs:
+                    if message.center_id is not center.id and center.channelId not in channelId_list:
+                        message.pk = None
+                        message.center = center
+                        message.channelId = center.channelId
+                        message.save()
+                        channelId_list.append(center.channelId)
 
 
 def event_type_check(message):
