@@ -68,6 +68,7 @@ class Morphology(models.Model):
     class Meta:
         verbose_name = ('모풀로지')
         verbose_name_plural = ('모풀로지')
+        ordering = ['id']
 
     # 인스턴스 정보를 출력한다.
     def __str__(self):
@@ -98,6 +99,7 @@ class MorphologyMap(models.Model):
     class Meta:
         verbose_name = ('모풀로지 맵')
         verbose_name_plural = ('모풀로지 맵')
+        ordering = ['id']
 
     # 인스턴스 정보를 출력한다.
     def __str__(self):
@@ -127,6 +129,7 @@ class SendFailure(models.Model):
     class Meta:
         verbose_name = ('전송실패 기준')
         verbose_name_plural = ('전송실패 기준')
+        ordering = ['id']
 
     # 인스턴스 정보를 출력한다.
     def __str__(self):
@@ -154,6 +157,7 @@ class LowThroughput(models.Model):
     class Meta:
         verbose_name = ('속도저하 기준')
         verbose_name_plural = ('속도저하 기준')
+        ordering = ['id']
 
     # 인스턴스 정보를 출력한다.
     def __str__(self):

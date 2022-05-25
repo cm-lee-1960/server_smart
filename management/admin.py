@@ -44,9 +44,10 @@ class CenterAdmin(admin.ModelAdmin):
 class MorphologyAdmin(admin.ModelAdmin):
     """어드민 페이지에 모풀로지 정보를 보여주기 위한 클래스"""
     # # form = PhoneForm
-    list_display = ['center', 'morphology', 'manage',]
-    list_display_links = ['center', 'morphology', ]
-    search_fields = ('center', 'morphology', )
+    list_display = ['id', 'morphology', 'manage', ]
+    list_display_links = ['id', 'morphology', ]
+    search_fields = ('id', 'morphology', )
+    readonly_fields = ('id',)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 모풀로지 기준 관리자 페이지 설정
@@ -54,9 +55,10 @@ class MorphologyAdmin(admin.ModelAdmin):
 class MorphologyMapAdmin(admin.ModelAdmin):
     """어드민 페이지에 모풀로지 맵 정보를 보여주기 위한 클래스"""
     # # form = PhoneForm
-    list_display = ['center', 'words', 'wordsCond', 'morphology', 'manage',]
-    list_display_links = ['center', 'morphology', ]
-    search_fields = ('center', 'morphology', )
+    list_display = ['id', 'words', 'wordsCond', 'morphology', 'manage',]
+    list_display_links = ['id', 'morphology', ]
+    search_fields = ('wordsCond', 'morphology', )
+    readonly_fields = ('id',)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 속도저하 기준 관리자 페이지 설정
@@ -64,9 +66,10 @@ class MorphologyMapAdmin(admin.ModelAdmin):
 class LowThroughputAdmin(admin.ModelAdmin):
     '''어드민 페이지에 속도저하(Low Throughput) 기준을 보여주기 위한 클래스'''
     # # form = PhoneForm
-    list_display = ['center', 'areaInd', 'networkId', 'dataType', 'bandwidth',]
-    list_display_links = ['networkId',]
+    list_display = ['id', 'areaInd', 'networkId', 'dataType', 'bandwidth',]
+    list_display_links = ['id', 'networkId',]
     search_fields = ('areaInd', 'networkId', )
+    readonly_fields = ('id',)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 전송실패 기준 관리자 페이지 설정
@@ -74,9 +77,10 @@ class LowThroughputAdmin(admin.ModelAdmin):
 class SendFailureAdmin(admin.ModelAdmin):
     """어드민 페이지에 전송실패(Send Failure) 기준을 보여주기 위한 클래스"""
     # # form = PhoneForm
-    list_display = ['center', 'areaInd', 'networkId', 'dataType', 'bandwidth',]
-    list_display_links = ['networkId',]
+    list_display = ['id', 'areaInd', 'networkId', 'dataType', 'bandwidth',]
+    list_display_links = ['id', 'networkId',]
     search_fields = ('areaInd', 'networkId', )
+    readonly_fields = ('id',)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -84,8 +88,8 @@ class SendFailureAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 class MeasureingTeamAdmin(admin.ModelAdmin):
     """어드민 페이지에 금일측정조(MeasureingTeam)을 보여주기 위한 클래스"""
-    list_display = ['center', 'measdate_fmt', 'message']
-    list_display_links = ['message']
+    list_display = ['measdate_fmt', 'message']
+    list_display_links = ['measdate_fmt', 'message']
     search_fields = ('message', 'message')
     list_filter = ['measdate',]
     ordering = ('-measdate', )
@@ -101,11 +105,10 @@ class MeasureingTeamAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 class ReportCycleAdmin(admin.ModelAdmin):
     """어드민 페이지에 측정 보고주기(ReportCycle)를 보여주기 위한 클래스"""
-    list_display = ['center', 'reportCycle',]
-    list_display_links = ['center', 'reportCycle']
-    search_fields = ('center', 'reportCycle')
-    list_filter = ['center',]
-
+    list_display = ['reportCycle',]
+    list_display_links = ['reportCycle']
+    search_fields = ('id', 'reportCycle')
+    readonly_fields = ('id',)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 센터별 관리구역
