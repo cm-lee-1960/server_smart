@@ -30,7 +30,8 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 class CenterAdmin(admin.ModelAdmin):
     """어드민 페이지에 센터 정보를 보여주기 위한 클래스"""
     # # form = PhoneForm
-    list_display = ['centerName', 'centerEngName', 'permissionLevel', 'senderNum', 'recipientOfficer', 'active', ]
+    list_display = ['centerName', 'centerEngName', 'permissionLevel', 'senderNum', 'recipientOfficer', 'channelId',
+                    'active', ]
     list_display_links = ['centerName',  'centerEngName', ]
     search_fields = ('centerName', 'centerEngName',)
 
