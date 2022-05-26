@@ -284,6 +284,12 @@ def send_message_hj(sender, instance, created, **kwargs):
             a = Phone.objects.filter(phoneGroup = instance.phoneGroup, userInfo1 = instance.userInfo1, measdate = instance.measdate)
             b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
             c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
+
+            if instance.total_count == 0:  ## lte전환율 계산
+                lte_percent = 0
+            else:
+                lte_percent = (instance.dl_nr_percent * instance.dl_nr_count + instance.ul_nr_percent * instance.ul_nr_count) / instance.total_count, # 5G->LTE 전환 전환율(ul)
+
           
             qs = LastMeasDayClose.objects.create(
                         measdate =  instance.measdate,  # 측정일자(예: 20211101)
@@ -297,7 +303,7 @@ def send_message_hj(sender, instance, created, **kwargs):
                         
                         downloadBandwidth = instance.downloadBandwidth,  # DL속도 (초단위 데이터 평균)
                         uploadBandwidth = instance.uploadBandwidth,  # UP속도 (초단위 데이터 평균)
-                        lte_percent = (instance.dl_nr_percent * instance.dl_nr_count + instance.ul_nr_percent * instance.ul_nr_count) / instance.total_count, # 5G->LTE 전환 전환율(ul)
+                        lte_percent = lte_percent,  # 5G->LTE 전환 전환율(ul)
                         connect_time = instance.connect_time,  # 접속시간
                         udpJitter = instance.udpJitter,  # 지연시간
                         success_rate = instance.success_rate,  # 전송성공율
