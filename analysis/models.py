@@ -280,43 +280,42 @@ def send_message_hj(sender, instance, created, **kwargs):
     """
     
     if created:
-        a = Phone.objects.filter(phoneGroup = instance.phoneGroup, userInfo1 = instance.userInfo1, measdate = instance.measdate)
-        b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
-        c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
-        print("a 만들어짐")
+        if instance.phoneGroup != None:  # 커버리지의 경우 PhoneGroup 미존재
+            a = Phone.objects.filter(phoneGroup = instance.phoneGroup, userInfo1 = instance.userInfo1, measdate = instance.measdate)
+            b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
+            c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
+          
+            qs = LastMeasDayClose.objects.create(
+                        measdate =  instance.measdate,  # 측정일자(예: 20211101)
+                        phoneGroup = instance.phoneGroup_id,  # 단말그룹
+                        
+                        userInfo1 = instance.userInfo1,
+                        networkId = instance.networkId,  # 네트워크ID(5G, LTE, 3G, WiFi)
+                        center = instance.center.centerName,
+                        
+                        morphology = instance.morphology.morphology,
+                        
+                        downloadBandwidth = instance.downloadBandwidth,  # DL속도 (초단위 데이터 평균)
+                        uploadBandwidth = instance.uploadBandwidth,  # UP속도 (초단위 데이터 평균)
+                        lte_percent = (instance.dl_nr_percent * instance.dl_nr_count + instance.ul_nr_percent * instance.ul_nr_count) / instance.total_count, # 5G->LTE 전환 전환율(ul)
+                        connect_time = instance.connect_time,  # 접속시간
+                        udpJitter = instance.udpJitter,  # 지연시간
+                        success_rate = instance.success_rate,  # 전송성공율
+                        siDo = a[0].siDo,
+                        guGun = a[0].guGun,
+                        addressDetail = a[0].addressDetail,
+                        district = a[0].siDo,
 
-        
-        qs = LastMeasDayClose.objects.create(
-                    measdate =  instance.measdate,  # 측정일자(예: 20211101)
-                    phoneGroup = instance.phoneGroup_id,  # 단말그룹
-                    
-                    userInfo1 = instance.userInfo1,
-                    networkId = instance.networkId,  # 네트워크ID(5G, LTE, 3G, WiFi)
-                    center = instance.center.centerName,
-                    
-                    morphology = instance.morphology.morphology,
-                    
-                    downloadBandwidth = instance.downloadBandwidth,  # DL속도 (초단위 데이터 평균)
-                    uploadBandwidth = instance.uploadBandwidth,  # UP속도 (초단위 데이터 평균)
-                    lte_percent = (instance.dl_nr_percent * instance.dl_nr_count + instance.ul_nr_percent * instance.ul_nr_count) / instance.total_count, # 5G->LTE 전환 전환율(ul)
-                    connect_time = instance.connect_time,  # 접속시간
-                    udpJitter = instance.udpJitter,  # 지연시간
-                    success_rate = instance.success_rate,  # 전송성공율
-                    siDo = a[0].siDo,
-                    guGun = a[0].guGun,
-                    addressDetail = a[0].addressDetail,
-                    district = a[0].siDo,
-
-                    mopho_id = b[0].morphologyDetail_id,
-        )
-        if c.exists():
-            qs.nettype, qs.mopho, qs.detailadd, qs.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
-            qs.save()
-        print("성공성공 들어왔다.")
+                        mopho_id = b[0].morphologyDetail_id,
+            )
+            if c.exists():
+                qs.nettype, qs.mopho, qs.detailadd, qs.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
+                qs.save()
+        else:  # PhoneGroup이 None인 커버리지의 경우
+            pass
        
     else:
         # 메시지가 업데이트 되었을 때는 아무런 처리를 하지 않는다.
-        print("안대따")
         pass
 
 

@@ -8,7 +8,7 @@ from django.contrib import messages
 from message.msg import make_message
 from management.models import Morphology, MorphologyDetail, EtcConfig
 from .events import event_occur_check
-from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, get_morphology_mainclass, Message
+from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, get_morphologyDetail_wifi, Message
 from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union
 
 
@@ -150,7 +150,7 @@ def receive_json(request):
         morphology = get_morphology(data['userInfo2'])  # 모폴로지
 
         if data['networkId'] == 'WiFi':  # WiFi일 경우 모폴로지 상세 지정
-            morphologyDetail = MorphologyDetail.objects.get(network_type='WiFi', main_class=get_morphology_mainclass(data['userInfo2']))
+            morphologyDetail = get_morphologyDetail_wifi(data['userInfo2'])
         else: morphologyDetail = None  # WiFi가 아닐경우 모폴로지 상세 미지정
 
         qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, morphologyDetail=morphologyDetail,\
@@ -161,6 +161,10 @@ def receive_json(request):
             # 측정 단말기 그룹을 생성한다.
             meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             morphology = get_morphology(data['userInfo2']) # 모폴로지
+            if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail != None:
+                manage = True   # WiFi일 경우 모폴로지 상세가 존재해야 관리여부 True (미존재 시 타사 측정이므로)
+            elif data['ispId'] != 45008: manage = False
+            else: manage = morphology.manage
             
             phoneGroup = PhoneGroup.objects.create(
                             measdate=measdate, # 측정일자
@@ -171,7 +175,7 @@ def receive_json(request):
                             morphologyDetail=morphologyDetail,
                             org_morphology=morphology,  # 모폴로지(Origin)
                             ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
-                            manage=morphology.manage, # 관리대상 여부
+                            manage=manage, # 관리대상 여부
                             active=True) # 상태코드
             
     except Exception as e:
@@ -263,9 +267,9 @@ def receive_json(request):
         
         # 측정 단말기의 통계값들을 업데이트 한다. 
         # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
-        # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).
+        # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).  ==> 05.26 manage 여부로 변경 (WiFi개방일 경우 타사 ispId 들어옴)
         # 2022.02.24 통계값 산출은 KT 데이터/속도 조건을 만족하는 경우에만 처리한다. 
-        if data['ispId'] == '45008' and data['testNetworkType'] == 'speed': 
+        if mdata.phone.manage == True and data['testNetworkType'] == 'speed': 
             phone.update_phone(mdata)
 
     except Exception as e:
@@ -297,20 +301,17 @@ def receive_json(request):
             # 2) 해당지역 측정시작 메시지
             #    - 해당 지역에 대해서 측정을 시작하면 측정시작 메시지를 한번 보낸다.
             #    - 두개의 단말기로 측정을 진행하니 메시지가 한번만 갈 수 있도록 유의히야 한다.
-            # (조건: KT 속도측정 데이터에 대해서만 적용)
-        if mdata.phone.status == 'START_M' and mdata.ispId == '45008' and mdata.testNetworkType == 'speed': 
+            # (조건: KT 속도측정 데이터에 대해서만 적용)  ## 변경(05.26): manage=True 일 경우로
+        if mdata.phone.status == 'START_M' and mdata.phone.manage == True and mdata.testNetworkType == 'speed': 
             make_message(mdata)  # 메시지 작성
             event_occur_check(mdata)  # 이벤트 발생여부 체크
 
         # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
-        elif data['ispId'] == '45008' and data['testNetworkType'] == 'speed':
-            mps= Morphology.objects.filter(manage=True).values_list('morphology', flat=True)
-            if mdata.phone.morphology.morphology in mps:
-                # 이벤트 발생여부를 체크한다. 
-                event_occur_check(mdata)
-
-                # 메시지를 작성한다.
-                make_message(mdata)
+        elif mdata.phone.manage == True and data['testNetworkType'] == 'speed':
+            # 이벤트 발생여부를 체크한다. 
+            event_occur_check(mdata)
+            # 메시지를 작성한다.
+            make_message(mdata)
 
     except Exception as e:
         # 오류 코드와 내용을 반환한다.
@@ -377,13 +378,13 @@ def measuring_day_close_view(request, measdate):
         return_value = {'result' : '잘못된 요청입니다.'}
 
     # 1) 해당일자에 측정 이력이 없는 경우
-    if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
+    if PhoneGroup.objects.filter(measdate=date, manage=True).count() == 0:
         return_value = {'result': '해당일자에 측정 중인 지역이 없습니다.'}
     
     # 2) 해당일자에 측정마감이 기처리된 경우 -
     #    - 측정 진행중인 단말그룹이 없고(active=True)
     #    - 측정마감 메시지가 이미 생성되어 있는 경우(status='REPORT_ALL')
-    elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
+    elif PhoneGroup.objects.filter(measdate=date, manage=True, active=True).count() == 0 and \
         Message.objects.filter(status='REPORT_ALL', measdate=date).count() is not 0:
         # return_value = {'result': '해당일자에 측정마감이 이미 처리되었습니다.'}
         # return_value = {'result': 'ok'}
@@ -391,7 +392,7 @@ def measuring_day_close_view(request, measdate):
 
     # 3) 해당일자에 대한 측정마감을 처리한다.
     else:
-        phoneGroup_list = PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True, manage=True)  # 측정마감 대상 단말그룹
+        phoneGroup_list = PhoneGroup.objects.filter(measdate=date, active=True, manage=True)  # 측정마감 대상 단말그룹
         # 해당일자의 대상 단말그룹 리스트에 대해서 측정마감을 처리한다.
         return_value = measuring_day_close(phoneGroup_list, date)
 
@@ -411,11 +412,11 @@ def measuring_day_reclose_view(request, measdate):
         return_value = {'result' : '재마감 Request는 Get Method로 요청해주세요.'}
 
     # 1) 해당일자에 측정 이력이 없는 경우
-    if PhoneGroup.objects.filter(measdate=date, ispId=45008).count() == 0:
+    if PhoneGroup.objects.filter(measdate=date, manage=True).count() == 0:
         return_value = {'result' : '해당일자에 대한 측정 이력이 없습니다.'}
     
     # 2) 해당일자에 측정마감이 기처리된 경우에 재마감 실행
-    elif PhoneGroup.objects.filter(measdate=date, ispId=45008, active=True).count() == 0 and \
+    elif PhoneGroup.objects.filter(measdate=date, manage=True, active=True).count() == 0 and \
         Message.objects.filter(status='REPORT_ALL', measdate=date).count() is not 0:
         return_value = measuring_day_reclose(date)
 
@@ -438,7 +439,7 @@ def phonegroup_union_view(request, phonegroup_id):
     """
     base_pg = PhoneGroup.objects.get(id=phonegroup_id)
     added_pg = PhoneGroup.objects.filter(measdate=base_pg.measdate, userInfo1=base_pg.userInfo1, networkId=base_pg.networkId, \
-                                        manage=base_pg.manage, ispId=base_pg.ispId).exclude(id=phonegroup_id).order_by('-last_updated_dt')
+                                        morphologyDetial=base_pg.morphologyDetial, manage=base_pg.manage).exclude(id=phonegroup_id).order_by('-last_updated_dt')
     if added_pg.exists():
         for pg in added_pg:
             return_value = phonegroup_union(base_pg, pg)
