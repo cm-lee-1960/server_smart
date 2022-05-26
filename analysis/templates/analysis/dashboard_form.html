@@ -661,6 +661,7 @@
                         <select style="width: 90px;" v-model="selectedPhoneGroup.morphologyDetailId">
                             <option v-for="(value, key) in MorphDetailChoice.middle" v-bind:value="value">[[key]]</option>
                         </select>
+                        <br><font color="red" size="2pt">  * 모폴로지 상세는 모두 입력해야 변경됩니다.</font>
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -1832,8 +1833,6 @@
             }
             phonegroup_body_size = middle_phonegroup_size - 50;
             document.getElementById('phonegroup-body').style.height = phonegroup_body_size + 'px'
-            console.log(middle_phonegroup_size)
-            console.log(phonegroup_body_size)
 
             $('[data-toggle="tooltip"]').tooltip()  //드랍다운 메뉴 선택시 닫힘
             
@@ -1937,6 +1936,7 @@
                 }
             });
         });
+
 
         /* -------------------------------------------------------------------------------------------------------------
          * 컬럼헤더를 클릭시 테이블을 정렬하는 함수(토글)
