@@ -288,7 +288,7 @@ def send_message_hj(sender, instance, created, **kwargs):
             if instance.total_count == 0:  ## lte전환율 계산
                 lte_percent = 0
             else:
-                lte_percent = (instance.dl_nr_percent * instance.dl_nr_count + instance.ul_nr_percent * instance.ul_nr_count) / instance.total_count, # 5G->LTE 전환 전환율(ul)
+                lte_percent = (instance.dl_nr_percent * instance.dl_nr_count) + (instance.ul_nr_percent * instance.ul_nr_count) / instance.total_count # 5G->LTE 전환 전환율(ul)
 
           
             qs = LastMeasDayClose.objects.create(
