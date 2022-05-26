@@ -13,6 +13,9 @@
 # 11) 사용자 및 프로파일
 # 12) 센터별 관할구역
 # 13) 행정동 경계구역 테이터
+# ----------------------------------------------------------------------------------------------------------------------
+# 2022.05.26 - 센터정보 내 대표전화 및 채팅그룹ID 업데이트
+#
 # ======================================================================================================================
 
 from django.db import connection
@@ -25,30 +28,27 @@ cursor = connection.cursor()
 sql = """
 use smart;
 SET foreign_key_checks = 0;
-
 DELETE fROM smart.management_center;
 
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (1,'전체','opbonbu','-736183270',0,1,NULL,NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (2,'서울강북','Seoul Gangbuk','-736183270',1,1,'이상일본부장님/정선일센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (3,'강원','Gangwon','-736183270',1,1,'이상일본부장님/송기영센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (4,'경기북부','Northern Gyeonggi','-736183270',1,1,'이상일본부장님/정선일센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (5,'서울강남','Seoul Gangnam','-736183270',1,1,'김영인본부장님/정철순센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (6,'경기남부','Southern Gyeonggi','-736183270',1,1,'김영인본부장님/김병석센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (7,'경기서부','West Gyeonggi','-736183270',1,1,'김영인본부장님/윤민호센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (8,'부산','Busan','-736183270',1,1,'이용규본부장님/곽민제센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (9,'경남','Gyeongnam','-736183270',1,1,'이용규본부장님/윤현종센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (10,'대구','Daegu','-736183270',1,1,'안창용본부장님/조의호센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (11,'경북','Gyeongbuk','-736183270',1,1,'안창용본부장님/윤진구센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (12,'전남','Jeonnam','-736183270',1,1,'지정용본부장님/이재철센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (13,'전북','Jeonbuk','-736183270',1,1,'지정용본부장님/김정식센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (14,'충남','Chungnam','-736183270',1,1,'김성일본부장님/김용철센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (15,'충북','Chungbuk','-736183270',1,1,'김성일본부장님/홍승태센터장님',NULL);
-INSERT INTO management_center (id,centerName,centerEngName,channelId,permissionLevel,active,recipientOfficer,senderNum) VALUES (16,'운용본부','opbonbu','-736183270',0,1,NULL,NULL);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (1,'전체','opbonbu','-1001716288447','01029170878',0,NULL,1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (2,'서울강북','Seoul Gangbuk','-723325138','01032169529',1,'이상일본부장님/정선일센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (3,'강원','Gangwon','-630344043','01029171268',1,'이상일본부장님/송기영센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (4,'경기북부','Northern Gyeonggi','-789406075','01029177894',1,'이상일본부장님/정선일센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (5,'서울강남','Seoul Gangnam','-621391954','01032166417',1,'김영인본부장님/정철순센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (6,'경기남부','Southern Gyeonggi','-798379356','01029177900',1,'김영인본부장님/김병석센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (7,'경기서부','West Gyeonggi','-697503089','01029170870',1,'김영인본부장님/윤민호센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (8,'부산','Busan','-648140979','01029176958',1,'이용규본부장님/곽민제센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (9,'경남','Gyeongnam','-789147766','01032166413',1,'이용규본부장님/윤현종센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (10,'대구','Daegu','-736674200','01072019474',1,'안창용본부장님/조의호센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (11,'경북','Gyeongbuk','-637819151','01029176779',1,'안창용본부장님/윤진구센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (12,'전남','Jeonnam','-615706051','01072019739',1,'지정용본부장님/이재철센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (13,'전북','Jeonbuk','-776706426','01029177496',1,'지정용본부장님/김정식센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (14,'충남','Chungnam','-716911509','01029177901',1,'김성일본부장님/김용철센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (15,'충북','Chungbuk','-691311972','01029170902',1,'김성일본부장님/홍승태센터장님',1);
+INSERT INTO management_center (id,centerName,centerEngName,channelId,senderNum,permissionLevel,recipientOfficer,active) VALUES (16,'운용본부','opbonbu','-1001716288447','01032166418',0,NULL,1);
 
 SET foreign_key_checks = 1;
-
 COMMIT;
-
 """
 
 res = cursor.execute(sql)
@@ -3906,8 +3906,8 @@ folium.GeoJson(geo, name='seoul_municipalities').add_to(m)
 # 행정동 경계구역 데이터 업로드(Upload)
 # for p in geo['features'][:3]:
 for p in geo['features']:
-    print(p['properties']['adm_nm'])
-    print(p)
+    # print(p['properties']['adm_nm'])
+    # print(p)
     AddressRegion.objects.create(addressDetail=p['properties']['adm_nm'], json_data=p)
 
 print(f"행정동 경계구역 데이터 초기화 처리가 완료되었습니다.")
