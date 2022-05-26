@@ -161,9 +161,9 @@ def receive_json(request):
             # 측정 단말기 그룹을 생성한다.
             meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             morphology = get_morphology(data['userInfo2']) # 모폴로지
-            if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail != None:
+            if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail:
                 manage = True   # WiFi일 경우 모폴로지 상세가 존재해야 관리여부 True (미존재 시 타사 측정이므로)
-            elif data['ispId'] != 45008: manage = False
+            elif data['ispId'] != '45008': manage = False
             else: manage = morphology.manage
             
             phoneGroup = PhoneGroup.objects.create(
@@ -261,7 +261,8 @@ def receive_json(request):
             # 초단위 측정 데이터를 등록한다. 
             mdata = MeasureSecondData.objects.create(phone=phone, **data)
         
-        if mdata.phone.status == 'START_F': make_message(mdata)
+        if mdata.phone.status == 'START_F': 
+            make_message(mdata)
         # 측정시작 메시지(전체대상)
         #  - 전체대상 측정시작 메시지는 통신사, 측정유형에 상관없이 무조건 측정을 시작하면 한번 메시지를 보낸다.
         

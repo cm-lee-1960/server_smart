@@ -377,15 +377,16 @@ class Phone(models.Model):
     # 모델을 DB에 저장하는 함수(오버라이딩)
     # - 모델을 DB에 저장하기 전에 처리해야 하는 것들을 작선하다.
     # * 모풀로지가 변경되는 경우 측정 단말기의 관래대상 여부를 자동으로 변경한다.
+    ########### 05.26) 주석처리
     # ------------------------------------------------------------------------------------------------------------------
-    def save(self, *args, **kwargs):
-        """측정단말 정보를 저장한다."""
-        qs = Morphology.objects.filter(morphology=self.morphology)
-        if qs.exists():
-            self.manage = qs[0].manage
-        else:
-            self.manage = False
-        super(Phone, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     """측정단말 정보를 저장한다."""
+    #     qs = Morphology.objects.filter(morphology=self.morphology)
+    #     if qs.exists():
+    #         self.manage = qs[0].manage
+    #     else:
+    #         self.manage = False
+    #     super(Phone, self).save(*args, **kwargs)
 
     # ------------------------------------------------------------------------------------------------------------------
     # 측정 단말기의 통계정보를 업데이트 하는 합수
@@ -535,20 +536,21 @@ class Phone(models.Model):
                 self.guGun = region_2depth_name  # 구/군
                 self.addressDetail = region_3depth_name  # 행정동(읍/동/면)
 
-            # 모폴로지와 관리대상 여부를 설정한다.
-            morphology = get_morphology(self.userInfo2) # 측정자 입력값2
-            self.morphology = morphology # 모폴로지
-            self.manage = self.phoneGroup.manage # 관리대상 여부
+                # 모폴로지와 관리대상 여부를 설정한다.
+                morphology = get_morphology(self.userInfo2) # 측정자 입력값2
+                self.morphology = morphology # 모폴로지
+                self.manage = self.phoneGroup.manage # 관리대상 여부
 
-            # 센터별 관할구역 매핑정보를 통해 관할센터를 업데이트 한다.
-            # 2022.04.14 - 세종특별자치시인 경우 구/군 값이 없음
-            #            - 센터별 관할지역 정보에는 시/도 = 구/군 동일한 값이 들어가 있음
-            if self.guGun is None or self.guGun == "":
-                qs = CenterManageArea.objects.filter(siDo=self.siDo)
-            else:
-                qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)
-            if qs.exists():
-                self.center = qs[0].center  # 관할센터
+                # 센터별 관할구역 매핑정보를 통해 관할센터를 업데이트 한다.
+                # 2022.04.14 - 세종특별자치시인 경우 구/군 값이 없음
+                #            - 센터별 관할지역 정보에는 시/도 = 구/군 동일한 값이 들어가 있음
+                if self.guGun is None or self.guGun == "":
+                    qs = CenterManageArea.objects.filter(siDo=self.siDo)
+                else:
+                    qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)
+                if qs.exists():
+                    self.center = qs[0].center  # 관할센터
+            else: self.center = Center.objects.get(centerName="전체")  # 위경도가 없을 경우 센터 전체로 지정
 
             # 측정 단말기 정보를 저장한다.
             self.save()
