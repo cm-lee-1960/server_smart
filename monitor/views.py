@@ -163,6 +163,7 @@ def receive_json(request):
             morphology = get_morphology(data['userInfo2']) # 모폴로지
             if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail:
                 manage = True   # WiFi일 경우 모폴로지 상세가 존재해야 관리여부 True (미존재 시 타사 측정이므로)
+            elif data['ispId'] == '45008' and data['networkId'] == 'WiFi' and not morphologyDetail: manage = False
             elif data['ispId'] != '45008': manage = False
             else: manage = morphology.manage
             
