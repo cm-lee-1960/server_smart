@@ -1714,7 +1714,7 @@
                     // window.open("monitor/maps/20211101_3855,3942.html" , '_blank');
                 },
                 async phoneGroupMap() {
-                    console.log(window.location.host);
+                    // console.log(window.location.host);
                     const res = await fetch("/api/monitor/makemap/" + this.selectedPhoneGroup.id);
                     const data = await res.json();
                     if (data['result'] === 'ok') {
@@ -1936,6 +1936,16 @@
                 }
             });
         });
+
+        // 테이블 밖 영역 클릭 시 선택(포커싱) 초기화 함수   --- 고도화 예정!
+        // $('html').click(function(e) {
+        //     //     var myClass = this.className;
+        //     //     alert(myClass);
+        //     var etg = $(e.target).hasClass('table-hover')
+        //     if ($(e.target).hasClass('table-hover') || $(e.target).hasClass('row text-center')) {
+        //         console.log('clicked empty area')
+        //     }
+        // });
 
 
         /* -------------------------------------------------------------------------------------------------------------
