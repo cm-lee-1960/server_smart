@@ -1835,7 +1835,7 @@
             }
             phonegroup_body_size = middle_phonegroup_size - 50;
             document.getElementById('phonegroup-body').style.height = phonegroup_body_size + 'px'
-
+            
             $('[data-toggle="tooltip"]').tooltip()  //드랍다운 메뉴 선택시 닫힘
             
             //메세지 테이블 높이 동적 사이즈변경
@@ -1853,13 +1853,12 @@
             $('#middle_phonegroup').resize(function() {
 
                 middle_phonegroup_size = $('#middle_phonegroup').innerHeight();
-                // console.log(middle_phonegroup_size)
+                //console.log(middle_phonegroup_size)
                 row_middle_size = $('#row_middle').innerHeight();
                 bottom_body_height_size = row_middle_size - middle_phonegroup_size;
                 message_height_size = bottom_body_height_size - 115;
                 phonegroup_body_size = middle_phonegroup_size - 50;
                 // console.log("하단사이즈")
-                // console.log(bottom_body_height_size)
                 document.getElementById('phonegroup-body').style.height = phonegroup_body_size + 'px'
                 document.getElementById('bottom_body').style.height = bottom_body_height_size + 'px'
                 document.getElementById('eventDetail_body').style.height = message_height_size + 'px'
@@ -1880,8 +1879,8 @@
             
             });
 
-            $('#bottom_body_left').resizable({ grid: [1, 10000] });  //좌우만 크기조정
-            $('#middle_phonegroup').resizable({ grid: [10000, 1], maxHeight: 450 }); //상하만 크기조정
+            $('#bottom_body_left').resizable({ grid: [1, 10000] , maxWidth: 1500, minWidth:  1000});  //좌우만 크기조정
+            $('#middle_phonegroup').resizable({ grid: [10000, 1], maxHeight: 450, minHeight: 300 }); //상하만 크기조정
 
             // resize 대각선 아래 지우기
             $('#middle_phonegroup .ui-resizable-se').hide();
