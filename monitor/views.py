@@ -13,8 +13,9 @@ from .close import measuring_end, measuring_end_cancel, measuring_day_close, mea
 
 
 # 로그를 기록하기 위한 로거를 생성한다.
-# import logging
+import logging
 # logger = logging.getLogger(__name__)
+db_logger = logging.getLogger('db')
 
 ####################################################################################################################################
 # 측정 데이터 처리모듈
@@ -109,7 +110,6 @@ from .close import measuring_end, measuring_end_cancel, measuring_day_close, mea
 #            -> 단말그룹 생성 기준 : 측정일자, 측정자입력값1, 모폴로지(Origin)
 #
 ####################################################################################################################################
-import logging
 @csrf_exempt
 def receive_json(request):
     """ JSON 데이터를 받아서 처리하는 뷰 함수
@@ -118,18 +118,10 @@ def receive_json(request):
     # ------------------------------------------------------------------------------------------------------------------
     # 1) 수신 받은 측정 데이터(JSON) 파싱
     # ------------------------------------------------------------------------------------------------------------------
-    db_logger = logging.getLogger('db')
-    db_logger.error("함수진입")
-    db_logger.error(request.method)
-    db_logger.error(request.method !="POST")
-    db_logger.error("여기까지는")
     if request.method != 'POST':
-        db_logger.error("데이터 수신 오류")
         return HttpResponse("Error")
 
-
     data = JSONParser().parse(request)
-    db_logger.error(data)
     # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
     if EtcConfig.objects.filter(category="보정값").exists():
         correction = EtcConfig.objects.get(category="보정값").value_float
@@ -152,7 +144,6 @@ def receive_json(request):
     # ------------------------------------------------------------------------------------------------------------------
     # 해당일자/해당지역 측정 단말기 그룹이 등록되어 있는지 확인한다.
     # meastime '20211101063756701'
-    db_logger.error("여기까지는2")
     try: 
         measdate = str(data['meastime'])[:8] # 측정일자
         # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
@@ -191,8 +182,9 @@ def receive_json(request):
             
     except Exception as e:
         # 오류 코드 및 내용을 반환한다.
-        print("그룹조회:", str(e))
-        return HttpResponse("그룹조회:" + str(e), status=500)
+        # print("그룹조회:", str(e))
+        db_logger.error("단말그룹 조회:", str(e))
+        return HttpResponse("단말그룹 조회:" + str(e), status=500)
 
     # ------------------------------------------------------------------------------------------------------------------
     # 3) 측정중인 단말기가 있는지 확인  
@@ -202,7 +194,6 @@ def receive_json(request):
     # [ 해당일자 + 해당지역 + 해당전화번호 ] => 키값
     # 측, 해당일자, 해당지역에 측정하고 있는 단말(해당 전화번호)은 하나뿐이다.
     # ------------------------------------------------------------------------------------------------------------------
-    db_logger.error("여기까지는3")
     try:
         qs = phoneGroup.phone_set.all().filter(phone_no=data['phone_no'], active=True)
         if qs.exists():
@@ -255,8 +246,9 @@ def receive_json(request):
 
     except Exception as e:
         # 오류 코드와 내용을 반환한다.
-        print("단말기조회:",str(e))
-        return HttpResponse("단말기조회:" + str(e), status=500)
+        # print("단말기조회:",str(e))
+        db_logger.error("측정단말 조회:",str(e))
+        return HttpResponse("측정단말 조회:" + str(e), status=500)
 
     # ------------------------------------------------------------------------------------------------------------------
     # 4) 측정 데이터를 저장하고, 통계정보 업데이트
@@ -287,8 +279,9 @@ def receive_json(request):
 
     except Exception as e:
         # 오류 코드와 내용을 반환한다.
-        print("데이터저장:",str(e))
-        return HttpResponse("데이터저장:" + str(e), status=500)
+        # print("데이터저장:",str(e))
+        db_logger.error("측정데이터(콣단위) 저장:", str(e))
+        return HttpResponse("측정데이터(콣단위) 저장:" + str(e), status=500)
 
     # ------------------------------------------------------------------------------------------------------------------
     # 5) 메시지 및 이벤트 처리
@@ -328,8 +321,9 @@ def receive_json(request):
 
     except Exception as e:
         # 오류 코드와 내용을 반환한다.
-        print("메시지/이벤트처리:",str(e))
-        return HttpResponse("메시지/이벤트처리:" + str(e), status=500)
+        # print("메시지/이벤트처리:",str(e))
+        db_logger.error("메시지/이벤트 처리:", str(e))
+        return HttpResponse("메시지/이벤트 처리:" + str(e), status=500)
 
     return HttpResponse("처리완료")
 
