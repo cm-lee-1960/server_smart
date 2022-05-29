@@ -204,7 +204,7 @@ def message_list(request, phonegroup_id):
                     center = None
 
                 # 해당 단말그룹에 대한 모든 메시지를 가져온다.
-                if request.user.is_superuser:  # 운용본부일 경우 모든 메시지 조회
+                if request.user.is_superuser:
                     qs = Message.objects.filter(
                         #Q(phone__phoneGroup_id=phonegroup_id) | \
                         #Q(measdate=measdate, sendType='ALL')).order_by('-updated_at')
@@ -364,8 +364,9 @@ def update_phonegroup_info(request):
         if qs.exists():
             phoneGroup = qs[0]
             if 'centerName' in data.keys() :
-                phoneGroup.center = Center.objects.filter(centerName=data['centerName'])[0]  # 센터
-                Message.objects.filter(phoneGroup=phoneGroup).update(center=phoneGroup.center)  # 센터 변경될 경우 메시지의 센터도 일괄 변경
+                previous_center = phoneGroup.center  # 기존 센터
+                phoneGroup.center = Center.objects.filter(centerName=data['centerName'])[0]  # 센터 업데이트
+                Message.objects.filter(phoneGroup=phoneGroup, center=previous_center).exclude(status='START_F').update(center=phoneGroup.center)  # 센터 변경될 경우 메시지의 센터도 일괄 변경
             if 'measuringTeam' in data.keys() : phoneGroup.measuringTeam = data['measuringTeam']  # 측정조
             if 'morphologyName' in data.keys() :
                 phoneGroup.morphology = Morphology.objects.filter(morphology=data['morphologyName'])[0]  # 모폴로지
