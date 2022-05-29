@@ -31,7 +31,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     """어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스"""
     list_display = ['measdate', 'phone_list', 'networkId', 'measuringTeam', 'userInfo1', 'morphology',
                     'dl_count', 'ul_count', 'downloadBandwidth_fmt', 'uploadBandwidth_fmt', 'nr_percent',
-                    'event_count', 'active']
+                    'event_count', 'active', 'manage']
     list_display_links = ['phone_list', ]
     search_fields = ('measdate', 'userInfo1', 'phone_list', 'networkId', 'measuringTeam')
     list_filter = ['measdate', 'measuringTeam', 'active']
@@ -67,7 +67,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     # 단말그룹 중에서 KT 자료만 보여지게 한다.
     def get_queryset(self, request):
         query = super(PhoneGroupAdmin, self).get_queryset(request)
-        filtered_query = query.filter(ispId='45008', manage=True)
+        filtered_query = query.filter(ispId='45008')
         return filtered_query
 
     # 선택된 ROW를 삭제하는 액션을 삭제한다("선택된 측정 단말 을/를 삭제합니다.").
