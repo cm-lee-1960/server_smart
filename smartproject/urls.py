@@ -55,14 +55,14 @@ from analysis.views import dashboard
 ########################################################################################################################
 
 urlpatterns = [
-    path('', dashboard, name='dashboard'),
-    path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path("monitor/", include("monitor.urls")), # 측정 모니터링
-    path("analysis/", include("analysis.urls")), # 분석
-    path("message/", include("message.urls")), # 전송 메시지
-    path("accounts/", include("accounts.urls")), # 계정
-    path("api/", include("api.urls")),  # API
+    path('smart/', dashboard, name='dashboard'),
+    path('smart/admin/', admin.site.urls),
+    path('smart/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path("smart/monitor/", include("monitor.urls")), # 측정 모니터링
+    path("smart/analysis/", include("analysis.urls")), # 분석
+    path("smart/message/", include("message.urls")), # 전송 메시지
+    path("smart/accounts/", include("accounts.urls")), # 계정
+    path("smart/api/", include("api.urls")),  # API
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # STATIC 파일

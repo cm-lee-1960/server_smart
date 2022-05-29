@@ -109,6 +109,7 @@ from .close import measuring_end, measuring_end_cancel, measuring_day_close, mea
 #            -> 단말그룹 생성 기준 : 측정일자, 측정자입력값1, 모폴로지(Origin)
 #
 ####################################################################################################################################
+import logging
 @csrf_exempt
 def receive_json(request):
     """ JSON 데이터를 받아서 처리하는 뷰 함수
@@ -117,10 +118,18 @@ def receive_json(request):
     # ------------------------------------------------------------------------------------------------------------------
     # 1) 수신 받은 측정 데이터(JSON) 파싱
     # ------------------------------------------------------------------------------------------------------------------
+    db_logger = logging.getLogger('db')
+    db_logger.error("함수진입")
+    db_logger.error(request.method)
+    db_logger.error(request.method !="POST")
+    db_logger.error("여기까지는")
     if request.method != 'POST':
+        db_logger.error("데이터 수신 오류")
         return HttpResponse("Error")
 
+
     data = JSONParser().parse(request)
+    db_logger.error(data)
     # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
     if EtcConfig.objects.filter(category="보정값").exists():
         correction = EtcConfig.objects.get(category="보정값").value_float
@@ -128,7 +137,7 @@ def receive_json(request):
         if data['uploadBandwidth']:  data['uploadBandwidth'] -= correction
     else:
         pass
-
+    
     # ------------------------------------------------------------------------------------------------------------------
     # 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
     # 전화번호에 대한 특정 단말이 있는지 확인한다.
@@ -143,6 +152,7 @@ def receive_json(request):
     # ------------------------------------------------------------------------------------------------------------------
     # 해당일자/해당지역 측정 단말기 그룹이 등록되어 있는지 확인한다.
     # meastime '20211101063756701'
+    db_logger.error("여기까지는2")
     try: 
         measdate = str(data['meastime'])[:8] # 측정일자
         # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
@@ -192,6 +202,7 @@ def receive_json(request):
     # [ 해당일자 + 해당지역 + 해당전화번호 ] => 키값
     # 측, 해당일자, 해당지역에 측정하고 있는 단말(해당 전화번호)은 하나뿐이다.
     # ------------------------------------------------------------------------------------------------------------------
+    db_logger.error("여기까지는3")
     try:
         qs = phoneGroup.phone_set.all().filter(phone_no=data['phone_no'], active=True)
         if qs.exists():

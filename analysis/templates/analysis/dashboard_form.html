@@ -886,7 +886,7 @@
                  * 측정일자에 해당하는 측정단말 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
                 async fetch_all_phoneGroup() {
-                    const res = await fetch("/api/phonegroup/list/" + this.date);
+                    const res = await fetch("api/phonegroup/list/" + this.date);
                     const data = await res.json();
                     const selectedPhoneGroup = this.getSelected();
                     this.phoneGroupActiveCheckSave = 0;
@@ -952,7 +952,7 @@
 
                 // 모든 센터 정보 및 모폴로지를 불러오는 함수
                 async fetch_all_centerANDmorphology(phoneGroup) {
-                    const res = await fetch("/api/phonegroup/update/centerANDmorphology/");
+                    const res = await fetch("api/phonegroup/update/centerANDmorphology/");
                     const data = await res.json();
                     this.centerListAll = data['centerListAll']  // 전체 센터 리스트
                     this.morphologyList = data['morphologyList']  // 전체 모폴로지 리스트
@@ -1018,7 +1018,7 @@
                 async fetch_all_message() {
                     // this.$refs.message_clickphone.innerHTML = this.selectedPhoneGroup.userInfo1
                     if(this.selectedPhoneGroup.id){
-                        const res = await fetch("/api/message/list/" + this.selectedPhoneGroup.id)
+                        const res = await fetch("api/message/list/" + this.selectedPhoneGroup.id)
                         const data = await res.json();
 
                         this.messageEventList = data['messageEventList']; // 이벤트 메시지 리스트
@@ -1431,7 +1431,7 @@
                             'channelId': this.message.channelId,
                         })
                     };
-                    const response = await fetch("/api/message/send/", requestOptions);
+                    const response = await fetch("api/message/send/", requestOptions);
                     // 아래 코드는 나중에 사용할 수 있어서 남겨둠
                     // 처리결과를 기다렸다가 표시하면 좋을 듯 함
                     //const data = await response.json();
@@ -1499,7 +1499,7 @@
 
                 // 2-2) 메시지 회수 모달창에서 확인 버튼을 클릭했을 때(메시지 회수)
                 async deleteMessage() {
-                    const res = await fetch("/api/message/delete/" + this.message.id);
+                    const res = await fetch("api/message/delete/" + this.message.id);
 
                     // 메시지 회수 완료 후 메시지 리스트를 다시 조회한다.
                     this.tabChangeCheck = false;  // 05.24 추가: 전송 후 table-success 를 false로 만들기 위함
@@ -1512,7 +1512,7 @@
                 // 3-1) 현재 채팅방 멤버를 업데이트 후 fetch_chatmembers받아오기
                 async fetch_chatmembers(centerName) {
                     this.isActiveMessage = false
-                    const res = await fetch("/api/message/get_chatmembers/" + centerName);
+                    const res = await fetch("api/message/get_chatmembers/" + centerName);
                     const data = await res.json()
                     this.selectedChatMembers = data['ChatMembers']
                     const Toast = Swal.mixin({
@@ -1553,7 +1553,7 @@
                 },
 
                 async BanChatMember() {
-                    const res = await fetch("/api/message/ban_chatmember/" + this.selectedChatMemberId);
+                    const res = await fetch("api/message/ban_chatmember/" + this.selectedChatMemberId);
                     const data = await res.json();
                     if(data === true) {
                         await Swal.fire({
@@ -1580,7 +1580,7 @@
                 
                 // 3-2-2) 특정 센터 내 미허용 인원 전체 추방 함수
                 async BanChatCenterMembers() {
-                    const res = await fetch("/api/message/ban_chatmember/center/" + this.selectedPhoneGroup.centerName);
+                    const res = await fetch("api/message/ban_chatmember/center/" + this.selectedPhoneGroup.centerName);
                     const data = await res.json();
                     if(data === true) {
                         await Swal.fire({
@@ -1612,7 +1612,7 @@
                 },
 
                 async BanChatAllMembers() {
-                    const res = await fetch("/api/message/ban_chatmember/center/" + 'ALL');
+                    const res = await fetch("api/message/ban_chatmember/center/" + 'ALL');
                     const data = await res.json();
                     if(data === true) {
                         await Swal.fire({
@@ -1715,7 +1715,7 @@
                 },
                 async phoneGroupMap() {
                     // console.log(window.location.host);
-                    const res = await fetch("/api/monitor/makemap/" + this.selectedPhoneGroup.id);
+                    const res = await fetch("api/monitor/makemap/" + this.selectedPhoneGroup.id);
                     const data = await res.json();
                     if (data['result'] === 'ok') {
                         //console.log(data['result'])
@@ -1757,7 +1757,7 @@
                             'morphologyDetailId': this.selectedPhoneGroup.morphologyDetailId  // 모폴로지 상세 ID
                         })
                     };
-                    const response = await fetch("/api/phonegroup/update/info/", requestOptions);
+                    const response = await fetch("api/phonegroup/update/info/", requestOptions);
                     await this.fetch_all_phoneGroup();
                 },
                 change_check() {
