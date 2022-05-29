@@ -1136,7 +1136,7 @@
                     for (let i in this.phoneGroupList) {
                         if (this.phoneGroupList[i].selected) {
                             // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
-                            const res = await fetch("/monitor/end/" + this.phoneGroupList[i].id)
+                            const res = await fetch("monitor/end/" + this.phoneGroupList[i].id)
                                 .then(respone => {
                                     // 측정종료 처리후  단말그룹 리스트를 다시 조회한다.
                                     this.fetch_all_phoneGroup();
@@ -1182,7 +1182,7 @@
                     // $("#progressModal").modal('show');
                     //clearInterval(this.timer);
                     //this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
-                    const res = await fetch("/monitor/day_close/" + this.date);
+                    const res = await fetch("monitor/day_close/" + this.date);
                     const data = await res.json();
                     return data;
                     /*
@@ -1650,7 +1650,7 @@
                 },
 
                 async cancelMeasuringEnd() {
-                    const res = await fetch("/monitor/end/cancel/" + this.selectedPhoneGroup.id);
+                    const res = await fetch("monitor/end/cancel/" + this.selectedPhoneGroup.id);
                     const data = await res.json();
                     if(data['result'] === 'ok') {
                         await Swal.fire({
@@ -1680,7 +1680,7 @@
                     // $("#mi-modal").modal('hide');
                 },
                 async phoneGroupUnion() {
-                    const res = await fetch("/monitor/end/union/" + this.selectedPhoneGroup.id);
+                    const res = await fetch("monitor/end/union/" + this.selectedPhoneGroup.id);
                     const data = await res.json();
                     if (data['result'] === 'ok') {
                         await Swal.fire({
