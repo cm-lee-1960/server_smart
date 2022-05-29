@@ -953,12 +953,13 @@ def send_message(sender, instance, created, **kwargs):
                 instance.save()
             
             # 2) 메시지가 운용본부에게 전달되는 메시지가 아니라면 운용본부에도 전달한다.
-            if instance.center.centerName != "운용본부" and instance.center.centerName != "전체" and instance.status != 'START_F':
-                ub = Center.objects.get(centerName="운용본부")
-                instance.center = ub
-                instance.channelId = ub.channelId
-                instance.pk = None
-                instance.save()
+            if not instance.center:
+                if instance.center.centerName != "운용본부" and instance.center.centerName != "전체" and instance.status != 'START_F':
+                    ub = Center.objects.get(centerName="운용본부")
+                    instance.center = ub
+                    instance.channelId = ub.channelId
+                    instance.pk = None
+                    instance.save()
 
             # # 3) 크로샷으로 메시지를 전송한다.
             # if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
