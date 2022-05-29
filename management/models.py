@@ -358,7 +358,7 @@ class MessageConfig(models.Model):
 class EtcConfig(models.Model):
     """기타 환경설정 모델
         : 보정값(NQI에서 받은 데이터에서 값 보정되었을 경우 받은 데이터에서 +- 연산처리)"""
-    CATEGORY__CHOICES = (('보정값','보정값'), )
+    CATEGORY__CHOICES = (('보정값(DL)','보정값(DL)'), ('보정값(UL)','보정값(UL)'),)
 
     category = models.CharField(max_length=20, choices=CATEGORY__CHOICES, verbose_name='구분')
     value_float = models.FloatField(default=0, null=True, blank=True, verbose_name="값1")  # 값(Float)
