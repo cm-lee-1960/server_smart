@@ -34,8 +34,9 @@ class PhoneGroupAdmin(admin.ModelAdmin):
                     'event_count', 'active', 'manage']
     list_display_links = ['phone_list', ]
     search_fields = ('measdate', 'userInfo1', 'phone_list', 'networkId', 'measuringTeam')
-    list_filter = ['measdate', 'measuringTeam', 'active']
+    list_filter = ['measdate', 'measuringTeam', 'active', 'manage']
     actions = ['get_measuring_end_action']
+    ordering = ('-measdate', '-manage', 'measuringTeam', 'userInfo1', )
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다.
     def downloadBandwidth_fmt(self, obj):
