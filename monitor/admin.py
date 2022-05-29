@@ -234,12 +234,12 @@ class PhoneAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 class MeasureCallDataAdmin(admin.ModelAdmin):
     """어드민 페이지에 측정단말 데이터 건 by 건 보여주기 위한 클래스"""
-    list_display = ['userInfo1', 'phone_no', 'currentCount', 'networkId', 'ispId',\
+    list_display = ['measdate', 'userInfo1', 'phone_no', 'currentCount', 'networkId', 'ispId',\
                     'downloadBandwidth', 'uploadBandwidth', 'meastime_at', 'userInfo2', 'cellId',]
     list_display_links = ['phone_no']
     search_fields = ('userInfo1', 'phone_no', 'currentCount')
     list_filter = ['userInfo1',]
-    ordering = ('userInfo1', 'phone_no', '-meastime', '-currentCount')
+    ordering = ('-meastime', 'userInfo1', 'phone_no', '-meastime', '-currentCount')
 
     list_per_page = 25 # 페이지당 데이터 건수 
 

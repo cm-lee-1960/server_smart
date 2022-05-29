@@ -751,6 +751,13 @@ class MeasureCallData(models.Model):
     def __str__(self):
         return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}"
 
+    @property
+    def measdate(self):
+        """ 측정일자을 반환한다.
+            - 예) 20220527
+        """
+        return str(self.meastime)[0:8]
+
 
 ########################################################################################################################
 # 실시간 측정 데이터(초 단위)
