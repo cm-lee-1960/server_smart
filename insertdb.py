@@ -4,14 +4,14 @@ from django.db import connection
 
 cursor = connection.cursor()
 
-line = """
+line = f"""
 use smart;
 SET foreign_key_checks = 0;
 
 delete FROM smart.tb_ndm_data_measure where meastime between 20211101000000000 and 20211101235959999;
 delete from monitor_measurecalldata where meastime between 20211101000000000 and 20211101235959999;
-delete from monitor_phone;
-delete from monitor_phonegroup;
+delete from monitor_phone where measdate = '20211101';
+delete from monitor_phonegroup where measdate = '20211101';
 
 SET foreign_key_checks = 1;
 COMMIT;
@@ -24,7 +24,7 @@ i = 0
 while True:
     line = f.readline()
     if not line: break
-    line += "; commit;"
+    line += " commit;"
     res = cursor.execute(line)
     i += 1
     print(f"{i}번째처리: {line}")
