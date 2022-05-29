@@ -446,7 +446,7 @@ def phonegroup_union_view(request, phonegroup_id):
     """
     base_pg = PhoneGroup.objects.get(id=phonegroup_id)
     added_pg = PhoneGroup.objects.filter(measdate=base_pg.measdate, userInfo1=base_pg.userInfo1, networkId=base_pg.networkId, \
-                                        morphologyDetial=base_pg.morphologyDetial, manage=base_pg.manage).exclude(id=phonegroup_id).order_by('-last_updated_dt')
+                                        morphologyDetail=base_pg.morphologyDetail, manage=base_pg.manage).exclude(id=phonegroup_id).order_by('-last_updated_dt')
     if added_pg.exists():
         for pg in added_pg:
             return_value = phonegroup_union(base_pg, pg)

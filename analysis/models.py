@@ -281,7 +281,7 @@ def send_message_hj(sender, instance, created, **kwargs):
     
     if created:
         if instance.phoneGroup != None:  # 커버리지의 경우 PhoneGroup 미존재
-            a = Phone.objects.filter(phoneGroup = instance.phoneGroup, userInfo1 = instance.userInfo1, measdate = instance.measdate)
+            a = Phone.objects.filter(phoneGroup = instance.phoneGroup, measdate = instance.measdate)
             b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
             c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
 

@@ -204,10 +204,13 @@ def message_list(request, phonegroup_id):
                     center = None
 
                 # 해당 단말그룹에 대한 모든 메시지를 가져온다.
-                qs = Message.objects.filter(
-                    #Q(phone__phoneGroup_id=phonegroup_id) | \
-                    #Q(measdate=measdate, sendType='ALL')).order_by('-updated_at')
-                    Q(measdate=measdate, phoneGroup_id=phonegroup_id)).order_by('-updated_at')
+                if request.user.is_superuser:  # 운용본부일 경우 모든 메시지 조회
+                    qs = Message.objects.filter(
+                        #Q(phone__phoneGroup_id=phonegroup_id) | \
+                        #Q(measdate=measdate, sendType='ALL')).order_by('-updated_at')
+                        Q(measdate=measdate, phoneGroup_id=phonegroup_id)).order_by('-updated_at')
+                else:  # 지역일 경우 해당 지역 메시지만 조회
+                    qs = Message.objects.filter(Q(measdate=measdate, phoneGroup_id=phonegroup_id, center=center)).order_by('-updated_at')
              
                 if qs.exists():
                     # 1) 이벤트 메시지 내역을 가져온다.

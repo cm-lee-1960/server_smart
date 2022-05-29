@@ -706,6 +706,8 @@ class MeasureCallData(models.Model):
             else:
                 address = f"{self.siDo} {self.guGun} {self.addressDetail.split(' ')[0]}"
             return address
+        elif not self.latitude or not self.longitude:
+            return None
         else:
             # 2022.03.10 - NR인 경우 주소정보(siDo, guGun, addressDetail)가 널(Null)임
             # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
@@ -949,8 +951,16 @@ def send_message(sender, instance, created, **kwargs):
                 instance.sendTime = instance.updated_at
                 instance.sended = True
                 instance.save()
+            
+            # 2) 메시지가 운용본부에게 전달되는 메시지가 아니라면 운용본부에도 전달한다.
+            if instance.center.centerName != "운용본부" and instance.center.centerName != "전체":
+                ub = Center.objects.get(centerName="운용본부")
+                instance.center = ub
+                instance.channelId = ub.channelId
+                instance.pk = None
+                instance.save()
 
-            # # 2) 크로샷으로 메시지를 전송한다.
+            # # 3) 크로샷으로 메시지를 전송한다.
             # if instance.sendType == 'XMCS' or instance.sendType == 'ALL':
             #     # 2022.03.04 - 크로샷 메시지 전송  --  node.js 파일 호출하여 전송
             #     # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송

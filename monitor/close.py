@@ -352,6 +352,7 @@ def phonegroup_union(phoneGroup1, phoneGroup2):
                     p2.message_set.all().update(phone_id=p1.id, phoneGroup_id=phoneGroup1.id)
                     p2.delete()
         
+        phoneGroup2.message_set.all().update(phoneGroup_id=phoneGroup1.id)
         phoneGroup2.measuringdayclose_set.all().delete()
         phoneGroup1.event_count += phoneGroup2.event_count
         phoneGroup2.delete()
