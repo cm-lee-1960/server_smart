@@ -520,8 +520,8 @@
                                     <span class="caret"></span></button>
                                 <div dropdown-toggle id="telemenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
                                     <a class="dropdown-item" @click="fetch_chatmembers(selectedPhoneGroup.centerName)" title="채팅방 멤버 새로고침">채팅방 멤버 새로고침</a>
-                                    <a class="dropdown-item" @click="clickBanChatCenterMembers" title="센터 내 미허용된 인원 전체 추방">미허용 인원 전체 추방</a>
                                     {% if request.user.is_superuser %}
+                                    <a class="dropdown-item" @click="clickBanChatCenterMembers" title="센터 내 미허용된 인원 전체 추방">미허용 인원 전체 추방</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" @click="fetch_chatmembers(('ALL')+(selectedPhoneGroup.centerName))"
                                         title="모든 채팅방 새로고침">전체 채팅방 새로고침</a>
@@ -570,7 +570,9 @@
                                     <th style="width: 30%;">이름</th>
                                     <th style="width: 30%;">닉네임</th>
                                     <th style="width: 14%;">등록여부</th>
+                                    {% if request.user.is_superuser %}
                                     <th style="width: 11%;">추방</th>
+                                    {% endif %}
                                 </tr>
                                 </thead>
                                 <tbody id='chatmember_body' class="table-hover"
@@ -585,8 +587,10 @@
                                         <i class="fa fa-check" aria-hidden="true" style="color:green" v-if="ChatMember.allowed"></i>
                                         <i class="fa fa-times" aria-hidden="true" style="color:rgb(115, 5, 5)" v-else="ChatMember.allowed"></i>
                                     </td>
+                                    {% if request.user.is_superuser %}
                                     <td style="width: 11%;"><i class="fa fa-ban" aria-hidden="true" style="color:red;cursor:pointer"
                                         @click="[selectedChatMemberId=ChatMember.id, clickBanChatMember(ChatMember.isBot)]" title="강퇴"></i></td>
+                                    {% endif %}
                                 </tr>
                                 </tbody>
                             </table>
