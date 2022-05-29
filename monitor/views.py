@@ -123,14 +123,22 @@ def receive_json(request):
 
     data = JSONParser().parse(request)
     # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
-    if EtcConfig.objects.filter(category="보정값").exists():
-        correction = EtcConfig.objects.get(category="보정값").value_float
-        if data['downloadBandwidth']: data['downloadBandwidth'] -= correction
-        if data['uploadBandwidth']:  data['uploadBandwidth'] -= correction
-        if data['downloadBandwidth'] < 0 or data['uploadBandwidth'] < 0:
-            raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
-            db_logger.error("보정값 조정:", Exception)
-            return HttpResponse("보정값 조정:" + Exception, status=500)
+    if data['downloadBandwidth']: 
+        if EtcConfig.objects.filter(category="보정값(DL)").exists():
+            correction = EtcConfig.objects.get(category="보정값(DL)").value_float
+            data['downloadBandwidth'] -= correction
+            if data['downloadBandwidth'] < 0:
+                raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
+                db_logger.error("보정값 조정:", Exception)
+                return HttpResponse("보정값 조정:" + Exception, status=500)
+    elif data['uploadBandwidth']:
+        if EtcConfig.objects.filter(category="보정값(UL)").exists():
+            correction = EtcConfig.objects.get(category="보정값(UL)").value_float
+            data['uploadBandwidth'] -= correction
+            if data['uploadBandwidth'] < 0:
+                raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
+                db_logger.error("보정값 조정:", Exception)
+                return HttpResponse("보정값 조정:" + Exception, status=500)
     else:
         pass
     
