@@ -127,7 +127,7 @@ def receive_json(request):
         correction = EtcConfig.objects.get(category="보정값").value_float
         if data['downloadBandwidth']: data['downloadBandwidth'] -= correction
         if data['uploadBandwidth']:  data['uploadBandwidth'] -= correction
-        if data['downloadBandwidth'] < 0 or if data['uploadBandwidth'] < 0:
+        if data['downloadBandwidth'] < 0 or data['uploadBandwidth'] < 0:
             raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
             db_logger.error("보정값 조정:", Exception)
             return HttpResponse("보정값 조정:" + Exception, status=500)
