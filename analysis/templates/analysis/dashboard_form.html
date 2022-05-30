@@ -939,8 +939,10 @@
                         //종료 알랏을 위한 액티브 체크
                         if(!this.phoneGroupList[p_Id]['active']){
                             this.phoneGroupActiveCheckSave += 1
+                            $("#" + this.phoneGroupList[p_Id]['id'] + " img").attr("class", "alarmNomal") // 폰그룹이 종료이면 이벤트 알람 불 끈다.
                             // console.log(this.phoneGroupActiveCheckSave)
                         }
+
                     }
                     //this.phoneGroupActiveCheck = this.phoneGroupActiveCheckSave
 
@@ -1143,7 +1145,6 @@
                     await this.end_message_alert(end_success_count, end_error_count)
                     await this.fetch_all_phoneGroup();
                     */
-
                     for (let i in this.phoneGroupList) {
                         if (this.phoneGroupList[i].selected) {
                             // 선택된 단말그룹에 대해서 측정을 종료하도록 서버에 요청한다.
@@ -1843,6 +1844,7 @@
             var middle_phonegroup_size = $('#middle_phonegroup').innerHeight();
             if(middle_phonegroup_size > 460){
                 middle_phonegroup_size = 450
+
             }
             phonegroup_body_size = middle_phonegroup_size - 50;
             document.getElementById('phonegroup-body').style.height = phonegroup_body_size + 'px'
@@ -1852,10 +1854,10 @@
             //메세지 테이블 높이 동적 사이즈변경
             $('#bottom_body_left').resize(function() {
 
-                bottom_body_left_rightsize = $('#bottom_body_left').innerWidth();
+                bottom_body_left_rightsize = $('#bottom_body_left').innerWidth()
                 bottom_body_size = $('#bottom_body').innerWidth();
                 bottom_body_right_size = bottom_body_size - bottom_body_left_rightsize;
-        
+
                 document.getElementById('bottom_body_right').style.width = bottom_body_right_size + 'px'
                 
               });
