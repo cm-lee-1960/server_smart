@@ -122,6 +122,16 @@ def receive_json(request):
         return HttpResponse("Error")
 
     data = JSONParser().parse(request)
+
+    ## 데이터 중복체크  // 체크 기준 열 : ['meastime', 'phone_no', 'userInfo1', 'userInfo2', 'currentCount']
+    duplicate_check_data = MeasureCallData.objects.filter(meastime=data['meastime'], phone_no=data['phone_no'], \
+                                                        userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], currentCount=data['currentCount'])
+    if duplicate_check_data.exists():
+        raise Exception("데이터가 중복값입니다.")
+        db_logger.error("인입 데이터 중복:", Exception)
+        return HttpResponse("인입 데이터 중복::" + Exception, status=500)
+    else: pass
+
     # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
     if data['downloadBandwidth']: 
         if EtcConfig.objects.filter(category="보정값(DL)").exists():
