@@ -14,6 +14,7 @@ from management.models import AddressRegion
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.22 - 코딩 및 주석 작성 룰에 벗어나는 내용 수정
 # 2022.05.02 - 지도맵 작성시 모폴로지가 행정동일 때만 경계구역을 그린다.
+# 2022.05.30 - 위도와 경도에 값이 없는 경우 지도상에 표기하지 않는다(SKIP).
 #
 ########################################################################################################################
 class KakaoLocalAPI:
@@ -308,6 +309,9 @@ def make_map_locations(phoneGroup):
 
         start_loc = (phone.latitude, phone.longitude)
         for mdata in phone.measurecalldata_set.all():
+            # 위도와 경도에 값이 없는 경우 지도상에 표기하지 않는다(SKIP).
+            if mdata.latitude is None or mdata.longitude is None:
+                continue
             # 네트워크 유형(5G, LTE, 3G)에 따라서 무선품질 정보를 가져온다.
             if mdata.networkId == '5G':
                 pci, RSRP, SINR = mdata.NR_PCI, mdata.NR_RSRP, mdata.NR_SINR
