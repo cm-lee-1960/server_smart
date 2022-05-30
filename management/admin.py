@@ -129,7 +129,8 @@ class ChatMemberListAdmin(admin.ModelAdmin):
     """어드민 페이지에 관리하는 채팅 멤버 리스트(ChatMemberList)를 보여주기 위한 클래스"""
     list_display = ['userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId', 'allowed', 'isBot']
     list_display_links = ['userchatId', ]
-    search_fields = ('userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId',)
+    #search_fields = ('userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId',)
+    ist_filter = ['center', 'allowed']
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정단말 사전정보
