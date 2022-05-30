@@ -633,8 +633,7 @@ def cal_success_rate(phoneGroup):
      . 반환값 : 성공률 (float) '''
     # 전송 성공률 계산 : 전체 콜수에서 "전송실패" 이벤트 발생 건수 비율로 계산 (추후 정확한 계산식 대체 필요)
     md = phoneGroup.measuringdayclose_set.all().last()
-    success_rate = round((1 - (Message.objects.filter(phoneGroup=phoneGroup, messageType='EVENT').filter( \
-                            message__contains='전송실패').count() / (md.dl_count + md.ul_count)))*100,1)
+    success_rate = round((1 - (phoneGroup.event_count / (md.dl_count + md.ul_count)))*100,1)
     return success_rate
 
 ###### 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 업데이트 필요

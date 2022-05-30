@@ -230,8 +230,8 @@ def make_message(mdata: MeasureCallData):
                 messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.userInfo1} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 이벤트 메시지 내용 추가
-            messages +=  f"\n- 전송실패 이벤트(DL/UL, 건): {msg.filter(message__contains='DL전송실패').count()}/{msg.filter(message__contains='UL전송실패').count()}" + \
-                         f"\n- 속도저하 이벤트(DL/UL, 건): {msg.filter(message__contains='DL속도저하').count()}/{msg.filter(message__contains='UL속도저하').count()}"
+            messages +=  f"\n- 전송실패 이벤트(DL/UL, 건): {msg.filter(message__contains='DL전송실패', center=phone.center).count()}/{msg.filter(message__contains='UL전송실패', center=phone.center).count()}" + \
+                         f"\n- 속도저하 이벤트(DL/UL, 건): {msg.filter(message__contains='DL속도저하', center=phone.center).count()}/{msg.filter(message__contains='UL속도저하', center=phone.center).count()}"
 
 
         # [측정종료 메시지] --------------------------------------------------------------------------------------------
