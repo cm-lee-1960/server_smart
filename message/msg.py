@@ -207,7 +207,7 @@ def make_message(mdata: MeasureCallData):
             qs = MeasureingTeam.objects.filter(measdate=measdate)
             if qs.exists():
                 measuringteam_msg = qs[0].message
-            messages = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.address}에서 시작되었습니다.\n" + \
+            messages = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}에서 시작되었습니다.\n" + \
                        f"{measuringteam_msg}\n" + \
                        "\n평가에 만전을 기하여 주시기 바랍니다. "
         elif phone.status == 'START_M':
@@ -217,17 +217,17 @@ def make_message(mdata: MeasureCallData):
         elif phone.status == 'MEASURING':
             # WiFi 측정 데이터의 경우
             if phone.networkId == 'WiFi':
-                messages = f"{mdata.address} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
+                messages = f"{mdata.userInfo1} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
                            "속도(DL/UL, Mbps)\n" + \
                            f"{phone.networkId}({phone.phoneGroup.morphologyDetail.main_class}): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 5G 측정 데이터의 경우
             elif phone.networkId == '5G':
-                messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.userInfo1} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 기타(LTE, 3G) 측정데이터의 경우
             else:
-                messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.address} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.userInfo1} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 이벤트 메시지 내용 추가
             messages +=  f"\n- 전송실패 이벤트(DL/UL, 건): {msg.filter(message__contains='DL전송실패').count()}/{msg.filter(message__contains='UL전송실패').count()}" + \
