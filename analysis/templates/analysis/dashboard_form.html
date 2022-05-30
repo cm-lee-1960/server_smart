@@ -355,12 +355,13 @@
                             <table id="event-table" class='table table-hover' style="height:100%;">
                                 <thead id='event-header' style="height:50px;">
                                 <tr class="bg-light d-flex text-center">
-                                    <th style="width: 11%;">생성시간</th>
-                                    <th style="width: 11%;">측정단말</th>
+                                    <th style="width: 10%;">센터</th>
+                                    <th style="width: 9%;">생성시간</th>
+                                    <th style="width: 9%;">측정단말</th>
                                     <th style="width: 45%;">메세지</th>
-                                    <th style="width: 11%;">전송시간</th>
-                                    <th style="width: 11%;">전송여부</th>
-                                    <th style="width: 11%;">회수여부</th>
+                                    <th style="width: 9%;">전송시간</th>
+                                    <th style="width: 9%;">전송여부</th>
+                                    <th style="width: 9%;">회수여부</th>
                                 </tr>
                                 </thead>
                                 <tbody id='eventDetail_body' class="table-hover"
@@ -369,16 +370,17 @@
                                     :class="['d-flex text-center clickEvent', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
             
                                     v-on:click="clickMessageList(message, $event)" ref = "clickevent_Tr">
-                                    <td style="width: 11%;" >[[ message.create_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                    <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                    <td style="width: 10%;">[[ message.centerName ]]</td>
+                                    <td style="width: 9%;" >[[ message.create_time ]]</td>
+                                    <td style="width: 9%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                    <td style="width: 9%;" v-else="message.phone_no_sht">-</td>
                                     <!--<td style="width: 46%;" v-html="messageEventListsplit[index]"></td>-->
                                     <td style="width: 45%;">[[ message.message.split('*')[1] | truncate(75,'...')]]</td>
-                                    <td style="width: 11%;">[[ message.sended_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.sended">전송</td>
-                                    <td style="width: 11%;" v-else="message.sended">미전송</td>
-                                    <td style="width: 11%;" v-if="message.isDel">회수</td>
-                                    <td style="width: 11%;" v-else="message.idDel">-</td>
+                                    <td style="width: 9%;">[[ message.sended_time ]]</td>
+                                    <td style="width: 9%;" v-if="message.sended">전송</td>
+                                    <td style="width: 9%;" v-else="message.sended">미전송</td>
+                                    <td style="width: 9%;" v-if="message.isDel">회수</td>
+                                    <td style="width: 9%;" v-else="message.idDel">-</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -389,12 +391,13 @@
                             <table id="tele_table" class='table table-hover'>
                                 <thead id='tele-header' style="height:50px;">
                                 <tr class="bg-light d-flex text-center">
-                                    <th style="width: 11%;">생성시간</th>
-                                    <th style="width: 11%;">측정단말</th>
+                                    <th style="width: 10%;">센터</th>
+                                    <th style="width: 9%;">생성시간</th>
+                                    <th style="width: 9%;">측정단말</th>
                                     <th style="width: 45%;">메세지</th>
-                                    <th style="width: 11%;">전송시간</th>
-                                    <th style="width: 11%;">전송여부</th>
-                                    <th style="width: 11%;">회수여부</th>
+                                    <th style="width: 9%;">전송시간</th>
+                                    <th style="width: 9%;">전송여부</th>
+                                    <th style="width: 9%;">회수여부</th>
                                 </tr>
                                 </thead>
                                 <tbody id='teleDetail_body' class="table-hover"
@@ -402,15 +405,16 @@
                                 <tr v-for="message in messageTeleList"
                                     :class="['d-flex text-center', {'table-success': (message.id == activeMessage.id && tabChangeCheck == true)}]"
                                     v-on:click="clickMessageList(message, $event)" ref = "clicktele_Tr">
-                                    <td style="width: 11%;">[[ message.create_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
-                                    <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
+                                    <td style="width: 9%;">[[ message.centerName ]]</td>
+                                    <td style="width: 9%;">[[ message.create_time ]]</td>
+                                    <td style="width: 9%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
+                                    <td style="width: 9%;" v-else="message.phone_no_sht">-</td>
                                     <td style="width: 45%;">[[ message.message | truncate(75,'...')]]</td>
-                                    <td style="width: 11%;">[[ message.sended_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.sended">전송</td>
-                                    <td style="width: 11%;" v-else="message.sended">미전송</td>
-                                    <td style="width: 11%;" v-if="message.isDel">회수</td>
-                                    <td style="width: 11%;" v-else="message.idDel">-</td>
+                                    <td style="width: 9%;">[[ message.sended_time ]]</td>
+                                    <td style="width: 9%;" v-if="message.sended">전송</td>
+                                    <td style="width: 9%;" v-else="message.sended">미전송</td>
+                                    <td style="width: 9%;" v-if="message.isDel">회수</td>
+                                    <td style="width: 9%;" v-else="message.idDel">-</td>
                                 </tr>
                                 </tbody>
                             </table>
