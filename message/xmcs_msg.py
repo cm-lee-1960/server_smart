@@ -1,5 +1,7 @@
 import os, requests, json
 from datetime import datetime
+from management.models import Center
+
 ########################################################################################################################
 # 크로샷 문자 메시지를 전송한다.
 # ----------------------------------------------------------------------------------------------------------------------
@@ -58,7 +60,14 @@ def send_sms_queryset(queryset, receiver):
    .반환값: Dict {status_code : 200, Body : 전송결과} '''
   try:
     msg = queryset.message  # 메시지내용
-    sender = queryset.center.senderNum  # 발신번호
+    if queryset.center_id:
+      sender = queryset.center.senderNum  # 발신번호
+    else:
+      qs = Center.objects.filter(centerName='운용본부')
+      if qs.exists():
+        sender = qs[0].senderNum
+      else:
+        sender = '01032166418'
     result_sms = send_sms(msg, sender, receiver)  # 크로샷 전송 함수
     if result_sms['status_code'] == 200:
       queryset.sended = True if result_sms['body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
