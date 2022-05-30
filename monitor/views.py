@@ -166,10 +166,14 @@ def receive_json(request):
 
         if data['networkId'] == 'WiFi':  # WiFi일 경우 모폴로지 상세 지정
             morphologyDetail = get_morphologyDetail_wifi(data['userInfo2'])
-        else: morphologyDetail = None  # WiFi가 아닐경우 모폴로지 상세 미지정
+            qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, morphologyDetail=morphologyDetail,\
+                                ispId=data['ispId'], active=True).order_by('-last_updated_dt')
+        else:
+            morphologyDetail = None  # WiFi가 아닐경우 모폴로지 상세 미지정
+            qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, \
+                    ispId=data['ispId'], active=True).order_by('-last_updated_dt')
 
-        qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, morphologyDetail=morphologyDetail,\
-                                       ispId=data['ispId'], active=True).order_by('-last_updated_dt')
+
         if qs.exists():
             phoneGroup = qs[0]    
         else:
