@@ -168,8 +168,7 @@ def receive_json(request):
             morphologyDetail = get_morphologyDetail_wifi(data['userInfo2'])
             qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, morphologyDetail=morphologyDetail,\
                                 ispId=data['ispId'], active=True).order_by('-last_updated_dt')
-        else:
-            morphologyDetail = None  # WiFi가 아닐경우 모폴로지 상세 미지정
+        else:  # WiFi가 아닐경우 모폴로지 상세 미지정
             qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, \
                     ispId=data['ispId'], active=True).order_by('-last_updated_dt')
 
