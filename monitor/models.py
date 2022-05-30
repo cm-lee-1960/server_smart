@@ -149,7 +149,7 @@ class PhoneGroup(models.Model):
             diff = datetime.now() - self.last_updated_dt
             # diff_minutes = round((diff.days * 24 * 60) + (diff.seconds / 60))
             diff_minutes = round(diff.total_seconds() / 60)
-            return diff_minutes % 60
+            return diff_minutes % 1440
         else:
             return '-'
 
