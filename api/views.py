@@ -63,10 +63,12 @@ def phonegroup_list(request, measdate):
     if measdate is not None:
         # 측정일자에서 데시(-)를 제거한다(2021-11-01 -> 20211101).
         measdate = measdate.replace('-', '')
+        # IP확인
+        db_logger.error("phonegroup_list(): %s %s" % request.user.username, request.META.get('REMOTE_ADDR'))
     else:
         # 측정일자를 널(Null)인 경우 현재 일자로 설정한다.
        measdate = datetime.now().strftime("%Y%m%d")
-
+       
     try:
         # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
         if request.user.is_superuser:
