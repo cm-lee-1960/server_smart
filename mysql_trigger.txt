@@ -1,0 +1,42 @@
+DROP TRIGGER IF EXISTS mytable_insert
+DELIMITER |
+DROP TRIGGER IF EXISTS mytable_insert;
+CREATE TRIGGER mytable_insert
+AFTER INSERT ON tb_ndm_data_measure
+FOR EACH ROW BEGIN
+    SET @tt_json = (SELECT json_object(
+'dataType', 'call',	
+'phone_no', NEW.phone_no,
+'meastime', NEW.meastime,
+'networkId', NEW.networkId,
+'groupId', NEW.groupId,
+'currentTime', NEW.currentTime,
+'timeline', NEW.timeline,
+'cellId', NEW.cellId,
+'currentCount', NEW.currentCount,
+'ispId', NEW.ispId,
+'testNetworkType', NEW.testNetworkType,
+'userInfo1', NEW.userInfo1,
+'userInfo2', NEW.userInfo2,
+'siDo', NEW.siDo,
+'guGun', NEW.guGun,
+'addressDetail', NEW.addressDetail,
+'udpJitter', NEW.udpJitter,
+'downloadBandwidth', NEW.downloadBandwidth,
+'uploadBandwidth', NEW.uploadBandwidth,
+'sinr', NEW.sinr,
+'isWifi', NEW.isWifi,
+'latitude', NEW.latitude,
+'longitude', NEW.longitude,
+'bandType', NEW.bandType,
+'p_dl_earfcn', NEW.p_dl_earfcn,
+'p_pci', NEW.p_pci,
+'p_rsrp', NEW.p_rsrp,
+'p_SINR', NEW.p_SINR,
+'NR_EARFCN', NEW.NR_EARFCN,
+'NR_PCI', NEW.NR_PCI,
+'NR_RSRP', NEW.NR_RSRP,
+'NR_SINR', NEW.NR_SINR) FROM tb_ndm_data_measure);
+    SET @tt_resu = (SELECT http_post('http://localhost:8000/smart/monitor/json/', @tt_json));
+END |
+DELIMITER ;
