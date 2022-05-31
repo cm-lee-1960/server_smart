@@ -136,7 +136,7 @@ def phonegroup_list(request, measdate):
 
     except Exception as e:
         print("phonegroup_list():", str(e))
-        db_logger.error("phonegroup_list(): %s" % request.user.username)
+        db_logger.error("phonegroup_list(): %s %s" % request.user.username, request.META.get('REMOTE_ADDR'))
         raise Exception("phonegroup_list(): %s" % e)
 
     # 해당일자 총 측정건수, 센터별 측정건수, 단말그룹 정보를 JSON 데이터로 넘겨준다.
