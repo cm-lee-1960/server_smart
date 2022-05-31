@@ -17,9 +17,15 @@ from django.contrib.auth.hashers import check_password
 # 2022.03.18 - 로그인 에러 내용 출력
 # 2022.03.24 - 에러내용 칼라변경
 ########################################################################################################################
+
+######
+import logging
+db_logger = logging.getLogger('db')
+######
 def login(request):
     """메인페이지 로그인 화면 에러내용 추가"""
     if request.method == 'POST':
+        db_logger.error("phonegroup_list():" + request.user.username + " / " + request.META.get('REMOTE_ADDR'))
         login_form = AuthenticationForm(request, request.POST)
     
         username = request.POST['username']
