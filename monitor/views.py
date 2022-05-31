@@ -172,7 +172,9 @@ def receive_json(request):
         measdate = str(data['meastime'])[:8] # 측정일자
         # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
         #     ispId=data['ispId'], active=True).order_by('-last_updated_dt')
+    
         morphology = get_morphology(data['userInfo2'])  # 모폴로지
+        print(morphology)
 
         if data['networkId'] == 'WiFi':  # WiFi일 경우 모폴로지 상세 지정
             morphologyDetail = get_morphologyDetail_wifi(data['userInfo2'])
@@ -192,6 +194,9 @@ def receive_json(request):
             # 측정 단말기 그룹을 생성한다.
             meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             morphology = get_morphology(data['userInfo2']) # 모폴로지
+            
+            morphologyDetail = get_morphologyDetail_wifi(data['userInfo2'])
+            
             if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail:
                 manage = True   # WiFi일 경우 모폴로지 상세가 존재해야 관리여부 True (미존재 시 타사 측정이므로)
             elif data['ispId'] == '45008' and data['networkId'] == 'WiFi' and not morphologyDetail: manage = False
