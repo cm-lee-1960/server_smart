@@ -173,17 +173,8 @@ def get_startdata(request):
 # -------------------------------------------------------------------------------------------------
 # 홈페이지 페이지
 # -------------------------------------------------------------------------------------------------
-######
-import logging
-db_logger = logging.getLogger('db')
-######
 def dashboard(request):
     """홈(Home) 페이지 뷰"""
-    x_forwarded_for = request.META.get('HTTP_X_FORWARED_FOR')
-    if x_forwarded_for:
-        db_logger.error("phonegroup_list():" + request.user.username + " / " + request.META.get('HTTP_X_FORWARED_FOR'))
-    else:
-        db_logger.error("phonegroup_list_addr():" + request.user.username + " / " + request.META.get('REMOTE_ADDR'))
     if request.user.is_authenticated:
         
         return render(request, "analysis/dashboard_form.html")
