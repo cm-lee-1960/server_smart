@@ -295,7 +295,7 @@ def receive_json(request):
             # 초단위 측정 데이터를 등록한다. 
             mdata = MeasureSecondData.objects.create(phone=phone, **data)
         
-        if mdata.phone.status == 'START_F': 
+        if mdata.phone.status == 'START_F' and mdata.ispId == '45008':
             make_message(mdata)
         # 측정시작 메시지(전체대상)
         #  - 전체대상 측정시작 메시지는 통신사, 측정유형에 상관없이 무조건 측정을 시작하면 한번 메시지를 보낸다.

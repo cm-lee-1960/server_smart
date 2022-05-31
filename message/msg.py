@@ -199,7 +199,7 @@ def make_message(mdata: MeasureCallData):
         # 당일 측정조 메시지 내용을 가져온다.
 
         sendType = 'TELE'
-        if phone.status == 'START_F':
+        if phone.status == 'START_F' and mdata.ispId == '45008':
             sendType = 'ALL' # 전송유형(문자 메시지와 텔레그램에 동시에 전송)
             measuringteam_msg = ''  # 당일 측정조 (데이터베이스에서 가져와야 함)
             meastime_str = str(mdata.meastime)
