@@ -243,21 +243,23 @@ def get_morphologyDetail_wifi(userInfo2: str) -> MorphologyDetail:
         - 파리미터: userInfo2(str)
         - 반환값: 모폴러지상세(MorphologyDetail)
     """
+    morphologyDetail = None  # 타사 측정일 경우 등을 위한 초기치 설정
     # 측정자 입력값2(userInfo2)에 따라 모폴로지 상세(대분류)를 결정한다.
     if userInfo2 and userInfo2 is not None:
     # 모풀로지상세 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지 상세를 반환한다.
         userInfo2 = userInfo2.upper()
-        for mp in MorphologyDetail.objects.all():
+        for mp in MorphologyDetail.objects.exclude(words__isnull=True):
             if mp.wordsCond == '시작단어':
-                if userInfo2.startswith(mp.words.upper()):
+                words = tuple(map(str, mp.words.split(', ')))
+                if userInfo2.startswith(words):
                     morphologyDetail = MorphologyDetail.objects.get(network_type='WiFi', main_class=mp.main_class)
                     break
             elif mp.wordsCond == '포함단어':
-                if userInfo2.find(mp.words.upper()) >= 0:
-                    morphologyDetail = MorphologyDetail.objects.get(network_type='WiFi', main_class=mp.main_class)
-                    break
-            else:  # 타사 측정인 경우
-               morphologyDetail = None
+                words = tuple(map(str, mp.words.split(', ')))
+                for word in words:
+                    if word in userInfo2:
+                        morphologyDetail = MorphologyDetail.objects.get(network_type='WiFi', main_class=mp.main_class)
+                        break
                 
     return morphologyDetail
 

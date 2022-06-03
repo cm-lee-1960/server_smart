@@ -173,19 +173,17 @@ def receive_json(request):
         # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
         #     ispId=data['ispId'], active=True).order_by('-last_updated_dt')
     
-        morphology = get_morphology(data['userInfo2'])  # 모폴로지
-        print(morphology)
+        if data['networkId'] == 'NR': nId = '5G'  # 측정유형 지정 // NR일 경우 5G
+        else: nId = data['networkId']
 
-        if data['networkId'] == 'WiFi':  # WiFi일 경우 모폴로지 상세 지정
-            morphologyDetail = get_morphologyDetail_wifi(data['userInfo2'])
-            qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, morphologyDetail=morphologyDetail,\
-                                ispId=data['ispId'], active=True).order_by('-last_updated_dt')
-            if not qs.exists():
-                qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, userInfo2=data['userInfo2'], \
-                                ispId=data['ispId'], active=True).order_by('-last_updated_dt')
-        else:  # WiFi가 아닐경우 모폴로지 상세 미지정
+        morphology = get_morphology(data['userInfo2'])  # 모폴로지
+
+        if data['networkId'] == 'WiFi':  # WiFi일 경우 userInfo2로 판단
+            qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, userInfo2=data['userInfo2'], \
+                                networkId=nId, ispId=data['ispId'], active=True).order_by('-last_updated_dt')
+        else:  # WiFi가 아닐경우 userInfo2 제외 (같은 측정이지만 userInfo2가 다른 경우 있음)
             qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, \
-                    ispId=data['ispId'], active=True).order_by('-last_updated_dt')
+                    networkId=nId, ispId=data['ispId'], active=True).order_by('-last_updated_dt')
 
 
         if qs.exists():
@@ -194,8 +192,8 @@ def receive_json(request):
             # 측정 단말기 그룹을 생성한다.
             meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             morphology = get_morphology(data['userInfo2']) # 모폴로지
-            
-            morphologyDetail = get_morphologyDetail_wifi(data['userInfo2'])
+            if data['networkId'] == 'WiFi': morphologyDetail = get_morphologyDetail_wifi(data['userInfo2']) # 모폴로지 상세, 현재 WiFi에서만 사용
+            else: morphologyDetail = None
             
             if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail:
                 manage = True   # WiFi일 경우 모폴로지 상세가 존재해야 관리여부 True (미존재 시 타사 측정이므로)

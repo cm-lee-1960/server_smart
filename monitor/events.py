@@ -302,7 +302,7 @@ def call_staying_check(mdata: MeasureCallData) -> str:
         - 반환값: '측정단말 한곳에 머뭄' or None
     """
     if mdata.phone.morphology.morphology is not "행정동": 
-        return None;
+        return None
     
     message = None
     # 측정유형이 행정동인 경우에만 측정단말이 한곳에 머무는지 확인한다.

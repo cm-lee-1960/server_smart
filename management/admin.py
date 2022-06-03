@@ -146,16 +146,24 @@ class PhoneInfoAdmin(admin.ModelAdmin):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# 측정단말 사전정보
+# 모폴로지 상세 정보
 # ----------------------------------------------------------------------------------------------------------------------
 class MorphologyDetailAdmin(admin.ModelAdmin):
-    """어드민 페이지에 측정단말 사전정보(PhoneInfo)를 보여주기 위한 클래스"""
+    """어드민 페이지에 모폴로지 상세를 보여주기 위한 클래스"""
     list_display = ['network_type', 'main_class', 'middle_class', 'sub_class', 'words', 'wordsCond']
     # list_display_links = ['main_class']
     search_fields = ('network_type', 'main_class', )
     list_filter = ['network_type', 'main_class', ]
     # 정렬에는 @property를 사용할 수 없음
     ordering = ('id', )
+    fieldsets = (
+        (None, {
+            'fields': ('network_type', 'main_class', 'middle_class', 'sub_class',)
+        }),
+        ('대분류를 자동 구분하는 조건: 단어는 쉼표+띄어쓰기(, )로 구분!!, 대문자만 사용', {
+            'fields': ('words','wordsCond',)
+        }),
+    )
 
 
 # ----------------------------------------------------------------------------------------------------------------------
