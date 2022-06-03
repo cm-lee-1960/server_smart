@@ -117,6 +117,15 @@ def send_failure_check(mdata: MeasureCallData) -> str:
                     message = dataType + '전송실패'
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
+                    # 단말그룹의 이벤트 발생건수를 하나 증가시킨다.
+                    if dataType == 'DL':
+                        mdata.phone.phoneGroup.send_failure_dl_count += 1
+                        mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
+                    elif dataType == 'UL':
+                        mdata.phone.phoneGroup.send_failure_ul_count += 1
+                        mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
+                    mdata.phone.phoneGroup.save()
+
     except Exception as e:
         print("send_failure_check():", str(e))
         raise Exception("send_failure_check(): %s" % e)
@@ -435,12 +444,12 @@ def make_event_message(mdata: MeasureCallData, events_list: list):
         )
 
         # 단말그룹의 이벤트 발생건수를 하나 증가시킨다.
-        # 2022.05.01 - 이벤트 발생건수에 "전송실패"만 반영하기로 함
-        if 'DL전송실패' in events_list:
-            mdata.phone.phoneGroup.send_failure_dl_count += 1
-            mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
-        elif 'UL전송실패' in events_list:
-            mdata.phone.phoneGroup.send_failure_ul_count += 1
-            mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
-        mdata.phone.phoneGroup.save()
+        # 2022.05.01 - 이벤트 발생건수에 "전송실패"만 반영하기로 함  -->  2022.06.03 이벤트 발생건수는 send_failure_check 에서 처리하도록 이동
+        # if 'DL전송실패' in events_list:
+        #     mdata.phone.phoneGroup.send_failure_dl_count += 1
+        #     mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
+        # elif 'UL전송실패' in events_list:
+        #     mdata.phone.phoneGroup.send_failure_ul_count += 1
+        #     mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
+        # mdata.phone.phoneGroup.save()
 
