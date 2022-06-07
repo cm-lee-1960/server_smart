@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.conf import settings
 from haversine import haversine  # 이동거리
 from management.models import SendFailure, LowThroughput
@@ -371,13 +372,18 @@ def duplicated_measuring(mdata: MeasureCallData) -> str:
     # 두개의 단말이 서로 측정유형을 바꾸는 동안 지연시간을 갖는다(2개 콜)
     # 즉, DL -> UL, UL -> DL
     if mdata.currentCount >= 3:
+
+        # 측정단말 교체에 따른 중복 이벤트발생을 제외하기 위해서 현재시점 5분이전부터 발생한 데이터가 있는지 확인한다.
+        now = datetime.now()
+        from_dt = int((now - timedelta(minutes=5)).strftime("%Y%m%d%H%M%S") + '000')
+
         # 다운로드를 중복측정하고 있는지 확인한다.
-        qs = Phone.objects.filter(phoneGroup=mdata.phone.phoneGroup, meastype='DL')
+        qs = Phone.objects.filter(phoneGroup=mdata.phone.phoneGroup, meastype='DL', last_updated__gte=from_dt)
         if qs.exists() and qs.count() > 1:
             duplicated = True
 
         # 업로드를 중복측정하고 있는지 확인한다.
-        qs = Phone.objects.filter(phoneGroup=mdata.phone.phoneGroup, meastype='UL')
+        qs = Phone.objects.filter(phoneGroup=mdata.phone.phoneGroup, meastype='UL', last_updated__gte=from_dt)
         if qs.exists() and qs.count() > 1:
             duplicated = True
 
