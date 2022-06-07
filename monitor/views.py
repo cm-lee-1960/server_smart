@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from message.msg import make_message
-from management.models import Morphology, MorphologyDetail, EtcConfig
+from management.models import Morphology, MorphologyDetail, EtcConfig, PhoneInfo
 from .events import event_occur_check
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, get_morphologyDetail_wifi, Message
 from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union, update_phoneGroup
@@ -153,6 +153,11 @@ def receive_json(request):
         else: pass
     else:
         pass
+
+    # 1-3) 해당 폰넘버가 WiFi측정 폰일경우, networkId를 WiFi로 지정해준다.
+    if data['phone_no'] in PhoneInfo.objects.filter(networkId='WiFi').values_list('phone_no', flat=True):
+        data['networkId'] = 'WiFi'
+    else: pass
     
     # ------------------------------------------------------------------------------------------------------------------
     # 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
