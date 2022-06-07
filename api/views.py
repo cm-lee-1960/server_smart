@@ -59,9 +59,9 @@ db_logger = logging.getLogger('db')
 # ----------------------------------------------------------------------------------------------------------------------
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    db_logger.error(request.META)
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
-        db_logger.error(x_forwarded_for)
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
