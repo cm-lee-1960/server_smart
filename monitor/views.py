@@ -9,7 +9,7 @@ from message.msg import make_message
 from management.models import Morphology, MorphologyDetail, EtcConfig
 from .events import event_occur_check
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, get_morphologyDetail_wifi, Message
-from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union
+from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union, update_phoneGroup
 
 
 # 로그를 기록하기 위한 로거를 생성한다.
@@ -488,6 +488,23 @@ def phonegroup_union_view(request, phonegroup_id):
     
     return JsonResponse(data=return_value, safe=False)
 
+########################################################################################################################
+# 폰그룹 데이터 재계산 함수 (06.07)
+########################################################################################################################
+def phonegroup_recalculate_view(request, phonegroup_id):
+    """ 폰그룹과 동일 정보를 가진 단말 그룹이 있는지 검사하고 데이터를 합치는 함수
+        - 파라미터
+          . phonegroup_id: 합쳐질 기준이 될 폰그룹ID
+        - 반환값: dict {result : 결과값} --> 성공 시 결과값 'ok'
+    """
+    try:
+        pg = PhoneGroup.objects.get(id=phonegroup_id)  ## 재계산할 폰그룹 추출
+        update_phoneGroup(pg) # 재계산 함수 실행
+        return_value = {'result' : 'ok'}
+        return JsonResponse(data=return_value, safe=False)
+    except:
+        return_value = {'result' : 'error'}
+        return JsonResponse(data=return_value, safe=False)
 
 ########################################################################################################################
 # 측정위치로 작성된 지도맵 파일 전달

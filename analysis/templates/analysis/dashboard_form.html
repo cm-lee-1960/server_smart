@@ -299,6 +299,7 @@
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
                                         <a class="dropdown-item" @click="clickCancelMeasuringEnd" title="측정종료 상태를 측정 중으로 변경합니다.">측정종료 취소</a>
                                         <a class="dropdown-item" @click="clickPhoneGroupUnion" title="동일 정보를 가진 단말그룹이 생성되어 있을 경우 하나로 병합합니다.">측정데이터 병합</a>
+                                        <a class="dropdown-item" @click="clickPhoneGroupReCalculate" title="해당 단말그룹의 데이터를 재계산합니다.">데이터 재계산</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" @click="clickPhoneGroupMap(phoneGroup.measdate, phoneGroup.phone_list, phoneGroup.id)"
                                            title="해당 단말그룹의 측정위치를 지도위에 보여줍니다.">측정데이터 지도맵</a>
@@ -1376,6 +1377,8 @@
                         this.cancelMeasuringEnd()
                     } else if (e.target.innerText === "병합") {
                         this.phoneGroupUnion()
+                    } else if (e.target.innerText === "재계산") {
+                        this.PhoneGroupReCalculate()
                     } else if (e.target.innerText === "강퇴") {
                         this.BanChatMember()
                     } else if (e.target.innerText === "센터강퇴") {
@@ -1711,6 +1714,32 @@
                             icon: 'warning',
                             title: '데이터 병합 실패',
                             text: '해당 단말그룹과 같은 정보의 데이터가 없습니다.',
+                        })
+                    }
+                },
+                /*---------------------------------------------------------------------------------------
+                 * 데이터 재계산 함수
+                 --------------------------------------------------------------------------------------*/
+                 clickPhoneGroupReCalculate(e) {
+                    this.isModelConfirmDisabled = true
+                    $("#modal-btn-confirm").html('재계산');
+                    $("#modal_body").html("해당 단말그룹의 데이터를 재계산하겠습니까? <br> ※ 메시지 생성은 하지 않으며 이벤트는 전송실패만 재계산합니다.");
+                    $("#mi-modal").modal('show');
+                },
+                async PhoneGroupReCalculate() {
+                    const res = await fetch("monitor/end/recalculate/" + this.selectedPhoneGroup.id);
+                    const data = await res.json();
+                    if (data['result'] === 'ok') {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '데이터 재계산 성공',
+                            text: '선택하신 단말그룹의 데이터 재계산이 완료되었습니다.',
+                        })
+                    } else {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: '데이터 재계산 실패',
+                            text: '오류가 발생하였습니다.',
                         })
                     }
                 },

@@ -7,6 +7,7 @@ urlpatterns = [
     path("end/<int:phonegroup_id>", views.measuring_end_view, name='measuring_end'), # 측정종료
     path("end/cancel/<int:phonegroup_id>", views.measuring_end_cancel_view), # 측정종료 취소
     path("end/union/<int:phonegroup_id>", views.phonegroup_union_view), # 폰그룹 합치기
+    path("end/recalculate/<int:phonegroup_id>", views.phonegroup_recalculate_view), # 데이터 재계산
     path("close/", views.measuring_day_close_view, name="day_close"), # 측정마감
     path("day_close/<str:measdate>", views.measuring_day_close_view),  # 측정마감
     path("day_reclose/<str:measdate>", views.measuring_day_reclose_view),  # 측정 재마감
