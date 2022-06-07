@@ -1,3 +1,4 @@
+import math
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -136,7 +137,7 @@ def receive_json(request):
     if data['downloadBandwidth']: 
         if EtcConfig.objects.filter(category="보정값(DL)").exists():
             correction = EtcConfig.objects.get(category="보정값(DL)").value_float
-            data['downloadBandwidth'] -= correction
+            data['downloadBandwidth'] = round(data['downloadBandwidth'] - correction, 3)
             if data['downloadBandwidth'] < 0:
                 raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
                 db_logger.error("보정값 조정:", Exception)
@@ -145,7 +146,7 @@ def receive_json(request):
     elif data['uploadBandwidth']:
         if EtcConfig.objects.filter(category="보정값(UL)").exists():
             correction = EtcConfig.objects.get(category="보정값(UL)").value_float
-            data['uploadBandwidth'] -= correction
+            data['uploadBandwidth'] = round(data['uploadBandwidth'] - correction, 3)
             if data['uploadBandwidth'] < 0:
                 raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
                 db_logger.error("보정값 조정:", Exception)
