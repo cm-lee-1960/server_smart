@@ -61,6 +61,7 @@ def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
+        db_logger.error(x_forwarded_for)
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
@@ -82,6 +83,7 @@ def phonegroup_list(request, measdate):
        measdate = datetime.now().strftime("%Y%m%d")
     
     # db_logger.error(get_client_ip(request))
+    get_client_ip(request)
 
     try:
         # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
