@@ -644,9 +644,9 @@ def cal_nr_percent(phoneGroup):
      . 반환값: Dict {dl_nr_percent:DL전환율, ul_nr_percet:UL전환율} '''
     # DL/UL 5G->LTE전환율 : DL/UL 측정이 없을 경우 0으로 처리 (DL/UL 카운트가 0인 경우)
     if phoneGroup.dl_count == 0: dl_nr_percent = 0.0
-    else: dl_nr_percent = round((phoneGroup.dl_nr_count / phoneGroup.dl_count * 100), 1)
+    else: dl_nr_percent = round((phoneGroup.dl_nr_count / (phoneGroup.dl_count + phoneGroup.dl_nr_count) * 100), 1)
     if phoneGroup.ul_count == 0: ul_nr_percent = 0.0
-    else: ul_nr_percent = round((phoneGroup.ul_nr_count / phoneGroup.ul_count * 100), 1)
+    else: ul_nr_percent = round((phoneGroup.ul_nr_count / (phoneGroup.ul_count + phoneGroup.ul_nr_count) * 100), 1)
     return {'dl_nr_percent': dl_nr_percent, 'ul_nr_percent': ul_nr_percent}
 
 def cal_udpJitter(phoneGroup):
