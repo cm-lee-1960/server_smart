@@ -6,7 +6,7 @@ from datetime import datetime
 from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer
-from management.models import Center, Morphology, ChatMemberList, MorphologyDetail, PhoneInfo
+from management.models import Center, Morphology, ChatMemberList, MorphologyDetail, PhoneInfo, MessageConfig
 from message.tele_msg import TelegramBot, update_members, update_members_allchat, ban_member_as_compared_db, ban_member_not_allowed, ban_member_not_allowed_all
 from monitor.geo import make_map_locations
 
@@ -55,6 +55,18 @@ db_logger = logging.getLogger('db')
 ########################################################################################################################
 
 # ----------------------------------------------------------------------------------------------------------------------
+## IP 정책 함수
+# ----------------------------------------------------------------------------------------------------------------------
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 리스트 조회 API
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['GET'])
@@ -68,7 +80,9 @@ def phonegroup_list(request, measdate):
     else:
         # 측정일자를 널(Null)인 경우 현재 일자로 설정한다.
        measdate = datetime.now().strftime("%Y%m%d")
-       
+    
+    db_logger.error(get_client_ip(request))
+
     try:
         # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
         if request.user.is_superuser:
@@ -485,4 +499,22 @@ def make_map(request, phonegroup_id):
         result = {
             'result': 'fail',
         }
+    return JsonResponse(data=result, safe=False)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 측정 종료/시작 설정 API  (문자 자동 전송 전체 ON/OFF)
+# ----------------------------------------------------------------------------------------------------------------------
+@api_view(['POST'])
+def monitoring_condition(request):
+    data = request.data
+    if data['purpose'] == True:  # 현재 상태 체크 목적으로 POST 요청이 온 경우
+        result = {'result' : 'ok', 'status' : MessageConfig.objects.all().values_list('ALL', flat=True)[0]}
+    else:  # 측정 상태 변경을 위한 목적으로 POST 요청이 온 경우
+        if data['status'] == True:
+            MessageConfig.objects.all().update(ALL=False)         # 자동감시(자동메시지 전송) OFF 설정
+            result = {'result' : 'ok', 'status' : False}
+        else: 
+            MessageConfig.objects.all().update(ALL=True)
+            result = {'result' : 'ok', 'status' : True}          # 자동감시(자동메시지 전송) ON 설정
     return JsonResponse(data=result, safe=False)
