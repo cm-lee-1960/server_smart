@@ -16,10 +16,24 @@ from django.contrib.auth.hashers import check_password
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.18 - 로그인 에러 내용 출력
 # 2022.03.24 - 에러내용 칼라변경
+# 2022.06.07 - 사내망에서만 접속이 가능하도록 로그인 모듈 수정함
 ########################################################################################################################
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 def login(request):
     """메인페이지 로그인 화면 에러내용 추가"""
+    # 사내망에서만 접속이 가능하도록 함
+    # 사내 공인IP 대역: 147.6.X.X
+    if "147.6." not in get_client_ip(request) :
+        return render(request, 'accounts/login_boot.html', {'error': "스마트상황실은 사내에서만 접속 가능합니다.", 'user_Name': [0]})
+
     if request.method == 'POST':
         login_form = AuthenticationForm(request, request.POST)
     
