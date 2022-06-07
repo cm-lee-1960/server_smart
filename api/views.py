@@ -81,7 +81,7 @@ def phonegroup_list(request, measdate):
         # 측정일자를 널(Null)인 경우 현재 일자로 설정한다.
        measdate = datetime.now().strftime("%Y%m%d")
     
-    db_logger.error(get_client_ip(request))
+    # db_logger.error(get_client_ip(request))
 
     try:
         # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
