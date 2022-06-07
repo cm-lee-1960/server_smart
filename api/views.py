@@ -59,7 +59,7 @@ db_logger = logging.getLogger('db')
 # ----------------------------------------------------------------------------------------------------------------------
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    db_logger.error(request.META)
+    # db_logger.error(request.META)
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
     else:
@@ -82,7 +82,7 @@ def phonegroup_list(request, measdate):
         # 측정일자를 널(Null)인 경우 현재 일자로 설정한다.
        measdate = datetime.now().strftime("%Y%m%d")
     
-    # db_logger.error(get_client_ip(request))
+    db_logger.error(get_client_ip(request))
     # get_client_ip(request)
 
     try:
