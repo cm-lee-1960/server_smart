@@ -214,14 +214,16 @@ class PhoneGroup(models.Model):
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.
 # 2022.03.15 - 측정자 입력값(userInfo2)가 입력오류가 자주 발생하므로 모폴로지를 찾지 못하는 경우 "행정동"으로 초기화 함
 # ----------------------------------------------------------------------------------------------------------------------
-def get_morphology(userInfo2: str) -> Morphology:
+def get_morphology(networkId:str, userInfo2: str) -> Morphology:
     """ 측정자 입력값2로 모폴로지를 반환한다.
         - 모폴로지를 찾을 수 없는 경우 기본값으로 '행정동'을 반환한다.
         - 파리미터: 측정자 입력값2(문자열)
         - 반환값: 모폴러지(Morphology)
     """
     # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
-    morphology = Morphology.objects.filter(morphology='행정동')[0]  # 초기값 설정
+    # 초기치 설정
+    if networkId == 'WiFi' : morphology = Morphology.objects.filter(morphology='테마')[0]
+    else: morphology = Morphology.objects.filter(morphology='행정동')[0]  # 초기값 설정
     if userInfo2 and userInfo2 is not None:
         # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
         for mp in MorphologyMap.objects.all():
@@ -238,28 +240,32 @@ def get_morphology(userInfo2: str) -> Morphology:
 # ----------------------------------------------------------------------------------------------------------------------
 # 모폴로지 상세(대분류)를 자동 지정해준다. (WiFi일 경우 상용/개방/공공 구분)
 # ----------------------------------------------------------------------------------------------------------------------
-def get_morphologyDetail_wifi(userInfo2: str) -> MorphologyDetail:
+def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail:
     """ WiFi일 경우 userInfo2로 모폴로지 상세(대분류)를 반환한다.
         - 파리미터: userInfo2(str)
         - 반환값: 모폴러지상세(MorphologyDetail)
     """
     morphologyDetail = None  # 타사 측정일 경우 등을 위한 초기치 설정
+
+    # userInfo1 에 '호선' 단어가 들어가면 지하철 측정으로 판단
+    if '호선' in userInfo1: middle_class = '지하철'
+    else: middle_class = None
+
     # 측정자 입력값2(userInfo2)에 따라 모폴로지 상세(대분류)를 결정한다.
     if userInfo2 and userInfo2 is not None:
     # 모풀로지상세 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지 상세를 반환한다.
         userInfo2 = userInfo2.upper()
         for mp in MorphologyDetail.objects.exclude(words__isnull=True):
-            if mp.wordsCond == '시작단어':
+            if mp.wordsCond == 'AND':
                 words = tuple(map(str, mp.words.split(', ')))
-                if userInfo2.startswith(words):
-                    morphologyDetail = MorphologyDetail.objects.get(network_type='WiFi', main_class=mp.main_class)
+                if all(word in userInfo2 for word in words):
+                    morphologyDetail = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class, middle_class=middle_class)[0]
                     break
-            elif mp.wordsCond == '포함단어':
+            elif mp.wordsCond == 'OR' or None:
                 words = tuple(map(str, mp.words.split(', ')))
-                for word in words:
-                    if word in userInfo2:
-                        morphologyDetail = MorphologyDetail.objects.get(network_type='WiFi', main_class=mp.main_class)
-                        break
+                if any(word in userInfo2 for word in words):
+                    morphologyDetail = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class, middle_class=middle_class)[0]
+                    break
                 
     return morphologyDetail
 
@@ -535,7 +541,7 @@ class Phone(models.Model):
                 self.addressDetail = region_3depth_name  # 행정동(읍/동/면)
 
                 # 모폴로지와 관리대상 여부를 설정한다.
-                morphology = get_morphology(self.userInfo2) # 측정자 입력값2
+                morphology = get_morphology(self.networkId, self.userInfo2) # 측정자 입력값2
                 self.morphology = morphology # 모폴로지
                 self.manage = self.phoneGroup.manage # 관리대상 여부
 
