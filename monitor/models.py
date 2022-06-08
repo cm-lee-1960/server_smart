@@ -420,23 +420,19 @@ class Phone(models.Model):
         else:
             # DL 평균속도 계산
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
-                self.downloadBandwidth = round(
-                    ((self.downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1), 1)
+                self.downloadBandwidth = ((self.downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1)
                 self.meastype = 'DL'
                 self.dl_count += 1
                 # 단말그룹 - DL평균속도, DL콜카운트
-                phoneGroup.downloadBandwidth = round(
-                    ((phoneGroup.downloadBandwidth * phoneGroup.dl_count) + mdata.downloadBandwidth) / (phoneGroup.dl_count + 1), 1)
+                phoneGroup.downloadBandwidth = ((phoneGroup.downloadBandwidth * phoneGroup.dl_count) + mdata.downloadBandwidth) / (phoneGroup.dl_count + 1)
                 phoneGroup.dl_count += 1
             # UP 평균속도 계산
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
-                self.uploadBandwidth = round(
-                    ((self.uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1), 1)
+                self.uploadBandwidth = ((self.uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1)
                 self.meastype = 'UL'
                 self.ul_count += 1
                 # 단말그룹 - UL평균속도, UL콜카운트
-                phoneGroup.uploadBandwidth = round(
-                    ((phoneGroup.uploadBandwidth * phoneGroup.ul_count) + mdata.uploadBandwidth) / (phoneGroup.ul_count + 1), 1)
+                phoneGroup.uploadBandwidth = ((phoneGroup.uploadBandwidth * phoneGroup.ul_count) + mdata.uploadBandwidth) / (phoneGroup.ul_count + 1)
                 phoneGroup.ul_count += 1
 
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
