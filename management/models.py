@@ -310,15 +310,15 @@ class PhoneInfo(models.Model):
 
 class MorphologyDetail(models.Model):
     """ 모폴로지 상세정보 """
-    WORDSCOND_CHOICES = (('시작단어','시작단어'), ('포함단어','포함단어'))
+    WORDSCOND_CHOICES = (('OR','OR'), ('AND','AND'))
     
     network_type = models.CharField(max_length=100, null=True, blank=True, verbose_name="네트워크")
     main_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="대분류")
     middle_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="중분류")
     sub_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="소분류")
     words = models.CharField(max_length=200, null=True, blank=True,
-                             verbose_name="단어(대분류)") # 모폴로지 판단 컬럼2 : 특정 단어 포함
-    wordsCond = models.CharField(max_length=20, null=True, blank=True, choices=WORDSCOND_CHOICES, verbose_name='조건(대분류)')
+                             verbose_name="단어(userInfo2)") # 모폴로지 판단 컬럼2 : 특정 단어 포함
+    wordsCond = models.CharField(max_length=20, null=True, blank=True, choices=WORDSCOND_CHOICES, verbose_name='조건')
 
     class Meta:
         verbose_name = ("모폴로지 상세")
@@ -346,6 +346,7 @@ class MessageConfig(models.Model):
     MEASURING = models.BooleanField(default=True, verbose_name="주기보고") # 측정 주기보고 메시지
     END = models.BooleanField(default=True, verbose_name="측정종료") # 측정종료 메시지
     END_LAST = models.BooleanField(default=True, verbose_name="최종종료") # 마지막 단말 측정종료 메시지
+    ALL = models.BooleanField(default=True, verbose_name="자동감시") # False일 경우 모든 메시지가 True/False 값과 상관없이 미전송
     
     class Meta:
         verbose_name = ("메시지 자동전송 설정")
