@@ -48,7 +48,7 @@ from monitor.geo import make_map_locations
 # 2022.04.08 - 메시지 모델에 단말그룹 추가에 따른 업데이트 코드 추가
 # 2022.05.23 - 채널ID를 센터정보에서 가져온다.
 # 2022.05.25 - 당일 첫 측정시작인 경우(START_F), 모든 채팅그룹에 메시지를 전송한다.
-#
+# 2022.06.08 - DL/UL 속도가 모두 0(Zero)이거나 널(Null)인 경우 측정진행 메시지가 중복 발생하지 않도록 스킵(SKIP)한다.
 # ----------------------------------------------------------------------------------------------------------------------
 def current_count_check(mdata: MeasureCallData) -> bool:
     """ DL/UL 측정단말의 현재 콜카운트와 보고기준 콜카운트를 확인한다.
@@ -90,6 +90,11 @@ def current_count_check(mdata: MeasureCallData) -> bool:
         #            - 다운로드 속도나 업로드 속도가 0 이상일 때만 메시지 전송
         #              5G->LTE 전환시 다운로드/업로드 속도가 0인 경우가 있음
         #              예) 경상남도-사천시-남양동 2021.11.01 010-2921-3866 23
+
+        # DL/UL 속도가 모두 0(Zero)이거나 널(Null)인 경우 측정진행 메시지가 중복 발생하지 않도록 스킵(SKIP)한다.
+        if (mdata.downloadBandwidth == 0 or mdata.downloadBandwidth is None) and \
+                (mdata.uploadBandwidth == 0 or mdata.uploadBandwidth is None):
+            return False
         reportCycle = [int(x) for x in ReportCycle.objects.all()[0].reportCycle.split(',')]
         dl_count = phone.phoneGroup.dl_count + phone.phoneGroup.dl_nr_count
         ul_count = phone.phoneGroup.ul_count + phone.phoneGroup.ul_nr_count
