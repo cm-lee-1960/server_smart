@@ -300,7 +300,9 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
 #            - 행정동: 도로주행 측정, 테마: 놀이공원 등 걸어서 측정, 인빌딩: 건물내 걸어서 측정
 # 2022.02.27 - 기존 이동거리 5미터 이상, 연속해서 3회 초과 -> 이동거리 10미터 이상, 연속해서 5회 초과 발생으로 기준 변경
 # 2022.03.01 - 이동거리를 강제로 500미터 이상으로 해서 한곳에 머무는지 판단하는 소스코드 검증
-#            - 행정도 측정에서 기본 이동거리는 200~300미터 정도임
+#            - 행정동 측정에서 기본 이동거리는 200~300미터 정도임
+# 2022.06.08 - 행정동 여부를 측정단말에서 단말그룹의 모폴로지로 변경함
+#
 # ----------------------------------------------------------------------------------------------------------------------
 def call_staying_check(mdata: MeasureCallData) -> str:
     """ 측정단말이 한곳에 머무는지 확인
@@ -311,7 +313,8 @@ def call_staying_check(mdata: MeasureCallData) -> str:
           . mdata: 측정 데이터(콜단위)
         - 반환값: '측정단말 한곳에 머뭄' or None
     """
-    if mdata.phone.morphology.morphology is not "행정동": 
+    # if mdata.phone.morphology.morphology is not "행정동":
+    if mdata.phone.phoneGroup.morphology.morphology is not "행정동":
         return None
     
     message = None
