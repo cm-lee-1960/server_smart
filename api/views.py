@@ -370,6 +370,7 @@ def send_message(request):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 단말그룹 정보를 수정하는 API
+# 2022.06.08 - 단말그룹 모폴로지를 수정하는 경우 측정단말의 모폴로지도 함께 업데이트 한다.
 # ----------------------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
 def update_phonegroup_info(request):
@@ -388,6 +389,8 @@ def update_phonegroup_info(request):
             if 'measuringTeam' in data.keys() : phoneGroup.measuringTeam = data['measuringTeam']  # 측정조
             if 'morphologyName' in data.keys() :
                 phoneGroup.morphology = Morphology.objects.filter(morphology=data['morphologyName'])[0]  # 모폴로지
+                # 측정단말 모폴로지도 함께 변경한다.
+                phoneGroup.phone_set.update(morphology=phoneGroup.morphology)
                 phoneGroup.manage = Morphology.objects.filter(morphology=data['morphologyName']).values_list('manage', flat=True)[0]  # 모폴로지 값에 따른 Manage 값
             if 'morphologyDetailId' in data.keys() : phoneGroup.morphologyDetail = MorphologyDetail.objects.filter(id=data['morphologyDetailId'])[0]  # 모폴로지 상세
             phoneGroup.save()
@@ -414,7 +417,6 @@ def update_phonegroup_info(request):
         result = {'result' : 'fail'}
         raise Exception("update_morphology(): %s" % e)
     return HttpResponse(result)
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 텔레그램 채팅방 멤버 조회 API (04.29)
