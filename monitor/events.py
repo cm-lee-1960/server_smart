@@ -1,10 +1,10 @@
+import math
 from datetime import datetime, timedelta
 from django.conf import settings
 from haversine import haversine  # 이동거리
 from management.models import SendFailure, LowThroughput
 from .geo import KakaoLocalAPI, make_map_locations
 from .models import MeasureCallData, Phone, Message
-
 
 ########################################################################################################################
 # 이벤트 발생여부를 체크하는 모듈
@@ -230,7 +230,97 @@ def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
 # 2022.03.01 - 측정범위를 벗어난 경우 측정 위치 및 경로를 지도맵(Folium)에 표시한다.
 #            - 향후 작성된 지도맵을 이미지 형태로 텔레그램 메시지에 첨부하여 보내기 위함
 # 2022.03.03 - 위,경도에 따른 행정동 검색 오류 수정 (2.27 이슈해결)
+# 2022.06.08 - 행정구역 경계면 측정시 '측정범위 벗어남' 이벤트 다수 발생으로 측정지점으로부터 상하좌우 100m 오프셋 지역의
+#              행정구역을 확인하는 모듈을 추가함
 # ----------------------------------------------------------------------------------------------------------------------
+# def out_measuring_range(mdata: MeasureCallData) -> str:
+#     """ 단말이 측정범위를 벗어났는지 확인
+#         - 측정하는 행정동을 벗어나서 측정이 되는 경우
+#         - 파라미터
+#           . mdata: 측정 데이터(콜단위)
+#         - 반환값: '측정범위 벗어남' or None
+#     """
+#     message = None
+#     # 측정유형이 행정동인 경우에만 단말이 측정범위를 벗어났는지 확인한다.
+#     if mdata.phone.morphology.morphology != '행정동': return None
+#     if not (mdata.longitude and mdata.latitude): return None
+#
+#     # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
+#     rest_api_key = settings.KAKAO_REST_API_KEY
+#     kakao = KakaoLocalAPI(rest_api_key)
+#     input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+#     output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+#
+#     result = kakao.geo_coord2regioncode(mdata.longitude, mdata.latitude, input_coord, output_coord)
+#     # [ 리턴값 형식 ]
+#     # print("out_measuring_range():", result)
+#     # {'meta': {'total_count': 2},
+#     # 'documents': [{'region_type': 'B',
+#     # 'code': '4824012400',
+#     # 'address_name': '경상남도 사천시 노룡동',
+#     # 'region_1depth_name': '경상남도',
+#     # 'region_2depth_name': '사천시',
+#     # 'region_3depth_name': '노룡동', <-- 주소지 동
+#     # 'region_4depth_name': '',
+#     # 'x': 296184.5342265043,
+#     # 'y': 165683.29710986698},
+#     # {'region_type': 'H',
+#     # 'code': '4824059500',
+#     # 'address_name': '경상남도 사천시 남양동',
+#     # 'region_1depth_name': '경상남도',
+#     # 'region_2depth_name': '사천시',
+#     # 'region_3depth_name': '남양동', <-- 행정구역
+#     # 'region_4depth_name': '',
+#     # 'x': 297008.1130364056,
+#     # 'y': 164008.47612447804}]}
+#     # 좌표(위도,경도)로 찾은 주소와 어떤 것을 비교할지? 고민필요
+#     # userInfo1가 위도,경도 좌표로 변환한 행정동을 포함하고 있는지 확인
+#     # 2022.02.28 - 단말기가 처음 측정을 시작할 때(현재 콜카운트가=1) 위치(위도,경도)가 정확하다고 가정하고 그때이 상세주소 값을
+#     #              측정 단말기 정보에 가져간다.
+#     #            - 측정 단말기의 상세주소와 해당 측정 데이터의 위도,경도를 통해 찾은 행정도 명칭과 비교한다.
+#     try:
+#         region_3depth_name = result['documents'][1]['region_3depth_name']
+#         if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
+#             # # 메시지를 작성한다.
+#             # message = f"{mdata.address}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
+#             #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
+#             #         f"{mdata.phone_no_sht} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.time} / {mdata.currentCount} / " + \
+#             #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
+#             message = f'측정범위 벗어남({region_3depth_name})'
+#
+#     except Exception as e:
+#         print("out_measuring_range():", str(e))
+#         raise Exception("out_measuring_range(): %s" % e)
+#
+#     return message
+def pos_offset_check(lat, lon, dn, de):
+    # Earth’s radius, sphere
+    R = 6378137
+
+    #     # offsets in meters
+    #     dn = 100
+    #     de = 100
+
+    # Coordinate offsets in radians
+    dLat = dn / R
+    dLon = de / (R * math.cos(math.pi * lat / 180))
+
+    # OffsetPosition, decimal degrees
+    new_lat = lat + dLat * 180 / math.pi
+    new_lon = lon + dLon * 180 / math.pi
+
+    rest_api_key = settings.KAKAO_REST_API_KEY
+    kakao = KakaoLocalAPI(rest_api_key)
+    input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+    output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+
+    result = kakao.geo_coord2regioncode(new_lon, new_lat, input_coord, output_coord)
+    region_3depth_name = result['documents'][1]['region_3depth_name']
+    #     print(result)
+    #     print(new_lat, new_lon, region_3depth_name)
+
+    return region_3depth_name
+
 def out_measuring_range(mdata: MeasureCallData) -> str:
     """ 단말이 측정범위를 벗어났는지 확인
         - 측정하는 행정동을 벗어나서 측정이 되는 경우
@@ -243,13 +333,13 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
     if mdata.phone.morphology.morphology != '행정동': return None
     if not (mdata.longitude and mdata.latitude): return None
 
-    # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
-    rest_api_key = settings.KAKAO_REST_API_KEY
-    kakao = KakaoLocalAPI(rest_api_key)
-    input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
-    output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+    # # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
+    # rest_api_key = settings.KAKAO_REST_API_KEY
+    # kakao = KakaoLocalAPI(rest_api_key)
+    # input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+    # output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
-    result = kakao.geo_coord2regioncode(mdata.longitude, mdata.latitude, input_coord, output_coord)
+    # result = kakao.geo_coord2regioncode(mdata.longitude, mdata.latitude, input_coord, output_coord)
     # [ 리턴값 형식 ]
     # print("out_measuring_range():", result)
     # {'meta': {'total_count': 2},
@@ -277,14 +367,18 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
     #              측정 단말기 정보에 가져간다.
     #            - 측정 단말기의 상세주소와 해당 측정 데이터의 위도,경도를 통해 찾은 행정도 명칭과 비교한다.
     try:
-        region_3depth_name = result['documents'][1]['region_3depth_name']
-        if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
+        # region_3depth_name = result['documents'][1]['region_3depth_name']
+        offsets = [(0, 0), (100, 100), (-100, 100), (100, -100), (-100, -100)]
+        regions = set()
+        for dn, de in offsets:
+            regions.add(pos_offset_check(mdata.latitude, mdata.longitude, dn, de))
+        if mdata.phone.addressDetail not in regions:
             # # 메시지를 작성한다.
             # message = f"{mdata.address}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
             #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
             #         f"{mdata.phone_no_sht} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.time} / {mdata.currentCount} / " + \
             #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
-            message = f'측정범위 벗어남({region_3depth_name})'
+            message = f'측정범위 벗어남({regions.pop()})'
 
     except Exception as e:
         print("out_measuring_range():", str(e))
