@@ -195,13 +195,20 @@
                 </div>
             </div>
             {%  if request.user.is_superuser %}
-            <div class="col-2" align="right">
-                <button type="button" class="btn btn-secondary btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringEnd()" title="선택한 단말그룹을 측정종료 처리하며 해당 지역의 종료 메시지를 생성합니다.">
+            <div id="rw" align="right" class="col-2">
+            <div align="right" style ="padding: 0px; margin: 0px;">
+                <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
+                    <i id="monitoringSet" class="fa fa-play" style="color:rgb(255, 42, 0);font-size:22px;" v-show="monitoringCondition==false" v-on:click="set_monitoringConfig(false)"><font color=red> 미감시</font></i>
+                    <i id="monitoringSet" class="fa fa-pause" style="color:rgb(255, 42, 0);font-size:22px;" v-show="monitoringCondition==true" v-on:click="set_monitoringConfig(false)"><font color=red> 감시 중</font></i>
+                </button>
+            </div>
+            <div align="right">
+                <button type="button" style="margin-top:0px;margin-bottom:13px" class="btn btn-secondary btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringEnd()" title="선택한 단말그룹을 측정종료 처리하며 해당 지역의 종료 메시지를 생성합니다.">
                     <h5>측정종료</h5>
                 </button>
-                <button type="button" class="btn btn-danger btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringClose()" title="전체 단말그룹을 측정종료 처리하고 최종보고 메시지를 생성합니다.">
+                <button type="button" style="margin-top:0px;margin-bottom:13px" class="btn btn-danger btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringClose()" title="전체 단말그룹을 측정종료 처리하고 최종보고 메시지를 생성합니다.">
                     <h5>일일마감</h5></button>
-            </div>
+            </div></div>
             {% endif %}
         </div>
 
@@ -517,6 +524,11 @@
                                 aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(adminCenter)" ref="channelList_tab_xro">채팅방 멤버(총괄)</a>
                             </li>
                             {% endif %}
+                            <!-- <li class="nav-item">
+                                <a class= "nav-link" id="new-message-send-tab" data-toggle="tab"
+                                role="tab" v-show="TelegramClick==true"
+                                aria-controls="msgdtl-message" aria-selected="true" v-on:click="change_check">새 메시지</a>
+                            </li> -->
                         </ul>
                         <div style="display:flex; align-items: center;">
                             <strong><span>[[selectedPhoneGroup.centerName]]</span></strong>
@@ -531,6 +543,7 @@
                                     <i id="message-trash" class="fa fa-telegram" style="color:rgb(21, 21, 181);font-size:24px;"></i>
                                     <span class="caret"></span></button>
                                 <div dropdown-toggle id="telemenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton" onclick="event.cancelBubble=true">
+                                    <a class="dropdown-item" onclick="PopupDiv('msgdtl-chatmember')" title="채팅방 현황 새창으로 보기">새 창으로 보기</a>
                                     <a class="dropdown-item" @click="fetch_chatmembers(selectedPhoneGroup.centerName)" title="채팅방 멤버 새로고침">채팅방 멤버 새로고침</a>
                                     {% if request.user.is_superuser %}
                                     <a class="dropdown-item" @click="clickBanChatCenterMembers" title="센터 내 미허용된 인원 전체 추방">미허용 인원 전체 추방</a>
@@ -779,6 +792,9 @@
                     isActiveMessage : true,
                     ///////////////////////////
                     bottomRightClickCheck : true,
+
+                    monitoringCondition: null,  // 측정 상태 (자동메시지 전송 중/전송 안하는 중)
+
                     date: "2021-11-01", // 측정일자
                     measuringTeam_count: 0, // 측정조 건수
                     total_count: 0, // 총 측정건수
@@ -883,6 +899,8 @@
                 const day = ("0" + date.getDate()).slice(-2);
                 this.date = year + "-" + month + "-" + day;
 
+                this.set_monitoringConfig(true); // 자동감시 상태 체크
+
                 // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
                 this.fetch_all_phoneGroup();
                 this.timer = setInterval(this.fetch_all_phoneGroup, 20000);
@@ -896,6 +914,34 @@
                 // 어떤 속성이 있는지 확인 중,...
             },
             methods: {
+                /* -----------------------------------------------------------------------------------------------------
+                 * 페이지 진입 시 자동감시 상태 확인
+                 -----------------------------------------------------------------------------------------------------*/
+                 async set_monitoringConfig(check) {
+                    const requestOptions = {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": '{{csrf_token}}',
+                            "Content-Type": "application/json",
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            'purpose': check,
+                            'status': this.monitoringCondition,
+                        })
+                    };
+                    const response = await fetch("api/monitor/monitoringCondition/", requestOptions);
+                    const data = await response.json();
+
+                    if (data['result'] === 'ok') {
+                        if (data['status'] === true) {
+                            this.monitoringCondition = true
+                        } else if (data['status'] === false) {
+                            this.monitoringCondition = false
+                        }
+                    }
+                },
+
                 /* -----------------------------------------------------------------------------------------------------
                  * 측정일자에 해당하는 측정단말 리스트를 가져온다.
                  -----------------------------------------------------------------------------------------------------*/
@@ -2051,6 +2097,29 @@
                 }
             }
         }
+
+        /* -------------------------------------------------------------------------------------------------------------
+         * 특정 DIV 영역을 새 창으로 띄우는 함수
+         * 출처: https://rickoh.tistory.com/63
+         * -----------------------------------------------------------------------------------------------------------*/
+        function PopupDiv(param) {
+            // var val = document.getElementById(param).outerHTML;
+            // var explain = document.getElementById("explain");
+            // var w = window.open("","","");
+            // w.document.write(val);
+            // w.document.close();
+            var newWindowContent = document.getElementById(param).outerHTML;
+            var newWindow = window.open("", "", "width=800,height=600");
+            newWindow.document.write(
+                '<link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">' +
+                '<link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">' +
+                '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">' +
+                '<link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">' +
+                "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>" +
+                newWindowContent
+            );
+        };
+
     </script>
 
 {% endblock %}

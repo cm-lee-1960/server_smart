@@ -311,6 +311,8 @@ def check_message_send(message):
         .반환값 : Boolean(True or False)"""
     if message.sendType == "XMCS":
         return False
+    elif MessageConfig.objects.all().values_list('ALL', flat=True)[0] == False:
+        return False
     elif message.messageType == 'EVENT':
         eventTypes = event_type_check(message)
         eventStatus = MessageConfig.objects.all().values()
