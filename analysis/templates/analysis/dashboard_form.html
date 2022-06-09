@@ -525,6 +525,13 @@
                             <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
                             <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage"
                                     v-if="message.sendType !== 'ALL' && message.sendType !== 'XMCS'">회수</button>
+                            <p class="float-right" v-show="TelegramClick==false"
+                            style="margin-bottom:0px; border-radius: 4px; border: 2px solid rgb(174, 181, 181); padding: 5px; height:38px; display:inline-block;">발송:
+                                <select style="width: 90px; border:none; outline:none;" v-model="senderCenter">
+                                    <!-- <option selected="selected">[[selectedPhoneGroup.centerName]]</option> -->
+                                    <option v-for="center in centerListAll" v-bind:value="center" stye="background: lightcoral; overflow: hidden;">[[ center ]]</option>
+                                </select>
+                            </p>
                                 <!--
 {#                            {% else %}#}
                             <button type="button" class="btn btn-primary" v-on:click="clickSendMessage"
@@ -731,6 +738,9 @@
                     selectedChatMembers: [],   //////텔레그램 강퇴 기능을 위한 멤버 리스트
                     adminCenter: "운용본부",   //////총괄 채팅방 멤버 리스트 확인을 위한 초기값
 
+                    /////// 문자메시지 발송 시, 보내는 센터 변경 시 해당 센터 값
+                    senderCenter : null,
+
                     ///////종요 알랏을위한 종료체크변수
                     phoneGroupActiveCheck : 0,
                     phoneGroupActiveCheckSave : 0,
@@ -799,6 +809,7 @@
                 this.date = year + "-" + month + "-" + day;
 
                 this.set_monitoringConfig(true); // 자동감시 상태 체크
+                this.fetch_all_centerANDmorphology()
 
                 // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
                 this.fetch_all_phoneGroup();
@@ -929,6 +940,7 @@
                  -----------------------------------------------------------------------------------------------------*/
                 clickPhoneGroupList: function (phoneGroup, event) {
                     this.selectedPhoneGroup = phoneGroup;
+                    this.senderCenter = phoneGroup.centerName;
                     this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};
 
@@ -1391,6 +1403,7 @@
                             'id': this.message.id,
                             'sendType': this.message.sendType,
                             'channelId': this.message.channelId,
+                            'senderCenter': this.senderCenter,
                         })
                     };
                     const response = await fetch("api/message/send/", requestOptions);

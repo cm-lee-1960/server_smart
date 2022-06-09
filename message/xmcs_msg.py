@@ -52,7 +52,7 @@ def send_sms(message, sender, receiver):
 
 
 # Queryset 1개를(Message.objects.get) Input으로 받아 Xroshot 전송하는 함수
-def send_sms_queryset(queryset, receiver):
+def send_sms_queryset(queryset, receiver, senderCenter):
   ''' queryset 하나를 input으로 받아 크로샷 전송 함수
   .파라미터:
    - queryset: 메시지 쿼리셋(Message.objects.get)
@@ -60,7 +60,9 @@ def send_sms_queryset(queryset, receiver):
    .반환값: Dict {status_code : 200, Body : 전송결과} '''
   try:
     msg = queryset.message  # 메시지내용
-    if queryset.center_id:
+    if senderCenter in Center.objects.all().values_list('centerName', flat=True):
+      sender = Center.objects.filter(centerName=senderCenter)[0].senderNum
+    elif queryset.center_id:
       sender = queryset.center.senderNum  # 발신번호
     else:
       qs = Center.objects.filter(centerName='운용본부')

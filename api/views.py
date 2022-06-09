@@ -333,6 +333,7 @@ def send_message(request):
             channelId = data['channelId'] # 채널ID
             message_id = data['id'] # 메시지ID
             message = Message.objects.get(id=message_id)
+            senderCenter = data['senderCenter']
 
             # DB에서 가저온 메시지 객체의 메시지 내용을 브라우저에서 보내온 변경된 메시지 내용으로 변경한다.
             message.message = message_text
@@ -342,7 +343,7 @@ def send_message(request):
             if sendType == 'XMCS' or sendType == 'ALL':
                 from message.xmcs_msg import send_sms_queryset
                 receiver_list = receiver_list.replace(' ','').replace('\n','').split(',')
-                result_sms = send_sms_queryset(message, receiver_list)
+                result_sms = send_sms_queryset(message, receiver_list, senderCenter)
                 result = {'result': result_sms}
 
             # 2) 텔레그램 메시지를 재전송 한다.
