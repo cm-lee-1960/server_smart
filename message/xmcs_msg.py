@@ -18,7 +18,9 @@ from management.models import Center
 #                                                                         ┖───────────────────────────────────────────┛
 # ----------------------------------------------------------------------------------------------------------------------
 ########################################################################################################################
-
+# 디버깅을 위한 로그를 선언한다.
+import logging
+db_logger = logging.getLogger('db')
 
 def run_xmcs_server():   # 크로샷 서버 실행
   execute_send_sms_nodejs = os.popen('node ./message/xroshot_server.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast.js
