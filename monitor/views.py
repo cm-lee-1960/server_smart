@@ -123,7 +123,9 @@ def receive_json(request):
     if request.method != 'POST':
         return HttpResponse("Error")
     
-    db_logger.error("제이슨전송시간:", str(datetime.now()))
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    db_logger.error("제이슨전송시간:", current_time)
     
     data = JSONParser().parse(request)
 
