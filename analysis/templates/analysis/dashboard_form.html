@@ -1,47 +1,3 @@
-<!--
-########################################################################################################################
-[ base.html 블럭구조 ]
- * 처음부터 코드를 예쁘게 잘 작성하는 습관을 들이지 않으면 나 뿐만이 아니라 유지보수를 하는 주변 사람들까지 힘들게 한다 -패스트캠퍼스-
- * 내가 작성한 코드도 조금 시간이 지나면 이해하기 힘든 코드가 될 수 있다.
- *
- * 무작정 타이핑만 치는 것만이 개발이 아닙니다.
- * 탄탄한 이해와 설계 아래 탄탄한 애플리케이션이 갖춰집니다 -인프런 장고 강좌-
- * 프레임워크를 쓴다는 것은 그 프레임워크가 제시하는 길을 명확히 이해하고, 존중하는 것에서 시작합니다.
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="utf-8">
-    ....
-    ┌ ---------------------------┐
-    | block title                |
-    └--------------------------- ┘
-    <link rel="stylesheet" href="....">
-    ....
-    ┌ ---------------------------┐
-    | block extra-style          |
-    └--------------------------- ┘
-</head>
-<body style="..">
-    <nav class="navbar navbar-expand-sm navbar-dark bg-primary fixed-top">
-    ....
-    </nav>
-    <div class="container">
-    ┌ ---------------------------┐
-    | block content              |
-    └--------------------------- ┘
-    </div>
-    ┌ ---------------------------┐
-    | block footer               |
-    └--------------------------- ┘
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    ....
-    ┌ ---------------------------┐
-    | block extra-script         |
-    └--------------------------- ┘
-</body>
-</html>
-########################################################################################################################
--->
 {% extends "analysis/base.html" %}
 {% load static %}
 
@@ -283,7 +239,7 @@
                             <td style="width: 5%;" >[[phoneGroup.networkId]]</td>
                             <td style="width: 6%;" >[[phoneGroup.starttime]]</td>
                             <td style="width: 7%;" >[[phoneGroup.dl_count]] / [[phoneGroup.ul_count]]</td>
-                            <td style="width: 7%;" >[[phoneGroup.downloadBandwidth]] / [[phoneGroup.uploadBandwidth]]</td>
+                            <td style="width: 7%;" >[[formatNumber(phoneGroup.downloadBandwidth)]] / [[formatNumber(phoneGroup.uploadBandwidth)]]</td>
                             <td style="width: 8%;" >[[phoneGroup.nr_percent]]([[phoneGroup.dl_nr_count_z]]/[[phoneGroup.ul_nr_count_z]])</td>
                             <td style="width: 8%;" >[[phoneGroup.event_count]]([[phoneGroup.send_failure_dl_count_z]]/[[phoneGroup.send_failure_ul_count_z]])
                                 <img class="alarmNomal" style="margin-left:5px; margin-bottom:5px;" src= {% static "images/event.png" %} alt="event alarm" width="25" height="25">
@@ -727,63 +683,6 @@
     <script src="https://unpkg.com/vue@2.4.2"></script>
 
     <script>
-        /* =============================================================================================================
-         * 측정현황을 주기적으로 갱신하기 위한 모듈(Vue.js)
-         *
-         * 홈(데시보드) - dashboard_form.html
-         * ┌-----------------------------------------┐
-         * | [ 1.HTML Conntents ]                    |              *date: 측정일자
-         * | ┌------------┐ ┌------------┐           |              *measuringTeam_count: 측정조 건수
-         * | |오늘의 측정 | |센터별 현황 |.... <-----╂------------┐ *total_count: 총 측정건수
-         * | |            | |            |           |            | *centerList: 센터별 측정현황
-         * | └------------┘ └------------┘           |            |
-         * | ┌-------------------------------------┐ |            |
-         * | | 단말그룹 현황                       |<╂------------┨ *phoneGroupList: 단말그룹 리스트
-         * | |                                     | |            |
-         * | └-------------------------------------┘ |            |
-         * | ┌-----------------┐ ┌-----------------┐ |            |
-         * | |이벤트/문자/텔레 | |메시지 상세내용  |<╂------------┨ *messageEventList: 이벤트 리스트
-         * | |                 | |                 | |            | *messageSmsList: 문자 리스트
-         * | └-----------------┘ └-----------------┘ |            | *messageTeleList: 텔레그램 리스트
-         * | --------------------------------------- |            | *message: 메시지 상세내역
-         * | [ 2.Vue.js Code ]                       |            |
-         * | ┌------------------------------┐        |            |
-         * | | data:                        |        |            |
-         * | | * date                       |        |            |
-         * | | * measuringTeam_count        |        |            |
-         * | | * total_count                |        |            |
-         * | | * centerList                 |        |            |
-         * | | * phoneGroupList             |--------╂------------┘
-         * | | * messageEventList           |        |
-         * | | * messageSmsList             |<-------╂------------┐ *data change & update
-         * | | * messageTeleList            |        |            |
-         * | | * message                    |        |            |
-         * | | * timer                      |        |            |
-         * | | * allChecked                 |        |            |
-         * | | * isModelConfirmDisabled     |        |            |
-         * | | * recipient_text             |        |            |
-         * | | * selectedPhoneGroup         |        |            |
-         * | |                              |        |            |
-         * | └------------------------------┘        |            |
-         * | - created: 화면조회시 한번 수행         |            |
-         * | - method:                               |            |
-         * |   * fetch_all_phoneGroup()              |            |
-         * |   * fetch_all_message()                 |            |
-         * |   * measuring_end()        -------------╂------------┘
-         * |   * measuring_day_close()               |
-         * |   * sendMessage()                       |
-         * |   * deleteMessage()                     |
-         * |   * clickXXXXXXX()                      |
-         * |   .....                                 |
-         * └-----------------------------------------┘
-         * -------------------------------------------------------------------------------------------------------------
-         * 2022.04.05 - 선택된 단말그룹 내역 건수를 계산하는 함수를 computed 속성으로 변환함
-         * 2022.04.09 - 텔레그램 및 문자 메시지 전송 기능 구현
-         *            - 문자 메시지 조회시 측정단말 및 단말그룹이 없는 경우 해당 측정일자에 생성된 건이 조회 추가
-         *              (전송유형: ALL)
-         * 2022.04.12 - 화면처리 흐름도 및 주석 추가
-         * 2022.04.18 -
-         =============================================================================================================*/
         const vm = new Vue({
             delimiters: ['[[', ']]'], // 장고 탬플릿 테그와 구별하기 위해 사용
             el: '#app',
@@ -1866,6 +1765,10 @@
                         this.$refs.myFile.value = null;
                     }
                 },
+                formatNumber(num) {
+                    return parseFloat(num).toFixed(1)
+                },
+
             },
 
             beforeDestroy() {
