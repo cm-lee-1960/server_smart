@@ -1,3 +1,4 @@
+from datetime import datetime
 import math
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -121,7 +122,9 @@ def receive_json(request):
     # ------------------------------------------------------------------------------------------------------------------
     if request.method != 'POST':
         return HttpResponse("Error")
-
+    
+    db_logger.error("제이슨전송시간:", datetime.now())
+    
     data = JSONParser().parse(request)
 
     ## 데이터 중복체크  // 체크 기준 열 : ['meastime', 'phone_no', 'userInfo1', 'userInfo2', 'currentCount']
