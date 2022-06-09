@@ -450,10 +450,10 @@ def measuring_day_close(phoneGroup_list, measdate):
                 if phoneGroup.networkId == '5G':
                     message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
                                     f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
-                # LTE일 경우 CA비율 추가
-                elif phoneGroup.networkId == 'LTE':
-                    message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
-                                    f"  .\"{md.ca4_rate}/{md.ca3_rate}/{md.ca2_rate}/{md.ca1_rate}\""
+                # LTE일 경우 CA비율 추가   ---> 6.9 품질팀 요구로 제거
+                # elif phoneGroup.networkId == 'LTE':
+                #     message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
+                #                     f"  .\"{md.ca4_rate}/{md.ca3_rate}/{md.ca2_rate}/{md.ca1_rate}\""
                 # 생성한 메시지를 저장한다 : 기존 메시지 있는 경우 Update, 없는 경우 신규 생성
                 message_exists = Message.objects.filter(measdate=measdate, phoneGroup=phoneGroup, status='REPORT', userInfo1=md.userInfo1)
                 if message_exists.exists():
