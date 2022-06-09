@@ -62,6 +62,7 @@ def send_sms_queryset(queryset, receiver, senderCenter):
     msg = queryset.message  # 메시지내용
     db_logger.error(senderCenter)
     if senderCenter in Center.objects.all().values_list('centerName', flat=True):
+      db_logger.error(Center.objects.all().values_list('centerName', flat=True))
       sender = Center.objects.filter(centerName=senderCenter)[0].senderNum
     elif queryset.center_id:
       sender = queryset.center.senderNum  # 발신번호
