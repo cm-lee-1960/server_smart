@@ -123,10 +123,6 @@ def receive_json(request):
     if request.method != 'POST':
         return HttpResponse("Error")
     
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    db_logger.error("제이슨전송시간:", current_time)
-    
     data = JSONParser().parse(request)
 
     ## 데이터 중복체크  // 체크 기준 열 : ['meastime', 'phone_no', 'userInfo1', 'userInfo2', 'currentCount']
