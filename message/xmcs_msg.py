@@ -18,9 +18,7 @@ from management.models import Center
 #                                                                         ┖───────────────────────────────────────────┛
 # ----------------------------------------------------------------------------------------------------------------------
 ########################################################################################################################
-# 디버깅을 위한 로그를 선언한다.
-import logging
-db_logger = logging.getLogger('db')
+
 
 def run_xmcs_server():   # 크로샷 서버 실행
   execute_send_sms_nodejs = os.popen('node ./message/xroshot_server.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast.js
@@ -62,9 +60,7 @@ def send_sms_queryset(queryset, receiver, senderCenter):
    .반환값: Dict {status_code : 200, Body : 전송결과} '''
   try:
     msg = queryset.message  # 메시지내용
-    db_logger.error(senderCenter)
     if senderCenter in Center.objects.all().values_list('centerName', flat=True):
-      db_logger.error(Center.objects.all().values_list('centerName', flat=True))
       sender = Center.objects.filter(centerName=senderCenter)[0].senderNum
     elif queryset.center_id:
       sender = queryset.center.senderNum  # 발신번호
