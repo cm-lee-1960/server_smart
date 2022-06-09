@@ -60,6 +60,7 @@ def send_sms_queryset(queryset, receiver, senderCenter):
    .반환값: Dict {status_code : 200, Body : 전송결과} '''
   try:
     msg = queryset.message  # 메시지내용
+    db_logger.error(senderCenter)
     if senderCenter in Center.objects.all().values_list('centerName', flat=True):
       sender = Center.objects.filter(centerName=senderCenter)[0].senderNum
     elif queryset.center_id:
