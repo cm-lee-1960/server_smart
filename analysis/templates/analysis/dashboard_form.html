@@ -480,11 +480,6 @@
                                 aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(adminCenter)" ref="channelList_tab_xro">채팅방 멤버(총괄)</a>
                             </li>
                             {% endif %}
-                            <!-- <li class="nav-item">
-                                <a class= "nav-link" id="new-message-send-tab" data-toggle="tab"
-                                role="tab" v-show="TelegramClick==true"
-                                aria-controls="msgdtl-message" aria-selected="true" v-on:click="change_check">새 메시지</a>
-                            </li> -->
                         </ul>
                         <div style="display:flex; align-items: center;">
                             <strong><span>[[selectedPhoneGroup.centerName]]</span></strong>
@@ -529,7 +524,7 @@
                             style="margin-bottom:0px; border-radius: 4px; border: 2px solid rgb(174, 181, 181); padding: 5px; height:38px; display:inline-block;">발송:
                                 <select style="width: 90px; border:none; outline:none;" v-model="senderCenter">
                                     <!-- <option selected="selected">[[selectedPhoneGroup.centerName]]</option> -->
-                                    <option v-for="center in centerListAll" v-bind:value="center" stye="background: lightcoral; overflow: hidden;">[[ center ]]</option>
+                                    <option v-for="center in centerListAll" v-bind:value="center" style="overflow: hidden;">[[ center ]]</option>
                                 </select>
                             </p>
                                 <!--
