@@ -1,6 +1,7 @@
 from django.http import JsonResponse, HttpResponse
 from django.db import connection
 from django.db.models import Q
+from django.shortcuts import render
 from datetime import datetime
 
 from rest_framework.decorators import api_view
@@ -523,3 +524,34 @@ def monitoring_condition(request):
             MessageConfig.objects.all().update(ALL=True)
             result = {'result' : 'ok', 'status' : True}          # 자동감시(자동메시지 전송) ON 설정
     return JsonResponse(data=result, safe=False)
+
+
+
+# -------------------------------------------------------------------------------------------------
+# 새 메시지 전송 함수
+# -------------------------------------------------------------------------------------------------
+def new_msg_render(request):   ## 새메시지 전송 HTML
+    centerNames = Center.objects.all().values_list('centerName', flat=True)
+    return render(request, 'analysis/sendNewmessage.html', {'Centers':centerNames})
+
+@api_view(['POST'])   ## 새메시지 전송 HTML에서 POST 요청을 받아 메시지를 전송하는 함수
+def send_new_msg(request):
+    data = request.data
+    if 'sendType' in data.keys():
+        sendType = data['sendType']
+        message = data['message']
+        if sendType == 'XMCS':
+            receiver = data['receiver']
+            senderCenter = data['senderCenter']
+
+            from message.xmcs_msg import send_sms
+            receiver_list = receiver.replace(' ','').replace('\n','').split(',')
+            senderNum = Center.objects.filter(centerName=senderCenter)[0].senderNum
+            result_sms = send_sms(message, senderNum, receiver_list)
+
+        elif sendType == 'TELE':
+            teleCenter = data['teleCenter']
+            channelId = Center.objects.filter(centerName=teleCenter)[0].channelId
+
+            bot = TelegramBot()
+            result = bot.send_message_bot(channelId, message)

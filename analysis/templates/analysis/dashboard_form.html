@@ -494,6 +494,13 @@
                         </ul>
                         <div style="display:flex; align-items: center;">
                             <strong><span>[[selectedPhoneGroup.centerName]]</span></strong>
+                            {% if request.user.is_superuser %}
+                            <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
+                                <i id="message-new"
+                                class="fa fa-clone"
+                                style="font-size:24px;"
+                                onclick="window.open('api/message/new/', 'NewMessage', 'width=550, height=400, location=no, status=no, scrollbars=yes');"></i></button>
+                            {% endif %}
                             <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;" v-show="TelegramClick==false">
                                 <i id="message-trash"
                                 class="fa fa-trash-o mt-2"

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+
+  <title>새 메시지 전송</title>
+  <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+  <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/sticky-footer-navbar.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
+  <link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+  <script language="JavaScript">
+    function radio_btn_val() {  // 라디오 버튼 값(텔레그램/문자) 읽어오는 함수
+      const radio_btn = document.getElementsByName('sendType');
+      for(var i=0; i<radio_btn.length; i++){
+        if(radio_btn[i].checked) {
+          sendTypeVal = radio_btn[i].value;
+          return sendTypeVal;
+        }
+      }
+    }
+
+    function toggleP() {  // <p> 블록을 활성화/비활성화 함수 (메시지 유형에 따라 보여주는 영역을 달리하기 위함)
+      const p_XMCS = document.getElementById('msg_rcv');
+      const s_sendCenter = document.getElementById('sendCenter');
+      const s_teleCenter = document.getElementById('teleCenter');
+      const btn_send = document.getElementById('SEND');
+      const msgtype = radio_btn_val()
+
+      if(msgtype === 'XMCS') {
+        p_XMCS.style.display = 'block';
+        s_sendCenter.style.display = 'inline';
+        s_teleCenter.style.display = 'none';
+        btn_send.style.display = 'inline';
+
+      } else if(msgtype ==='TELE') {
+        p_XMCS.style.display = 'none';
+        s_sendCenter.style.display = 'none';
+        s_teleCenter.style.display = 'inline';
+        btn_send.style.display = 'inline';
+      }
+    } 
+
+    function selectedFile() {
+      let file = document.getElementById("formFileSm").files[0]
+      if (!file || file.type !== 'text/plain') return;
+      
+      let reader = new FileReader();
+
+      reader.readAsText(file, "UTF-8");
+      reader.onload = evt => {
+          var receivers = document.getElementById('receiver');
+          receivers.value = evt.target.result;
+      }
+      reader.onerror = evt => {
+          console.error(evt);
+      }
+    }
+
+    function submit_close(form) {
+      t = sendnewmsg.submit();
+      alert('메시지를 송신하였습니다.');
+      setTimeout(function() {   
+             window.close();
+
+          }, 100);
+      // console.log(t)
+      // alert(t)
+      // // window.close();
+    }
+
+    $(document).ready(function(){   // 페이지 로드 시 영역 가리는 함수
+      const p_XMCS = document.getElementById('msg_rcv');
+      const s_sendCenter = document.getElementById('sendCenter');
+      const s_teleCenter = document.getElementById('teleCenter');
+      const btn_send = document.getElementById('SEND');
+      
+      p_XMCS.style.display = 'none';
+      s_sendCenter.style.display = 'none';
+      s_teleCenter.style.display = 'none';
+      btn_send.style.display = 'none';
+  });
+
+  </script>
+
+  <style>
+    #SEND{
+      border-radius: 4px;
+      border:3px solid rgb(135, 213, 253);
+      background-color: rgba(0,0,0,0);
+      padding-left:16px;
+      padding-right:16px;
+      padding-top:5px;
+      padding-bottom:5px;
+      font-weight: bold;
+    }
+
+    #SEND:hover{
+      background-color:rgb(135, 213, 253);
+      cursor: pointer;
+    }
+
+    #sendCenter{
+      border-radius: 4px;
+      border:3px solid rgb(174, 181, 181);
+      background-color: rgba(0,0,0,0);
+      padding:5px;
+      width:130px;
+    }
+
+    #teleCenter{
+      border-radius: 4px;
+      border:3px solid rgb(174, 181, 181);
+      background-color: rgba(0,0,0,0);
+      padding:5px;
+      width:130px;
+    }
+
+    #fileinput_label:hover{
+      background-color: rgb(223, 230, 230);
+      cursor: pointer;
+    }
+
+  </style>
+
+  <form action="http://127.0.0.1:8000/smart/api/message/send/new/" method="post" name="sendnewmsg">
+    {% csrf_token %}
+    <form>
+      <div style="width:90%; text-align: right;">
+        <p style="display:inline-block; margin-bottom:7px; border-radius: 4px; border: 3px solid rgb(174, 181, 181); padding: 5px; height:38px; width:88%; text-align: center;">
+          메시지 유형 선택: 
+          <input type="radio" value="TELE" name="sendType" style="margin-right:1%; margin-left:5%" onclick="toggleP()">
+          <span class="up" style="margin-right:3%">텔레그렘</span>
+          <input type="radio" value="XMCS" name="sendType" style="margin-right:1%" onclick="toggleP()">
+          <span class="up">문자</span>
+        </p>
+
+        <p id="msg_body" name="msg_body" style="margin-bottom:3px;">
+            <textarea id="message" name="message" cols="50" rows="10" placeholder="메시지 내용을 입력해주세요." 
+                      style="width:88%;border-radius: 4px; border: 3px solid rgb(174, 181, 181);"></textarea>
+        </p>
+
+        <p id="msg_rcv" name="msg_rcv" style="margin-bottom:15px; text-align:right-bottom">
+            <textarea id="receiver" name="receiver" cols="50" rows="4" placeholder="수신자 번호(-제외, 쉼표(,)로 구분)" 
+                      style="width:75%;border-radius: 4px; border: 3px solid rgb(174, 181, 181);vertical-align: middle;"></textarea>
+            <input id="formFileSm" type="file" style="width: 20%; padding-bottom: 10px; display:none;" onchange="selectedFile()">
+            <label for="formFileSm" id="fileinput_label"
+                  style="border-radius: 4px; border:3px solid rgb(174, 181, 181); padding:6px; vertical-align: middle;">파일선택</label>
+        </p>
+
+        <p style="text-align:center;">
+          <select name="senderCenter" id="sendCenter">
+            <option style="overflow: hidden;" selected="true" disabled="disabled">발송센터: </option>
+            {% for center in Centers %}
+            <option style="overflow: hidden;" value={{center}}>{{ center }}</option>
+            {% endfor %}
+          </select>
+          <select name="teleCenter" id="teleCenter">
+            <option style="overflow: hidden;" selected="true" disabled="disabled">수신센터: </option>
+            {% for center in Centers %}
+            <option style="overflow: hidden;" value={{center}}>{{ center }}</option>
+            {% endfor %}
+          </select>
+          <input type="button" value="전송" id="SEND" onclick="submit_close()">
+        </p>
+      </div>
+    </form>
+  </form>
+
+
+
+</body>
