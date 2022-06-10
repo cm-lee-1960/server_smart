@@ -537,7 +537,6 @@ def new_msg_render(request):   ## 새메시지 전송 HTML
 @api_view(['POST'])   ## 새메시지 전송 HTML에서 POST 요청을 받아 메시지를 전송하는 함수
 def send_new_msg(request):
     data = request.data
-    db_logger.error(data)
     if 'sendType' in data.keys():
         sendType = data['sendType']
         message = data['message']
