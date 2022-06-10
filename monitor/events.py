@@ -333,13 +333,13 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
     if mdata.phone.morphology.morphology != '행정동': return None
     if not (mdata.longitude and mdata.latitude): return None
 
-    # # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
-    # rest_api_key = settings.KAKAO_REST_API_KEY
-    # kakao = KakaoLocalAPI(rest_api_key)
-    # input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
-    # output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+    # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
+    rest_api_key = settings.KAKAO_REST_API_KEY
+    kakao = KakaoLocalAPI(rest_api_key)
+    input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+    output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
-    # result = kakao.geo_coord2regioncode(mdata.longitude, mdata.latitude, input_coord, output_coord)
+    result = kakao.geo_coord2regioncode(mdata.longitude, mdata.latitude, input_coord, output_coord)
     # [ 리턴값 형식 ]
     # print("out_measuring_range():", result)
     # {'meta': {'total_count': 2},
@@ -367,18 +367,19 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
     #              측정 단말기 정보에 가져간다.
     #            - 측정 단말기의 상세주소와 해당 측정 데이터의 위도,경도를 통해 찾은 행정도 명칭과 비교한다.
     try:
-        # region_3depth_name = result['documents'][1]['region_3depth_name']
-        offsets = [(0, 0), (100, 100), (-100, 100), (100, -100), (-100, -100)]
-        regions = set()
-        for dn, de in offsets:
-            regions.add(pos_offset_check(mdata.latitude, mdata.longitude, dn, de))
-        if mdata.phone.addressDetail not in regions:
-            # # 메시지를 작성한다.
-            # message = f"{mdata.address}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
-            #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
-            #         f"{mdata.phone_no_sht} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.time} / {mdata.currentCount} / " + \
-            #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
-            message = f'측정범위 벗어남({regions.pop()})'
+        region_3depth_name = result['documents'][1]['region_3depth_name']
+        if mdata.phone.addressDetail and mdata.phone.addressDetail.find(region_3depth_name) == -1:
+            offsets = [(100, 100), (-100, 100), (100, -100), (-100, -100)]
+            regions = set()
+            for dn, de in offsets:
+                regions.add(pos_offset_check(mdata.latitude, mdata.longitude, dn, de))
+            if mdata.phone.addressDetail not in regions:
+                # # 메시지를 작성한다.
+                # message = f"{mdata.address}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
+                #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
+                #         f"{mdata.phone_no_sht} / {mdata.phone.addressDetail}({region_3depth_name}) / {mdata.time} / {mdata.currentCount} / " + \
+                #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
+                message = f'측정범위 벗어남({regions.pop()})'
 
     except Exception as e:
         print("out_measuring_range():", str(e))
