@@ -154,11 +154,11 @@
             {% comment %} <div id="rw" align="right" class="col-3" style ="display: flex"> {% endcomment %}
             <div id="rw" class="col-3" style="margin-top: 30px; margin-bottom: 5px;bottom: 5px;">
                 <div align="right" style ="float:right; padding: 0px; margin-left: 8px;">
-                    <button type="button" class="btn btn-secondary btn-lg" style="height: 58px; background:red; boder:20px solid; border-radius: 3px;" v-show="monitoringCondition==false" > 
-                        <i id="monitoringSetPlay" class="fa fa-play fa-lg" style="color:white;" v-on:click="set_monitoringConfig(false)"></i>
+                    <button type="button" class="btn btn-danger btn-lg" style="height: 58px; boder:20px solid; border-radius: 3px;" v-show="monitoringCondition==false" >
+                        <i id="monitoringSetPlay" class="fa fa-play fa-lg p-lg-2" style="color:white;" v-on:click="set_monitoringConfig(false)"></i>
                     </button>
-                    <button type="button" class="btn btn-secondary btn-lg" style="height: 58px; background:blue; boder:20px solid; border-radius: 3px;" v-show="monitoringCondition==true" > 
-                        <i id="monitoringSetPause" class="fa fa-pause fa-lg" style="color:white;" v-on:click="set_monitoringConfig(false)"></i>
+                    <button type="button" class="btn btn-danger btn-lg" style="height: 58px; boder:20px solid; border-radius: 3px;" v-show="monitoringCondition==true" >
+                        <i id="monitoringSetPause" class="fa fa-pause fa-lg p-lg-2" style="color:white;" v-on:click="set_monitoringConfig(false)"></i>
                     </button>
                 </div>
                 <div align="right" style="float:right">
