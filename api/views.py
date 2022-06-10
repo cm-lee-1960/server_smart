@@ -555,3 +555,4 @@ def send_new_msg(request):
 
             bot = TelegramBot()
             result = bot.send_message_bot(channelId, message)
+    return HttpResponse("전송 완료")
