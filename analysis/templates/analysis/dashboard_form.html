@@ -118,7 +118,7 @@
     <div id="app" v-cloak>
         <!-- 상단 내용 -->
         <div class="row" style="height:100px;">
-            <div class="col-10 px-2">
+            <div class="col-9 px-2">
                 <div class="row text-center">
                     <div class="card text-white bg-primary mx-4" style="width: 13rem; height: 100px; text-align: center;">
                         <!-- 출저: https://getbootstrap.com/docs/4.0/components/card/#background-and-color -->
@@ -151,20 +151,26 @@
                 </div>
             </div>
             {%  if request.user.is_superuser %}
-            <div id="rw" align="right" class="col-2">
-            <div align="right" style ="padding: 0px; margin: 0px;">
-                <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
-                    <i id="monitoringSet" class="fa fa-play" style="color:rgb(255, 42, 0);font-size:22px;" v-show="monitoringCondition==false" v-on:click="set_monitoringConfig(false)"><font color=red> 미감시</font></i>
-                    <i id="monitoringSet" class="fa fa-pause" style="color:rgb(255, 42, 0);font-size:22px;" v-show="monitoringCondition==true" v-on:click="set_monitoringConfig(false)"><font color=red> 감시 중</font></i>
-                </button>
+            {% comment %} <div id="rw" align="right" class="col-3" style ="display: flex"> {% endcomment %}
+            <div id="rw" class="col-3" style="margin-top: 30px; margin-bottom: 5px;bottom: 5px;">
+                <div align="right" style ="float:right; padding: 0px; margin-left: 8px;">
+                    <button type="button" class="btn btn-secondary btn-lg" style="height: 58px; background:red; boder:20px solid; border-radius: 3px;" v-show="monitoringCondition==false" > 
+                        <i id="monitoringSetPlay" class="fa fa-play fa-lg" style="color:white;" v-on:click="set_monitoringConfig(false)"></i>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-lg" style="height: 58px; background:blue; boder:20px solid; border-radius: 3px;" v-show="monitoringCondition==true" > 
+                        <i id="monitoringSetPause" class="fa fa-pause fa-lg" style="color:white;" v-on:click="set_monitoringConfig(false)"></i>
+                    </button>
+                </div>
+                <div align="right" style="float:right">
+                    <div align="right">
+                        <button type="button" style="margin-top:0px;" sytle="width:20px" class="btn btn-secondary btn-lg pt-3" v-on:click="clickMeasuringEnd()" title="선택한 단말그룹을 측정종료 처리하며 해당 지역의 종료 메시지를 생성합니다.">
+                            <h5>측정종료</h5>
+                        </button>
+                        <button type="button" style="margin-top:0px;" sytle="width:20px" class="btn btn-danger btn-lg pt-3" v-on:click="clickMeasuringClose()" title="전체 단말그룹을 측정종료 처리하고 최종보고 메시지를 생성합니다.">
+                            <h5>일일마감</h5></button>
+                    </div>
+                </div>
             </div>
-            <div align="right">
-                <button type="button" style="margin-top:0px;margin-bottom:13px" class="btn btn-secondary btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringEnd()" title="선택한 단말그룹을 측정종료 처리하며 해당 지역의 종료 메시지를 생성합니다.">
-                    <h5>측정종료</h5>
-                </button>
-                <button type="button" style="margin-top:0px;margin-bottom:13px" class="btn btn-danger btn-lg mt-lg-4 pt-3" v-on:click="clickMeasuringClose()" title="전체 단말그룹을 측정종료 처리하고 최종보고 메시지를 생성합니다.">
-                    <h5>일일마감</h5></button>
-            </div></div>
             {% endif %}
         </div>
 
@@ -480,6 +486,11 @@
                                 aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(adminCenter)" ref="channelList_tab_xro">채팅방 멤버(총괄)</a>
                             </li>
                             {% endif %}
+                            <!-- <li class="nav-item">
+                                <a class= "nav-link" id="new-message-send-tab" data-toggle="tab"
+                                role="tab" v-show="TelegramClick==true"
+                                aria-controls="msgdtl-message" aria-selected="true" v-on:click="change_check">새 메시지</a>
+                            </li> -->
                         </ul>
                         <div style="display:flex; align-items: center;">
                             <strong><span>[[selectedPhoneGroup.centerName]]</span></strong>
@@ -520,13 +531,6 @@
                             <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
                             <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage"
                                     v-if="message.sendType !== 'ALL' && message.sendType !== 'XMCS'">회수</button>
-                            <p class="float-right" v-show="TelegramClick==false"
-                            style="margin-bottom:0px; border-radius: 4px; border: 2px solid rgb(174, 181, 181); padding: 5px; height:38px; display:inline-block;">발송:
-                                <select style="width: 90px; border:none; outline:none;" v-model="senderCenter">
-                                    <!-- <option selected="selected">[[selectedPhoneGroup.centerName]]</option> -->
-                                    <option v-for="center in centerListAll" v-bind:value="center" style="overflow: hidden;">[[ center ]]</option>
-                                </select>
-                            </p>
                                 <!--
 {#                            {% else %}#}
                             <button type="button" class="btn btn-primary" v-on:click="clickSendMessage"
@@ -733,9 +737,6 @@
                     selectedChatMembers: [],   //////텔레그램 강퇴 기능을 위한 멤버 리스트
                     adminCenter: "운용본부",   //////총괄 채팅방 멤버 리스트 확인을 위한 초기값
 
-                    /////// 문자메시지 발송 시, 보내는 센터 변경 시 해당 센터 값
-                    senderCenter : null,
-
                     ///////종요 알랏을위한 종료체크변수
                     phoneGroupActiveCheck : 0,
                     phoneGroupActiveCheckSave : 0,
@@ -804,7 +805,6 @@
                 this.date = year + "-" + month + "-" + day;
 
                 this.set_monitoringConfig(true); // 자동감시 상태 체크
-                this.fetch_all_centerANDmorphology()
 
                 // 해당 측정일자에 대한 단말그룹 리스트를 조회한다.
                 this.fetch_all_phoneGroup();
@@ -935,7 +935,6 @@
                  -----------------------------------------------------------------------------------------------------*/
                 clickPhoneGroupList: function (phoneGroup, event) {
                     this.selectedPhoneGroup = phoneGroup;
-                    this.senderCenter = phoneGroup.centerName;
                     this.fetch_all_message(this.selectedPhoneGroup);
                     this.message = {};
 
@@ -1398,7 +1397,6 @@
                             'id': this.message.id,
                             'sendType': this.message.sendType,
                             'channelId': this.message.channelId,
-                            'senderCenter': this.senderCenter,
                         })
                     };
                     const response = await fetch("api/message/send/", requestOptions);
