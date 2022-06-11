@@ -54,7 +54,7 @@ TELEGRAM_API_HASH = get_secret("TELEGRAM_API_HASH")
 ################################################################
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
