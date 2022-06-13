@@ -33,7 +33,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
                     'dl_count', 'ul_count', 'downloadBandwidth_fmt', 'uploadBandwidth_fmt', 'nr_percent',
                     'event_count', 'active', 'manage']
     list_display_links = ['phone_list', ]
-    search_fields = ('measdate', 'userInfo1', 'phone_list', 'networkId', 'measuringTeam')
+    search_fields = ('measdate', 'userInfo1', 'networkId', 'measuringTeam')
     list_filter = ['measdate', 'measuringTeam', 'active', 'manage']
     actions = ['get_measuring_end_action']
     ordering = ('-measdate', '-manage', 'measuringTeam', 'userInfo1', )
