@@ -214,7 +214,7 @@ class PhoneGroup(models.Model):
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.
 # 2022.03.15 - 측정자 입력값(userInfo2)가 입력오류가 자주 발생하므로 모폴로지를 찾지 못하는 경우 "행정동"으로 초기화 함
 # ----------------------------------------------------------------------------------------------------------------------
-def get_morphology(networkId:str, userInfo2: str) -> Morphology:
+def get_morphology(networkId: str, userInfo2: str, userInfo1: str=None) -> Morphology:
     """ 측정자 입력값2로 모폴로지를 반환한다.
         - 모폴로지를 찾을 수 없는 경우 기본값으로 '행정동'을 반환한다.
         - 파리미터: 측정자 입력값2(문자열)
@@ -224,6 +224,7 @@ def get_morphology(networkId:str, userInfo2: str) -> Morphology:
     # 초기치 설정
     if networkId == 'WiFi' : morphology = Morphology.objects.filter(morphology='테마')[0]
     else: morphology = Morphology.objects.filter(morphology='행정동')[0]  # 초기값 설정
+    print(networkId)
     if userInfo2 and userInfo2 is not None:
         # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
         for mp in MorphologyMap.objects.all():
@@ -231,8 +232,14 @@ def get_morphology(networkId:str, userInfo2: str) -> Morphology:
                 if userInfo2.startswith(mp.words):
                     morphology = mp.morphology
                     break
+                if userInfo1 and userInfo1.startswith(mp.words):
+                    morphology = mp.morphology
+                    break
             elif mp.wordsCond == '포함단어':
                 if userInfo2.find(mp.words) >= 0:
+                    morphology = mp.morphology
+                    break
+                if userInfo1 and userInfo1.find(mp.words) >= 0:
                     morphology = mp.morphology
                     break
     return morphology
@@ -541,7 +548,7 @@ class Phone(models.Model):
                 self.addressDetail = region_3depth_name  # 행정동(읍/동/면)
 
                 # 모폴로지와 관리대상 여부를 설정한다.
-                morphology = get_morphology(self.networkId, self.userInfo2) # 측정자 입력값2
+                morphology = get_morphology(self.networkId, self.userInfo2, self.userInfo1) # 측정자 입력값2
                 self.morphology = morphology # 모폴로지
                 self.manage = self.phoneGroup.manage # 관리대상 여부
 

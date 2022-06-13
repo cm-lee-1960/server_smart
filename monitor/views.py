@@ -183,7 +183,7 @@ def receive_json(request):
         if data['networkId'] == 'NR': nId = '5G'  # 측정유형 지정 // NR일 경우 5G
         else: nId = data['networkId']
 
-        morphology = get_morphology(data['networkId'], data['userInfo2'])  # 모폴로지
+        morphology = get_morphology(data['networkId'], data['userInfo2'], data['userInfo1'])  # 모폴로지
 
         if data['networkId'] == 'WiFi':  # WiFi일 경우 userInfo2로 판단
             qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, userInfo2=data['userInfo2'], \
@@ -198,7 +198,7 @@ def receive_json(request):
         else:
             # 측정 단말기 그룹을 생성한다.
             meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
-            morphology = get_morphology(data['networkId'], data['userInfo2']) # 모폴로지
+            morphology = get_morphology(data['networkId'], data['userInfo2'], data['userInfo1']) # 모폴로지
             if data['networkId'] == 'WiFi': morphologyDetail = get_morphologyDetail_wifi(data['userInfo1'], data['userInfo2']) # 모폴로지 상세, 현재 WiFi에서만 사용
             else: morphologyDetail = None
             
