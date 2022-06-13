@@ -17,8 +17,9 @@ from django.conf.urls import include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, re_path
 from analysis.views import dashboard
+from django.views.static import serve
 
 ########################################################################################################################
 # 스마트상황실 프로젝트
@@ -63,6 +64,9 @@ urlpatterns = [
     path("smart/message/", include("message.urls")), # 전송 메시지
     path("smart/accounts/", include("accounts.urls")), # 계정
     path("smart/api/", include("api.urls")),  # API
+    
+    re_path(r'^smart/media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}), 
+    re_path(r'^smart/static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # STATIC 파일
