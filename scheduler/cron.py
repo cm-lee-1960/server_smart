@@ -1,6 +1,8 @@
 from monitor.models import Phone
+
 from logs.models import StatusLog
 from datetime import datetime, timedelta
+from management.models import MessageConfig
 
 
 ########################################################################################################################
@@ -8,6 +10,7 @@ from datetime import datetime, timedelta
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.27 - 백그라운드 스케쥴러 작업 모듈 작성 및 테스트
 #            - 향후 측정마감이나 텔레그램 커맨드 핸들러 등록 등 백그라운드 작업 등록에 사용할 예정임
+# 2022.06.13 - 매주 월요일 감시가 중지되어 있으면 자동으로 사작한다.
 #
 ########################################################################################################################
 
@@ -38,3 +41,22 @@ def delete_logs_before_week():
     qs = StatusLog.objects.filter(create_datetime__lt=base_date)
     if qs.exists():
         qs.delete()
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 매주 월요일 감시가 중지되어 있으면 자동으로 사작한다.
+# ----------------------------------------------------------------------------------------------------------------------
+def start_monitoring():
+    # 0	Monday
+    # 1	Tuesday
+    # 2	Wednesday
+    # 3	Thursday
+    # 4	Friday
+    # 5	Saturday
+    # 6	Sunday
+    days = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
+    r = datetime.datetime.today().weekday()
+    if days[r] == "월요일":
+        msgcfg = MessageConfig.objects.all()[0]
+        if msgcfg.ALL is False:
+            msgcfg.ALL = True
+            msgcfg.save()

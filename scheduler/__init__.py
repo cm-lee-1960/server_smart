@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from .cron import measuring_end_check, delete_logs_before_week
+from .cron import measuring_end_check, delete_logs_before_week, start_monitoring
 
 ########################################################################################################################
 # 스케쥴러 백그라운드 작업을 등록하고, 실행한다.
@@ -8,6 +8,7 @@ from .cron import measuring_end_check, delete_logs_before_week
 # * 폴더(디렉토리)가 패키지로 인식되도록 하는 역할
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.27 - 주기적으로 수행되어야 하는 작업 또는 텔레그램 커맨드 핸들러를 등록하시 위해 사용할 예정임
+# 2022.06.13 - 매주 월요일 감시가 중지되어 있으면 자동으로 사작한다.
 #
 ########################################################################################################################
 def start():
@@ -17,4 +18,5 @@ def start():
     # sched.add_job(measuring_end_check, 'interval', seconds=5)
     sched.add_job(delete_logs_before_week, "cron", hour=23, minute=0)
     # sched.add_job(delete_logs_before_week, 'interval', seconds=5)
+    sched.add_job(start_monitoring, "cron", hour=0, minute=30)
     sched.start()
