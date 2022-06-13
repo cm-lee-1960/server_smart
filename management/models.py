@@ -115,7 +115,7 @@ class SendFailure(models.Model):
         - 품질기준(5G DL: 12M, UL: 2M, LTE DL: 6M, UL: 1M, 3G DL: 256K, UL: 128K
         - 품질취약 LTE 1M, UL: 0.5, 3G DL: 256K, UL 128K
     """
-    AREAIND__CHOICES = (('NORM','보통지역'), ('WEEK', '취약지역'))
+    AREAIND__CHOICES = (('NORM','보통지역'), ('WEEK', '취약지역'), ('SUBWAY', '지하철'), ('OTHERSUB', '지하철외'), )
     NETWORKID_CHOICES = (('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi'))
     DATATYPE_CHOICES = (('DL','DL'), ('UL','UL'))
 
@@ -143,7 +143,7 @@ class LowThroughput(models.Model):
     """ 속도저하 기준 정보
         - 상황에 따라 변경되는 속도저하 기준 정보를 관리한다.
     """
-    AREAIND__CHOICES = (('NORM','보통지역'), ('WEEK', '취약지역'))
+    AREAIND__CHOICES = (('NORM','보통지역'), ('WEEK', '취약지역'), ('SUBWAY', '지하철'), ('OTHERSUB', '지하철외'), )
     NETWORKID_CHOICES = (('5G','5G'), ('LTE','LTE'), ('3G','3G'), ('WiFi','WiFi'))
     DATATYPE_CHOICES = (('DL','DL'), ('UL','UL'))
 

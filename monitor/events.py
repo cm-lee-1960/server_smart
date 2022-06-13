@@ -31,6 +31,9 @@ from .models import MeasureCallData, Phone, Message
 # 2022.04.08 - 메시지 모델에 단말그룹 추가에 따른 업데이트 코드 추가
 # 2022.05.01 - 이벤트 건수에 전송실패 건수만 반영 및 DL/UL 전송실패 건수 항목 추가
 # 2022.05.23 - 채널ID를 센터정보에서 가져온다.
+# 2022.06.13 - WiFi 속도저하 기준을 지하철과 지하철외로 분리 적용
+#              * 지하철(DL/UL) : 10M / 10M
+#              * 지하철외(DL/UL) : 200M / 200M
 #
 ########################################################################################################################
 def event_occur_check(mdata: MeasureCallData):
@@ -138,6 +141,9 @@ def send_failure_check(mdata: MeasureCallData) -> str:
 # 속도저하(Low Throughput) 발생여부 확인
 # 2022.02.24 - 속도저하 기준 별도 테이블 관리 필요 -- LowThroughput
 # 2022.03.03 - 속도저하 기준 테이블(모델) 생성 및 체크 모듈 작성
+# 2022.06.13 - WiFi 속도저하 기준을 지하철과 지하철외로 분리 적용
+#              * 지하철(DL/UL) : 10M / 10M
+#              * 지하철외(DL/UL) : 200M / 200M
 # ----------------------------------------------------------------------------------------------------------------------
 def low_throughput_check(mdata: MeasureCallData) -> str:
     """속도저하(Low Throughput) 발생여부 확인
@@ -160,7 +166,19 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
         if dataType in ('DL', 'UL'):
 
             # 데이터베이스에서 속도저하 판단 기준을 조회한다.
-            qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
+            # qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
+            if networkId == "WiFi":
+                # WiFi의 경우 지하철과 지하철외로 구분하여 속도저하 체크
+                # - 지하철(DL/UL) : 10M / 10M
+                # - 지하철외(DL/UL) : 200M / 200M
+                if mdata.phone.phoneGroup.morphologyDetail is not None:
+                    if mdata.phone.phoneGroup.morphologyDetail.middle_class == "지하철외":
+                        qs = LowThroughput.objects.filter(areaInd="OTHERSUB", networkId=networkId, dataType=dataType)
+                    else:
+                        qs = LowThroughput.objects.filter(areaInd="SUBWAY", networkId=networkId, dataType=dataType)
+            else:
+                # 5G, LTE
+                qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
                 if bandwidth < qs[0].bandwidth:
                     # # 메시지 내용을 작성한다.
