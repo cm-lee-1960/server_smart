@@ -132,6 +132,19 @@ class ChatMemberListAdmin(admin.ModelAdmin):
     #search_fields = ('userchatId', 'firstName', 'lastName', 'userName', 'center', 'chatId',)
     ist_filter = ['center', 'allowed']
 
+    actions = ['set_all_true', ]
+
+    # ---------------------------------------------------------------------------------------------
+    # 허용여부를 일괄 True로 바꾸는 함수(채팅방 멤버 리스트  관리자 페이지에서 액션)
+    # ---------------------------------------------------------------------------------------------
+    def set_all_true(self, request, queryset):
+        try:
+            print(queryset)
+            queryset.update(allowed=True)
+        except:
+            raise Exception("일괄변경 실패 - 선택한 컬럼을 확인하여주세요.")
+    set_all_true.short_description = '선택한 인원 허용여부 True로 변경'
+
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정단말 사전정보
 # ----------------------------------------------------------------------------------------------------------------------
