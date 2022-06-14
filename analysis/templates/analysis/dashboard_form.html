@@ -290,21 +290,21 @@
                         <ul class="nav nav-tabs nav-pills" id="msg" role="tablist" style="height:44px">
                             <li class="nav-item">
                                 <a class="nav-link active" id="msg-event-tab" data-toggle="tab" href="#msg-event" role="tab"
-                                aria-controls="msg-event" aria-selected="true" v-on:click="message_tele()">텔레그램(이벤트)</a>
+                                aria-controls="msg-event" aria-selected="true" v-on:click="message_check('tele')">텔레그램(이벤트)</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-tele-tab" data-toggle="tab" href="#msg-tele" role="tab"
-                                aria-controls="msg-tele" aria-selected="false" v-on:click="message_tele()">텔레그램(진행)</a>
+                                aria-controls="msg-tele" aria-selected="false" v-on:click="message_check('tele')">텔레그램(진행)</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-sms-tab" data-toggle="tab" href="#msg-sms" role="tab"
-                                aria-controls="msg-sms" aria-selected="false" v-on:click="message_xro()">문자(센터)</a>
+                                aria-controls="msg-sms" aria-selected="false" v-on:click="message_check('xro')">문자(센터)</a>
                             </li>
                             {%  if request.user.is_superuser %}
                             <!--일마감 메세지 생성-->
                             <li class="nav-item">
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
-                                aria-controls="msg-all" aria-selected="false" v-on:click="message_xro()">문자(전체)</a>
+                                aria-controls="msg-all" aria-selected="false" v-on:click="message_check('xro')">문자(전체)</a>
                             </li>
                             {% endif %}
                         </ul>
@@ -477,13 +477,13 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="msgdtl-chatmember-tab" data-toggle="tab" href="#msgdtl-chatmember"
                                 role="tab" v-show="TelegramClick==true"
-                                aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(selectedPhoneGroup.centerName)" ref="channelList_tab_xro">채팅방 멤버(센터)</a>
+                                aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(selectedPhoneGroup.centerName)" ref="channelList_tab_xro_center">채팅방 멤버(센터)</a>
                             </li>
                             {% if request.user.is_superuser %}
                             <li class="nav-item">
                                 <a class="nav-link" id="msgdtl-chatmember-tab" data-toggle="tab" href="#msgdtl-chatmember"
                                 role="tab" v-show="TelegramClick==true"
-                                aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(adminCenter)" ref="channelList_tab_xro">채팅방 멤버(총괄)</a>
+                                aria-controls="msgdtl-chatmember" aria-selected="false" v-on:click="fetch_chatmembers(adminCenter)" ref="channelList_tab_xro_all">채팅방 멤버(총괄)</a>
                             </li>
                             {% endif %}
                         </ul>
@@ -952,43 +952,36 @@
                     this.message = {};
 
                 },
-                message_tele: function(){
-                    this.TelegramClick=true;
+                message_check: function(check){
+                    console.log(check)
+                    if ( check == 'tele'){
+                        this.TelegramClick=true;
+                    }else{
+                        this.TelegramClick = false;
+                    }
+
                     this.isActiveMessage = true;
                     this.tabChangeCheck = false;
 
-                    const clist1 = this.$refs.channelList_tab_message.classList
-                    const clist_info1 = this.$refs.channelList_tab_message_info.classList
-                    if(clist1.contains("active")){
-                        clist1.remove("active", "show")
-                        clist_info1.remove("active", "show")
-                    }
-
-                    const clist2 = this.$refs.channelList_tab_xro.classList
-                    const clist_info2 = this.$refs.channelList_tab_xro_info.classList
-                    if(clist2.contains("active")){
-                        clist2.remove("active", "show")
-                        clist_info2.remove("active", "show")
-                    }
-                },
-                // tele 메세지 탭할때 동작-> 채팅방리스트나 수신자 리스트에 active 나 show가 들어잇으면 class에서 삭제한다 ref사용
-                message_xro: function(){
-                    this.TelegramClick = false;
-                    this.isActiveMessage = true;
-                    this.tabChangeCheck = false;
-
-                    const clist1 = this.$refs.channelList_tab_xro.classList
+                    const clist1 = this.$refs.channelList_tab_xro_center.classList
                     const clist_info1 = this.$refs.channelList_tab_xro_info.classList
                     if(clist1.contains("active")){
                         clist1.remove("active", "show")
                         clist_info1.remove("active", "show")
                     }
 
-                    const clist2 = this.$refs.channelList_tab_message.classList
-                    const clist_info2 = this.$refs.channelList_tab_message_info.classList
+                    const clist2 = this.$refs.channelList_tab_xro_all.classList
+                    const clist_info2 = this.$refs.channelList_tab_xro_info.classList
                     if(clist2.contains("active")){
                         clist2.remove("active", "show")
                         clist_info2.remove("active", "show")
+                    }
+
+                    const clist3 = this.$refs.channelList_tab_message.classList
+                    const clist_info3 = this.$refs.channelList_tab_message_info.classList
+                    if(clist3.contains("active")){
+                        clist3.remove("active", "show")
+                        clist_info3.remove("active", "show")
                     }
                 },
                 // xro 메세지 탭할때 동작 -> 수신자리스트나 채팅방 리스트에 active 나 show가 들어잇으면 class에서 삭제한다 ref사용
