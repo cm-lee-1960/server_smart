@@ -207,7 +207,7 @@ def measuring_end(phoneGroup):
         try:
             # 더 이상 활성화된 단말그룹이 없다면 최종 마지막 단말그룹이라고 판단한다.
             # 즉, 가장 마지막 측정종료 단말그룹이라는 것을 의미한다.
-            if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, ispId=45008, manage=True, active=True).count() == 0:
+            if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True, active=True).count() == 0:
                 # 측정지역 개수 추출
                 daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
                 # 네트워크 유형별 건수를 조회한다.
@@ -227,7 +227,7 @@ def measuring_end(phoneGroup):
                 total_count = fiveg_count + lte_count + threeg_count + wifi_count
                 # 네트워크 유형 별 userInfo1을 추출한다.
                 userInfo_byType = {'5G':'', 'LTE':'', '3G':'', 'WiFi':''}
-                for userInfo in PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True, ispId=45008).values('networkId', 'userInfo1', 'morphologyDetail'):
+                for userInfo in PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True).values('networkId', 'userInfo1', 'morphologyDetail'):
                     userInfo_byType[userInfo['networkId']] += '\n  .' + userInfo['userInfo1']
                     if userInfo['networkId'] == 'WiFi':  # WiFi일 경우 상용/공공/개방 구분자 추가
                         userInfo_byType[userInfo['networkId']] += '(' + MorphologyDetail.objects.get(id=userInfo['morphologyDetail']).main_class +')'
@@ -422,7 +422,7 @@ def measuring_day_close(phoneGroup_list, measdate):
         measuring_end(phoneGroup)
  
     # 각 단말 그룹들의 종료 데이터(MeasuringDayClose)를 보충
-    for phoneGroup in PhoneGroup.objects.filter(ispId='45008', manage=True, active=False, measdate=measdate):
+    for phoneGroup in PhoneGroup.objects.filter(manage=True, active=False, measdate=measdate):
         try:
             md = phoneGroup.measuringdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
     
@@ -572,7 +572,7 @@ def measuring_day_reclose(measdate):
       - 반환값: dict {result : 결과값} // 성공 시 결과값 'ok'
     """  
     # 해당날짜 phoneGroup에 대해 데이터 재생성
-    for phoneGroup in PhoneGroup.objects.filter(ispId='45008', manage=True, measdate=measdate):
+    for phoneGroup in PhoneGroup.objects.filter(manage=True, measdate=measdate):
         try:
             md = phoneGroup.measuringdayclose_set.all()  # 마감 데이터 호출
             # serializer로 폰그룹 데이터 불러온다.
@@ -625,7 +625,7 @@ def cal_avg_bw_call(phoneGroup):
      . 파라미터: phoneGroup
      . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
     phone_list = phoneGroup.phone_set.all()
-    qs = MeasureCallData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
     # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (calldata에서 downloadbandwidth 존재 유무로 판단)
     qs_dlbw = qs.exclude( Q(networkId='NR') | Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )
     if qs_dlbw.exists():
