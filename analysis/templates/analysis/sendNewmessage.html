@@ -28,6 +28,8 @@
       const s_sendCenter = document.getElementById('sendCenter');
       const s_teleCenter = document.getElementById('teleCenter');
       const btn_send = document.getElementById('SEND');
+      const btn_reset = document.getElementById('RESET');
+      
       const msgtype = radio_btn_val()
 
       if(msgtype === 'XMCS') {
@@ -35,12 +37,16 @@
         s_sendCenter.style.display = 'inline';
         s_teleCenter.style.display = 'none';
         btn_send.style.display = 'inline';
+        btn_reset.style.display = 'inline';
+        
 
       } else if(msgtype ==='TELE') {
         p_XMCS.style.display = 'none';
         s_sendCenter.style.display = 'none';
         s_teleCenter.style.display = 'inline';
         btn_send.style.display = 'inline';
+        btn_reset.style.display = 'inline';
+        
       }
     } 
 
@@ -72,22 +78,32 @@
       // // window.close();
     }
 
+    function window_close() {
+    
+      window.close();
+      
+       
+    }
+
     $(document).ready(function(){   // 페이지 로드 시 영역 가리는 함수
       const p_XMCS = document.getElementById('msg_rcv');
       const s_sendCenter = document.getElementById('sendCenter');
       const s_teleCenter = document.getElementById('teleCenter');
       const btn_send = document.getElementById('SEND');
+      const btn_reset = document.getElementById('RESET');
       
       p_XMCS.style.display = 'none';
       s_sendCenter.style.display = 'none';
       s_teleCenter.style.display = 'none';
       btn_send.style.display = 'none';
+      btn_reset.style.display = 'none';
+      
   });
 
   </script>
 
   <style>
-    #SEND{
+    /* #SEND{
       border-radius: 4px;
       border:3px solid rgb(135, 213, 253);
       background-color: rgba(0,0,0,0);
@@ -96,12 +112,12 @@
       padding-top:5px;
       padding-bottom:5px;
       font-weight: bold;
-    }
+    } */
 
-    #SEND:hover{
+    /* #SEND:hover{
       background-color:rgb(135, 213, 253);
       cursor: pointer;
-    }
+    } */
 
     #sendCenter{
       border-radius: 4px;
@@ -119,53 +135,59 @@
       width:130px;
     }
 
-    #fileinput_label:hover{
+    /* #fileinput_label:hover{
       background-color: rgb(223, 230, 230);
       cursor: pointer;
-    }
+    } */
 
   </style>
 
   <form action="send/" method="post" name="sendnewmsg">
     {% csrf_token %}
     <form>
-      <div style="width:90%; text-align: right;">
-        <p style="display:inline-block; margin-bottom:7px; border-radius: 4px; border: 3px solid rgb(174, 181, 181); padding: 5px; height:38px; width:88%; text-align: center;">
-          메시지 유형 선택: 
+      <div style="width:100%; text-align: center; margin-top:10px;">
+        <p style="display:inline-block; margin-bottom:7px; border-radius: 4px; border: 3px solid rgb(174, 181, 181); padding: 5px; height:38px; width:88%; text-align: center;"class='bg-light'>
+          메시지 유형 선택 : 
           <input type="radio" value="TELE" name="sendType" style="margin-right:1%; margin-left:5%" onclick="toggleP()">
           <span class="up" style="margin-right:3%">텔레그렘</span>
           <input type="radio" value="XMCS" name="sendType" style="margin-right:1%" onclick="toggleP()">
           <span class="up">문자</span>
         </p>
-
+      
         <p id="msg_body" name="msg_body" style="margin-bottom:3px;">
             <textarea id="message" name="message" cols="50" rows="10" placeholder="메시지 내용을 입력해주세요." 
-                      style="width:88%;border-radius: 4px; border: 3px solid rgb(174, 181, 181);"></textarea>
+                      style="width: 88%; border-radius: 4px; border: 3px solid rgb(174, 181, 181);"></textarea>
         </p>
-
+        
+      
         <p id="msg_rcv" name="msg_rcv" style="margin-bottom:15px; text-align:right-bottom">
             <textarea id="receiver" name="receiver" cols="50" rows="4" placeholder="수신자 번호(-제외, 쉼표(,)로 구분)" 
-                      style="width:75%;border-radius: 4px; border: 3px solid rgb(174, 181, 181);vertical-align: middle;"></textarea>
-            <input id="formFileSm" type="file" style="width: 20%; padding-bottom: 10px; display:none;" onchange="selectedFile()">
-            <label for="formFileSm" id="fileinput_label"
-                  style="border-radius: 4px; border:3px solid rgb(174, 181, 181); padding:6px; vertical-align: middle;">파일선택</label>
+                      style="width:75.5%;border-radius: 4px; border: 3px solid rgb(174, 181, 181);vertical-align: middle;"></textarea>
+            <input id="formFileSm" type="file" style=" padding-bottom: 10px; display:none;" onchange="selectedFile()">
+            <label for="formFileSm" id="fileinput_label" class="btn btn-light"
+                  style="padding:6px; vertical-align: middle;">파일선택</label>
         </p>
-
-        <p style="text-align:center;">
-          <select name="senderCenter" id="sendCenter">
-            <option style="overflow: hidden;" selected="true" disabled="disabled">발송센터: </option>
+        
+        <p style="display:inline;">
+          <select name="senderCenter" id="sendCenter" style="height:40px;">
+            <option style="overflow: hidden;" selected="true" disabled="disabled">발송센터 : </option>
             {% for center in Centers %}
             <option style="overflow: hidden;" value={{center}}>{{ center }}</option>
             {% endfor %}
           </select>
-          <select name="teleCenter" id="teleCenter">
-            <option style="overflow: hidden;" selected="true" disabled="disabled">수신센터: </option>
+          <select name="teleCenter" id="teleCenter" style="height:40px;">
+            <option style="overflow: hidden;" selected="true" disabled="disabled">수신센터 : </option>
             {% for center in Centers %}
             <option style="overflow: hidden;" value={{center}}>{{ center }}</option>
             {% endfor %}
           </select>
-          <input type="button" value="전송" id="SEND" onclick="submit_close()">
+          <input type="button" style="margin-left:10px; margin-bottom:5px; display: inline;" class="btn btn-primary" value="전송" id="SEND" onclick="submit_close()">
+          <input type="button" style="margin-left:10px; margin-bottom:5px; display: inline;" class="btn btn-secondary" value="리셋" id="RESET" onclick="window.location.reload()">
+          <div style="width:90%; display: inline;">
+            <input type="button" style="margin-left:10px; margin-bottom:5px; display: inline;" class="btn btn-secondary" value="닫기" id="CLOSE" onclick="window_close()">
+          </div>
         </p>
+        
       </div>
     </form>
   </form>
