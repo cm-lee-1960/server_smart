@@ -21,6 +21,7 @@ from .close import measuring_end
 # 2022.03.22 - 단말그룹에 관리대상 여부를 추가하고 관리대상 자료만 관리자 화면에 조회도록 수정함
 # 2022.03.24 - 측정종료 및 측정마감 모듈을 홈페이지에서 호출할 수 있도록 측정 모니터링앱(monitor) 뷰 함수로 이동
 # 2022.03.29 - 단말그룹 관리자 페이지에 DL/UL콜수, DL/UL속도, LTE전환율, 이벤트발생 건수 등 항목 추가
+# 2022.06.16 - 단말그룹 날짜필드로 일자별 사전검색 기능 추가
 #
 ########################################################################################################################
 
@@ -37,6 +38,9 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     list_filter = ['measdate', 'measuringTeam', 'active', 'manage']
     actions = ['get_measuring_end_action']
     ordering = ('-measdate', '-manage', 'measuringTeam', 'userInfo1', )
+
+    list_per_page = 25 # 페이지당 데이터 건수
+    date_hierarchy = 'last_updated_dt'
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다.
     def downloadBandwidth_fmt(self, obj):
@@ -146,7 +150,8 @@ class PhoneAdmin(admin.ModelAdmin):
     search_fields = ('userInfo1', 'phone_no', )
     list_filter = ['measdate', ManageFilter, 'active', ]
 
-    list_per_page = 25 # 페이지당 데이터 건수 
+    list_per_page = 25 # 페이지당 데이터 건수
+    # date_hierarchy = 'last_updated_dt'
 
     # DL 평균속도를 소수점 2자리까지 화면에 표시한다. 
     def downloadBandwidth_fmt(self, obj):
@@ -242,7 +247,7 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
     list_filter = ['userInfo1',]
     ordering = ('-meastime', 'userInfo1', 'phone_no', '-meastime', '-currentCount')
 
-    list_per_page = 25 # 페이지당 데이터 건수 
+    list_per_page = 25 # 페이지당 데이터 건수
 
     # 측정시간을 출력한다(Integer -> String)
     def meastime_at(self, mdata):
