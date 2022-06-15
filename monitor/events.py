@@ -250,6 +250,8 @@ def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
 # 2022.03.03 - 위,경도에 따른 행정동 검색 오류 수정 (2.27 이슈해결)
 # 2022.06.08 - 행정구역 경계면 측정시 '측정범위 벗어남' 이벤트 다수 발생으로 측정지점으로부터 상하좌우 100m 오프셋 지역의
 #              행정구역을 확인하는 모듈을 추가함
+# 2022.06.16 - 행정구역 경계면 데이터(jason data)가 없는 경우 이벤트를 체크를 하지 않음
+#
 # ----------------------------------------------------------------------------------------------------------------------
 # def out_measuring_range(mdata: MeasureCallData) -> str:
 #     """ 단말이 측정범위를 벗어났는지 확인
@@ -391,7 +393,7 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
             regions = set()
             for dn, de in offsets:
                 regions.add(pos_offset_check(mdata.latitude, mdata.longitude, dn, de))
-            if mdata.phone.addressDetail not in regions:
+            if len(regions) > 0 and mdata.phone.addressDetail not in regions:
                 # # 메시지를 작성한다.
                 # message = f"{mdata.address}에서 측정단말이 측정범위를 벗어났습니다.\n" + \
                 #         "(단말번호/측정 행정동(현재 행정동)/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
