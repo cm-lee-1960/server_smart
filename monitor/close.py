@@ -715,9 +715,12 @@ def cal_lte_ca(phoneGroup):
                     userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
     # s1~s4 earfcn 값 카운트
     # ca_4 = qs.exclude( Q(s4_earfcn__isnull=True) | Q(s4_earfcn=0) ).count() / md.total_count # s4는 제외??
-    ca_4 = qs.exclude( Q(s3_earfcn__isnull=True) | Q(s3_earfcn=0) ).count() / md.total_count
-    ca_3 = qs.exclude( Q(s2_dl_earfcn__isnull=True) | Q(s2_dl_earfcn=0) ).count() / md.total_count
-    ca_2 = qs.exclude( Q(s1_dl_earfcn__isnull=True) | Q(s1_dl_earfcn=0) ).count() / md.total_count
+    if md.total_count > 0 :
+        ca_4 = qs.exclude( Q(s3_earfcn__isnull=True) | Q(s3_earfcn=0) ).count() / md.total_count
+        ca_3 = qs.exclude( Q(s2_dl_earfcn__isnull=True) | Q(s2_dl_earfcn=0) ).count() / md.total_count
+        ca_2 = qs.exclude( Q(s1_dl_earfcn__isnull=True) | Q(s1_dl_earfcn=0) ).count() / md.total_count
+    else:
+        ca_4, ca_3, ca_2 = 0, 0, 0
     lte_ca = [round(ca_4), round(ca_4+ca_3), round(ca_4+ca_3+ca_2), 100]
     return lte_ca
     
