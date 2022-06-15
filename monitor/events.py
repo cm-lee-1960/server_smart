@@ -172,10 +172,10 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
                 # - 지하철(DL/UL) : 10M / 10M
                 # - 지하철외(DL/UL) : 200M / 200M
                 if mdata.phone.phoneGroup.morphologyDetail is not None:
-                    if mdata.phone.phoneGroup.morphologyDetail.middle_class == "지하철외":
-                        qs = LowThroughput.objects.filter(areaInd="OTHERSUB", networkId=networkId, dataType=dataType)
-                    else:
+                    if mdata.phone.phoneGroup.morphologyDetail.middle_class == "지하철":
                         qs = LowThroughput.objects.filter(areaInd="SUBWAY", networkId=networkId, dataType=dataType)
+                    else:
+                        qs = LowThroughput.objects.filter(areaInd="OTHERSUB", networkId=networkId, dataType=dataType)
             else:
                 # 5G, LTE
                 qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
