@@ -224,7 +224,6 @@ def get_morphology(networkId: str, userInfo2: str, userInfo1: str=None) -> Morph
     # 초기치 설정
     if networkId == 'WiFi' : morphology = Morphology.objects.filter(morphology='테마')[0]
     else: morphology = Morphology.objects.filter(morphology='행정동')[0]  # 초기값 설정
-    print(networkId)
     if userInfo2 and userInfo2 is not None:
         # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
         for mp in MorphologyMap.objects.all():

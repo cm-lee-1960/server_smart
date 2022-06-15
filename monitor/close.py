@@ -5,6 +5,7 @@ from django.db.models import Max, Min, Avg, Count, Q, Sum
 from django.db import connection
 
 from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose
+from .inspectdb import TbNdmDataSampleMeasure
 from .events import send_failure_check
 from management.models import Center, Morphology, MorphologyDetail
 
@@ -215,7 +216,7 @@ def measuring_end(phoneGroup):
                 cursor.execute(" SELECT networkId, COUNT(*) AS COUNT " + \
                                 "      FROM monitor_phonegroup " + \
                                 f"      WHERE measdate='{phoneGroup.measdate}' and " + \
-                                "             ispId = '45008' and " + \
+                                # "             ispId = '45008' and " + \
                                 "             manage = True " + \
                                 "      GROUP BY networkId "
                                 )
@@ -650,12 +651,12 @@ def cal_nr_percent(phoneGroup):
     return {'dl_nr_percent': dl_nr_percent, 'ul_nr_percent': ul_nr_percent}
 
 def cal_udpJitter(phoneGroup):
-    ''' 평균 지연시간 계산 함수 (초데이터)
+    ''' 평균 지연시간 계산 함수 (콜데이터)
      . 파라미터: phoneGroup
      . 반환값 : 평균 지연시간 (float) '''
     # 평균 지연시간 계산  :  testNetworkType이 latency인 데이터들의 udpJitter 평균값
     phone_list = phoneGroup.phone_set.all()
-    qs = MeasureSecondData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='latency').order_by("meastime")  # 초단위 데이터
+    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='latency').order_by("meastime")  # 초단위 데이터
     if qs.filter(udpJitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
         udpJitter = round(qs.exclude(udpJitter__isnull=True).aggregate(Avg('udpJitter'))['udpJitter__avg'], 1)
     else: udpJitter = 0.0
@@ -676,21 +677,23 @@ def cal_connect_time(phoneGroup):
      . 파라미터: phoneGroup
      . 반환값 : Dict {connect_time_dl:접속시간(DL), connect_time_ul:접속시간(UL)} '''
     phone_list = phoneGroup.phone_set.all()
+    phone_no = phone_list.values_list('phone_no', flat=True)
     md = phoneGroup.measuringdayclose_set.all().last()
-    qs = MeasureSecondData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='speed')
-    qs_dl = qs.filter(downloadElapse=9, downloadNetworkValidation=55, downloadConnectionSuccess__isnull=False)
+    qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, \
+                    userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
+    qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
 
     if qs_dl.exists(): 
-        connect_time_dl = round(qs_dl.aggregate(Avg('downloadConnectionSuccess'))['downloadConnectionSuccess__avg'], 1)  # DL 접속시간
-        dl_sum = qs_dl.aggregate(Sum('downloadConnectionSuccess'))['downloadConnectionSuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
+        connect_time_dl = round(qs_dl.aggregate(Avg('downloadconnectionsuccess'))['downloadconnectionsuccess__avg'], 1)  # DL 접속시간
+        dl_sum = qs_dl.aggregate(Sum('downloadconnectionsuccess'))['downloadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
         dl_count = qs_dl.count()
     else:
         connect_time_dl, dl_sum, dl_count = 0.0, 0, 1
     
-    qs_ul = qs.filter(uploadElapse=9, uploadNetworkValidation=55, uploadConnectionSuccess__isnull=False)
+    qs_ul = qs.filter(uploadelapse=9, uploadnetworkvalidation=55, uploadconnectionsuccess__isnull=False)
     if qs_ul.exists():
-        connect_time_ul = round(qs_ul.aggregate(Avg('uploadConnectionSuccess'))['uploadConnectionSuccess__avg'], 1)  # UL 접속시간
-        ul_sum = qs_ul.aggregate(Sum('uploadConnectionSuccess'))['uploadConnectionSuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
+        connect_time_ul = round(qs_ul.aggregate(Avg('uploadconnectionsuccess'))['uploadconnectionsuccess__avg'], 1)  # UL 접속시간
+        ul_sum = qs_ul.aggregate(Sum('uploadconnectionsuccess'))['uploadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
         ul_count = qs_ul.count()
     else:
         connect_time_ul, ul_sum, ul_count = 0.0, 0, 1
@@ -703,22 +706,24 @@ def cal_lte_ca(phoneGroup):
      . 파라미터: phoneGroup
      . 반환값: CA비율(list) [4/3/2/1] '''
     phone_list = phoneGroup.phone_set.all()
+    phone_no = phone_list.values_list('phone_no', flat=True)
     md = phoneGroup.measuringdayclose_set.all().last()
-    qs = MeasureSecondData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='speed')
+    qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, \
+                    userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
     # s1~s4 earfcn 값 카운트
-    # ca_4 = qs.exclude( Q(s4_EARFCN__isnull=True) | Q(s4_EARFCN=0) ).count() / md.total_count # s4는 제외??
-    ca_4 = qs.exclude( Q(s3_EARFCN__isnull=True) | Q(s3_EARFCN=0) ).count() / md.total_count
+    # ca_4 = qs.exclude( Q(s4_earfcn__isnull=True) | Q(s4_earfcn=0) ).count() / md.total_count # s4는 제외??
+    ca_4 = qs.exclude( Q(s3_earfcn__isnull=True) | Q(s3_earfcn=0) ).count() / md.total_count
     ca_3 = qs.exclude( Q(s2_dl_earfcn__isnull=True) | Q(s2_dl_earfcn=0) ).count() / md.total_count
     ca_2 = qs.exclude( Q(s1_dl_earfcn__isnull=True) | Q(s1_dl_earfcn=0) ).count() / md.total_count
     lte_ca = [round(ca_4), round(ca_4+ca_3), round(ca_4+ca_3+ca_2), 100]
     return lte_ca
     
-def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 체크 필요??  (4.14) -> 업데이트 예정
-    ''' 평균속도 계산 함수 (초데이터)
+def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 체크 필요??  (4.14) -> 업데이트 예정 -> (6.14) 콜데이터 사용
+    ''' 평균속도 계산 함수 (콜데이터)
      . 파라미터: phoneGroup
      . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
     phone_list = phoneGroup.phone_set.all()
-    qs = MeasureSecondData.objects.filter(ispId='45008', phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
     # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (data에서 downloadbandwidth 존재 유무로 판단)
     qs_dlbw = qs.exclude( Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )  # Q(networkId='NR')
     if qs_dlbw.exists():
