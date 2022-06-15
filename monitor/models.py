@@ -265,12 +265,16 @@ def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail
             if mp.wordsCond == 'AND':
                 words = tuple(map(str, mp.words.split(', ')))
                 if all(word in userInfo2 for word in words):
-                    morphologyDetail = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class, middle_class=middle_class)[0]
+                    qs = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class, middle_class=middle_class)
+                    if qs.exists():
+                        morphologyDetail = qs[0]
                     break
             elif mp.wordsCond == 'OR' or None:
                 words = tuple(map(str, mp.words.split(', ')))
                 if any(word in userInfo2 for word in words):
-                    morphologyDetail = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class, middle_class=middle_class)[0]
+                    qs = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class, middle_class=middle_class)
+                    if qs.exists():
+                        morphologyDetail = qs[0]
                     break
                 
     return morphologyDetail
