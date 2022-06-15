@@ -550,10 +550,10 @@ class Phone(models.Model):
                 self.guGun = region_2depth_name  # 구/군
                 self.addressDetail = region_3depth_name  # 행정동(읍/동/면)
 
-                # 모폴로지와 관리대상 여부를 설정한다.
-                morphology = get_morphology(self.networkId, self.userInfo2, self.userInfo1) # 측정자 입력값2
-                self.morphology = morphology # 모폴로지
-                self.manage = self.phoneGroup.manage # 관리대상 여부
+                # # 모폴로지와 관리대상 여부를 설정한다.   --> views.py 에서 지정
+                # morphology = get_morphology(self.networkId, self.userInfo2, self.userInfo1) # 측정자 입력값2
+                # self.morphology = morphology # 모폴로지
+                # self.manage = self.phoneGroup.manage # 관리대상 여부
 
                 # 센터별 관할구역 매핑정보를 통해 관할센터를 업데이트 한다.
                 # 2022.04.14 - 세종특별자치시인 경우 구/군 값이 없음
@@ -564,7 +564,17 @@ class Phone(models.Model):
                     qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)
                 if qs.exists():
                     self.center = qs[0].center  # 관할센터
-            else: self.center = Center.objects.get(centerName="전체")  # 위경도가 없을 경우 센터 전체로 지정
+
+                if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail:  ## WiFi + 지하철일 경우 서울강북으로 지정
+                    if self.phoneGroup.morphologyDetail.middle_class=="지하철":
+                        self.center = Center.objects.get(centerName="서울강북")
+
+            else: 
+                if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail:  ## WiFi + 지하철일 경우 서울강북으로 지정
+                    if self.phoneGroup.morphologyDetail.middle_class=="지하철":
+                        self.center = Center.objects.get(centerName="서울강북")
+                    else: self.center = Center.objects.get(centerName="전체")
+                else: self.center = Center.objects.get(centerName="전체") # 위경도가 없을 경우 센터 전체로 지정
 
             # 측정 단말기 정보를 저장한다.
             self.save()
