@@ -304,6 +304,7 @@ def delete_message(request, message_id):
             data = bot.delete_message(message.channelId, message.telemessageId)
             # 메시지 회수가 완료되면 회수여부를 업데이트 한다.
             message.telemessageId = None # 텔레그램 메시지ID
+            message.sended = False # 메시지 전송여부
             message.isDel = True # 메지시 회수여부
             message.save()
 
