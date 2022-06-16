@@ -887,10 +887,10 @@ class Message(models.Model):
     """전송 메시지 정보"""
     phoneGroup = models.ForeignKey(PhoneGroup, null=True, on_delete=models.DO_NOTHING)
     phone = models.ForeignKey(Phone, null=True, on_delete=models.DO_NOTHING)
-    center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING)
-    status = models.CharField(max_length=20, null=True)  # 메시지 전송시 측정단말의 상태
-    measdate = models.CharField(max_length=10) # 측정일자(예: 20211101)
-    sendType = models.CharField(max_length=10)  # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 텔레그램, 크로샷 모두 전송)
+    center = models.ForeignKey(Center, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name='센터')
+    status = models.CharField(max_length=20, null=True, verbose_name='상태')  # 메시지 전송시 측정단말의 상태
+    measdate = models.CharField(max_length=10, verbose_name='측정일자') # 측정일자(예: 20211101)
+    sendType = models.CharField(max_length=10, verbose_name='전송유형')  # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 텔레그램, 크로샷 모두 전송)
     #### 디버깅을 위해 임시로 만든 항목(향후 삭제예정) ###########
     userInfo1 = models.CharField(max_length=100, null=True, blank=True) # 측정자 입력값1
     currentCount = models.IntegerField(null=True, blank=True) # 현재 콜카운트
@@ -898,16 +898,20 @@ class Message(models.Model):
     downloadBandwidth = models.FloatField(null=True, blank=True)  # DL속도
     uploadBandwidth = models.FloatField(null=True, blank=True)  # UP속도
     ##############################################################
-    messageType = models.CharField(max_length=10)  # 메시지유형(SMS: 메시지, EVENT: 이벤트)
-    message = models.TextField(default=False) # 메시지 내용
+    messageType = models.CharField(max_length=10, verbose_name='메시지유형')  # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+    message = models.TextField(default=False, verbose_name='메시지 내용') # 메시지 내용
     channelId = models.CharField(max_length=25) # 채널ID
     # messageId = models.BigIntegerField(null=True, blank=True) # 메시지ID (메시지 회수할 때 사용)
-    sended = models.BooleanField(default=False) # 전송여부
+    sended = models.BooleanField(default=False, verbose_name='전송여부') # 전송여부
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일시')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='최종 업데이트 시간')
     sendTime = models.DateTimeField(null=True, blank=True, verbose_name='보낸시간')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
     isDel = models.BooleanField(default=False, verbose_name='회수여부')  # Telegram 메시지 회수 여부
+
+    class Meta:
+        verbose_name = "전송 메시지"
+        verbose_name_plural = "전송 메시지"
 
     # 전화번호 뒤에서 4자리를 반환한다.
     @property

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib import admin
 from django.db.models import Q
-from .models import PhoneGroup, Phone, MeasureCallData
+from .models import PhoneGroup, Phone, MeasureCallData, Message
 from .close import measuring_end
 
 ########################################################################################################################
@@ -281,9 +281,20 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
+# ----------------------------------------------------------------------------------------------------------------------
+# 텔레그램 전송메시지 관리자 페이지 설정
+# ----------------------------------------------------------------------------------------------------------------------
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ['measdate', 'center', 'status', 'messageType', 'message', 'sended', 'sendTime', 'isDel']
+    search_fields = ('message', )
+
+    list_per_page = 25 # 페이지당 데이터 건수
+    date_hierarchy = 'sendTime'
+
 admin.site.register(PhoneGroup, PhoneGroupAdmin) # 단말 그룹
 admin.site.register(Phone, PhoneAdmin) # 측정 단말
 admin.site.register(MeasureCallData, MeasureCallDataAdmin) # 측정 데이터(콜단위)
+admin.site.register(Message, MessageAdmin) # 측정 데이터(콜단위)
 
 
 
