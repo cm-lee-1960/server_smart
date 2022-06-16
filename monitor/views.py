@@ -512,6 +512,7 @@ def phonegroup_recalculate_view(request, phonegroup_id):
     """
     try:
         pg = PhoneGroup.objects.get(id=phonegroup_id)  ## 재계산할 폰그룹 추출
+        db_logger.error(phonegroup_id)
         update_phoneGroup(pg) # 재계산 함수 실행
         return_value = {'result' : 'ok'}
         return JsonResponse(data=return_value, safe=False)
