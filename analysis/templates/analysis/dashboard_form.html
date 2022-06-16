@@ -1297,6 +1297,15 @@
                                         $("#progressModal").modal('hide');
                                         //await this.fetch_all_phoneGroup;
                                     }});
+                                } else if (res_result == 'zero_count_exist') {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: '콜이 0인 단말그룹이 있습니다.',
+                                        text: '콜 수가 0/0인 단말그룹을 관리자 페이지에서 제외해주세요.'
+                                    }).then( async (result) => {
+                                        if (result.isConfirmed) {
+                                            $("#progressModal").modal('hide');
+                                        }});
                                 } else {
                                     Swal.fire({
                                         icon: 'error',

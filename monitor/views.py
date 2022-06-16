@@ -431,14 +431,16 @@ def measuring_day_close_view(request, measdate):
     # 1) 해당일자에 측정 이력이 없는 경우
     if PhoneGroup.objects.filter(measdate=date, manage=True).count() == 0:
         return_value = {'result': '해당일자에 측정 중인 지역이 없습니다.'}
+
+    # 2) 전체 콜 수가 0인 단말그룹이 있는 경우
+    elif PhoneGroup.objects.filter(measdate=date, manage=True, total_count=0).count() != 0:
+        return_value = {'result' : 'zero_count_exist'}
     
-    # 2) 해당일자에 측정마감이 기처리된 경우 -
+    # 2) 해당일자에 측정마감이 기처리된 경우 -> 재마감 처리
     #    - 측정 진행중인 단말그룹이 없고(active=True)
     #    - 측정마감 메시지가 이미 생성되어 있는 경우(status='REPORT_ALL')
     elif PhoneGroup.objects.filter(measdate=date, manage=True, active=True).count() == 0 and \
         Message.objects.filter(status='REPORT_ALL', measdate=date).count() is not 0:
-        # return_value = {'result': '해당일자에 측정마감이 이미 처리되었습니다.'}
-        # return_value = {'result': 'ok'}
         return_value = measuring_day_reclose(date)
 
     # 3) 해당일자에 대한 측정마감을 처리한다.
