@@ -98,20 +98,29 @@ def send_failure_check(mdata: MeasureCallData) -> str:
           . mdata: 측정 데이터(콜단위)
         - 반환값: '전송실패' or None
     """
+    # 로그를 기록하기 위한 로거를 생성한다.
+    import logging
+    # logger = logging.getLogger(__name__)
+    db_logger = logging.getLogger('db')
+    db_logger.error('sfc start!')
     message = None
     try:
+        db_logger.error('sfc try!')
         if mdata.phone.morphology.morphology and mdata.phone.morphology.morphology == '취약지역':
             areaInd = 'WEEK'  # 취약지역
         else:
             areaInd = 'NORM'  # 보통지역
         networkId = mdata.phone.networkId
+        db_logger.error(networkId)
         dataType = ''
         if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
         if mdata.uploadBandwidth and mdata.uploadBandwidth > 0: dataType, bandwidth = 'UL', mdata.uploadBandwidth
         if dataType in ('DL', 'UL'):
+            db_logger.error('sfc datatype strt!')
 
             qs = SendFailure.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
+                db_logger.error('sfc 1!')
                 if bandwidth < qs[0].bandwidth:
                     # # 메시지 내용을 작성한다.
                     # message = f"{mdata.address}에서 전송실패가 발생하였습니다.\n" + \
@@ -119,19 +128,24 @@ def send_failure_check(mdata: MeasureCallData) -> str:
                     #         f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / {mdata.get_pci} / {mdata.cellId} / " + \
                     #         f"{mdata.dl} / {mdata.ul} / {mdata.rsrp} / {mdata.p_sinr}"
                     message = dataType + '전송실패'
+                    db_logger.error('sfc 2!')
             # print("####", qs.exists(), f"{areaInd}/{networkId}/{dataType}")
 
                     # 단말그룹의 이벤트 발생건수를 하나 증가시킨다.
                     if dataType == 'DL':
+                        db_logger.error('sfc 3!')
                         mdata.phone.phoneGroup.send_failure_dl_count += 1
                         mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
                     elif dataType == 'UL':
+                        db_logger.error('sfc 4!')
                         mdata.phone.phoneGroup.send_failure_ul_count += 1
                         mdata.phone.phoneGroup.event_count += 1  # 전체 이벤트 건수(전송실패)
+                    db_logger.error('sfc 5!')
                     mdata.phone.phoneGroup.save()
 
     except Exception as e:
         print("send_failure_check():", str(e))
+        db_logger.error('sfc error!', Exception)
         raise Exception("send_failure_check(): %s" % e)
 
     return message

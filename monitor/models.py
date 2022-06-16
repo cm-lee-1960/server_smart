@@ -423,11 +423,6 @@ class Phone(models.Model):
         # 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
         #              측정단말 정보 업데이트 시 단말그룹의 콜카운트 관련 정보도 함께 업데이트 함
         phoneGroup = self.phoneGroup # 단말그룹
-        # 로그를 기록하기 위한 로거를 생성한다.
-        import logging
-        # logger = logging.getLogger(__name__)
-        db_logger = logging.getLogger('db')
-        db_logger.error('selfud strt')
         if mdata.networkId == 'NR':
             # DL속도 및 UL속도가 0(Zero)이면 NR 콜카운트에서 제외함
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
@@ -440,7 +435,6 @@ class Phone(models.Model):
                 self.meastype = 'UL'  # 5.6 추가
         else:
             # DL 평균속도 계산
-            db_logger.error('cal dl avg')
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.downloadBandwidth = ((self.downloadBandwidth * self.dl_count) + mdata.downloadBandwidth) / (self.dl_count + 1)
                 self.meastype = 'DL'
@@ -449,7 +443,6 @@ class Phone(models.Model):
                 phoneGroup.downloadBandwidth = ((phoneGroup.downloadBandwidth * phoneGroup.dl_count) + mdata.downloadBandwidth) / (phoneGroup.dl_count + 1)
                 phoneGroup.dl_count += 1
             # UP 평균속도 계산
-            db_logger.error('cal ul avg')
             if mdata.uploadBandwidth and mdata.uploadBandwidth > 0:
                 self.uploadBandwidth = ((self.uploadBandwidth * self.ul_count) + mdata.uploadBandwidth) / (self.ul_count + 1)
                 self.meastype = 'UL'
@@ -459,17 +452,14 @@ class Phone(models.Model):
                 phoneGroup.ul_count += 1
 
         # 현재 콜카운트와 전체 콜건수를 업데이트 한다.
-        db_logger.error('up indiv count')
         self.currentCount = mdata.currentCount  # 현재 콜카운트
         self.total_count = self.dl_count + self.ul_count + self.nr_count  # 전체 콜건수
 
         # 단말그룹 - 총 콜수
-        db_logger.error('up ttl count')
         phoneGroup.total_count = max(phoneGroup.dl_count + phoneGroup.dl_nr_count, \
                                      phoneGroup.ul_count + phoneGroup.ul_nr_count)
 
         # 단말그룹 - DL LTE전환율, UL LTE전환율, LTE전환율
-        db_logger.error('lte trns')
         if phoneGroup.dl_count > 0:
             phoneGroup.dl_nr_percent = round(phoneGroup.dl_nr_count / (phoneGroup.dl_count + phoneGroup.dl_nr_count) * 100,1)
         if phoneGroup.ul_count > 0:
@@ -481,20 +471,17 @@ class Phone(models.Model):
         # 단말기의 상태를 업데이트 한다.
         # 상태 - 'POWERON', 'START_F', 'START_M', 'MEASURING', 'END'
         # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
-        db_logger.error('up p status')
         if self.total_count <= 1:
             self.status = "START_M"
         else:
             self.status = "MEASURING"
 
         # 최종 위치보고시간을 업데이트 한다.
-        db_logger.error('u last updated')
         self.last_updated = mdata.meastime
         phoneGroup.last_updated = mdata.meastime
 
         # 단말그룹의 최종 위치보고시간(날짜형식)을 업데이트 한다.
         try:
-            db_logger.error('wow')
             meastime_s = str(mdata.meastime)
             year = meastime_s[0:4] # 년도
             month = meastime_s[4:6] # 월

@@ -393,7 +393,6 @@ def update_data(phoneGroup, mdata):
           datum = mdata.filter(phone_no=phone.phone_no)
           for data in datum:
             phone.update_phone(data)
-            db_logger.error('check what doesnt make you stronger')
             send_failure_check(data)  ## 전송실패 카운트를 위해 전송실패 이벤트만 체크
             db_logger.error('check_ok')
             phoneGroup.send_failure_dl_count = data.phone.phoneGroup.send_failure_dl_count
