@@ -272,8 +272,8 @@ def receive_json(request):
                         latitude=data['latitude'], # 위도
                         longitude=data['longitude'], # 경도
                         last_updated=data['meastime'], # 최종 위치보고시간
-                        morphology=morphology, # 모폴로지
-                        manage=morphology.manage, # 관리대상 여부
+                        morphology=phoneGroup.morphology, # 모폴로지
+                        manage=phoneGroup.manage, # 관리대상 여부
                         active=True, # 상태
                     )
             # 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 내용을 담아 놓음
