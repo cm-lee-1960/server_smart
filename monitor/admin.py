@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib import admin
+from django.db.models import Q
 from .models import PhoneGroup, Phone, MeasureCallData
 from .close import measuring_end
 
@@ -72,7 +73,7 @@ class PhoneGroupAdmin(admin.ModelAdmin):
     # 단말그룹 중에서 KT 자료만 보여지게 한다.
     def get_queryset(self, request):
         query = super(PhoneGroupAdmin, self).get_queryset(request)
-        filtered_query = query.filter(manage=True)
+        filtered_query = query.filter( Q(manage=True) | Q(ispId='45008') )
         return filtered_query
 
     # 선택된 ROW를 삭제하는 액션을 삭제한다("선택된 측정 단말 을/를 삭제합니다.").
@@ -214,7 +215,7 @@ class PhoneAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         query = super(PhoneAdmin, self).get_queryset(request)
         # filtered_query = query.filter(ispId='45008', manage=True)
-        filtered_query = query.filter(manage=True)
+        filtered_query = query.filter( Q(manage=True) | Q(ispId='45008') )
         return filtered_query
 
     # 저장 버튼을 제외한 나머지 버튼들을 화면에서 보이지 않게 한다.
