@@ -379,25 +379,21 @@ def update_phoneGroup(phoneGroup):
     ''' 단말기 정보 수동갱신 함수(폰그룹)
      . 파라미터: phoneGroup(폰그룹 쿼리셋)
      . 반환값: 없음 '''
-    db_logger.error('up_start')
     phone_list = phoneGroup.phone_set.all()
     data = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")  ## 백데이터 추출
-    db_logger.error('up_data_extract')
     phoneGroup.dl_count, phoneGroup.ul_count, phoneGroup.dl_nr_count, phoneGroup.ul_nr_count, phoneGroup.total_count, = 0, 0, 0, 0, 0  ## 카운트 초기화
     phoneGroup.event_count, phoneGroup.send_failure_dl_count, phoneGroup.send_failure_ul_count = 0, 0, 0  ## 이벤트 카운트 초기화
-    db_logger.error('ud_func_exe')
     update_data(phoneGroup, data)  ## 데이터 업데이트
 
 def update_data(phoneGroup, mdata):
     # 1) 데이터 업데이트
     try:
-        db_logger.error('ud_func_start')
         phone_list = phoneGroup.phone_set.all()
         for phone in phone_list:
           datum = mdata.filter(phone_no=phone.phone_no)
-          db_logger.error('ud_for_start')
           for data in datum:
             phone.update_phone(data)
+            db_logger.error('check what doesnt make you stronger')
             send_failure_check(data)  ## 전송실패 카운트를 위해 전송실패 이벤트만 체크
             db_logger.error('check_ok')
             phoneGroup.send_failure_dl_count = data.phone.phoneGroup.send_failure_dl_count
