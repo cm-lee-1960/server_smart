@@ -375,6 +375,7 @@ def update_phoneGroup(phoneGroup):
     ''' 단말기 정보 수동갱신 함수(폰그룹)
      . 파라미터: phoneGroup(폰그룹 쿼리셋)
      . 반환값: 없음 '''
+    print('up')
     phone_list = phoneGroup.phone_set.all()
     data = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")  ## 백데이터 추출
 
@@ -386,12 +387,14 @@ def update_phoneGroup(phoneGroup):
 def update_data(phoneGroup, mdata):
     # 1) 데이터 업데이트
     try:
+        print('ud')
         phone_list = phoneGroup.phone_set.all()
         for phone in phone_list:
           datum = mdata.filter(phone_no=phone.phone_no)
           for data in datum:
             phone.update_phone(data)
             send_failure_check(data)  ## 전송실패 카운트를 위해 전송실패 이벤트만 체크
+            print('center')
             phoneGroup.send_failure_dl_count = data.phone.phoneGroup.send_failure_dl_count
             phoneGroup.send_failure_ul_count = data.phone.phoneGroup.send_failure_ul_count
             phoneGroup.event_count = data.phone.phoneGroup.event_count
