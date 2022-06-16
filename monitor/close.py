@@ -327,10 +327,6 @@ def measuring_end_cancel(phoneGroup):
         return return_value
 
 
-# 로그를 기록하기 위한 로거를 생성한다.
-import logging
-# logger = logging.getLogger(__name__)
-db_logger = logging.getLogger('db')
 ########################################################################################################################
 # 단말 그룹 데이터 합치는 함수
 ########################################################################################################################                        
@@ -381,8 +377,10 @@ def update_phoneGroup(phoneGroup):
      . 반환값: 없음 '''
     phone_list = phoneGroup.phone_set.all()
     data = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")  ## 백데이터 추출
+
     phoneGroup.dl_count, phoneGroup.ul_count, phoneGroup.dl_nr_count, phoneGroup.ul_nr_count, phoneGroup.total_count, = 0, 0, 0, 0, 0  ## 카운트 초기화
     phoneGroup.event_count, phoneGroup.send_failure_dl_count, phoneGroup.send_failure_ul_count = 0, 0, 0  ## 이벤트 카운트 초기화
+
     update_data(phoneGroup, data)  ## 데이터 업데이트
 
 def update_data(phoneGroup, mdata):
@@ -394,12 +392,9 @@ def update_data(phoneGroup, mdata):
           for data in datum:
             phone.update_phone(data)
             send_failure_check(data)  ## 전송실패 카운트를 위해 전송실패 이벤트만 체크
-            db_logger.error('check_ok')
             phoneGroup.send_failure_dl_count = data.phone.phoneGroup.send_failure_dl_count
-            db_logger.error('dl_count_ok')
             phoneGroup.send_failure_ul_count = data.phone.phoneGroup.send_failure_ul_count
             phoneGroup.event_count = data.phone.phoneGroup.event_count
-            db_logger.error('count_all_ok')
             phoneGroup.save()
 
     except Exception as e:
