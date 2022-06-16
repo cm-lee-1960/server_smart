@@ -89,10 +89,10 @@ def phonegroup_list(request, measdate):
     try:
         # 해당 측정일자에 대한 단말그룹 정보를 가져온다.
         if request.user.is_superuser:
-            qs = PhoneGroup.objects.filter(measdate=measdate, ispId='45008', manage=True).order_by('-last_updated_dt')
+            qs = PhoneGroup.objects.filter(measdate=measdate, manage=True).order_by('-last_updated_dt')
         else:
             qs = PhoneGroup.objects.filter(Q(center=request.user.profile.center) | Q(center_id=1), measdate=measdate, \
-                                           ispId='45008', manage=True).order_by('-last_updated_dt')
+                                           manage=True).order_by('-last_updated_dt')
         phoneGroupList = []
         if qs.exists():
             fields = ['id', 'measdate', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
@@ -120,7 +120,6 @@ def phonegroup_list(request, measdate):
                 " FROM monitor_phonegroup, management_center " + \
                 " WHERE ( monitor_phonegroup.center_id = management_center.id ) " + \
                 f" AND monitor_phonegroup.measdate = '{measdate}' " + \
-                " AND monitor_phonegroup.ispId = '45008' " + \
                 " AND monitor_phonegroup.manage = true "
         # 관리자가 아닌 경우(현장 운용센터 사용자) 해당 운영센터 데이터만 조회할 수 있도록 한다.
         if request.user.is_superuser:
@@ -144,8 +143,7 @@ def phonegroup_list(request, measdate):
             "SELECT COUNT(*) As measuringTeam_count " + \
             "    FROM ( " + \
         	"           SELECT measuringTeam AS count FROM smart.monitor_phonegroup " + \
-        	"               WHERE ispId = '45008' " + \
-        	"	                AND manage = True " + \
+        	"               WHERE manage = True " + \
         	f"	                AND measdate = '{measdate}' " + \
         	"               GROUP BY measuringTeam " + \
             "           ) AS measuringTeam "
