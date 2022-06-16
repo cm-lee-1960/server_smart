@@ -5,7 +5,7 @@ from django.db.models import Max, Min, Avg, Count, Q, Sum
 from django.db import connection
 
 from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose
-from .inspectdb import TbNdmDataSampleMeasure
+from .inspectdb import TbNdmDataSampleMeasure, TbNdmDataMeasure
 from .events import send_failure_check
 from management.models import Center, Morphology, MorphologyDetail
 
@@ -682,7 +682,7 @@ def cal_connect_time(phoneGroup):
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
     md = phoneGroup.measuringdayclose_set.all().last()
-    qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, \
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, \
                     userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
     qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
 
