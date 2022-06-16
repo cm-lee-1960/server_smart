@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.contrib import admin
 from django.db.models import Q
+from django.contrib import messages
 from .models import PhoneGroup, Phone, MeasureCallData, Message
+from message.tele_msg import TelegramBot
 from .close import measuring_end
 
 ########################################################################################################################
@@ -285,11 +287,58 @@ class MeasureCallDataAdmin(admin.ModelAdmin):
 # 텔레그램 전송메시지 관리자 페이지 설정
 # ----------------------------------------------------------------------------------------------------------------------
 class MessageAdmin(admin.ModelAdmin):
+    """어드민 페이지에 전송 메시지를 보여주기 위한 클래스"""
     list_display = ['measdate', 'center', 'status', 'messageType', 'message', 'sended', 'sendTime', 'isDel']
     search_fields = ('message', )
 
     list_per_page = 25 # 페이지당 데이터 건수
     date_hierarchy = 'sendTime'
+
+    actions = ['delete_message']
+
+    # 선택된 텔레그램 메시지들을 회수한다.
+    def delete_message(self, request, queryset):
+        # 회수가 가능한 메시지인지 확인한다.
+        # 텔레그램으로 전송된 메시지만 회수가 가능한다.
+        for message in queryset:
+            print(message.telemessageId)
+            if message.telemessageId:
+                if message.isDel is True:
+                    messages.add_message(request, messages.ERROR, '이미 회수된 메시지가 포함되어 있습니다.')
+                    return
+                elif message.sended is False:
+                    messages.add_message(request, messages.ERROR, '아진 전송하지 않은 메시지가 포함되어 있습니다.')
+                    return
+            else:
+                messages.add_message(request, messages.ERROR, '전송된 텔레그램 메시지만 회수가 가능합니다.')
+                return
+
+        try:
+            bot = TelegramBot()
+            for message in queryset:
+                print(
+                    f"message_id: {message.id}, channelId: {message.channelId}, telemessageId: {message.telemessageId}")
+                # 전송된 메시지를 취소한다.
+                data = bot.delete_message(message.channelId, message.telemessageId)
+                # 메시지 회수가 완료되면 회수여부를 업데이트 한다.
+                message.telemessageId = None  # 텔레그램 메시지ID
+                message.isDel = True  # 메지시 회수여부
+                message.save()
+        except Exception as e:
+            # 오류 코드 및 내용을 반환한다.
+            print("delete_message():", str(e))
+            # db_logger.error("delete_message(): %s" % e
+            # db_logger.exception(e)
+            raise Exception("delete_message(): %s" % e)
+
+    delete_message.short_description = "선택된 전송 메시지 을/를 회수합니다."
+
+    # 기본으로 등록되어 있는 삭제 액션을 제거한다.
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
 admin.site.register(PhoneGroup, PhoneGroupAdmin) # 단말 그룹
 admin.site.register(Phone, PhoneAdmin) # 측정 단말
