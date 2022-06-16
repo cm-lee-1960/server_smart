@@ -67,15 +67,16 @@
     }
 
     function submit_close(form) {
-      t = sendnewmsg.submit();
-      alert('메시지를 송신하였습니다.');
-      setTimeout(function() {   
-             window.close();
-
-          }, 100);
-      // console.log(t)
-      // alert(t)
-      // // window.close();
+      const msgtype = radio_btn_val()
+      sendnewmsg.submit();
+      if (msgtype == 'XMCS') {
+        console.log('okay')
+      } else {
+        alert('텔레그램 메시지를 송신하였습니다.')
+        setTimeout(function() {
+          window.close();
+        }, 100);
+      }
     }
 
     function window_close() {

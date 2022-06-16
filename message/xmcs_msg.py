@@ -19,6 +19,10 @@ from management.models import Center
 # ----------------------------------------------------------------------------------------------------------------------
 ########################################################################################################################
 
+# 로그를 기록하기 위한 로거를 생성한다.
+import logging
+db_logger = logging.getLogger('db')
+
 
 def run_xmcs_server():   # 크로샷 서버 실행
   execute_send_sms_nodejs = os.popen('node ./message/xroshot_server.js')  # nodejs 파일 실행 -> 리스닝 시작 // node ./message/sms_broadcast.js
@@ -40,7 +44,7 @@ def send_sms(message, sender, receiver):
   receiver.sort(key=len)
   try:
     if (message.isspace() == True) or not(len(receiver[0]) == len(receiver[-1]) == 11):  # 메시지가 공백이거나 or 수신자번호 11자리 아니면 오류
-      print('Error: 메시지 또는 수신자 번호를 확인해주세요.')
+      db_logger.error('Error: 메시지 또는 수신자 번호를 확인해주세요.')
     else:  # 보낼 Data 생성 후 nodejs로 post 전송한다
       data = {'type': 'send', 'message': message, 'sender': sender, 'receiver': receivers}
       headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
@@ -105,13 +109,16 @@ def report_sms(JobIDs, SendDay):
   response = requests.post(url, data=json.dumps(data), headers=headers)
   cnt = len(JobIDs)
   # 반환할 Dict를 생성한다 : {수신자번호 : 결과}
-  result={'전체 건수' : cnt, '성공 건수' : 0, '실패 건수' : 0, '실패 상세' : {}}
-  for i in range(cnt):
+  result_detail={}
+  result={'TotalCount' : cnt, 'SuccessCount' : 0, 'FailCount' : 0, 'FailDetail' : {}, 'DetailAll' : {}}
+  for i in range(cnt): 
     if json.loads(response.text)['response']['JobIDs'][i]['Result'] == 0:
-      result['성공 건수'] += 1
+      result['SuccessCount'] += 1
     else:  # 실패일 경우 수신자 번호 추가
-      result['실패 건수'] += 1
-      result['실패 상세'][json.loads(response.text)['response']['JobIDs'][i]['ReceiveNumber']] = json.loads(response.text)['response']['JobIDs'][i]['Result']
+      result['FailCount'] += 1
+      result['FailDetail'][json.loads(response.text)['response']['JobIDs'][i]['ReceiveNumber']] = json.loads(response.text)['response']['JobIDs'][i]['Result']
+    result_detail[json.loads(response.text)['response']['JobIDs'][i]['ReceiveNumber']] = json.loads(response.text)['response']['JobIDs'][i]['Result']
+  result['DetailAll'] = result_detail
   return result
 
 

@@ -542,10 +542,18 @@ def send_new_msg(request):
             receiver = data['receiver']
             senderCenter = data['senderCenter']
 
-            from message.xmcs_msg import send_sms
+            from message.xmcs_msg import send_sms, report_sms
             receiver_list = receiver.replace(' ','').replace('\n','').split(',')
             senderNum = Center.objects.filter(centerName=senderCenter)[0].senderNum
             result_sms = send_sms(message, senderNum, receiver_list)
+            if result_sms['status_code'] == 200:  # 크로샷 전송 결과 개별 조회 수행 (정상 전송되었는지 확인)
+                cnt = result_sms['body']['response']['Count']  # 전송 대상 수
+                SendDay = result_sms['body']['response']['SubmitTime'][:8]  # 보낸날짜
+                JobIDs = []  # 조회할 개별 JobID 리스트
+                for i in range(cnt):
+                    JobIDs.append(result_sms['body']['response']['JobIDs'][i]['JobID'])
+                result = report_sms(JobIDs, SendDay)  # 조회 결과 : Dict, {수신자번호 : 결과}
+                return render(request, 'analysis/sendNewmessageResult.html', result)  # 크로샷 전송 조회 결과를 반환
 
         elif sendType == 'TELE':
             teleCenter = data['teleCenter']
@@ -553,4 +561,4 @@ def send_new_msg(request):
 
             bot = TelegramBot()
             result = bot.send_message_bot(channelId, message)
-    return HttpResponse("전송 완료")
+            return HttpResponse("전송 완료")

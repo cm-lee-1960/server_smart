@@ -1,0 +1,75 @@
+
+<head>
+  <meta charset="utf-8">
+  <title>새 메시지 전송 결과</title>
+</head>
+
+<body>
+{% csrf_token %}
+
+  <div>
+    <style>
+      table {
+        border: 1px solid #444444;
+        border-collapse: collapse;
+      }
+      th, td {
+        border: 1px solid #444444;
+        padding: 10px;
+        text-align: center;
+      }
+      th {
+        background-color: #bbdefb;
+      }
+      td {
+        background-color: #e3f2fd;
+      }
+    </style>
+    <table>
+      <caption>메시지 전송 결과</caption>
+      <th>구분</th>
+      <th>값</th>
+      <tr>
+        <td nowrap width="150">전체 건수</td>
+        <td nowrap width="100">{{ TotalCount }}</td>
+      </tr>
+      <tr>
+        <td nowrap width="150">성공 건수</td>
+        <td nowrap width="100">{{ SuccessCount }}</td>
+      </tr>
+      <tr>
+        <td nowrap width="150">실패 건수</td>
+        <td nowrap width="100">{{ FailCount }}</td>
+      </tr>
+      <br>
+      <br>
+      {% if FailDetail %}
+      <table>
+        <caption>실패 상세내용</caption>
+        <th>수신번호</th>
+        <th>값</th>
+        {% for key, value in FailDetail.items %}
+        <tr>
+          <td nowrap width="150">{{ key }}</td>
+          <td nowrap width="100">{{ value }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+    </table>
+    <br>
+    <br>
+    <br>  
+    <table>
+      <caption>개별 상세내용<font size=-1 color="red">(값이 0이어야 성공)</font></caption>
+      <th>수신번호</th>
+      <th>결과</th>
+      {% for key, value in DetailAll.items %}
+      <tr>
+        <td nowrap width="200">{{ key }}</td>
+        <td nowrap width="100">{{ value }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</body>
