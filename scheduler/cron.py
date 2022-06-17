@@ -113,7 +113,8 @@ def holiday_check(year, month, tday):
 
 def start_monitoring():
     dt = datetime.today()
-    if  print_whichday(dt.year, dt.month, dt.day) == "월요일" and not holiday_check(dt.year, dt.month, dt.day):
+    # if  print_whichday(dt.year, dt.month, dt.day) == "월요일" and not holiday_check(dt.year, dt.month, dt.day):
+    if not holiday_check(dt.year, dt.month, dt.day):
         msgcfg = MessageConfig.objects.all()[0]
         if msgcfg.ALL is False:
             msgcfg.ALL = True
