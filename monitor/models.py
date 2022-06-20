@@ -253,9 +253,9 @@ def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail
     """
     morphologyDetail = None  # 타사 측정일 경우 등을 위한 초기치 설정
 
-    # userInfo1 에 '호선' 단어가 들어가면 지하철 측정으로 판단
-    if '호선' in userInfo1: middle_class = '지하철'
-    else: middle_class = None
+    # userInfo1 에 '호선' 단어가 들어가면 지하철 측정으로 판단  --> 06.20 주석처리 (지하철 측정 끝)
+    # if '호선' in userInfo1: middle_class = '지하철'
+    # else: middle_class = None
 
     # 측정자 입력값2(userInfo2)에 따라 모폴로지 상세(대분류)를 결정한다.
     if userInfo2 and userInfo2 is not None:
