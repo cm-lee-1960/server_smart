@@ -701,7 +701,7 @@ def cal_connect_time(phoneGroup):
     else:
         connect_time_ul, ul_sum, ul_count = 0.0, 0, 1
 
-    connect_time = (dl_sum + ul_sum) / (dl_count + ul_count)  # 접속시간 전체평균
+    connect_time = round(((dl_sum + ul_sum) / (dl_count + ul_count)), 1)  # 접속시간 전체평균
     return {'connect_time_dl':connect_time_dl, 'connect_time_ul':connect_time_ul, 'connect_time':connect_time}
 
 def cal_lte_ca(phoneGroup):
