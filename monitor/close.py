@@ -202,86 +202,86 @@ def measuring_end(phoneGroup):
             raise Exception("measuring_end() - 측정종료 메시지 및 데이터 저장: %s" % e)
         
 
-        # ------------------------------------------------------------------------------------------------------------------
-        # 3) 해당 단말그룹이 당일 측정종료 최종 마지막일 때 당일 측정종료 메시지를 생성한다.
-        # ------------------------------------------------------------------------------------------------------------------
-        try:
-            # 더 이상 활성화된 단말그룹이 없다면 최종 마지막 단말그룹이라고 판단한다.
-            # 즉, 가장 마지막 측정종료 단말그룹이라는 것을 의미한다.
-            if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True, active=True).count() == 0:
-                # 측정지역 개수 추출
-                daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
-                # 네트워크 유형별 건수를 조회한다.
-                cursor = connection.cursor()
-                cursor.execute(" SELECT networkId, COUNT(*) AS COUNT " + \
-                                "      FROM monitor_phonegroup " + \
-                                f"      WHERE measdate='{phoneGroup.measdate}' and " + \
-                                # "             ispId = '45008' and " + \
-                                "             manage = True " + \
-                                "      GROUP BY networkId "
-                                )
-                result = dict((x, y) for x, y in [row for row in cursor.fetchall()])
-                fiveg_count = result['5G'] if '5G' in result.keys() else 0 # 5G 측정건수
-                lte_count = result['LTE'] if 'LTE' in result.keys() else 0 # LTE 측정건수
-                threeg_count = result['3G'] if '3G' in result.keys() else 0 # 3G 측정건수
-                wifi_count = result['WiFi'] if 'WiFi' in result.keys() else 0 # WiFi 측정건수
-                total_count = fiveg_count + lte_count + threeg_count + wifi_count
-                # 네트워크 유형 별 userInfo1을 추출한다.
-                userInfo_byType = {'5G':'', 'LTE':'', '3G':'', 'WiFi':''}
-                for userInfo in PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True).values('networkId', 'userInfo1', 'morphologyDetail'):
-                    userInfo_byType[userInfo['networkId']] += '\n  .' + userInfo['userInfo1']
-                    if userInfo['networkId'] == 'WiFi':  # WiFi일 경우 상용/공공/개방 구분자 추가
-                        userInfo_byType[userInfo['networkId']] += '(' + MorphologyDetail.objects.get(id=userInfo['morphologyDetail']).main_class +')'
+        # # ------------------------------------------------------------------------------------------------------------------
+        # # 3) 해당 단말그룹이 당일 측정종료 최종 마지막일 때 당일 측정종료 메시지를 생성한다.
+        # # ------------------------------------------------------------------------------------------------------------------
+        # try:
+        #     # 더 이상 활성화된 단말그룹이 없다면 최종 마지막 단말그룹이라고 판단한다.
+        #     # 즉, 가장 마지막 측정종료 단말그룹이라는 것을 의미한다.
+        #     if PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True, active=True).count() == 0:
+        #         # 측정지역 개수 추출
+        #         daily_day = str(phoneGroup.measdate)[4:6] + '월' + str(phoneGroup.measdate)[6:8] + '일'
+        #         # 네트워크 유형별 건수를 조회한다.
+        #         cursor = connection.cursor()
+        #         cursor.execute(" SELECT networkId, COUNT(*) AS COUNT " + \
+        #                         "      FROM monitor_phonegroup " + \
+        #                         f"      WHERE measdate='{phoneGroup.measdate}' and " + \
+        #                         # "             ispId = '45008' and " + \
+        #                         "             manage = True " + \
+        #                         "      GROUP BY networkId "
+        #                         )
+        #         result = dict((x, y) for x, y in [row for row in cursor.fetchall()])
+        #         fiveg_count = result['5G'] if '5G' in result.keys() else 0 # 5G 측정건수
+        #         lte_count = result['LTE'] if 'LTE' in result.keys() else 0 # LTE 측정건수
+        #         threeg_count = result['3G'] if '3G' in result.keys() else 0 # 3G 측정건수
+        #         wifi_count = result['WiFi'] if 'WiFi' in result.keys() else 0 # WiFi 측정건수
+        #         total_count = fiveg_count + lte_count + threeg_count + wifi_count
+        #         # 네트워크 유형 별 userInfo1을 추출한다.
+        #         userInfo_byType = {'5G':'', 'LTE':'', '3G':'', 'WiFi':''}
+        #         for userInfo in PhoneGroup.objects.filter(measdate=phoneGroup.measdate, manage=True).values('networkId', 'userInfo1', 'morphologyDetail'):
+        #             userInfo_byType[userInfo['networkId']] += '\n  .' + userInfo['userInfo1']
+        #             if userInfo['networkId'] == 'WiFi':  # WiFi일 경우 상용/공공/개방 구분자 추가
+        #                 userInfo_byType[userInfo['networkId']] += '(' + MorphologyDetail.objects.get(id=userInfo['morphologyDetail']).main_class +')'
 
-                # 메시지를 생성한다.
-                message_end_last = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
-                            f"{phoneGroup.userInfo1}({phoneGroup.networkId}{phoneGroup.morphology})을 마지막으로 종료 되었습니다.\n" + \
-                            f"ㅇ 측정지역({total_count})\n" + \
-                            f" - 5G품질({fiveg_count})" + f"{userInfo_byType['5G']}\n" + \
-                            f" - LTE/3G 취약지역 품질({lte_count + threeg_count})" + f"{userInfo_byType['LTE']}" + f"{userInfo_byType['3G']}\n" + \
-                            f" - WiFi 품질({wifi_count})" + f"{userInfo_byType['WiFi']}\n" + \
-                            "수고 많으셨습니다."
+        #         # 메시지를 생성한다.
+        #         message_end_last = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
+        #                     f"{phoneGroup.userInfo1}({phoneGroup.networkId}{phoneGroup.morphology})을 마지막으로 종료 되었습니다.\n" + \
+        #                     f"ㅇ 측정지역({total_count})\n" + \
+        #                     f" - 5G품질({fiveg_count})" + f"{userInfo_byType['5G']}\n" + \
+        #                     f" - LTE/3G 취약지역 품질({lte_count + threeg_count})" + f"{userInfo_byType['LTE']}" + f"{userInfo_byType['3G']}\n" + \
+        #                     f" - WiFi 품질({wifi_count})" + f"{userInfo_byType['WiFi']}\n" + \
+        #                     "수고 많으셨습니다."
 
-                # 마지막 종료 메시지가 존재하면 update, 미존재면 신규생성
-                message_last_exists = Message.objects.filter(measdate=phoneGroup.measdate, status='END_LAST')
-                if message_last_exists.exists():
-                    message_last_exists.delete()  # 메시지는 생성될 때에만 전송되기때문에 이전 메시지는 삭제
-                    message_last_exists = Message.objects.create(
-                        phoneGroup=phoneGroup,
-                        phone=None, # 측정단말
-                        center=None,
-                        status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
-                        measdate=phoneGroup.measdate, # 측정일자
-                        sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
-                        userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
-                        phone_no=None, # 측정단말 전화번호
-                        downloadBandwidth=None, # DL속도
-                        uploadBandwidth=None, # UL속도
-                        messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
-                        message=message_end_last, # 메시지 내용
-                        channelId=chatId, # 채널ID
-                        sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
-                        )
-                else:
-                    message_last_exists = Message.objects.create(
-                        phoneGroup=phoneGroup,
-                        phone=None, # 측정단말
-                        center=None,
-                        status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
-                        measdate=phoneGroup.measdate, # 측정일자
-                        sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
-                        userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
-                        phone_no=None, # 측정단말 전화번호
-                        downloadBandwidth=None, # DL속도
-                        uploadBandwidth=None, # UL속도
-                        messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
-                        message=message_end_last, # 메시지 내용
-                        channelId=chatId, # 채널ID
-                        sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
-                        )
-        except Exception as e:
-            print("최종 종료 지역 메시지 생성:", str(e))
-            raise Exception("measuring_end/message_end_last: %s" % e)
+        #         # 마지막 종료 메시지가 존재하면 update, 미존재면 신규생성
+        #         message_last_exists = Message.objects.filter(measdate=phoneGroup.measdate, status='END_LAST')
+        #         if message_last_exists.exists():
+        #             message_last_exists.delete()  # 메시지는 생성될 때에만 전송되기때문에 이전 메시지는 삭제
+        #             message_last_exists = Message.objects.create(
+        #                 phoneGroup=phoneGroup,
+        #                 phone=None, # 측정단말
+        #                 center=None,
+        #                 status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
+        #                 measdate=phoneGroup.measdate, # 측정일자
+        #                 sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
+        #                 userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+        #                 phone_no=None, # 측정단말 전화번호
+        #                 downloadBandwidth=None, # DL속도
+        #                 uploadBandwidth=None, # UL속도
+        #                 messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+        #                 message=message_end_last, # 메시지 내용
+        #                 channelId=chatId, # 채널ID
+        #                 sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
+        #                 )
+        #         else:
+        #             message_last_exists = Message.objects.create(
+        #                 phoneGroup=phoneGroup,
+        #                 phone=None, # 측정단말
+        #                 center=None,
+        #                 status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
+        #                 measdate=phoneGroup.measdate, # 측정일자
+        #                 sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
+        #                 userInfo1=phoneGroup.userInfo1, # 측정자 입력값1
+        #                 phone_no=None, # 측정단말 전화번호
+        #                 downloadBandwidth=None, # DL속도
+        #                 uploadBandwidth=None, # UL속도
+        #                 messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+        #                 message=message_end_last, # 메시지 내용
+        #                 channelId=chatId, # 채널ID
+        #                 sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
+        #                 )
+        # except Exception as e:
+        #     print("최종 종료 지역 메시지 생성:", str(e))
+        #     raise Exception("measuring_end/message_end_last: %s" % e)
 
         # 반환값에 대해서는 향후 고민 필요  //  일단 생성된 종료 message 내용 반환
         return_value = {'result': 'ok'}
@@ -421,7 +421,92 @@ def measuring_day_close(phoneGroup_list, measdate):
     # Close한 그룹들에 대해 종료 메시지 생성 - PhoneGroup 과 Phone 의 상태는 종료 메시지 생성 함수에서 변경됨
     for phoneGroup in phoneGroup_list:
         measuring_end(phoneGroup)
+    
+    # ------------------------------------------------------------------------------------------------------------------
+    # 당일 마지막 지역 측정종료 메시지를 생성한다.  (6.22 종료 --> 마감으로 함수 이동)
+    # ------------------------------------------------------------------------------------------------------------------
+    try:
+        # 최종 위치 보고가 가장 늦은 단말그룹을 기준으로 종료 메시지 생성
+        pg_endlast = PhoneGroup.objects.filter(measdate=measdate, manage=True).order_by('-last_updated')[0]
+        print(pg_endlast)
+        print('*---*')
+        end_meastime = str(pg_endlast.last_updated)[8:10] + ':' + str(pg_endlast.last_updated)[10:12]
+        # 측정지역 개수 추출
+        daily_day = str(measdate)[4:6] + '월' + str(measdate)[6:8] + '일'
+        # 네트워크 유형별 건수를 조회한다.
+        cursor = connection.cursor()
+        cursor.execute(" SELECT networkId, COUNT(*) AS COUNT " + \
+                        "      FROM monitor_phonegroup " + \
+                        f"      WHERE measdate='{measdate}' and " + \
+                        # "             ispId = '45008' and " + \
+                        "             manage = True " + \
+                        "      GROUP BY networkId "
+                        )
+        result = dict((x, y) for x, y in [row for row in cursor.fetchall()])
+        fiveg_count = result['5G'] if '5G' in result.keys() else 0 # 5G 측정건수
+        lte_count = result['LTE'] if 'LTE' in result.keys() else 0 # LTE 측정건수
+        threeg_count = result['3G'] if '3G' in result.keys() else 0 # 3G 측정건수
+        wifi_count = result['WiFi'] if 'WiFi' in result.keys() else 0 # WiFi 측정건수
+        total_count = fiveg_count + lte_count + threeg_count + wifi_count
+        # 네트워크 유형 별 userInfo1을 추출한다.
+        userInfo_byType = {'5G':'', 'LTE':'', '3G':'', 'WiFi':''}
+        for userInfo in PhoneGroup.objects.filter(measdate=measdate, manage=True).values('networkId', 'userInfo1', 'morphologyDetail'):
+            userInfo_byType[userInfo['networkId']] += '\n  .' + userInfo['userInfo1']
+            if userInfo['networkId'] == 'WiFi':  # WiFi일 경우 상용/공공/개방 구분자 추가
+                userInfo_byType[userInfo['networkId']] += '(' + MorphologyDetail.objects.get(id=userInfo['morphologyDetail']).main_class +')'
+
+        # 메시지를 생성한다.
+        message_end_last = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
+                    f"{pg_endlast.userInfo1}({pg_endlast.networkId}{pg_endlast.morphology})을 마지막으로 종료 되었습니다.\n" + \
+                    f"ㅇ 측정지역({total_count})\n" + \
+                    f" - 5G품질({fiveg_count})" + f"{userInfo_byType['5G']}\n" + \
+                    f" - LTE/3G 취약지역 품질({lte_count + threeg_count})" + f"{userInfo_byType['LTE']}" + f"{userInfo_byType['3G']}\n" + \
+                    f" - WiFi 품질({wifi_count})" + f"{userInfo_byType['WiFi']}\n" + \
+                    "수고 많으셨습니다."
+
+        # 마지막 종료 메시지가 존재하면 update, 미존재면 신규생성
+        print(phoneGroup)
+        message_last_exists = Message.objects.filter(measdate=measdate, status='END_LAST')
+        if message_last_exists.exists():
+            message_last_exists.delete()  # 메시지는 생성될 때에만 전송되기때문에 이전 메시지는 삭제
+            message_last_exists = Message.objects.create(
+                phoneGroup=pg_endlast,
+                phone=None, # 측정단말
+                center=None,
+                status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
+                measdate=measdate, # 측정일자
+                sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
+                userInfo1=pg_endlast.userInfo1, # 측정자 입력값1
+                phone_no=None, # 측정단말 전화번호
+                downloadBandwidth=None, # DL속도
+                uploadBandwidth=None, # UL속도
+                messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+                message=message_end_last, # 메시지 내용
+                channelId=pg_endlast.center.channelId, # 채널ID
+                sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
+                )
+        else:
+            message_last_exists = Message.objects.create(
+                phoneGroup=pg_endlast,
+                phone=None, # 측정단말
+                center=None,
+                status='END_LAST',  # END_LAST : 마지막 종료 시의 메시지
+                measdate=measdate, # 측정일자
+                sendType='ALL', # 전송유형(TELE: 텔레그램, XMCS: 크로샷, ALL: 모두)
+                userInfo1=pg_endlast.userInfo1, # 측정자 입력값1
+                phone_no=None, # 측정단말 전화번호
+                downloadBandwidth=None, # DL속도
+                uploadBandwidth=None, # UL속도
+                messageType='SMS', # 메시지유형(SMS: 메시지, EVENT: 이벤트)
+                message=message_end_last, # 메시지 내용
+                channelId=pg_endlast.center.channelId, # 채널ID
+                sended=False # 전송여부 : Message 모델의 sendType이 ALL일 경우 수동으로 크로샷까지 보내야 True로 변경(텔레그램만 전송한 경우 False 유지)
+                )
+    except Exception as e:
+        print("최종 종료 지역 메시지 생성:", str(e))
+        raise Exception("measuring_day_close/message_end_last: %s" % e)
  
+
     # 각 단말 그룹들의 종료 데이터(MeasuringDayClose)를 보충
     for phoneGroup in PhoneGroup.objects.filter(manage=True, active=False, measdate=measdate):
         try:
@@ -656,7 +741,7 @@ def cal_udpJitter(phoneGroup):
      . 반환값 : 평균 지연시간 (float) '''
     # 평균 지연시간 계산  :  testNetworkType이 latency인 데이터들의 udpJitter 평균값
     phone_list = phoneGroup.phone_set.all()
-    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='latency').order_by("meastime")  # 초단위 데이터
+    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='latency').order_by("meastime")
     if qs.filter(udpJitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
         udpJitter = round(qs.exclude(udpJitter__isnull=True).aggregate(Avg('udpJitter'))['udpJitter__avg'], 1)
     else: udpJitter = 0.0
