@@ -95,7 +95,7 @@ def phonegroup_list(request, measdate):
                                            manage=True).order_by('-last_updated_dt')
         phoneGroupList = []
         if qs.exists():
-            fields = ['id', 'measdate', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1',
+            fields = ['id', 'measdate', 'centerName', 'measuringTeam', 'p_measuringTeam', 'phone_list', 'userInfo1', 'userInfo2',
                       'starttime', 'morphologyName', 'morphologyDetailId', 'morphologyDetailNetwork', 'morphologyDetailMain', 'morphologyDetailMiddle',
                       'networkId', 'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent',
                       'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended',
