@@ -147,7 +147,7 @@ def receive_json(request):
     #  * 해당 측정데이터의 측정일시(meastime)와 현재 시간을 비교하여 2시간 이상 경과한 데이터가 오후 8시 이후 전송되는
     #    경우 예외처러
     # ------------------------------------------------------------------------------------------------------------------
-    meastime_d = datetime.strptime(data['meastime'][:14], '%Y%m%d%H%M%S')
+    meastime_d = datetime.strptime(str(data['meastime'])[:14], '%Y%m%d%H%M%S')
     diff = datetime.now() - meastime_d
     hours = diff.total_seconds() / 3600
     if hours > 2 and datetime.now().hour > 20:
