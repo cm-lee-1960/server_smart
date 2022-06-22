@@ -252,6 +252,7 @@ def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail
         - 반환값: 모폴러지상세(MorphologyDetail)
     """
     morphologyDetail = None  # 타사 측정일 경우 등을 위한 초기치 설정
+    qs = None
 
     # userInfo1 에 '호선' 단어가 들어가면 지하철 측정으로 판단  --> 06.20 주석처리 (지하철 측정 끝)
     # if '호선' in userInfo1: middle_class = '지하철'
@@ -261,21 +262,38 @@ def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail
     if userInfo2 and userInfo2 is not None:
     # 모풀로지상세 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지 상세를 반환한다.
         userInfo2 = userInfo2.upper()
-        for mp in MorphologyDetail.objects.exclude(words__isnull=True):
-            if mp.wordsCond == 'AND':
-                words = tuple(map(str, mp.words.split(', ')))
+        for mp in MorphologyDetail.objects.exclude(words_userInfo2__isnull=True):
+            if mp.wordsCond_userInfo2 == 'AND':
+                words = tuple(map(str, mp.words_userInfo2.split(', ')))
                 if all(word in userInfo2 for word in words):
-                    qs = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class, middle_class=mp.middle_class)
+                    qs = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class)
                     if qs.exists():
-                        morphologyDetail = qs[0]
+                        morphologyDetail = qs.exclude(middle_class="지하철")[0]
                     break
-            elif mp.wordsCond == 'OR' or None:
-                words = tuple(map(str, mp.words.split(', ')))
+            elif mp.wordsCond_userInfo2 == 'OR' or None:
+                words = tuple(map(str, mp.words_userInfo2.split(', ')))
                 if any(word in userInfo2 for word in words):
-                    qs = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class, middle_class=mp.middle_class)
+                    qs = MorphologyDetail.objects.filter(network_type='WiFi', main_class=mp.main_class)
                     if qs.exists():
-                        morphologyDetail = qs[0]
+                        morphologyDetail = qs.exclude(middle_class="지하철")[0]
                     break
+    
+    if qs and userInfo1:  ## userInfo1 으로 중분류(지하철) 결정
+        userInfo1 = userInfo1.upper()
+        for mp in MorphologyDetail.objects.exclude(words_userInfo1__isnull=True):
+            if mp.wordsCond_userInfo1 == 'AND':
+                words = tuple(map(str, mp.words_userInfo1.split(', ')))
+                if all(word in userInfo1 for word in words):
+                    qs = qs.filter(middle_class=mp.middle_class)
+                    if qs.exists(): morphologyDetail = qs[0]
+                    break
+            elif mp.wordsCond_userInfo1 == 'OR' or None:
+                words = tuple(map(str, mp.words_userInfo1.split(', ')))
+                if any(word in userInfo1 for word in words):
+                    qs = qs.filter(middle_class=mp.middle_class)
+                    if qs.exists(): morphologyDetail = qs[0]
+                    break
+
                 
     return morphologyDetail
 

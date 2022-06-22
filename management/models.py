@@ -316,9 +316,12 @@ class MorphologyDetail(models.Model):
     main_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="대분류")
     middle_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="중분류")
     sub_class = models.CharField(max_length=100, null=True, blank=True, verbose_name="소분류")
-    words = models.CharField(max_length=200, null=True, blank=True,
-                             verbose_name="단어(userInfo2)") # 모폴로지 판단 컬럼2 : 특정 단어 포함
-    wordsCond = models.CharField(max_length=20, null=True, blank=True, choices=WORDSCOND_CHOICES, verbose_name='조건')
+    words_userInfo2 = models.CharField(max_length=200, null=True, blank=True,
+                             verbose_name="대분류 구분 단어(userInfo2)") # 모폴로지 판단 컬럼2 : 특정 단어 포함  // 대분류 구분에 사용
+    wordsCond_userInfo2 = models.CharField(max_length=20, null=True, blank=True, choices=WORDSCOND_CHOICES, verbose_name='조건(userInfo2)')
+    words_userInfo1 = models.CharField(max_length=200, null=True, blank=True,
+                             verbose_name="중분류 구분 단어(userInfo1)") # 모폴로지 판단 컬럼1 : 특정 단어 포함 // 중분류(지하철) 구분에만 사용
+    wordsCond_userInfo1 = models.CharField(max_length=20, null=True, blank=True, choices=WORDSCOND_CHOICES, verbose_name='조건(userInfo1)')
 
     class Meta:
         verbose_name = ("모폴로지 상세")

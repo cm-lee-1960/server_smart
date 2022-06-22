@@ -139,7 +139,6 @@ class ChatMemberListAdmin(admin.ModelAdmin):
     # ---------------------------------------------------------------------------------------------
     def set_all_true(self, request, queryset):
         try:
-            print(queryset)
             queryset.update(allowed=True)
         except:
             raise Exception("일괄변경 실패 - 선택한 컬럼을 확인하여주세요.")
@@ -163,7 +162,7 @@ class PhoneInfoAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 class MorphologyDetailAdmin(admin.ModelAdmin):
     """어드민 페이지에 모폴로지 상세를 보여주기 위한 클래스"""
-    list_display = ['network_type', 'main_class', 'middle_class', 'sub_class', 'words', 'wordsCond']
+    list_display = ['network_type', 'main_class', 'middle_class', 'sub_class', 'words_userInfo2', 'wordsCond_userInfo2', 'words_userInfo1', 'wordsCond_userInfo1']
     # list_display_links = ['main_class']
     search_fields = ('network_type', 'main_class', )
     list_filter = ['network_type', 'main_class', ]
@@ -173,8 +172,11 @@ class MorphologyDetailAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('network_type', 'main_class', 'middle_class', 'sub_class',)
         }),
-        ('대분류를 자동 구분하는 조건: 단어는 쉼표+띄어쓰기(, )로 구분!!, 대문자만 사용', {
-            'fields': ('words','wordsCond',)
+        ('대분류를 자동 구분하는 조건: 입력한 단어와 userInfo2를 비교하여 구분합니다. \n  * 단어는 쉼표+띄어쓰기(, )로 구분!!, 대문자만 사용', {
+            'fields': ('words_userInfo2','wordsCond_userInfo2',)
+        }),
+        ('중분류를 자동 구분하는 조건: 입력한 단어와 userInfo1을 비교하여 구분합니다. // 대분류가 먼저 구분되어야 동작합니다. \n  * 단어는 쉼표+띄어쓰기(, )로 구분!!, 대문자만 사용', {
+            'fields': ('words_userInfo1','wordsCond_userInfo1',)
         }),
     )
 
