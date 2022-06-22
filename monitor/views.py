@@ -125,7 +125,14 @@ def receive_json(request):
     
     data = JSONParser().parse(request)
 
-    ## 데이터 중복체크  // 체크 기준 열 : ['meastime', 'phone_no', 'userInfo1', 'userInfo2', 'currentCount']
+    # ------------------------------------------------------------------------------------------------------------------
+    # [예외처리] 수신 데이터 중복체크
+    #  * meastime : 측정일시
+    #  * phone_no : 측정단말번호
+    #  * 측정자입력값1 : userInfo1
+    #  * 측정자입력값 : userInfo2
+    #  * 현재콜카운트 : currentCount
+    # ------------------------------------------------------------------------------------------------------------------
     duplicate_check_data = MeasureCallData.objects.filter(meastime=data['meastime'], phone_no=data['phone_no'], \
                                                         userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], currentCount=data['currentCount'])
     if duplicate_check_data.exists():
@@ -133,6 +140,21 @@ def receive_json(request):
         db_logger.error("인입 데이터 중복:", Exception)
         return HttpResponse("인입 데이터 중복::" + Exception, status=500)
     else: pass
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # [ 예외처리 ] 측정일시로부터 2시간이 경과한 데이터 수신시 제외
+    #  * 현상 : 새벽시간에 낮시간 측정 데이터가 수신되어 텔레그램 메시지 전송이 발생함
+    #  * 해당 측정데이터의 측정일시(meastime)와 현재 시간을 비교하여 2시간 이상 경과한 데이터가 오후 8시 이후 전송되는
+    #    경우 예외처러
+    # ------------------------------------------------------------------------------------------------------------------
+    meastime_d = datetime.strptime(data['meastime'][:14], '%Y%m%d%H%M%S')
+    diff = datetime.now() - meastime_d
+    hours = diff.total_seconds() / 3600
+    if hours > 2 and datetime.now().hour > 20:
+        raise Exception("측정종료 후 데이터가 수신되었습니다.")
+        db_logger.error("측정종료 후 데이터수신:", data)
+        return HttpResponse("측정종료 후 데이터수신:" + Exception, status=500)
+
 
     # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
     if data['downloadBandwidth']: 
