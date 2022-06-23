@@ -10,7 +10,7 @@ from django.contrib import messages
 from message.msg import make_message
 from management.models import Morphology, MorphologyDetail, EtcConfig, PhoneInfo
 from .events import event_occur_check
-from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, get_morphologyDetail_wifi, Message
+from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, get_morphologyDetail_wifi, Message, networkType_check
 from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union, update_phoneGroup
 
 
@@ -183,6 +183,7 @@ def receive_json(request):
         data['networkId'] = 'WiFi'
     else: pass
     
+
     # ------------------------------------------------------------------------------------------------------------------
     # 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
     # 전화번호에 대한 특정 단말이 있는지 확인한다.
@@ -202,8 +203,12 @@ def receive_json(request):
         # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
         #     ispId=data['ispId'], active=True).order_by('-last_updated_dt')
     
-        if data['networkId'] == 'NR' or data['networkId'] == 'NR5G' : nId = '5G'  # 측정유형 지정 // NR일 경우 5G
-        else: nId = data['networkId']
+        # LTE 전환인지 체크한다 (6.23)  --- models.py 의 nr_check 함수 사용
+        # if data['networkId'] == 'NR' or data['networkId'] == 'NR5G' : nId = '5G'  # 측정유형 지정 // NR일 경우 5G
+        # else: nId = data['networkId']
+        nr_check = networkType_check(data['meastime'], data['phone_no'], data['networkId'], data['userInfo1'], data['userInfo2'], data['networkType'])
+        nId = nr_check['networkId']
+        data['nr_check'] = nr_check['nr_check']
 
         morphology = get_morphology(data['networkId'], data['userInfo2'], data['userInfo1'])  # 모폴로지
 
@@ -266,10 +271,10 @@ def receive_json(request):
             # 측정 단말기의 관리대상 여부를 판단한다.
             # 2022.02.24 - 네트워크유형(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.  (06.23 추가 -- NR5G 인 경우)
             #            - 발견사례) 서울특별시-신분당선(강남-광교) 010-2921-3951 2021-11-08
-            if data['networkId'] == 'NR' or data['networkId'] == 'NR5G':
-                networkId = '5G'
-            else:
-                networkId = data['networkId']
+            # if data['networkId'] == 'NR' or data['networkId'] == 'NR5G':
+            #     networkId = '5G'
+            # else:
+            #     networkId = data['networkId']
 
             # 측정 단말기를 생성한다.
             # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
@@ -281,7 +286,7 @@ def receive_json(request):
                         phone_no=data['phone_no'], # 측정단말 전화번호
                         userInfo1=data['userInfo1'], # 측정자 입력값1
                         userInfo2=data['userInfo2'], # 측정자 입력값2
-                        networkId=networkId, # 측정유형(5G, LTE, 3G, WiFi)
+                        networkId=nId, # 측정유형(5G, LTE, 3G, WiFi)
                         ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
                         downloadBandwidth=0.0, # DL 평균속도
                         uploadBandwidth=0.0, # UL 평균속도

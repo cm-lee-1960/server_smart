@@ -710,12 +710,12 @@ def cal_avg_bw_call(phoneGroup):
     phone_list = phoneGroup.phone_set.all()
     qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
     # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (calldata에서 downloadbandwidth 존재 유무로 판단)
-    qs_dlbw = qs.exclude( Q(networkId='NR') | Q(networkId='NR5G') | Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )
+    qs_dlbw = qs.exclude( Q(networkId='NR') | Q(networkId='NR5G') | Q(nr_check=True) | Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )
     if qs_dlbw.exists():
         avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
     else: avg_downloadBandwidth = 0
     # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (calldata에서 uploadbandwidth 존재 유무로 판단)
-    qs_ulbw = qs.exclude( Q(networkId='NR') | Q(networkId='NR5G') | Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )
+    qs_ulbw = qs.exclude( Q(networkId='NR') | Q(networkId='NR5G') | Q(nr_check=True) | Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )
     if qs_ulbw.exists():
         avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
     else: avg_uploadBandwidth = 0

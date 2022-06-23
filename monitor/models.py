@@ -309,18 +309,21 @@ def networkType_check(meastime, phone_no, networkId, userInfo1, userInfo2, netwo
           . nr_check : boolean (LTE 전환여부)
     """
     result = { 'networkId' : networkId, 'nr_check': False}
+    measdate = str(meastime)[:8]
     # 1) WiFi 측정이 아닐때만 LTE 전환여부를 체크한다.
     if networkId is not 'WiFi':
         # 1-1) 네트워크타입이 100이상이면 5G 측정데이터임
         #      * LTE 전환된 후 다시 5G로 갔는데(100이상인데), LTE로 들어오는 경우도 있음
         if networkType >= 100:
-            result['networkId'] = '5G'
-            result['nr_check'] = False
+            qs = PhoneGroup.objects.filter(measdate=measdate, phone__phone_no=phone_no, networkId='5G', \
+                            userInfo1=userInfo1, userInfo2=userInfo2)
+            if qs.exists():
+                result['networkId'] = '5G'
+                result['nr_check'] = False
         # 1-2) 네트워크타입이 100미만이면 LTE 측정인지? 5G 측정인데 LTE로 전환된 상태인지 확인
         else:
             # 해당 지역에 대한
-            measdate = str(meastime)[:8]
-            qs = PhoneGroup.objects.filter(measdate=measdate, phone_no=phone_no, networkId='5G', \
+            qs = PhoneGroup.objects.filter(measdate=measdate, phone__phone_no=phone_no, networkId='5G', \
                                            userInfo1=userInfo1, userInfo2=userInfo2)
             # 1-2-1) 5G 측정중에 LTE로 전환된 경우
             if qs.exists():
@@ -896,6 +899,9 @@ class MeasureSecondData(models.Model):
     wifi_ipAddress = models.CharField(max_length=100, null=True, blank=True)  # WiFi IP주소
     wifi_macAddress = models.CharField(max_length=100, null=True, blank=True)  # WiFi MAC주소
     wifi_wifiSignalLevel = models.CharField(max_length=100, null=True, blank=True)  # WiFi SignalLevel
+    networkType = models.IntegerField(null=True) # 네트워크타입(5G: 100이상, LTE: 100미만)
+    nr_check = models.BooleanField(null=True, default=False, verbose_name="LTE 전환여부")
+    created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='생성일시')
 
     def __str__(self):
         return f"{self.phone_no}/{self.networkId}/{self.meastime}/{self.currentCount}/{self.downloadBandwidth}/{self.uploadBandwidth}/"

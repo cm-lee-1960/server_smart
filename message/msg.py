@@ -161,7 +161,7 @@ def make_message(mdata: MeasureCallData):
         msg = mdata.phone.phoneGroup.message_set.all()
         # print("######")
         for m in qs:
-            if m.phone.networkId == '5G' and (m.networkId == 'NR' or m.networkId == 'NR5G'):
+            if m.phone.networkId == '5G' and (m.networkId == 'NR' or m.networkId == 'NR5G' or m.nr_check == True):
                 # 측정 단말이 5G이고, 측정 데이터가 NR이면 5G->NR 전환 콜수를 하나 증가시킨다.
                 if m.downloadBandwidth and m.downloadBandwidth > 0 and total_dl_count < reportCallCount:
                     dl_nr_count += 1
