@@ -796,7 +796,7 @@ def cal_lte_ca(phoneGroup):
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
     md = phoneGroup.measuringdayclose_set.all().last()
-    qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, \
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, \
                     userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
     # s1~s4 earfcn 값 카운트
     # ca_4 = qs.exclude( Q(s4_earfcn__isnull=True) | Q(s4_earfcn=0) ).count() / md.total_count # s4는 제외??
