@@ -108,7 +108,7 @@ def send_failure_check(mdata: MeasureCallData) -> str:
         dataType = ''
         if mdata.downloadBandwidth and mdata.downloadBandwidth > 0: dataType, bandwidth = 'DL', mdata.downloadBandwidth
         if mdata.uploadBandwidth and mdata.uploadBandwidth > 0: dataType, bandwidth = 'UL', mdata.uploadBandwidth
-        if dataType in ('DL', 'UL'):
+        if dataType in ('DL', 'UL') and mdata.nr_check is not True:
 
             qs = SendFailure.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if qs.exists():
@@ -178,7 +178,8 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
                         qs = LowThroughput.objects.filter(areaInd="OTHERSUB", networkId=networkId, dataType=dataType)
             else:
                 # 5G, LTE
-                qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
+                if mdata.nr_check is not True:
+                    qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
             if 'qs' in locals() and qs.exists():
                 if bandwidth < qs[0].bandwidth:
                     # # 메시지 내용을 작성한다.

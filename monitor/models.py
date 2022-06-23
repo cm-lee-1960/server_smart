@@ -86,6 +86,7 @@ class PhoneGroup(models.Model):
     active = models.BooleanField(default=True, verbose_name="상태")
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
     last_updated_dt = models.DateTimeField(null=True, blank=True, verbose_name="최종보고시간", default="2021-11-01 08:57:54")  # 최종 위치보고시간(날짜타입)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='생성일시')
 
     class Meta:
         verbose_name = "단말 그룹"
@@ -297,7 +298,39 @@ def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail
                 
     return morphologyDetail
 
+# ----------------------------------------------------------------------------------------------------------------------
+# LTE 전환여부를 확인한다.
+# ----------------------------------------------------------------------------------------------------------------------
+def networkType_check(meastime, phone_no, networkId, userInfo1, userInfo2, networkType):
+    """ LTE 전환여부를 확인한다.
+        - 파라미터
+        - 반환값
+          . newtorkId : string (네트워크ID)
+          . nr_check : boolean (LTE 전환여부)
+    """
+    result = { 'networkId' : networkId, 'nr_check': False}
+    # 1) WiFi 측정이 아닐때만 LTE 전환여부를 체크한다.
+    if networkId is not 'WiFi':
+        # 1-1) 네트워크타입이 100이상이면 5G 측정데이터임
+        #      * LTE 전환된 후 다시 5G로 갔는데(100이상인데), LTE로 들어오는 경우도 있음
+        if networkType >= 100:
+            result['networkId'] = '5G'
+            result['nr_check'] = False
+        # 1-2) 네트워크타입이 100미만이면 LTE 측정인지? 5G 측정인데 LTE로 전환된 상태인지 확인
+        else:
+            # 해당 지역에 대한
+            measdate = str(meastime)[:8]
+            qs = PhoneGroup.objects.filter(measdate=measdate, phone_no=phone_no, networkId='5G', \
+                                           userInfo1=userInfo1, userInfo2=userInfo2)
+            # 1-2-1) 5G 측정중에 LTE로 전환된 경우
+            if qs.exists():
+                result['networkId'] = '5G'
+                result['nr_check'] = True
+            # 1-2-2) LTE 측정인 경우
+            else:
+                pass
 
+    return result
 
 ########################################################################################################################
 # 측정단말 정보
@@ -386,6 +419,7 @@ class Phone(models.Model):
     morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="모풀로지")
     manage = models.BooleanField(default=False, verbose_name="관리대상")  # 관리대상 여부
     active = models.BooleanField(default=True, verbose_name="상태")
+    created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='생성일시')
 
     class Meta:
         verbose_name = "측정 단말"
@@ -440,8 +474,9 @@ class Phone(models.Model):
         # 2022.02.26 - 측정 데이터를 가져와서 재계산 방식에서 수신 받은 한건에 대해서 누적 재계산한다.
         # 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
         #              측정단말 정보 업데이트 시 단말그룹의 콜카운트 관련 정보도 함께 업데이트 함
+        # 2022.06.23 - LTE 전환여부 항목 추가(nr_check)에 따른 조건문 반영
         phoneGroup = self.phoneGroup # 단말그룹
-        if mdata.networkId == 'NR' or mdata.networkId == 'NR5G':
+        if mdata.networkId == 'NR' or mdata.networkId == 'NR5G' or mdata.nr_check == True:
             # DL속도 및 UL속도가 0(Zero)이면 NR 콜카운트에서 제외함
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.nr_count += 1
@@ -655,7 +690,9 @@ class MeasureCallData(models.Model):
     wifi_ipAddress = models.CharField(max_length=100, null=True, blank=True)  # WiFi IP주소
     wifi_macAddress = models.CharField(max_length=100, null=True, blank=True)  # WiFi MAC주소
     wifi_wifiSignalLevel = models.CharField(max_length=100, null=True, blank=True)  # WiFi SignalLevel
-
+    networkType = models.IntegerField(null=True) # 네트워크타입(5G: 100이상, LTE: 100미만)
+    nr_check = models.BooleanField(null=True, default=False, verbose_name="LTE 전환여부")
+    created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='생성일시')
 
     # 전화번호 뒤에서 4자리를 반환한다.
     @property
