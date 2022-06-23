@@ -179,7 +179,7 @@ def low_throughput_check(mdata: MeasureCallData) -> str:
             else:
                 # 5G, LTE
                 qs = LowThroughput.objects.filter(areaInd=areaInd, networkId=networkId, dataType=dataType)
-            if qs.exists():
+            if 'qs' in locals() and qs.exists():
                 if bandwidth < qs[0].bandwidth:
                     # # 메시지 내용을 작성한다.
                     # message = f"{mdata.address}에서 속도저하가 발생했습니다.\n" + \
