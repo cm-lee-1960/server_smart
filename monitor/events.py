@@ -226,7 +226,7 @@ def fivgtolte_trans_check(mdata: MeasureCallData) -> str:
     message = None
     # 2022.02.21 - 측정 데이터 안에는 NR인 경우가 5G -> LTE로 전환된 것임
     # 2022.02.27 - 메시지 내용을 작성한다.
-    if mdata.phone.networkId == '5G' and mdata.networkId == 'NR':
+    if mdata.phone.networkId == '5G' and (mdata.networkId == 'NR' or mdata.networkId == 'NR5G'):
         # message = f"{mdata.address}에서 5G->LTE로 전환되었습니다.\n" + \
         #             "(단말번호/시간/콜카운트/DL/UL/RSRP/SINR)\n" + \
         #             f"{mdata.phone_no_sht} / {mdata.time} / {mdata.currentCount} / " + \

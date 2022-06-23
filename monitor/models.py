@@ -441,7 +441,7 @@ class Phone(models.Model):
         # 2022.03.16 - 주기보고 모듈을 복잡도를 낮추기 위해서 단말그룹에 DL/UL 콜카운트와 LTE전환 콜카운트를 가져감
         #              측정단말 정보 업데이트 시 단말그룹의 콜카운트 관련 정보도 함께 업데이트 함
         phoneGroup = self.phoneGroup # 단말그룹
-        if mdata.networkId == 'NR':
+        if mdata.networkId == 'NR' or mdata.networkId == 'NR5G':
             # DL속도 및 UL속도가 0(Zero)이면 NR 콜카운트에서 제외함
             if mdata.downloadBandwidth and mdata.downloadBandwidth > 0:
                 self.nr_count += 1

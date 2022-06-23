@@ -202,7 +202,7 @@ def receive_json(request):
         # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
         #     ispId=data['ispId'], active=True).order_by('-last_updated_dt')
     
-        if data['networkId'] == 'NR': nId = '5G'  # 측정유형 지정 // NR일 경우 5G
+        if data['networkId'] == 'NR' or data['networkId'] == 'NR5G' : nId = '5G'  # 측정유형 지정 // NR일 경우 5G
         else: nId = data['networkId']
 
         morphology = get_morphology(data['networkId'], data['userInfo2'], data['userInfo1'])  # 모폴로지
@@ -264,9 +264,9 @@ def receive_json(request):
             phone.save()
         else:
             # 측정 단말기의 관리대상 여부를 판단한다.
-            # 2022.02.24 - 네트워크유형(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.
+            # 2022.02.24 - 네트워크유형(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.  (06.23 추가 -- NR5G 인 경우)
             #            - 발견사례) 서울특별시-신분당선(강남-광교) 010-2921-3951 2021-11-08
-            if data['networkId'] == 'NR':
+            if data['networkId'] == 'NR' or data['networkId'] == 'NR5G':
                 networkId = '5G'
             else:
                 networkId = data['networkId']
