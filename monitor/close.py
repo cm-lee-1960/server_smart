@@ -513,9 +513,11 @@ def measuring_day_close(phoneGroup_list, measdate):
             udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산
             success_rate = cal_success_rate(phoneGroup) # 전송 성공률 계산
             connect_time = cal_connect_time(phoneGroup)  # 접속시간 계산
-            lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 계산
-            avg_bw = cal_avg_bw_second(phoneGroup)  # 평균 속도(초데이터)
             md.add_count = md.dl_count + md.ul_count  # 시도호 (DL카운트 + UL카운트)
+            lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 계산
+            ## LTE 전환율, 평균속도(초데이터)는 5G 측정 에서만 사용
+            if phoneGroup.networkId == '5G':
+                avg_bw = cal_avg_bw_second(phoneGroup)  # 평균 속도(초데이터)
         
             # 계산한 데이터 저장
             md.udpJitter, md.success_rate = udpJitter, success_rate
@@ -738,9 +740,11 @@ def cal_udpJitter(phoneGroup):
      . 반환값 : 평균 지연시간 (float) '''
     # 평균 지연시간 계산  :  testNetworkType이 latency인 데이터들의 udpJitter 평균값
     phone_list = phoneGroup.phone_set.all()
-    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='latency').order_by("meastime")
-    if qs.filter(udpJitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
-        udpJitter = round(qs.exclude(udpJitter__isnull=True).aggregate(Avg('udpJitter'))['udpJitter__avg'], 1)
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_list, meastime__startswith=phoneGroup.measdate, \
+                    userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId)\
+                    .filter( Q(downloadelapse=9, downloadnetworkvalidation=55) | Q(uploadelapse=9, uploadnetworkvalidation=55) )
+    if qs.filter(udpjitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
+        udpJitter = round(qs.exclude(udpjitter__isnull=True).aggregate(Avg('udpjitter'))['udpjitter__avg'], 1)
     else: udpJitter = 0.0
     return udpJitter
 
@@ -806,21 +810,22 @@ def cal_lte_ca(phoneGroup):
     lte_ca = [round(ca_4), round(ca_4+ca_3), round(ca_4+ca_3+ca_2), 100]
     return lte_ca
     
-def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 체크 필요??  (4.14) -> 업데이트 예정 -> (6.14) 콜데이터 사용
-    ''' 평균속도 계산 함수 (콜데이터)
+def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 체크 필요??  (4.14) -> 업데이트 예정 -> (6.14) 콜데이터 사용 -> (6.24) 초데이터 사용
+    ''' 평균속도 계산 함수 (초데이터)
      . 파라미터: phoneGroup
      . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
     phone_list = phoneGroup.phone_set.all()
-    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+    qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_list, meastime__startswith=phoneGroup.measdate,\
+                    userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
     # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (data에서 downloadbandwidth 존재 유무로 판단)
-    qs_dlbw = qs.exclude( Q(downloadBandwidth__isnull=True) | Q(downloadBandwidth=0) )  # Q(networkId='NR')
+    qs_dlbw = qs.exclude( Q(downloadbandwidth__isnull=True) | Q(downloadbandwidth=0) )  # Q(networkId='NR')
     if qs_dlbw.exists():
-        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadBandwidth'))['downloadBandwidth__avg'], 1)
+        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadbandwidth'))['downloadbandwidth__avg'], 1)
     else: avg_downloadBandwidth = 0
     # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (data에서 uploadbandwidth 존재 유무로 판단)
-    qs_ulbw = qs.exclude( Q(uploadBandwidth__isnull=True) | Q(uploadBandwidth=0) )  # Q(networkId='NR')
+    qs_ulbw = qs.exclude( Q(uploadbandwidth__isnull=True) | Q(uploadbandwidth=0) )  # Q(networkId='NR')
     if qs_ulbw.exists():
-        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadBandwidth'))['uploadBandwidth__avg'], 1)
+        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadbandwidth'))['uploadbandwidth__avg'], 1)
     else: avg_uploadBandwidth = 0
     return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
 
