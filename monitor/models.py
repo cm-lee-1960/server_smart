@@ -305,6 +305,25 @@ def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail
 
 # ----------------------------------------------------------------------------------------------------------------------
 # LTE 전환여부를 확인한다.
+# - 네트워크ID가 WiFi, 3G인 경우 처리하지 않고, 입력된 값 그대로 반환한다.
+# - 네트워크ID가 NR, NR5G인 경우 5G 측정중인 건이 있어야 할텐데, 없으면 무슨 측정으로 판단하지? LTE or 5G
+#   (정상적인 경우라면 이런 상황이 발생하지 않을 것임)
+#  networkID                result
+# ┌------------┐           ┌-----------------------------------┐
+# |  WiFi,3G   |---------->|  networkId: WiFi, nr_check: False |
+# └------------┘           └-----------------------------------┘
+# WiFi,3G가 아닌 경우      PhoneGroup              networkType              5G측정 / LTE전환(X)
+# ┌------------┐           ┌------------┐           ┌------------┐           ┌-----------------------------------┐
+# |   5G,LTE   |-----┯---->|  5G측정중  |-----┯---->|   100이상  |---------->|  networkId: 5G, nr_check: False   |
+# └------------┘     |     └------------┘     |     └------------┘           └-----------------------------------┘
+#  NR, NR5G,..       |                        |                              5측정 / LTE전환(O)
+#                    |                        |     ┌------------┐           ┌-----------------------------------┐
+#                    |                        ┕---->|   100미만  |---------->|  networkId: 5G, nr_check: True    |
+#                    |                              └------------┘           └-----------------------------------┘
+#                    |                                                       입력된 값 그래로 / LTE전환(X)
+#                    |     ┌------------┐                                    ┌----------------------------------------┐
+#                    ┕---->|      X     |----------------------------------->|  networkId: networkId, nr_check: False |
+#                          └------------┘                                    └----------------------------------------┘
 # ----------------------------------------------------------------------------------------------------------------------
 def networkType_check(meastime, phone_no, networkId, userInfo1, userInfo2, networkType):
     """ LTE 전환여부를 확인한다.
@@ -315,31 +334,30 @@ def networkType_check(meastime, phone_no, networkId, userInfo1, userInfo2, netwo
     """
     result = { 'networkId' : networkId, 'nr_check': False}
     measdate = str(meastime)[:8]
-    # 1) WiFi 측정이 아닐때만 LTE 전환여부를 체크한다.
-    if networkId is not 'WiFi':
-        # 1-1) 네트워크타입이 100이상이면 5G 측정데이터임
-        #      * LTE 전환된 후 다시 5G로 갔는데(100이상인데), LTE로 들어오는 경우도 있음
-        if networkType >= 100:
-            qs = PhoneGroup.objects.filter(measdate=measdate, phone__phone_no=phone_no, networkId='5G', \
-                            userInfo1=userInfo1, userInfo2=userInfo2)
-            if qs.exists():
+    # 1) WiFi, 3G 측정이 아닐때만 LTE 전환여부를 체크한다.
+    if networkId is not 'WiFi' and networkId is not '3G':
+        # 해당 측정단말 번호로 현재 측정중인 5G 측정단말이 있는지 조회한다.
+        qs = PhoneGroup.objects.filter(measdate=measdate, phone__phone_no=phone_no, networkId='5G', userInfo1=userInfo1,
+                                       userInfo2=userInfo2)
+        # 1-1) 측정중인 단말이 없는 경우
+        if qs.exists():
+            # 1-1-1) 5G 측정중인데, 100이상인 경우
+            #      * LTE 전환된 후 다시 5G로 갔는데(100이상인데), LTE로 들어오는 경우도 있음
+            if networkType >= 100:
                 result['networkId'] = '5G'
                 result['nr_check'] = False
-            # elif networkId == 'NR' or networkId == 'NR5G':
-            #     result['networkId'] = '5G'
-            #     result['nr_check'] = True
-        # 1-2) 네트워크타입이 100미만이면 LTE 측정인지? 5G 측정인데 LTE로 전환된 상태인지 확인
-        else:
-            # 해당 지역에 대한
-            qs = PhoneGroup.objects.filter(measdate=measdate, phone__phone_no=phone_no, networkId='5G', \
-                                           userInfo1=userInfo1, userInfo2=userInfo2)
-            # 1-2-1) 5G 측정중에 LTE로 전환된 경우
-            if qs.exists():
+            # 1-1-2) 5G 측정중인데, 100미만인 경우
+            else:
+                # 1-2-1) 5G 측정중에 LTE로 전환된 경우
                 result['networkId'] = '5G'
                 result['nr_check'] = True
-            # 1-2-2) LTE 측정인 경우
-            else:
-                pass
+        # 1-2) 측정중인 단말이 없는 경우
+        else:
+            # { 'networkId' : networkId, 'nr_check': False}
+            pass
+    # 2) WiFi, 3G
+    else:
+        pass
 
     return result
 
