@@ -221,27 +221,32 @@ def get_morphology(networkId: str, userInfo2: str, userInfo1: str=None) -> Morph
         - 파리미터: 측정자 입력값2(문자열)
         - 반환값: 모폴러지(Morphology)
     """
+    # 이전에 동일한 userInfo1을 가진 단말그룹이 있을 경우 해당 단말그룹과 동일한 모폴로지를 가진다.
+    if PhoneGroup.objects.filter(userInfo1=userInfo1).exists():
+        morphology = PhoneGroup.objects.filter(userInfo1=userInfo1).last().morphology
+
     # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
-    # 초기치 설정
-    if networkId == 'WiFi' : morphology = Morphology.objects.filter(morphology='테마')[0]
-    else: morphology = Morphology.objects.filter(morphology='행정동')[0]  # 초기값 설정
-    if userInfo2 and userInfo2 is not None:
-        # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
-        for mp in MorphologyMap.objects.all():
-            if mp.wordsCond == '시작단어':
-                if userInfo2.startswith(mp.words):
-                    morphology = mp.morphology
-                    break
-                if userInfo1 and userInfo1.startswith(mp.words):
-                    morphology = mp.morphology
-                    break
-            elif mp.wordsCond == '포함단어':
-                if userInfo2.find(mp.words) >= 0:
-                    morphology = mp.morphology
-                    break
-                if userInfo1 and userInfo1.find(mp.words) >= 0:
-                    morphology = mp.morphology
-                    break
+    else:
+        if networkId == 'WiFi' : morphology = Morphology.objects.filter(morphology='테마')[0]  # WiFi일 경우 초기값 테마로 지정
+        else: morphology = Morphology.objects.filter(morphology='행정동')[0]  # 그 외 경우 초기값 행정동으로 설정
+
+        if userInfo2 and userInfo2 is not None:
+            # 모풀로지 DB 테이블에서 정보를 가져와서 해당 측정 데이터에 대한 모풀로지를 반환한다.
+            for mp in MorphologyMap.objects.all():
+                if mp.wordsCond == '시작단어':
+                    if userInfo2.startswith(mp.words):
+                        morphology = mp.morphology
+                        break
+                    if userInfo1 and userInfo1.startswith(mp.words):
+                        morphology = mp.morphology
+                        break
+                elif mp.wordsCond == '포함단어':
+                    if userInfo2.find(mp.words) >= 0:
+                        morphology = mp.morphology
+                        break
+                    if userInfo1 and userInfo1.find(mp.words) >= 0:
+                        morphology = mp.morphology
+                        break
     return morphology
 
 # ----------------------------------------------------------------------------------------------------------------------

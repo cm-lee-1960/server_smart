@@ -180,7 +180,7 @@ def receive_json(request):
 
     # 1-3) 해당 폰넘버가 WiFi측정 폰일경우, networkId를 WiFi로 지정해준다.
     if data['phone_no'] in PhoneInfo.objects.filter(networkId='WiFi').values_list('phone_no', flat=True):
-        data['networkId'] = 'WiFi'
+        data['networkId'] = 'WiFi'  # nId = 'WiFi' ??
     else: pass
     
 
