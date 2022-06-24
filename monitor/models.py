@@ -288,7 +288,7 @@ def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail
                     qs = qs.filter(middle_class=mp.middle_class)
                     if qs.exists(): morphologyDetail = qs[0]
                     break
-            elif mp.wordsCond_userInfo1 == 'OR' or None:
+            else:
                 words = tuple(map(str, mp.words_userInfo1.split(', ')))
                 if any(word in userInfo1 for word in words):
                     qs = qs.filter(middle_class=mp.middle_class)
@@ -320,6 +320,9 @@ def networkType_check(meastime, phone_no, networkId, userInfo1, userInfo2, netwo
             if qs.exists():
                 result['networkId'] = '5G'
                 result['nr_check'] = False
+            # elif networkId == 'NR' or networkId == 'NR5G':
+            #     result['networkId'] = '5G'
+            #     result['nr_check'] = True
         # 1-2) 네트워크타입이 100미만이면 LTE 측정인지? 5G 측정인데 LTE로 전환된 상태인지 확인
         else:
             # 해당 지역에 대한

@@ -216,7 +216,10 @@ def make_message(mdata: MeasureCallData):
                        f"{measuringteam_msg}\n" + \
                        "\n평가에 만전을 기하여 주시기 바랍니다. "
         elif phone.status == 'START_M':
-            messages = f"S-CXI {mdata.phone.morphology} {mdata.userInfo1} 측정시작({mdata.time}~)"
+            if mdata.phone.networkId == 'WiFi':
+                messages = f"S-CXI {mdata.phone.morphology}({mdata.phone.phoneGroup.morphologyDetail}) {mdata.userInfo1} 측정시작({mdata.time}~)"
+            else:
+                messages = f"S-CXI {mdata.phone.morphology}({mdata.phone.networkId}) {mdata.userInfo1} 측정시작({mdata.time}~)"
 
         # [측정진행 메시지] --------------------------------------------------------------------------------------------
         elif phone.status == 'MEASURING':

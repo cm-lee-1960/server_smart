@@ -327,6 +327,15 @@ class MorphologyDetail(models.Model):
         verbose_name = ("모폴로지 상세")
         verbose_name_plural = ("모폴로지 상세")
 
+    def __str__(self):
+        if self.main_class:
+            return f"{self.network_type} {self.main_class}"
+        elif self.network_type:
+            return f"{self.network_type}"
+        else:
+            return ""
+
+
 # Large Category Medium Category Small Category
 
 
