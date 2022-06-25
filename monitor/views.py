@@ -50,7 +50,7 @@ db_logger = logging.getLogger('db')
 #  * 'call' as dataType - 데이터유형(콜단위데이터: call, 초단위데이터: second)
 #  * phone_no - 측정 단말번호
 #  * meastime - 측정시간
-#  * networkId - 네트워크유형
+#  * networkId - 네트워크ID
 #  * groupId - 그룹ID
 #  * currentTime - 현재시간
 #  * timeline - 타입라인
@@ -124,7 +124,7 @@ def receive_json(request):
     #       1-1-1) 수신 데이터 중복체크
     #       1-1-2) 오후 8시 이후 측정일시로부터 2시간이 경과한 데이터 수신시 제외
     #   1-2) 보정값 적용
-    #   1-3) 측정단말이 WiFi로 사전등록 시 네트워크유형(networkId)을 WiFi로 지정
+    #   1-3) 측정단말이 WiFi로 사전등록 시 네트워크ID(networkId)을 WiFi로 지정
     # ==================================================================================================================
     if request.method != 'POST':
         return HttpResponse("Error")
@@ -163,6 +163,14 @@ def receive_json(request):
 
     # ------------------------------------------------------------------------------------------------------------------
     # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
+    # data                              EtcConfig (table name: management_etcconfig)
+    # ┌-------------------┐  DL        ┌------------------┐
+    # | downloadBandwidth |<-------┳---| 보정값(DL): 62.0 |
+    # └-------------------┘        |   | 보정값(UL): 12.0 |
+    # ┌-------------------┐  UL    |   |                  |
+    # | uploadBandwidth   |<-------┛   |                  |
+    # └-------------------┘            └------------------┘
+    # ※ 보정값을 적용한 속도값이 0(Zero)보다 작아지는 경우 오류처리 한다.
     # ------------------------------------------------------------------------------------------------------------------
     if data['downloadBandwidth']: 
         if EtcConfig.objects.filter(category="보정값(DL)").exists():
@@ -186,10 +194,17 @@ def receive_json(request):
         pass
 
     # ------------------------------------------------------------------------------------------------------------------
-    # 1-3) 해당 폰넘버가 WiFi측정 폰일경우, networkId를 WiFi로 지정해준다.
+    # 1-3) 해당 측정단말 번호가 WiFi측정 단말인 경우, 네트워크ID(networkId)를 WiFi로 지정한다.
+    # data['phone_no']                          PhoneInfo (table name: management_phoneinfo)
+    # ┌-------------------┐                     ┌------------------┐
+    # | phone_no          |<--------------------| phone_no         |
+    # └-------------------┘   networkId='WiFi'  | networkId        |
+    #                                           | measuringTeam    |
+    #                                           | ...              |
+    #                                           └------------------┘
     # ------------------------------------------------------------------------------------------------------------------
     if data['phone_no'] in PhoneInfo.objects.filter(networkId='WiFi').values_list('phone_no', flat=True):
-        data['networkId'] = 'WiFi'  # nId = 'WiFi' ??
+        data['networkId'] = 'WiFi'  # nId = 'WiFi'
     else: pass
     
 
@@ -278,7 +293,7 @@ def receive_json(request):
             phone.save()
         else:
             # 측정 단말기의 관리대상 여부를 판단한다.
-            # 2022.02.24 - 네트워크유형(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.  (06.23 추가 -- NR5G 인 경우)
+            # 2022.02.24 - 네트워크ID(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.  (06.23 추가 -- NR5G 인 경우)
             #            - 발견사례) 서울특별시-신분당선(강남-광교) 010-2921-3951 2021-11-08
             # if data['networkId'] == 'NR' or data['networkId'] == 'NR5G':
             #     networkId = '5G'
