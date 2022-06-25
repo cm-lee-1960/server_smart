@@ -31,7 +31,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 secret_file = os.path.join(BASE_DIR, 'secrets.json')
 
 
-##########################################################
+# ----------------------------------------------------------------------------------------------------------------------
+# 보안이 민감한 데이터를 파일에서 읽어와서 환경정보를 설정하는 부분
+# ----------------------------------------------------------------------------------------------------------------------
 with open(secret_file) as f:
 	secrets = json.loads(f.read())
 
@@ -51,7 +53,7 @@ KAKAO_REST_API_KEY = get_secret("KAKAO_REST_API_KEY")
 # Telethon(채팅방 유저 업데이트) 호출을 위한 API ID/HASH 값을 찾아 온다.
 TELEGRAM_API_ID = get_secret("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = get_secret("TELEGRAM_API_HASH")
-################################################################
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -64,18 +66,18 @@ CSRF_TRUSTED_ORIGINS = ['https://nqi.kt.com']
 # Application definition
 
 INSTALLED_APPS = [
-    # django apps
+    ### django apps ####################################################################################################
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # third apps
+    ### third apps #####################################################################################################
     'django_extensions',
     'rest_framework',
     # 'django_db_logger',
-    # local apps
+    ### local apps #####################################################################################################
     'monitor',
     'analysis',
     'message',
@@ -162,12 +164,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
+# LANGUAGE_CODE = 'en-us'
 # TIME_ZONE = 'UTC'
-
 # USE_I18N = True
-
 # USE_TZ = True
 
 LANGUAGE_CODE = 'ko-kr' #국가 설정
@@ -262,5 +261,5 @@ LOGOUT_REDIRECT_URL = '/'
 
 SCHEDULER_DEFAULT = True
 
-SESSION_COOKIE_AGE = 86400
+SESSION_COOKIE_AGE = 86400 # 세션타임(하루)
 SESSION_SAVE_EVERY_REQUEST = True
