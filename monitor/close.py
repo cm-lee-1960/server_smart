@@ -508,21 +508,26 @@ def measuring_day_close(phoneGroup_list, measdate):
     for phoneGroup in PhoneGroup.objects.filter(manage=True, active=False, measdate=measdate):
         try:
             md = phoneGroup.measuringdayclose_set.all().last()  # md : "M"easuringDayClose "D"ata // 중복 마감했을 경우 대비 마지막 저장 메시지 Load
-    
-            # !!--- 초데이터 기반, 데이터 가공 및 저장은 추후 데이터 확정 시 진행 예정 -- !!
-            udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산
+
+            md.add_count = md.dl_count + md.ul_count  # 시도호 (DL카운트 + UL카운트)
             success_rate = cal_success_rate(phoneGroup) # 전송 성공률 계산
             connect_time = cal_connect_time(phoneGroup)  # 접속시간 계산
-            md.add_count = md.dl_count + md.ul_count  # 시도호 (DL카운트 + UL카운트)
-            lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 계산
+            ## 네트워크 별로 계산이 필요한 데이터가 상이하여 구분하여 진행
+            if phoneGroup.networkId != 'WiFi':
+                udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산
+                md.udpJitter = udpJitter  # 데이터 저장
+            if phoneGroup.networkId == 'LTE' or phoneGroup.networkId == '5G':
+                lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 계산
+                md.ca4_rate, md.ca3_rate, md.ca2_rate, md.ca1_rate = lte_ca[0], lte_ca[1], lte_ca[2], lte_ca[3]  # 데이터 저장
             ## LTE 전환율, 평균속도(초데이터)는 5G 측정 에서만 사용
             if phoneGroup.networkId == '5G':
                 avg_bw = cal_avg_bw_second(phoneGroup)  # 평균 속도(초데이터)
+                md.downloadBandwidth = avg_bw['avg_downloadBandwidth']
+                md.uploadBandwidth = avg_bw['avg_uploadBandwidth']
         
             # 계산한 데이터 저장
-            md.udpJitter, md.success_rate = udpJitter, success_rate
+            md.success_rate = success_rate
             md.connect_time_dl, md.connect_time_ul, md.connect_time = connect_time['connect_time_dl'], connect_time['connect_time_ul'], connect_time['connect_time']
-            md.ca4_rate, md.ca3_rate, md.ca2_rate, md.ca1_rate = lte_ca[0], lte_ca[1], lte_ca[2], lte_ca[3]
             md.save()
 
             # 일일보고용 메시지 생성(3.22/ 지속 업데이트 예정) - 측정타입(5G/LTE/3G/WiFi/음성)에 따라 메시지 포맷이 달라진다.
@@ -664,16 +669,19 @@ def measuring_day_reclose(measdate):
             fields = ['center_id', 'morphology_id', 'measdate', 'userInfo1', 'networkId', \
                     'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count']
             serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
+
             # 일부 데이터는 새로 계산한다
-            avg_bandwidth = cal_avg_bw_call(phoneGroup)  # 평균속도 계산 -> 초데이터로 변경 필요?
-            nr_percent = cal_nr_percent(phoneGroup)  # LTE 전환율 계산
             total_count = max(phoneGroup.dl_count + phoneGroup.dl_nr_count, phoneGroup.ul_count + phoneGroup.ul_nr_count) # 총 콜수
-            udpJitter = cal_udpJitter(phoneGroup)  # 평균 지연시간 계산
-            success_rate = cal_success_rate(phoneGroup)  # 전송 성공률 계산
-            connect_time = cal_connect_time(phoneGroup)  # 접속시간
-            lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율
-            #md.avg_bw = cal_avg_bw_second(phoneGroup)  # 평균속도(초데이터) : 추후 정확한 계산식으로 대체 필요 !!
-            
+            avg_bandwidth = cal_avg_bw_call(phoneGroup)  # 평균속도 계산(콜데이터))
+            success_rate = cal_success_rate(phoneGroup) # 전송 성공률 계산
+            connect_time = cal_connect_time(phoneGroup)  # 접속시간 계산
+            udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산
+            lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 계산
+            nr_percent = cal_nr_percent(phoneGroup)  # LTE 전환율 계산    
+            ## 5G는 평균속도를 초데이터 사용
+            if phoneGroup.networkId == '5G':
+                avg_bandwidth = cal_avg_bw_second(phoneGroup)  # 평균 속도(초데이터)
+     
             # 기존 데이터 삭제 후 새로운 데이터 저장
             md.delete()
             MeasuringDayClose.objects.create(phoneGroup=phoneGroup, \
@@ -701,7 +709,7 @@ def measuring_day_reclose(measdate):
 
 
 #####################################################################################################################
-####### 측정 종료 or 마감 시 필요한 데이터 계산 함수
+####### 측정 종료 or 마감 시 필요한 데이터 계산 함수 : userInfo2가 다른 경우 예외처리 필요함
 #######      - 평균 속도(콜데이터, 초데이터) / LTE전환율 / 평균지연시간 / 전송 성공률 / 접속시간 / LTE CA비율 등
 #######      - (4.20 추가) 모폴로지 커버리지인 대상 수 계산 함수
 #####################################################################################################################
@@ -740,8 +748,8 @@ def cal_udpJitter(phoneGroup):
      . 반환값 : 평균 지연시간 (float) '''
     # 평균 지연시간 계산  :  testNetworkType이 latency인 데이터들의 udpJitter 평균값
     phone_list = phoneGroup.phone_set.all()
-    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_list, meastime__startswith=phoneGroup.measdate, \
-                    userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId)\
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_list, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                    userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId)\
                     .filter( Q(downloadelapse=9, downloadnetworkvalidation=55) | Q(uploadelapse=9, uploadnetworkvalidation=55) )
     if qs.filter(udpjitter__isnull=False).exists():  # data에 udpJitter 없으면 0 처리
         udpJitter = round(qs.exclude(udpjitter__isnull=True).aggregate(Avg('udpjitter'))['udpjitter__avg'], 1)
@@ -758,6 +766,9 @@ def cal_success_rate(phoneGroup):
         success_rate = round((1 - (phoneGroup.event_count / (md.dl_count + md.ul_count)))*100,1)
     else:
         success_rate = 100.0
+    
+    ## NQI 기준 (DL: 12M, UL: 2M 이하일 경우 전송실패)
+    dl_fail_count = TbNdmDataMeasure
     return success_rate
 
 ###### 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 업데이트 필요
@@ -768,8 +779,8 @@ def cal_connect_time(phoneGroup):
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
     md = phoneGroup.measuringdayclose_set.all().last()
-    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, \
-                    userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                    userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
     qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
 
     if qs_dl.exists(): 
@@ -797,35 +808,57 @@ def cal_lte_ca(phoneGroup):
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
     md = phoneGroup.measuringdayclose_set.all().last()
-    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, \
-                    userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                    userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
+    
     # s1~s4 earfcn 값 카운트
     # ca_4 = qs.exclude( Q(s4_earfcn__isnull=True) | Q(s4_earfcn=0) ).count() / md.total_count # s4는 제외??
-    if md.total_count > 0 :
-        ca_4 = qs.exclude( Q(s3_earfcn__isnull=True) | Q(s3_earfcn=0) ).count() / md.total_count
-        ca_3 = qs.exclude( Q(s2_dl_earfcn__isnull=True) | Q(s2_dl_earfcn=0) ).count() / md.total_count
-        ca_2 = qs.exclude( Q(s1_dl_earfcn__isnull=True) | Q(s1_dl_earfcn=0) ).count() / md.total_count
-    else:
-        ca_4, ca_3, ca_2 = 0, 0, 0
-    lte_ca = [round(ca_4), round(ca_4+ca_3), round(ca_4+ca_3+ca_2), 100]
-    return lte_ca
+    # if md.total_count > 0 :
+    #     ca_4 = qs.exclude( Q(s3_earfcn__isnull=True) | Q(s3_earfcn=0) ).count() / md.total_count
+    #     ca_3 = qs.exclude( Q(s2_dl_earfcn__isnull=True) | Q(s2_dl_earfcn=0) ).count() / md.total_count
+    #     ca_2 = qs.exclude( Q(s1_dl_earfcn__isnull=True) | Q(s1_dl_earfcn=0) ).count() / md.total_count
+    # else:
+    #     ca_4, ca_3, ca_2 = 0, 0, 0
+    # lte_ca = [round(ca_4), round(ca_4+ca_3), round(ca_4+ca_3+ca_2), 100]
+
+    ############################# 22.06.27 계산식 변경 : NQI와 동일화 ##############################################################
+    dl_ca_4_count = qs.filter(bandtype__startswith='4', downloadbandwidth__isnull=False).exclude(downloadbandwidth=0).count()
+    dl_ca_3_count = qs.filter(bandtype__startswith='3', downloadbandwidth__isnull=False).exclude(downloadbandwidth=0).count()
+    dl_ca_2_count = qs.filter(bandtype__startswith='2', downloadbandwidth__isnull=False).exclude(downloadbandwidth=0).count()
+    # dl_ca_1_count = qs.filter(bandtype__startswith='1', downloadbandwidth__isnull=False).exclude(downloadbandwidth=0).count()
+    ul_ca_4_count = qs.filter(bandtype__startswith='4', uploadbandwidth__isnull=False).exclude(uploadbandwidth=0).count()
+    ul_ca_3_count = qs.filter(bandtype__startswith='3', uploadbandwidth__isnull=False).exclude(uploadbandwidth=0).count()
+    ul_ca_2_count = qs.filter(bandtype__startswith='2', uploadbandwidth__isnull=False).exclude(uploadbandwidth=0).count()
+    # ul_ca_1_count = qs.filter(bandtype__startswith='1', uploadbandwidth__isnull=False).exclude(uploadbandwidth=0).count()
+
+    if md.dl_count != 0:
+        dl_lte_ca = [round((dl_ca_4_count / md.dl_count), 2), round(((dl_ca_4_count + dl_ca_3_count) / md.dl_count), 2), \
+                    round(((dl_ca_4_count + dl_ca_3_count + dl_ca_2_count) / md.dl_count), 2), 100]
+    else: dl_lte_ca = [0, 0, 0, 0]
+    if md.ul_count != 0:
+        ul_lte_ca = [round((ul_ca_4_count / md.ul_count), 2), round(((ul_ca_4_count + ul_ca_3_count) / md.ul_count), 2), \
+                    round(((ul_ca_4_count + ul_ca_3_count + ul_ca_2_count) / md.ul_count), 2), 100]
+    else: ul_lte_ca = [0, 0, 0, 0]
+    lte_ca = {'dl_lte_ca': dl_lte_ca, 'ul_lte_ca': ul_lte_ca}
+
+    return lte_ca['dl_lte_ca']
     
 def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 체크 필요??  (4.14) -> 업데이트 예정 -> (6.14) 콜데이터 사용 -> (6.24) 초데이터 사용
     ''' 평균속도 계산 함수 (초데이터)
      . 파라미터: phoneGroup
      . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
     phone_list = phoneGroup.phone_set.all()
-    qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_list, meastime__startswith=phoneGroup.measdate,\
-                    userinfo1=phoneGroup.userInfo1, userinfo2=phoneGroup.userInfo2, networkid=phoneGroup.networkId, testnetworktype='speed')
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_list, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                    userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
     # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (data에서 downloadbandwidth 존재 유무로 판단)
     qs_dlbw = qs.exclude( Q(downloadbandwidth__isnull=True) | Q(downloadbandwidth=0) )  # Q(networkId='NR')
     if qs_dlbw.exists():
-        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadbandwidth'))['downloadbandwidth__avg'], 1)
+        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadbandwidth'))['downloadbandwidth__avg'], 1) - 62
     else: avg_downloadBandwidth = 0
     # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (data에서 uploadbandwidth 존재 유무로 판단)
     qs_ulbw = qs.exclude( Q(uploadbandwidth__isnull=True) | Q(uploadbandwidth=0) )  # Q(networkId='NR')
     if qs_ulbw.exists():
-        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadbandwidth'))['uploadbandwidth__avg'], 1)
+        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadbandwidth'))['uploadbandwidth__avg'], 1) - 12
     else: avg_uploadBandwidth = 0
     return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
 
