@@ -154,13 +154,13 @@ def receive_json(request):
     #    경우 예외처러
     # 2022.06.26 - 13:25 테-대전광역시-중구-대전 오월드 측정데이터 새벽 01:00에 수신되는 현상 발견하여 대응코드 추가
     # ------------------------------------------------------------------------------------------------------------------
-    # meastime_d = datetime.strptime(str(data['meastime'])[:14], '%Y%m%d%H%M%S')
-    # diff = datetime.now() - meastime_d
-    # hours = diff.total_seconds() / 3600
-    # if hours > 2 and (datetime.now().hour > 20 or datetime.now().hour < 5):
-    #     raise Exception("측정종료 후 데이터가 수신되었습니다.")
-    #     db_logger.error("측정종료 후 데이터수신:", data)
-    #     return HttpResponse("측정종료 후 데이터수신:" + Exception, status=500)
+    meastime_d = datetime.strptime(str(data['meastime'])[:14], '%Y%m%d%H%M%S')
+    diff = datetime.now() - meastime_d
+    hours = diff.total_seconds() / 3600
+    if hours > 2 and (datetime.now().hour > 20 or datetime.now().hour < 5):
+        raise Exception("측정종료 후 데이터가 수신되었습니다.")
+        db_logger.error("측정종료 후 데이터수신:", data)
+        return HttpResponse("측정종료 후 데이터수신:" + Exception, status=500)
 
     # ------------------------------------------------------------------------------------------------------------------
     # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
