@@ -39,5 +39,5 @@ urlpatterns = [
     path("message/ban_chatmember/center/<str:centerName>/", views.ban_center_chatmembers, name='banCenterChatMembers'),  # 센터 전체 강퇴
     path('monitor/makemap/<int:phonegroup_id>/', views.make_map, name='makemap'), # 측정데이터 지도맵
     path('monitor/monitoringCondition/', views.monitoring_condition, name='monitoringCondition'), # 측정 시작/종료
-    path('monitor/checkdata/<int:phonegroup_id>/', views.check_data),
+    path('monitor/checkdata/<int:phonegroup_id>/', views.check_data, name='checkdata'),
 ]
