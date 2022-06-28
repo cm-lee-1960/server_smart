@@ -272,6 +272,8 @@
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" @click="clickPhoneGroupMap(phoneGroup.measdate, phoneGroup.phone_list, phoneGroup.id)"
                                            title="해당 단말그룹의 측정위치를 지도위에 보여줍니다.">측정데이터 지도맵</a>
+                                        <a class="dropdown-item" @click="clickShowData(phoneGroup.id)"
+                                           title="단말 그룹들의 마감 데이터 중간 계산값을 보여줍니다.">데이터 상세보기</a>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -1733,6 +1735,14 @@
                         window.open("http://" + window.location.host + "/smart/" +  data['filename'], '_blank');
                     }
                 },
+
+                /*---------------------------------------------------------------------------------------
+                 * 중간 마감 데이터를 새창으로 확인하는 함수
+                 --------------------------------------------------------------------------------------*/
+                clickShowData(phoneGroup_id) {
+                    window.open("api/monitor/checkdata/" + this.selectedPhoneGroup.id);
+                },
+
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹에 대한 정보를 변경하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/
