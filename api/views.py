@@ -5,8 +5,9 @@ from django.shortcuts import render
 from datetime import datetime
 
 from rest_framework.decorators import api_view
-from monitor.models import PhoneGroup, Message
-from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer
+from monitor.models import PhoneGroup, Message, MeasuringDayClose
+from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer, MeasuringDayCloseSerializer
+from monitor.close import cal_close_data, make_report_message
 from management.models import Center, Morphology, ChatMemberList, MorphologyDetail, PhoneInfo, MessageConfig
 from message.tele_msg import TelegramBot, update_members, update_members_allchat, ban_member_as_compared_db, ban_member_not_allowed, ban_member_not_allowed_all
 from monitor.geo import make_map_locations
@@ -505,6 +506,31 @@ def make_map(request, phonegroup_id):
             'result': 'fail',
         }
     return JsonResponse(data=result, safe=False)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 마감 데이터 계산식으로 계산한 데이터 보여주는 API
+# ----------------------------------------------------------------------------------------------------------------------
+@api_view(['GET'])
+def check_data(request, phonegroup_id):
+    pg = PhoneGroup.objects.get(id=phonegroup_id)
+    pg_all = PhoneGroup.objects.filter(measdate=pg.measdate, manage=True)
+    for pg_i in pg_all:
+        cal_close_data(pg_i)
+    md = MeasuringDayClose.objects.filter(measdate=pg.measdate, phoneGroup__in=pg_all)
+
+    datum = []
+    if md.exists():
+        fields = ['id', 'measdate', 'phoneGroup', 'userInfo1', 'userInfo2', 'networkId', 'center', 'morphology', 'downloadBandwidth',
+                    'uploadBandwidth', 'dl_count', 'ul_count', 'dl_nr_count', 'ul_nr_count', 'dl_nr_percent',
+                    'ul_nr_percent', 'connect_time_dl', 'connect_time_ul', 'connect_time', 'udpJitter', 'total_count',
+                    'success_rate', 'ca1_count', 'ca2_count', 'ca3_count', 'ca4_count',
+                    'ca1_rate', 'ca2_rate', 'ca3_rate', 'ca4_rate', 'phoneGroup_id',]
+        for md_i in md:
+            serializer = MeasuringDayCloseSerializer(md_i, fields=fields)
+            data = serializer.data
+            datum.append(data)
+    
+    return render(request, 'analysis/show_data.html', {'datum':datum, 'i':phonegroup_id})
 
 
 # ----------------------------------------------------------------------------------------------------------------------

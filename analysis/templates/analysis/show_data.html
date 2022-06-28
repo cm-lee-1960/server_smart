@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>측정 데이터 보기</title>
+
+  <style>
+
+    table {
+      border: 1px solid #444444;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 3px;
+      text-align: center;
+    }
+
+    body {
+        font-family: "맑은 고딕"
+    }
+
+    .netid {
+      background-color: #d8ebfb
+    }
+
+    .totalcall {
+      background-color: #dbf1dc
+    }
+
+    .datamenu2 {
+      background-color: rgb(255, 243, 228);
+    }
+
+    .datamenu1 {
+      background-color: rgb(254, 255, 219);
+    }
+
+    .data1 {
+      background-color: rgb(255, 255, 255);
+    }
+
+    .data2 {
+      background-color: rgb(255, 255, 255);
+    }
+
+    </style>
+</head>
+
+<body>
+  {% for data in datum %}
+  <table id="data_table">
+  <caption style="text-align:left;"><font size=+1><b>
+    {% if data.phoneGroup_id == i %}
+    <span STYLE="background-color:#f6ff00;">{{ data.userInfo1 }}</span>
+    {% else %}
+    {{ data.userInfo1 }}
+    {% endif %}
+    </b></font> <br> 
+    <font size=-1>{{ data.userInfo2 }}</font></caption>
+  <th class="netid">측정유형</th>
+  <th class="netid">{{ data.networkId }}</th>
+  <th class="totalcall">콜 수</th>
+  <th class="totalcall">{{ data.total_count }}</th>
+  <tr>
+    <td class="datamenu1" nowrap width="120" nowrap height="30">DL속도</td>
+    <td class="datamenu1" nowrap width="120" nowrap height="30">UL속도</td>
+    <td class="datamenu1" nowrap width="120" nowrap height="30">시도호</td>
+    <td class="datamenu1" nowrap width="120" nowrap height="30">전송성공률</td>
+  </tr>
+  <tr>
+    <td class="data1" nowrap width="120" nowrap height="30">{{ data.downloadBandwidth }}</td>
+    <td class="data1" nowrap width="120" nowrap height="30">{{ data.uploadBandwidth }}</td>
+    <td class="data1" nowrap width="120" nowrap height="30">{{ data.total_count }}</td>
+    <td class="data1" nowrap width="120" nowrap height="30">{{ data.success_rate }}</td>
+  </tr>
+  {% if data.networkId == '5G' %}
+  <tr>
+    <td class="datamenu2" nowrap width="120" nowrap height="30">LTE전환율(DL)</td>
+    <td class="datamenu2" nowrap width="120" nowrap height="30">LTE전환율(UL)</td>
+    <td class="datamenu2" nowrap width="120" nowrap height="30">접속시간</td>
+    <td class="datamenu2" nowrap width="120" nowrap height="30">지연시간</td>
+  </tr>
+  <tr>
+    <td class="data2" nowrap width="120" nowrap height="30">{{ data.dl_nr_percent }}</td>
+    <td class="data2" nowrap width="120" nowrap height="30">{{ data.ul_nr_percent }}</td>
+    <td class="data2" nowrap width="120" nowrap height="30">{{ data.connect_time }}</td>
+    <td class="data2" nowrap width="120" nowrap height="30">{{ data.udpJitter }}</td>
+  </tr>
+  {% endif %}
+  <br>
+  {% endfor %}
+
+</body>
+
+</html>
+

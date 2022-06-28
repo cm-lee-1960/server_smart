@@ -164,7 +164,7 @@ class MessageSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 
 
 ########################################################################################################################
-# 메시지 직렬화 클래스
+# 채팅방 멤버 리스트 직렬화 클래스
 # ----------------------------------------------------------------------------------------------------------------------
 ########################################################################################################################
 class ChatMemberListSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
@@ -173,4 +173,17 @@ class ChatMemberListSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 
     class Meta:
         model = ChatMemberList
+        fields = '__all__'
+
+
+########################################################################################################################
+# 마감 데이터 직렬화 클래스
+# ----------------------------------------------------------------------------------------------------------------------
+########################################################################################################################
+class MeasuringDayCloseSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
+    userInfo2 = serializers.ReadOnlyField(source = 'phoneGroup.userInfo2')  # userInfo2
+    phoneGroup_id = serializers.ReadOnlyField(source = 'phoneGroup.id')  # 선택한 폰그룹 id
+
+    class Meta:
+        model = MeasuringDayClose
         fields = '__all__'
