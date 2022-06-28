@@ -48,6 +48,8 @@
 </head>
 
 <body>
+  {% csrf_token %}
+  
   {% for data in datum %}
   <table id="data_table">
   <caption style="text-align:left;"><font size=+1><b>
