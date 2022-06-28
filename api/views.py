@@ -535,6 +535,75 @@ def check_data(request, phonegroup_id):
         
         return render(request, 'analysis/show_data.html', {'datum':datum, 'i':phonegroup_id})
 
+# ----------------------------------------------------------------------------------------------------------------------
+# 마감 메시지를 간이로 보여주는 API (메시지 모델에 저장은 안함)
+# ----------------------------------------------------------------------------------------------------------------------
+def check_message(request, phonegroup_id):
+    measdate=PhoneGroup.objects.filter(id=phonegroup_id)[0].measdate
+    pg_all = PhoneGroup.objects.filter(measdate=measdate, manage=True)
+    close_message_list = []
+    message_end_last = ''
+
+    # 1) 각 단말 그룹에 대한 종료 메시지 생성
+    for pg_i in pg_all:  
+        md = pg_i.measuringdayclose_set.all().last()
+        md.add_count = md.dl_count + md.ul_count  # 시도호 (DL카운트 + UL카운트) 
+
+        if pg_i.networkId == 'WiFi':
+            message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
+                        f" - 속도(DL/UL, Mbps)\n" + \
+                        f"  . WiFi({pg_i.morphologyDetail.main_class})\"{md.downloadBandwidth}/{md.uploadBandwidth}\""
+
+        else:
+            message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
+                            f" - (DL/UL/시도호/전송성공률)\n" + \
+                            f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\"\n"
+            # 5G일 경우 LTE전환율/접속시간 추가
+            if pg_i.networkId == '5G':
+                message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
+                                f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
+
+        close_message_list.append(message_report)
+
+    # 2) 최종 지역 종료 메시지 생성
+    pg_endlast = pg_all.order_by('-last_updated')[0]
+    end_meastime = str(pg_endlast.last_updated)[8:10] + ':' + str(pg_endlast.last_updated)[10:12]
+    daily_day = str(measdate)[4:6] + '월' + str(measdate)[6:8] + '일'
+    cursor = connection.cursor()
+    cursor.execute(" SELECT networkId, COUNT(*) AS COUNT " + \
+                    "      FROM monitor_phonegroup " + \
+                    f"      WHERE measdate='{measdate}' and " + \
+                    # "             ispId = '45008' and " + \
+                    "             manage = True " + \
+                    "      GROUP BY networkId "
+                    )
+    result = dict((x, y) for x, y in [row for row in cursor.fetchall()])
+    fiveg_count = result['5G'] if '5G' in result.keys() else 0 # 5G 측정건수
+    lte_count = result['LTE'] if 'LTE' in result.keys() else 0 # LTE 측정건수
+    threeg_count = result['3G'] if '3G' in result.keys() else 0 # 3G 측정건수
+    wifi_count = result['WiFi'] if 'WiFi' in result.keys() else 0 # WiFi 측정건수
+    total_count = fiveg_count + lte_count + threeg_count + wifi_count
+    userInfo_byType = {'5G':'', 'LTE':'', '3G':'', 'WiFi':''}
+    for userInfo in pg_all.values('networkId', 'userInfo1', 'morphologyDetail'):
+        userInfo_byType[userInfo['networkId']] += '\n  .' + userInfo['userInfo1']
+        if userInfo['networkId'] == 'WiFi':  # WiFi일 경우 상용/공공/개방 구분자 추가
+            userInfo_byType[userInfo['networkId']] += '(' + MorphologyDetail.objects.get(id=userInfo['morphologyDetail']).main_class +')'
+    message_end_last = f"금일({daily_day}) S-CXI 품질 측정이 {end_meastime}분에 " + \
+                f"{pg_endlast.userInfo1}({pg_endlast.networkId}{pg_endlast.morphology})을 마지막으로 종료 되었습니다.\n" + \
+                f"ㅇ 측정지역({total_count})\n" + \
+                f" - 5G품질({fiveg_count})" + f"{userInfo_byType['5G']}\n" + \
+                f" - LTE/3G 취약지역 품질({lte_count + threeg_count})" + f"{userInfo_byType['LTE']}" + f"{userInfo_byType['3G']}\n" + \
+                f" - WiFi 품질({wifi_count})" + f"{userInfo_byType['WiFi']}\n" + \
+                "수고 많으셨습니다."
+    
+    # 3) 최종 보고 메시지 생성
+    message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.'
+    for message in close_message_list:
+        message_report_all += "\n\n" + message  # 운용본부용 전체 메시지 수합
+
+    closeMessage = {'close_message': close_message_list, 'last_message': message_end_last, 'report_message': message_report_all}       
+    return render(request, 'analysis/show_closeMessage.html', closeMessage)
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 측정 종료/시작 설정 API  (문자 자동 전송 전체 ON/OFF)

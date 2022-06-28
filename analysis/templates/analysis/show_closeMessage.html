@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <title>마감 메시지 보기</title>
+
+  <style>
+
+    table {
+      border: 1px solid #444444;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #444444;
+      padding: 3px;
+      text-align: center;
+    }
+
+    body {
+        font-family: "맑은 고딕"
+    }
+    </style>
+
+</head>
+
+
+<body>
+
+  {% csrf_token %}
+  <div style="border: 1px solid black; float: left; width: 33%;">
+    <b><u><font size=+1>지역 별 마감 메시지</font></u></b><br><br>
+    {% for msg in close_message %}
+    <table id="closeMessage">
+      {{ msg|linebreaksbr }}
+    </table>
+    {% endfor %}
+  </div>
+  
+  <div style="border: 1px solid black; float: left; width: 33%;">
+    <b><u><font size=+1>최종 지역 종료 메시지</font></u></b><br><br>
+    <table>{{ last_message|linebreaksbr }}</table>
+  </div>
+  
+  <div style="border: 1px solid black; float: left; width: 33%;">
+    <b><u><font size=+1>최종 지역 종료 메시지</font></u></b><br><br>
+    <table>{{ report_message|linebreaksbr}}</table>
+  </div>
+
+</body>
