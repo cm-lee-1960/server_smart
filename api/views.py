@@ -510,7 +510,6 @@ def make_map(request, phonegroup_id):
 # ----------------------------------------------------------------------------------------------------------------------
 # 마감 데이터 계산식으로 계산한 데이터 보여주는 API
 # ----------------------------------------------------------------------------------------------------------------------
-@api_view(['GET'])
 def check_data(request, phonegroup_id):
     pg = PhoneGroup.objects.get(id=phonegroup_id)
     pg_all = PhoneGroup.objects.filter(measdate=pg.measdate, manage=True, active=False)
