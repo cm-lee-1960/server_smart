@@ -516,9 +516,7 @@ def check_data(request, phonegroup_id):
     if not pg_close_all.exists():
         return HttpResponse("종료 처리된 단말 그룹이 없습니다. 종료 처리한 단말 그룹들의 데이터만 보여줍니다.")
     else:
-        pg_need_cal_id_list = MeasuringDayClose.objects.filter(measdate=pg.measdate, phoneGroup__in=pg_close_all, connect_time__isnull=False).values_list('phoneGroup_id', flat=True)
-        pg_need_cal = pg_close_all.exclude(id__in=pg_need_cal_id_list)  ## connect_time은 마감해야만 생성되는 항목 // 마감 데이터가 없는 폰그룹만 계산
-        for pg_i in pg_need_cal:
+        for pg_i in pg_close_all:
             if pg_i.measuringdayclose_set.all().exists():
                 cal_close_data(pg_i)
             else:
@@ -551,24 +549,26 @@ def check_message(request, phonegroup_id):
 
     # 1) 각 단말 그룹에 대한 종료 메시지 생성
     for pg_i in pg_all:  
-        md = pg_i.measuringdayclose_set.all().last()
-        md.add_count = md.dl_count + md.ul_count  # 시도호 (DL카운트 + UL카운트) 
+        md = pg_i.measuringdayclose_set.all()
+        if md.exists():
+            md = md.last()
+            md.add_count = md.dl_count + md.ul_count  # 시도호 (DL카운트 + UL카운트) 
 
-        if pg_i.networkId == 'WiFi':
-            message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
-                        f" - 속도(DL/UL, Mbps)\n" + \
-                        f"  . WiFi({pg_i.morphologyDetail.main_class})\"{md.downloadBandwidth}/{md.uploadBandwidth}\""
+            if pg_i.networkId == 'WiFi':
+                message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
+                            f" - 속도(DL/UL, Mbps)\n" + \
+                            f"  . WiFi({pg_i.morphologyDetail.main_class})\"{md.downloadBandwidth}/{md.uploadBandwidth}\""
 
-        else:
-            message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
-                            f" - (DL/UL/시도호/전송성공률)\n" + \
-                            f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\"\n"
-            # 5G일 경우 LTE전환율/접속시간 추가
-            if pg_i.networkId == '5G':
-                message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
-                                f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
+            else:
+                message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
+                                f" - (DL/UL/시도호/전송성공률)\n" + \
+                                f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\"\n"
+                # 5G일 경우 LTE전환율/접속시간 추가
+                if pg_i.networkId == '5G':
+                    message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
+                                    f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
 
-        close_message_list.append(message_report)
+            close_message_list.append(message_report)
 
     # 2) 최종 지역 종료 메시지 생성
     pg_endlast = pg_all.order_by('-last_updated')[0]
