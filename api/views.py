@@ -578,8 +578,8 @@ def check_message(request, phonegroup_id):
                     "      FROM monitor_phonegroup " + \
                     f"      WHERE measdate='{measdate}' and " + \
                     # "             ispId = '45008' and " + \
-                    "             manage = True and" + \
-                    "             networkId in ('5G', 'LTE', '3G', 'WiFi')" + \
+                    "             manage = True and " + \
+                    "             networkId in ('5G', 'LTE', '3G', 'WiFi') " + \
                     "      GROUP BY networkId "
                     )
     result = dict((x, y) for x, y in [row for row in cursor.fetchall()])
