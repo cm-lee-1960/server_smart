@@ -86,6 +86,7 @@ class PhoneGroup(models.Model):
     active = models.BooleanField(default=True, verbose_name="상태")
     last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
     last_updated_dt = models.DateTimeField(null=True, blank=True, verbose_name="최종보고시간", default="2021-11-01 08:57:54")  # 최종 위치보고시간(날짜타입)
+    autoSend = models.BooleanField(default=True, verbose_name="메시지 자동전송")  # 메시지 자동 전송 여부
     created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='생성일시')
 
     class Meta:

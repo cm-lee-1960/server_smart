@@ -310,6 +310,12 @@
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
                                 aria-controls="msg-all" aria-selected="false" v-on:click="message_check('xro')">문자(전체)</a>
                             </li>
+                            <li><i id="setAutoSend" class="fa fa-comment-o" v-if="selectedPhoneGroup.autoSend"
+                                style="font-size:20px; font-weight:bold; color:red" v-on:click="clickSetAutoSend()"
+                                data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'ON' 상태"></i>
+                                <i id="setAutoSend" class="fa fa-comment-o" v-else="selectedPhoneGroup.autoSend"
+                                style="font-size:20px; font-weight:bold; color:gray" v-on:click="clickSetAutoSend()"
+                                data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'OFF' 상태"></i></li>
                             {% endif %}
                         </ul>
                         <div style="display:flex; align-items: center;">
@@ -1758,6 +1764,19 @@
                     }
                 },
                 
+                /*---------------------------------------------------------------------------------------
+                 * 단말 그룹 별로 메시지 자동전송 on/off 설정 함수
+                 --------------------------------------------------------------------------------------*/
+                 async clickSetAutoSend() {
+                    const res = await fetch("api/phonegroup/autosend/" + this.selectedPhoneGroup.id + "/" + this.selectedPhoneGroup.autoSend);
+                    const data = await res.json();
+                    if (data['result'] === 'ok') {
+                        this.selectedPhoneGroup.autoSend = data['onoff']
+                    } else {
+                        alert("오류: 자동전송 설정 실패, 다시 시도해주세요.");
+                    }
+                },
+
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹에 대한 정보를 변경하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/
