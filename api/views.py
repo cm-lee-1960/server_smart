@@ -565,7 +565,7 @@ def check_message(request, phonegroup_id):
                                 f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\""
                 # 5G일 경우 LTE전환율/접속시간 추가
                 if pg_i.networkId == '5G':
-                    message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
+                    message_report += f"\n※LTE전환율(DL/UL),접속/지연시간\n" + \
                                     f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
                 report_message_list.append(message_report)
 
