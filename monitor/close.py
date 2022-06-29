@@ -550,11 +550,11 @@ def measuring_day_close(phoneGroup_list, measdate):
         print("일일보고 메시지 수합, 생성(센터 별):", str(e))
         raise Exception("measuring_day_close/message_report_all(center): %s" % e)
 
-    # 일일보고용 메시지를 수합하여 하나로 작성한다 (전체)
+    # 일일보고용 메시지를 수합하여 하나로 작성한다 (전체)  -- WiFi 제거 (기술단 요청, 22.06.29)
     try:
         if Message.objects.filter(status='REPORT', measdate=measdate).count() != 0:
             message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.'
-            messages = Message.objects.filter(status='REPORT', measdate=measdate).order_by('id', 'center', '-updated_at')
+            messages = Message.objects.filter(status='REPORT', measdate=measdate).exclude(phoneGroup__networkId='WiFi').order_by('id', 'center', '-updated_at')
             for message in messages:
                 message_report_all += "\n\n" + message.message  # 운용본부용 전체 메시지 수합
                 message.delete()  # 수합한 개별 메시지 삭제
@@ -911,10 +911,10 @@ def make_report_message(phoneGroup):
         if phoneGroup.networkId != 'WiFi':
             message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
                             f" - (DL/UL/시도호/전송성공률)\n" + \
-                            f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\"\n"
+                            f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\""
             # 5G일 경우 LTE전환율/접속시간 추가
             if phoneGroup.networkId == '5G':
-                message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
+                message_report += f"\n※LTE전환율(DL/UL),접속/지연시간\n" + \
                                 f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
             # LTE일 경우 CA비율 추가   ---> 6.9 품질팀 요구로 제거
             # elif phoneGroup.networkId == 'LTE':

@@ -544,6 +544,7 @@ def check_message(request, phonegroup_id):
     measdate=PhoneGroup.objects.filter(id=phonegroup_id)[0].measdate
     pg_all = PhoneGroup.objects.filter(measdate=measdate, manage=True).order_by('networkId')
     close_message_list = []
+    report_message_list = []
     message_end_last = ''
 
     # 1) 각 단말 그룹에 대한 종료 메시지 생성
@@ -561,11 +562,12 @@ def check_message(request, phonegroup_id):
             else:
                 message_report = f"ㅇ {md.userInfo1}({md.morphology})\n" + \
                                 f" - (DL/UL/시도호/전송성공률)\n" + \
-                                f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\"\n"
+                                f"  .{md.networkId} \"{md.downloadBandwidth}/{md.uploadBandwidth}/{md.add_count}/{md.success_rate}\""
                 # 5G일 경우 LTE전환율/접속시간 추가
                 if pg_i.networkId == '5G':
                     message_report += f"※LTE전환율(DL/UL),접속/지연시간\n" + \
                                     f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
+                report_message_list.append(message_report)
 
             close_message_list.append(message_report)
 
@@ -601,8 +603,8 @@ def check_message(request, phonegroup_id):
                 "수고 많으셨습니다."
     
     # 3) 최종 보고 메시지 생성
-    message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.'
-    for message in close_message_list:
+    message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.\n'
+    for message in report_message_list:
         message_report_all += "\n\n" + message  # 운용본부용 전체 메시지 수합
 
     closeMessage = {'close_message': close_message_list, 'last_message': message_end_last, 'report_message': message_report_all}       
@@ -610,7 +612,7 @@ def check_message(request, phonegroup_id):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# 마감 메시지를 간이로 보여주는 API (메시지 모델에 저장은 안함)
+# 선택한 단말그룹 managa=False 만드는 API
 # ----------------------------------------------------------------------------------------------------------------------
 def unmanage_pg(request, phonegroup_id):
     try:

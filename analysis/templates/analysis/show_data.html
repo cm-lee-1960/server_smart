@@ -67,9 +67,9 @@
     <table id="data_table">
     <caption style="text-align:left;"><font size=+1><b>
       {% if data.phoneGroup_id == i %}
-      <span STYLE="background-color:#f6ff00;">{{ data.userInfo1 }}</span>
+      <span STYLE="background-color:#f6ff00;">{{ data.userInfo1 }}  ({{ data.networkId }})</span>
       {% else %}
-      {{ data.userInfo1 }}
+      {{ data.userInfo1 }}  ({{ data.networkId }})
       {% endif %}
       </b></font> <br> 
       <font size=-1>{{ data.userInfo2 }}</font></caption>
