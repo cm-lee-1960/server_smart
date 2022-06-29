@@ -310,12 +310,12 @@
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
                                 aria-controls="msg-all" aria-selected="false" v-on:click="message_check('xro')">문자(전체)</a>
                             </li>
-                            <li><i id="setAutoSend" class="fa fa-comment-o" v-if="selectedPhoneGroup.autoSend"
+                            <li><i id="setAutoSend_ON" class="fa fa-comment-o" v-if="selectedPhoneGroup.autoSend"
                                 style="font-size:20px;margin-left:12px; font-weight:bold; color:red" v-on:click="clickSetAutoSend()"
-                                data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'ON' 상태"></i>
-                                <i id="setAutoSend" class="fa fa-comment-o" v-else="selectedPhoneGroup.autoSend"
+                                data-placement="top" title="메시지 자동전송 'ON' 상태"></i>
+                                <i id="setAutoSend_OFF" class="fa fa-comment-o" v-else="selectedPhoneGroup.autoSend"
                                 style="font-size:20px;margin-left:12px; font-weight:bold; color:gray" v-on:click="clickSetAutoSend()"
-                                data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'OFF' 상태"></i></li>
+                                data-placement="top" title="메시지 자동전송 'OFF' 상태"></i></li>
                             {% endif %}
                         </ul>
                         <div style="display:flex; align-items: center;">
