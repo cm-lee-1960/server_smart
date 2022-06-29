@@ -512,14 +512,18 @@ def make_map(request, phonegroup_id):
 # ----------------------------------------------------------------------------------------------------------------------
 def check_data(request, phonegroup_id):
     pg = PhoneGroup.objects.get(id=phonegroup_id)
-    pg_all = PhoneGroup.objects.filter(measdate=pg.measdate, manage=True, active=False)
-
-    if not pg_all.exists():
+    pg_close_all = PhoneGroup.objects.filter(measdate=pg.measdate, manage=True, active=False)
+    if not pg_close_all.exists():
         return HttpResponse("종료 처리된 단말 그룹이 없습니다. 종료 처리한 단말 그룹들의 데이터만 보여줍니다.")
     else:
-        for pg_i in pg_all:
-            cal_close_data(pg_i)
-        md = MeasuringDayClose.objects.filter(measdate=pg.measdate, phoneGroup__in=pg_all)
+        pg_need_cal_id_list = MeasuringDayClose.objects.filter(measdate=pg.measdate, phoneGroup__in=pg_close_all, connect_time__isnull=False).values_list('phoneGroup_id', flat=True)
+        pg_need_cal = pg_close_all.exclude(id__in=pg_need_cal_id_list)  ## connect_time은 마감해야만 생성되는 항목 // 마감 데이터가 없는 폰그룹만 계산
+        for pg_i in pg_need_cal:
+            if pg_i.measuringdayclose_set.all().exists():
+                cal_close_data(pg_i)
+            else:
+                return HttpResponse(f"정상적으로 종료되지 않은 단말 그룹이 있습니다. 다시 종료처리를 해주세요.  :  [ {pg_i.userInfo1} ]")
+        md = MeasuringDayClose.objects.filter(measdate=pg.measdate, phoneGroup__in=pg_close_all)
 
         datum = []
         if md.exists():
@@ -540,6 +544,7 @@ def check_data(request, phonegroup_id):
 # ----------------------------------------------------------------------------------------------------------------------
 def check_message(request, phonegroup_id):
     measdate=PhoneGroup.objects.filter(id=phonegroup_id)[0].measdate
+    from django.db.models import Case, Q
     pg_all = PhoneGroup.objects.filter(measdate=measdate, manage=True)
     close_message_list = []
     message_end_last = ''
