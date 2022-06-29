@@ -339,8 +339,8 @@ def networkType_check(meastime, phone_no, networkId, userInfo1, userInfo2, netwo
         # 해당 측정단말 번호로 현재 측정중인 5G 측정단말이 있는지 조회한다.
         qs = PhoneGroup.objects.filter(measdate=measdate, phone__phone_no=phone_no, networkId='5G', userInfo1=userInfo1,
                                        userInfo2=userInfo2)
-        # 1-1) 측정중인 단말이 없는 경우
-        if qs.exists():
+        # 1-1) 측정중인 단말이 없는 경우 + 측정단말이 5G 측정폰일 경우
+        if qs.exists() or (PhoneInfo.objects.filter(phone_no=phone_no).exists() and PhoneInfo.objects.filter(phone_no=phone_no)[0].networkId == '5G'):
             # 1-1-1) 5G 측정중인데, 100이상인 경우
             #      * LTE 전환된 후 다시 5G로 갔는데(100이상인데), LTE로 들어오는 경우도 있음
             if networkType >= 100:
