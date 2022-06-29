@@ -274,6 +274,8 @@
                                            title="해당 단말그룹의 측정위치를 지도위에 보여줍니다.">측정데이터 지도맵</a>
                                         <a class="dropdown-item" @click="clickShowData(phoneGroup.id)"
                                            title="종료 처리한 단말 그룹들의 마감 데이터 계산값을 보여줍니다.">데이터 상세보기</a>
+                                        <a class="dropdown-item" @click="clickUnmanagePhonegroup(phoneGroup.id)"
+                                           title="선택한 단말그룹을 관리대상에서 제외합니다.">단말그룹 비활성화</a>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -1743,6 +1745,19 @@
                     window.open("api/monitor/checkdata/" + this.selectedPhoneGroup.id);
                 },
 
+                /*---------------------------------------------------------------------------------------
+                 * 단말 그룹 비활성화(manage=False) 함수
+                 --------------------------------------------------------------------------------------*/
+                async clickUnmanagePhonegroup(phoneGroup_id) {
+                    const res = await fetch("api/phonegroup/unmanage/" + phoneGroup_id);
+                    const data = await res.json();
+                    if (data['result'] === 'ok') {
+                        await this.fetch_all_phoneGroup();
+                    } else {
+                        alert("오류: 비활성화 실패, 다시 시도해주세요.");
+                    }
+                },
+                
                 /* -----------------------------------------------------------------------------------------------------
                  * 단말그룹에 대한 정보를 변경하는 모듈 관련 함수
                  -----------------------------------------------------------------------------------------------------*/

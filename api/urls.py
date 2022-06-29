@@ -41,4 +41,5 @@ urlpatterns = [
     path('monitor/monitoringCondition/', views.monitoring_condition, name='monitoringCondition'), # 측정 시작/종료
     path('monitor/checkdata/<int:phonegroup_id>/', views.check_data, name='checkdata'),  # 데이터 상세보기
     path('monitor/checkdata/<int:phonegroup_id>/checkmessage/', views.check_message, name='checkmessage'),  # 종료 메시지 보기(간이)
+    path('phonegroup/unmanage/<int:phonegroup_id>/', views.unmanage_pg, name='unmanage_pg'),  # 종료 메시지 보기(간이)
 ]
