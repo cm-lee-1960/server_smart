@@ -269,13 +269,13 @@
                                         <a class="dropdown-item" @click="clickCancelMeasuringEnd" title="측정종료 상태를 측정 중으로 변경합니다.">측정종료 취소</a>
                                         <a class="dropdown-item" @click="clickPhoneGroupUnion" title="동일 정보를 가진 단말그룹이 생성되어 있을 경우 하나로 병합합니다.">측정데이터 병합</a>
                                         <a class="dropdown-item" @click="clickPhoneGroupReCalculate" title="해당 단말그룹의 데이터를 재계산합니다.">데이터 재계산</a>
+                                        <a class="dropdown-item" @click="clickUnmanagePhonegroup(phoneGroup.id)"
+                                           title="선택한 단말그룹을 관리대상에서 제외합니다.">관리대상 제외</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" @click="clickPhoneGroupMap(phoneGroup.measdate, phoneGroup.phone_list, phoneGroup.id)"
                                            title="해당 단말그룹의 측정위치를 지도위에 보여줍니다.">측정데이터 지도맵</a>
                                         <a class="dropdown-item" @click="clickShowData(phoneGroup.id)"
                                            title="종료 처리한 단말 그룹들의 마감 데이터 계산값을 보여줍니다.">데이터 상세보기</a>
-                                        <a class="dropdown-item" @click="clickUnmanagePhonegroup(phoneGroup.id)"
-                                           title="선택한 단말그룹을 관리대상에서 제외합니다.">단말그룹 비활성화</a>
                                     </div>
                                 </div>
                                 {% endif %}
