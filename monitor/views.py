@@ -12,7 +12,7 @@ from management.models import Morphology, MorphologyDetail, EtcConfig, PhoneInfo
 from .events import event_occur_check
 from .models import PhoneGroup, Phone, MeasureCallData, MeasureSecondData, get_morphology, get_morphologyDetail_wifi, Message, networkType_check
 from .close import measuring_end, measuring_end_cancel, measuring_day_close, measuring_day_reclose, phonegroup_union, update_phoneGroup
-
+from .dataproc import phoneloc_proc
 
 # 로그를 기록하기 위한 로거를 생성한다.
 import logging
@@ -111,6 +111,7 @@ db_logger = logging.getLogger('db')
 #                                                               테-용택-3-d4
 #            -> 단말그룹 생성 기준 : 측정일자, 측정자입력값1, 모폴로지(Origin)
 # 2022.06.25 - 수신데이터 처리 함수 부문 주석 보완
+# 2022.06.29 - 측정단말 위치정보 수신데이터 처리 모듈 수가
 #
 ####################################################################################################################################
 @csrf_exempt
@@ -475,6 +476,27 @@ def receive_json(request):
 
     return HttpResponse("처리완료")
 
+@csrf_exempt
+def receive_json_loc(request):
+    # 수신 받은 JSON 데이터를 파싱한다.
+    # [ 항목 ]
+    #  - dataType: loc # 문자 형식
+    #  - phone_no: 1012341234 # 숫자
+    #  - cellId : 12345678 #문자 형식
+    #  - eventType : # 문자 형식
+    #  - addressDetail : 서울특별시 은평구 녹번동 105-50 # 문자
+    #  - last_updated:  20220620123056000    #전송시간 # 숫자
+    data = JSONParser().parse(request)
+    if data['dataType'] == 'loc':
+        try:
+            # 측정단말 위치정보 수신데이터를 처리할 함수를 실행한다.
+            result = phoneloc_proc(data)
+        except Exception as e:
+            print("측정단말 위치정보 저장:", str(e))
+            db_logger.error("측정단말 위치정보 저장:", str(e))
+            return HttpResponse("측정단말 위치정보 저장:" + str(e), status=500)
+
+    return HttpResponse("처리완료", status=200)
 
 ########################################################################################################################
 # 해당지역 측정을 종료한다.

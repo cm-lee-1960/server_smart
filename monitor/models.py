@@ -1135,3 +1135,21 @@ class MeasuringDayClose(models.Model):
     ca2_rate = models.FloatField(null=True, default=0, verbose_name='CA2 비율')  # CA2 비율
     ca3_rate = models.FloatField(null=True, default=0, verbose_name='CA3 비율')  # CA3 비율
     ca4_rate = models.FloatField(null=True, default=0, verbose_name='CA4 비율')  # CA4 비율
+
+
+    ########################################################################################################################
+    # 특정단말 위치정보 클래스
+    ########################################################################################################################
+    class PhoneLoc(models.Model):
+        """측정단말 위치정보 클래스"""
+        dataType = models.CharField(max_length=10)
+        phone_no = models.BigIntegerField(null=True, blank=True)  # 측정단말 전화번호
+        cellId = models.CharField(max_length=100, null=True, blank=True, verbose_name="셀ID")  # 셀ID
+        eventType = models.CharField(max_length=20, null=True, blank=True, verbose_name="이벤트유형")  # 이벤트유형
+        addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="상세주소")  # 주소상세
+        last_updated = models.BigIntegerField(null=True, blank=True, verbose_name="최종보고시간")  # 최종 위치보고시간
+        created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='생성일시')
+
+        class Meta:
+            verbose_name = "측정단말 위치정보"
+            verbose_name_plural = "측정단말 위치정보"

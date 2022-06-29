@@ -28,6 +28,7 @@ from django.db.models.signals import post_save
 # 2022.04.28 - 측정단말에 대한 사전 정보 추가
 # 2022.05.18 - 센터정보 전송번호를 대표번호로 변경
 #            - 측정단말 사전정보(PhoneInfo)에 위치정보(시/도, 군,구, 상세주소, 위도, 경도), 파워온/오프 항목 추가
+# 2022.06.29 - 측정단말 사전정보(PhoneInfo)에 생성일자(created_at) 및 업데이트일자(updated_at) 항목 추가
 #
 ########################################################################################################################
 
@@ -295,7 +296,8 @@ class PhoneInfo(models.Model):
     latitude = models.FloatField(null=True, blank=True, verbose_name="위도")  # 위도
     longitude = models.FloatField(null=True, blank=True, verbose_name="경도")  # 경도
     power = models.BooleanField(null=True, default=False, verbose_name="파워온/오프")  # 파워온/오프
-
+    created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='생성일시')
+    updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name='최종 업데이트 시간')
 
     @property
     def phone_no_str(self):
@@ -303,6 +305,15 @@ class PhoneInfo(models.Model):
         # 1029213855
         phone_no_str = str(self.phone_no)
         return '0' + phone_no_str[:2] + '-' + phone_no_str[2:6] + '-' + phone_no_str[6:]
+
+    # 최종 위치보고 시간을 반환한다.
+    @property
+    def last_updated_time(self):
+        """최종 측정위치보고 시간을 반환한다."""
+        if self.updated_at is not None:
+            return self.updated_at.strftime("%H:%M")
+        else:
+            return ''
 
     class Meta:
         verbose_name = ("측정단말 사전정보")

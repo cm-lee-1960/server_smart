@@ -1,3 +1,4 @@
+from django.utils.html import format_html
 from django.contrib import admin
 from django.contrib import auth
 from django.conf import settings
@@ -21,6 +22,8 @@ from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTe
 # 2022.03.19 = 센터별 관할구역 관리자 페이지 추가
 # 2022.03.28 - 센터정보 모델에 센터영문명(centerEngName) 항목 추가
 # 2022.04.28 - 측정단말에 대한 사전정보 모델 추가
+# 2022.06.29 - 측정단말 사전정보 관리자 페이지 수정
+#              * 파워온/오프 항목이 앞단으로 배치하고, 최종 위치보고시간 항목 추가
 #
 ########################################################################################################################
 
@@ -149,13 +152,31 @@ class ChatMemberListAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 class PhoneInfoAdmin(admin.ModelAdmin):
     """어드민 페이지에 측정단말 사전정보(PhoneInfo)를 보여주기 위한 클래스"""
-    list_display = ['networkId', 'measuringTeam', 'phone_no_str', 'addressDetail', 'power']
+    list_display = ['power', 'networkId', 'measuringTeam', 'phone_no_str', 'addressDetail_color', 'updated_at_str']
     list_display_links = ['phone_no_str']
     search_fields = ('networkId', 'measuringTeam', )
     list_filter = ['networkId', 'measuringTeam', ]
     # 정렬에는 @property를 사용할 수 없음
     ordering = ('networkId', 'measuringTeam', 'phone_no', )
 
+    def addressDetail_color(self, obj):
+        if obj.power is True:
+            color = 'yellow'
+            return format_html(
+                '<b style="background:{};">{}</b>',
+                color,
+                obj.addressDetail)
+        else:
+            return obj.addressDetail
+    addressDetail_color.short_description = '최종위치'
+
+    def updated_at_str(self, obj):
+        # 참고: https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+        if obj.updated_at is not None:
+            return obj.updated_at.strftime('%m/%d %H:%M')
+        else:
+            return ''
+    updated_at_str.short_description = '최종 위치보고시간'
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 모폴로지 상세 정보
