@@ -86,7 +86,7 @@
     <tr>
       <td class="data1" nowrap width="120" nowrap height="30">{{ data.downloadBandwidth }} Mbps</td>
       <td class="data1" nowrap width="120" nowrap height="30">{{ data.uploadBandwidth }} Mbps</td>
-      <td class="data1" nowrap width="120" nowrap height="30">{{ data.total_count }} 콜</td>
+      <td class="data1" nowrap width="120" nowrap height="30">{{ data.dl_count|add:data.ul_count }} 콜</td>
       <td class="data1" nowrap width="120" nowrap height="30">{{ data.success_rate }} %</td>
     </tr>
     {% if data.networkId == '5G' %}

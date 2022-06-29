@@ -511,7 +511,7 @@ def measuring_day_close(phoneGroup_list, measdate):
  
 
     # 각 단말 그룹들의 종료 데이터(MeasuringDayClose)를 보충
-    for phoneGroup in PhoneGroup.objects.filter(manage=True, active=False, measdate=measdate):
+    for phoneGroup in PhoneGroup.objects.filter(manage=True, active=False, measdate=measdate).order_by('networkId', '-last_updated'):
         cal_close_data(phoneGroup)  # 단말 그룹 별 마감 데이터 생성
         make_report_message(phoneGroup)  # 단말 그룹 별 마감 메시지 생성
    
@@ -554,7 +554,7 @@ def measuring_day_close(phoneGroup_list, measdate):
     try:
         if Message.objects.filter(status='REPORT', measdate=measdate).count() != 0:
             message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.'
-            messages = Message.objects.filter(status='REPORT', measdate=measdate).order_by('center')
+            messages = Message.objects.filter(status='REPORT', measdate=measdate).order_by('id', 'center', '-updated_at')
             for message in messages:
                 message_report_all += "\n\n" + message.message  # 운용본부용 전체 메시지 수합
                 message.delete()  # 수합한 개별 메시지 삭제
@@ -723,7 +723,7 @@ def cal_connect_time(phoneGroup):
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
     md = phoneGroup.measuringdayclose_set.all().last()
-    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+    qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
     qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
 
@@ -793,7 +793,7 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
      . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
-    qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
     # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (data에서 downloadbandwidth 존재 유무로 판단)
     qs_dlbw = qs.exclude( Q(downloadbandwidth__isnull=True) | Q(downloadbandwidth=0) )  # Q(networkId='NR')
