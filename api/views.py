@@ -578,8 +578,7 @@ def check_message(request, phonegroup_id):
                     "      FROM monitor_phonegroup " + \
                     f"      WHERE measdate='{measdate}' and " + \
                     # "             ispId = '45008' and " + \
-                    "             manage = True and " + \
-                    "             networkId in ('5G', 'LTE', '3G', 'WiFi') " + \
+                    "             manage = True " + \
                     "      GROUP BY networkId "
                     )
     result = dict((x, y) for x, y in [row for row in cursor.fetchall()])
@@ -589,7 +588,7 @@ def check_message(request, phonegroup_id):
     wifi_count = result['WiFi'] if 'WiFi' in result.keys() else 0 # WiFi 측정건수
     total_count = fiveg_count + lte_count + threeg_count + wifi_count
     userInfo_byType = {'5G':'', 'LTE':'', '3G':'', 'WiFi':''}
-    for userInfo in pg_all.values('networkId', 'userInfo1', 'morphologyDetail'):
+    for userInfo in pg_all.exclude(networkId__isnull=True).values('networkId', 'userInfo1', 'morphologyDetail'):
         userInfo_byType[userInfo['networkId']] += '\n  .' + userInfo['userInfo1']
         if userInfo['networkId'] == 'WiFi':  # WiFi일 경우 상용/공공/개방 구분자 추가
             userInfo_byType[userInfo['networkId']] += '(' + MorphologyDetail.objects.get(id=userInfo['morphologyDetail']).main_class +')'
