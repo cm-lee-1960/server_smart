@@ -603,7 +603,7 @@ def check_message(request, phonegroup_id):
                 "수고 많으셨습니다."
     
     # 3) 최종 보고 메시지 생성
-    message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.\n'
+    message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.'
     for message in report_message_list:
         message_report_all += "\n\n" + message  # 운용본부용 전체 메시지 수합
 
