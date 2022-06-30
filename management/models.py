@@ -283,7 +283,8 @@ class PhoneInfo(models.Model):
         ("LTE", "LTE"),
         ("3G", "3G"),
         ("5G 커버리지", "5G 커버리지"),
-        ("WiFi", "WiFi")
+        ("WiFi", "WiFi"),
+        ("품질취약", "품질취약"),
     )
     phone_no = models.BigIntegerField(verbose_name="측정단말")
     networkId = models.CharField(max_length=100, null=True, blank=True,

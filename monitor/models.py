@@ -216,14 +216,19 @@ class PhoneGroup(models.Model):
 # 측정자 입력값2(userInfo2)로 모폴로지를 확인한다.
 # 2022.03.15 - 측정자 입력값(userInfo2)가 입력오류가 자주 발생하므로 모폴로지를 찾지 못하는 경우 "행정동"으로 초기화 함
 # ----------------------------------------------------------------------------------------------------------------------
-def get_morphology(networkId: str, userInfo2: str, userInfo1: str=None) -> Morphology:
+def get_morphology(networkId: str, userInfo2: str, userInfo1: str=None, phone_no: int=None) -> Morphology:
     """ 측정자 입력값2로 모폴로지를 반환한다.
         - 모폴로지를 찾을 수 없는 경우 기본값으로 '행정동'을 반환한다.
         - 파리미터: 측정자 입력값2(문자열)
         - 반환값: 모폴러지(Morphology)
     """
+
+    # 품질 취약 지구 측정 단말일 경우 취약지역으로 지정
+    if PhoneInfo.objects.filter(phone_no=phone_no).exists() and PhoneInfo.objects.filter(phone_no=phone_no)[0].networkId == '품질취약':
+        morphology = Morphology.objects.filter(morphology="취약지역")[0]
+
     # 이전에 동일한 userInfo1을 가진 단말그룹이 있을 경우 해당 단말그룹과 동일한 모폴로지를 가진다.
-    if PhoneGroup.objects.filter(userInfo1=userInfo1).exists():
+    elif PhoneGroup.objects.filter(userInfo1=userInfo1).exists():
         morphology = PhoneGroup.objects.filter(userInfo1=userInfo1).last().morphology
 
     # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
