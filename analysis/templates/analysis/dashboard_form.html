@@ -1391,7 +1391,7 @@
                             $("#modal_body").html("수신자 리스트를 입력해 주세요.");
                             $("#mi-modal").modal('show');
 
-                        } else if (this.message.sendType === 'TELE' && this.message.isDel === false) {
+                        } else if (this.message.sendType === 'TELE' && this.message.isDel === false && this.message.sended === true) {
                             this.isModelConfirmDisabled = false
                             $("#modal-btn-confirm").html('전송');
                             $("#modal_body").html("해당 메시지를 재전송하시려면 먼저 회수를 진행해 주세요.");
