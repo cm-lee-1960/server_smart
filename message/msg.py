@@ -219,7 +219,10 @@ def make_message(mdata: MeasureCallData):
             if mdata.phone.networkId == 'WiFi':
                 messages = f"S-CXI {mdata.phone.morphology}({mdata.phone.phoneGroup.morphologyDetail}) {mdata.userInfo1} 측정시작({mdata.time}~)"
             else:
-                messages = f"S-CXI {mdata.phone.morphology}({mdata.phone.networkId}) {mdata.userInfo1} 측정시작({mdata.time}~)"
+                if phone.measuringTeam is not None:
+                    messages = f"S-CXI {phone.measuringTeam} {mdata.phone.morphology}({mdata.phone.networkId}) {mdata.userInfo1} 측정시작({mdata.time}~)"
+                else:
+                    messages = f"S-CXI {mdata.phone.morphology}({mdata.phone.networkId}) {mdata.userInfo1} 측정시작({mdata.time}~)"
 
         # [측정진행 메시지] --------------------------------------------------------------------------------------------
         elif phone.status == 'MEASURING':
