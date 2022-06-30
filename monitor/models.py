@@ -1095,6 +1095,17 @@ def send_message(sender, instance, created, **kwargs):
             #     # 현재 변수 전달(메시지/수신번호) 구현되어 있지 않아 /message/sms_broadcast.js에 설정된 내용/번호로만 전송
             #     # npm install request 명령어로 모듈 설치 후 사용 가능
             #     send_sms()
+        
+        else:
+            # 메시지가 운용본부에게 전달되는 메시지가 아니라면 운용본부에도 전달한다.
+            if instance.center is not None and instance.sendType != 'XMCS':
+                if instance.center.centerName != "운용본부" and instance.center.centerName != "전체" and instance.status != 'START_F':
+                    ub = Center.objects.get(centerName="운용본부")
+                    instance.center = ub
+                    instance.channelId = ub.channelId
+                    instance.pk = None
+                    instance.save()
+            pass
     else:
         # 메시지가 업데이트 되었을 때는 아무런 처리를 하지 않는다.
         pass
