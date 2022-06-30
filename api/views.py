@@ -235,7 +235,7 @@ def message_list(request, phonegroup_id):
                     # 1) 이벤트 메시지 내역을 가져온다.
                     event_qs = qs.filter(messageType='EVENT')
                     fields = ['id', 'phone_no_sht', 'create_time', 'message', 'sended_time', 'sended', 'sendType',
-                              'telemessageId', 'channelId', 'isDel', 'centerName', ]
+                              'telemessageId', 'channelId', 'isDel', 'centerName', 'sended_time_xmcs']
                     if event_qs.exists():
                         for message in event_qs:
                             serializer = MessageSerializer(message, fields=fields)
@@ -336,20 +336,21 @@ def send_message(request):
             message_id = data['id'] # 메시지ID
             message = Message.objects.get(id=message_id)
             senderCenter = data['senderCenter']
+            isTelegram = data['isTelegram']
 
             # DB에서 가저온 메시지 객체의 메시지 내용을 브라우저에서 보내온 변경된 메시지 내용으로 변경한다.
             message.message = message_text
             # message.save()  # 메시지 수정 시 메시지 내용 DB에 업데이트
 
             # 1) 문자 메시지를 전송한다.
-            if sendType == 'XMCS' or sendType == 'ALL':
+            if isTelegram == False:
                 from message.xmcs_msg import send_sms_queryset
                 receiver_list = receiver_list.replace(' ','').replace('\n','').split(',')
                 result_sms = send_sms_queryset(message, receiver_list, senderCenter)
                 result = {'result': result_sms}
 
             # 2) 텔레그램 메시지를 재전송 한다.
-            elif sendType == 'TELE':
+            elif isTelegram == True:
                 bot = TelegramBot()
                 result = bot.send_message_bot(channelId, message.message)
                 message.telemessageId = result['message_id'] # 텔레그램 메시지ID

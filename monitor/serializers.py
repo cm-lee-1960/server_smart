@@ -155,7 +155,8 @@ class MessageSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
 
     phone_no_sht = serializers.ReadOnlyField()  # 전화번호(끝 4자리) (@property decorator)
     create_time = serializers.ReadOnlyField()  # 메시지 생성시간(예: 12:10) (@property decorator)
-    sended_time = serializers.ReadOnlyField()  # 메시지 전송시간(예: 14:20) (@property decorator)
+    sended_time = serializers.ReadOnlyField()  # 텔레그램 메시지 전송시간(예: 14:20) (@property decorator)
+    sended_time_xmcs = serializers.ReadOnlyField()  # 문자메시지 전송시간(예: 14:20) (@property decorator)
     centerName = serializers.ReadOnlyField(source='center.centerName')  # 운용센터명
 
     class Meta:

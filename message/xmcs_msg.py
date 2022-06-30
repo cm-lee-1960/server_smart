@@ -77,7 +77,7 @@ def send_sms_queryset(queryset, receiver, senderCenter):
     result_sms = send_sms(msg, sender, receiver)  # 크로샷 전송 함수
     if result_sms['status_code'] == 200:
       queryset.sended = True if result_sms['body']['response']['Result'] == 10000 else False  # Result가 10000이면 전송성공
-      queryset.sendTime = datetime.strptime(result_sms['body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
+      queryset.sendTime_XMCS = datetime.strptime(result_sms['body']['response']['Time'], '%Y%m%d%H%M%S')  # 전송시간 datetime 형태로 변환
       queryset.save()
       # 크로샷 전송 결과 개별 조회 수행 (정상 전송되었는지 확인)
       cnt = result_sms['body']['response']['Count']  # 전송 대상 수

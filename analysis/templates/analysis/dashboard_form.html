@@ -421,9 +421,9 @@
                                     <td style="width: 12%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 12%;" v-else="message.phone_no_sht" ref="endmessage_td">-</td>
                                     <td style="width: 52%;">[[ message.message | truncate(90,'...')]]</td>
-                                    <td style="width: 12%;">[[ message.sended_time ]]</td>
-                                    <td style="width: 12%;" v-if="message.sended">전송</td>
-                                    <td style="width: 12%;" v-else="message.sended">미전송</td>
+                                    <td style="width: 12%;">[[ message.sended_time_xmcs ]]</td>
+                                    <td style="width: 12%;" v-if="message.sended_time_xmcs">전송</td>
+                                    <td style="width: 12%;" v-else="message.sended_time_xmcs">미전송</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -453,9 +453,9 @@
                                     <td style="width: 11%;" v-if="message.phone_no_sht">[[message.phone_no_sht ]]</td>
                                     <td style="width: 11%;" v-else="message.phone_no_sht">-</td>
                                     <td style="width: 46%;">[[ message.message | truncate(75,'...')]]</td>
-                                    <td style="width: 11%;">[[ message.sended_time ]]</td>
-                                    <td style="width: 11%;" v-if="message.sended">전송</td>
-                                    <td style="width: 11%;" v-else="message.sended">미전송</td>
+                                    <td style="width: 11%;">[[ message.sended_time_xmcs ]]</td>
+                                    <td style="width: 11%;" v-if="message.sended_time_xmcs">전송</td>
+                                    <td style="width: 11%;" v-else="message.sended_time xmcs">미전송</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -542,7 +542,7 @@
                             {% if request.user.is_superuser %}        
                             <button type="button" class="btn btn-primary" v-on:click="clickSendMessage">전송</button>
                             <button type="button" class="btn btn-danger" v-on:click="clickDeleteMessage"
-                                    v-if="message.sendType !== 'ALL' && message.sendType !== 'XMCS'">회수</button>
+                                    v-if="message.telemessageId !== null && TelegramClick === true">회수</button>
                             <p class="float-right" v-show="TelegramClick==false"
                             style="margin-bottom:0px; border-radius: 4px; border: 2px solid rgb(174, 181, 181); padding: 5px; height:38px; display:inline-block;">발송:
                                 <select style="width: 90px; border:none; outline:none;" v-model="senderCenter">
@@ -732,7 +732,7 @@
                     messageSmsAllList: [],
                     message: {}, // 메시지 상세내역
                     timer: null, // 폰그룹 타이머
-                    allChecked: false, // 단말그룹 전체선태 토글(Toggle)을 위한 속성
+                    allChecked: false, // 단말그룹 전체선택 토글(Toggle)을 위한 속성
                     //checkedCount: 0,
                     isModelConfirmDisabled: true, // 모달창 '확인'버튼 활성상태여부
                     message_text: null, // 메시지 텍스트
@@ -1384,7 +1384,7 @@
                         $("#mi-modal").modal('show');
                     } else {
                         // 문자 전송시에만 수신자 리스트 입력여부를 확인하도록 한다.
-                        if ((this.message.sendType === 'XMCS' || this.message.sendType === 'ALL') &&
+                        if ((this.message.sendType === 'XMCS' || this.message.sendType === 'ALL') && (this.TelegramClick === false) &&
                             (this.recipient_text === undefined || this.recipient_text === null || this.recipient_text.length <= 0)) {
                             this.isModelConfirmDisabled = false
                             $("#modal-btn-confirm").html('전송');
@@ -1424,6 +1424,7 @@
                             'sendType': this.message.sendType,
                             'channelId': this.message.channelId,
                             'senderCenter': this.senderCenter,
+                            'isTelegram' : this.TelegramClick,
                         })
                     };
                     const response = await fetch("api/message/send/", requestOptions);

@@ -998,7 +998,8 @@ class Message(models.Model):
     sended = models.BooleanField(default=False, verbose_name='전송여부') # 전송여부
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일시')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='최종 업데이트 시간')
-    sendTime = models.DateTimeField(null=True, blank=True, verbose_name='보낸시간')
+    sendTime = models.DateTimeField(null=True, blank=True, verbose_name='보낸시간(텔레그램)')
+    sendTime_XMCS = models.DateTimeField(null=True, blank=True, verbose_name='보낸시간(문자)')
     telemessageId = models.BigIntegerField(null=True, blank=True)  # Telegram 전송일 때 Message Id
     isDel = models.BooleanField(default=False, verbose_name='회수여부')  # Telegram 메시지 회수 여부
 
@@ -1031,7 +1032,13 @@ class Message(models.Model):
             return self.sendTime.strftime("%H:%M")
         else:
             return ''
-
+    # 메시지 전송시간을 반환한다. (문자메시지)
+    @property
+    def sended_time_xmcs(self):
+        if self.sendTime_XMCS is not None:
+            return self.sendTime_XMCS.strftime("%H:%M")
+        else:
+            return ''
 # ----------------------------------------------------------------------------------------------------------------------
 # 생성된 메시지 타입에 따라서 크로샷 또는 텔레그램으로 전송하는 함수
 #
