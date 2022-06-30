@@ -355,6 +355,7 @@ def send_message(request):
                 message.telemessageId = result['message_id'] # 텔레그램 메시지ID
                 message.sendTime = datetime.now() # 전송시간(보낸시간)
                 message.isDel = False # 메시지 회수여부
+                message.sended = True # 메시지 전송여부
 
                 # 메시지를 저장한다.
                 message.save()
