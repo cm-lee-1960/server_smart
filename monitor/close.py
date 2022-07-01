@@ -722,15 +722,12 @@ def cal_connect_time(phoneGroup):
      . 반환값 : Dict {connect_time_dl:접속시간(DL), connect_time_ul:접속시간(UL)} '''
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
-    md = phoneGroup.measuringdayclose_set.all().last()
     qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
     qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
     import logging
     # logger = logging.getLogger(__name__)
     db_logger = logging.getLogger('db')
-    db_logger.error(qs)
-    db_logger.error(qs_dl)
     if qs_dl.exists(): 
         db_logger.error('not exists')
         connect_time_dl = round(qs_dl.aggregate(Avg('downloadconnectionsuccess'))['downloadconnectionsuccess__avg'], 1)  # DL 접속시간
