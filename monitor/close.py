@@ -726,19 +726,30 @@ def cal_connect_time(phoneGroup):
     qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
     qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
+    qs_dl_null = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=True)  ## null값일 경우 0으로 하여 계산
 
-    if qs_dl.exists(): 
-        connect_time_dl = round(qs_dl.aggregate(Avg('downloadconnectionsuccess'))['downloadconnectionsuccess__avg']*1000, 1)  # DL 접속시간
+    if qs_dl.exists():
+        if qs_dl_null.exists():
+            dl_count = qs_dl.count() + qs_dl_null.count()
+        else:
+            dl_count = qs_dl.count()
+        # connect_time_dl = round(qs_dl.aggregate(Avg('downloadconnectionsuccess'))['downloadconnectionsuccess__avg']*1000, 1)  # DL 접속시간
         dl_sum = qs_dl.aggregate(Sum('downloadconnectionsuccess'))['downloadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
-        dl_count = qs_dl.count()
+        connect_time_dl = round((dl_sum/dl_count)*1000, 1)
     else:
         connect_time_dl, dl_sum, dl_count = 0.0, 0, 1
     
     qs_ul = qs.filter(uploadelapse=9, uploadnetworkvalidation=55, uploadconnectionsuccess__isnull=False)
+    qs_ul_null = qs.filter(uploadelapse=9, uploadnetworkvalidation=55, uploadconnectionsuccess__isnull=True)
+
     if qs_ul.exists():
-        connect_time_ul = round(qs_ul.aggregate(Avg('uploadconnectionsuccess'))['uploadconnectionsuccess__avg']*1000, 1)  # UL 접속시간
+        if qs_ul_null.exists():
+            ul_count = qs_ul.count() + qs_ul_null.count()
+        else:
+            ul_count = qs_ul.count()
+        # connect_time_ul = round(qs_ul.aggregate(Avg('uploadconnectionsuccess'))['uploadconnectionsuccess__avg']*1000, 1)  # UL 접속시간
         ul_sum = qs_ul.aggregate(Sum('uploadconnectionsuccess'))['uploadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
-        ul_count = qs_ul.count()
+        connect_time_ul = round((ul_sum/ul_count)*1000, 1)
     else:
         connect_time_ul, ul_sum, ul_count = 0.0, 0, 1
 
