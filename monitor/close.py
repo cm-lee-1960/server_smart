@@ -698,6 +698,10 @@ def cal_udpJitter(phoneGroup):
     qs_ul = qs.filter(uploadelapse=9, uploadnetworkvalidation=55).exclude(udpjitter__isnull=True)
 
     if qs_dl.exists():  # data에 udpJitter 없으면 0 처리
+        import logging
+        # logger = logging.getLogger(__name__)
+        db_logger = logging.getLogger('db')
+        db_logger.error('o')
         udpJitter_dl = qs_dl.aggregate(Sum('udpjitter'))['udpjitter__sum'] * 1000
     else: udpJitter_dl = 0.0
     if qs_ul.exists():
