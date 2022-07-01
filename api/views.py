@@ -570,6 +570,10 @@ def check_message(request, phonegroup_id):
                 if pg_i.networkId == '5G':
                     message_report += f"\n※LTE전환율(DL/UL),접속/지연시간\n" + \
                                     f"  .{md.dl_nr_percent}/{md.ul_nr_percent}%,{md.connect_time}/{md.udpJitter}ms"
+                # LTE일 경우 CA비율 추가   ---> 6.9 품질팀 요구로 제거
+                elif phoneGroup.networkId == 'LTE':
+                    message_report += f"※LTE CA비율(%,4/3/2/1)\n" + \
+                                    f"  .\"{md.ca4_rate}/{md.ca3_rate}/{md.ca2_rate}/{md.ca1_rate}\""
                 report_message_list.append(message_report)
 
             close_message_list.append(message_report)

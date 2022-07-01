@@ -726,8 +726,13 @@ def cal_connect_time(phoneGroup):
     qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
     qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
-
+    import logging
+    # logger = logging.getLogger(__name__)
+    db_logger = logging.getLogger('db')
+    db_logger.error(qs)
+    db_logger.error(qs_dl)
     if qs_dl.exists(): 
+        db_logger.error('not exists')
         connect_time_dl = round(qs_dl.aggregate(Avg('downloadconnectionsuccess'))['downloadconnectionsuccess__avg'], 1)  # DL 접속시간
         dl_sum = qs_dl.aggregate(Sum('downloadconnectionsuccess'))['downloadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
         dl_count = qs_dl.count()
@@ -798,12 +803,12 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
     # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (data에서 downloadbandwidth 존재 유무로 판단)
     qs_dlbw = qs.exclude( Q(downloadbandwidth__isnull=True) | Q(downloadbandwidth=0) )  # Q(networkId='NR')
     if qs_dlbw.exists():
-        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadbandwidth'))['downloadbandwidth__avg'], 1) - 62
+        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadbandwidth'))['downloadbandwidth__avg']) - 62
     else: avg_downloadBandwidth = 0
     # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (data에서 uploadbandwidth 존재 유무로 판단)
     qs_ulbw = qs.exclude( Q(uploadbandwidth__isnull=True) | Q(uploadbandwidth=0) )  # Q(networkId='NR')
     if qs_ulbw.exists():
-        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadbandwidth'))['uploadbandwidth__avg'], 1) - 12
+        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadbandwidth'))['uploadbandwidth__avg']) - 12
     else: avg_uploadBandwidth = 0
     return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
 
