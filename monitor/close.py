@@ -696,7 +696,7 @@ def cal_udpJitter(phoneGroup):
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId)\
                     .filter( Q(downloadelapse=9, downloadnetworkvalidation=55) | Q(uploadelapse=9, uploadnetworkvalidation=55) )
     if qs.exclude(udpjitter__isnull=True).exists():  # data에 udpJitter 없으면 0 처리
-        udpJitter = round(qs.exclude(udpjitter__isnull=True).aggregate(Avg('udpjitter'))['udpjitter__avg'], 1)
+        udpJitter = round(qs.exclude(udpjitter__isnull=True).aggregate(Avg('udpjitter'))['udpjitter__avg']*1000, 1)
     else: udpJitter = 0.0
     return udpJitter
 
@@ -725,12 +725,9 @@ def cal_connect_time(phoneGroup):
     qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
     qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
-    import logging
-    # logger = logging.getLogger(__name__)
-    db_logger = logging.getLogger('db')
+
     if qs_dl.exists(): 
-        db_logger.error('not exists')
-        connect_time_dl = round(qs_dl.aggregate(Avg('downloadconnectionsuccess'))['downloadconnectionsuccess__avg'], 1)  # DL 접속시간
+        connect_time_dl = round(qs_dl.aggregate(Avg('downloadconnectionsuccess'))['downloadconnectionsuccess__avg']*1000, 1)  # DL 접속시간
         dl_sum = qs_dl.aggregate(Sum('downloadconnectionsuccess'))['downloadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
         dl_count = qs_dl.count()
     else:
@@ -738,13 +735,13 @@ def cal_connect_time(phoneGroup):
     
     qs_ul = qs.filter(uploadelapse=9, uploadnetworkvalidation=55, uploadconnectionsuccess__isnull=False)
     if qs_ul.exists():
-        connect_time_ul = round(qs_ul.aggregate(Avg('uploadconnectionsuccess'))['uploadconnectionsuccess__avg'], 1)  # UL 접속시간
+        connect_time_ul = round(qs_ul.aggregate(Avg('uploadconnectionsuccess'))['uploadconnectionsuccess__avg']*1000, 1)  # UL 접속시간
         ul_sum = qs_ul.aggregate(Sum('uploadconnectionsuccess'))['uploadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
         ul_count = qs_ul.count()
     else:
         connect_time_ul, ul_sum, ul_count = 0.0, 0, 1
 
-    connect_time = round(((dl_sum + ul_sum) / (dl_count + ul_count)), 1) * 1000  # 접속시간 전체평균
+    connect_time = round(((dl_sum + ul_sum) / (dl_count + ul_count))*1000, 1)  # 접속시간 전체평균
     return {'connect_time_dl':connect_time_dl, 'connect_time_ul':connect_time_ul, 'connect_time':connect_time}
 
 def cal_lte_ca(phoneGroup):
