@@ -695,12 +695,13 @@ def cal_udpJitter(phoneGroup):
     qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_list, meastime__startswith=phoneGroup.measdate, ispid="45008",\
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId)\
                     .filter( Q(downloadelapse=9, downloadnetworkvalidation=55) | Q(uploadelapse=9, uploadnetworkvalidation=55) )
-    if qs.exclude(udpjitter__isnull=True).exists():  # data에 udpJitter 없으면 0 처리
-        udpJitter = round(qs.exclude(udpjitter__isnull=True).aggregate(Avg('udpjitter'))['udpjitter__avg']*1000, 1)
+    if qs.exists():
         import logging
         # logger = logging.getLogger(__name__)
         db_logger = logging.getLogger('db')
         db_logger.error('o?')
+    if qs.exclude(udpjitter__isnull=True).exists():  # data에 udpJitter 없으면 0 처리
+        udpJitter = round(qs.exclude(udpjitter__isnull=True).aggregate(Avg('udpjitter'))['udpjitter__avg']*1000, 1)
     else: udpJitter = 0.0
     return udpJitter
 
