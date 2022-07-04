@@ -1364,6 +1364,8 @@
                         this.BanChatAllMembers()
                     } else if (e.target.innerText === "지도맵") {
                         this.phoneGroupMap()
+                    } else if (e.target.innerText === "관리대상 제외") {
+                        this.UnmanagePhonegroup()
                     }
                     $("#mi-modal").modal('hide');
                 },
@@ -1755,8 +1757,15 @@
                 /*---------------------------------------------------------------------------------------
                  * 단말 그룹 비활성화(manage=False) 함수
                  --------------------------------------------------------------------------------------*/
-                async clickUnmanagePhonegroup(phoneGroup_id) {
-                    const res = await fetch("api/phonegroup/unmanage/" + phoneGroup_id);
+                clickUnmanagePhonegroup(phoneGroup_id){
+                    this.isModelConfirmDisabled = true
+                    $("#modal-btn-confirm").html('관리대상 제외');
+                    $("#modal_body").html("해당 단말그룹을 관리대상에서 제외하시겠습니까?");
+                    $("#mi-modal").modal('show');
+                },
+
+                async UnmanagePhonegroup() {
+                    const res = await fetch("api/phonegroup/unmanage/" + this.selectedPhoneGroup.id);
                     const data = await res.json();
                     if (data['result'] === 'ok') {
                         await this.fetch_all_phoneGroup();
