@@ -33,7 +33,7 @@ from .close import measuring_end
 # ----------------------------------------------------------------------------------------------------------------------
 class PhoneGroupAdmin(admin.ModelAdmin):
     """어드민 페이지에 단말그룹 리스트를 보여주기 위한 클래스"""
-    list_display = ['measdate', 'phone_list', 'networkId', 'measuringTeam', 'userInfo1', 'morphology',
+    list_display = ['measdate', 'phone_list', 'networkId', 'measuringTeam', 'userInfo1', 'morphology', 'measureArea',
                     'dl_count', 'ul_count', 'downloadBandwidth_fmt', 'uploadBandwidth_fmt', 'nr_percent',
                     'event_count', 'active', 'manage']
     list_display_links = ['phone_list', ]

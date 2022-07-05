@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from monitor.models import PhoneGroup, Message, MeasuringDayClose
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer, MeasuringDayCloseSerializer
 from monitor.close import cal_close_data, make_report_message
-from management.models import Center, Morphology, ChatMemberList, MorphologyDetail, PhoneInfo, MessageConfig
+from management.models import Center, Morphology, ChatMemberList, MorphologyDetail, PhoneInfo, MessageConfig, MeasureArea
 from message.tele_msg import TelegramBot, update_members, update_members_allchat, ban_member_as_compared_db, ban_member_not_allowed, ban_member_not_allowed_all
 from monitor.geo import make_map_locations
 
@@ -101,7 +101,8 @@ def phonegroup_list(request, measdate):
                       'networkId', 'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent',
                       'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended',
                       'dl_nr_count', 'ul_nr_count', 'dl_nr_count_z', 'ul_nr_count_z',
-                      'event_count', 'send_failure_dl_count_z', 'send_failure_ul_count_z', 'all_count_event', 'autoSend',]
+                      'event_count', 'send_failure_dl_count_z', 'send_failure_ul_count_z', 'all_count_event', 'autoSend',
+                      'measureAreaName',]
             for phoneGroup in qs:
                 serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
                 data = serializer.data
@@ -177,6 +178,8 @@ def centerANDmorphology_list(request):
         # 모든 센터 및 모폴로지 추출하여 Json 반환
         centerListAll = list(Center.objects.values_list('centerName', flat=True).order_by('id'))
         morphologyList = list(Morphology.objects.values_list('morphology', flat=True).order_by('id'))
+        # 7.5 측정지역 추가
+        measureAreaList = list(MeasureArea.objects.values_list('area', flat=True).order_by('id'))
         
         ## 모폴로지 상세 데이터 전달을 위한 Dictionary 생성
         MorphDetailDict = {}
@@ -191,7 +194,7 @@ def centerANDmorphology_list(request):
                     morphDetail_middle[morphDetail_id[0]] = morphDetail_id[1]
                 MorphDetailDict[morphDetail_network][morphDetail_main] = morphDetail_middle
                 
-        data = {'morphologyList': morphologyList, 'centerListAll': centerListAll, 'MorphDetailDict': MorphDetailDict} # 센터 및 모폴로지 리스트
+        data = {'morphologyList': morphologyList, 'centerListAll': centerListAll, 'MorphDetailDict': MorphDetailDict, 'measureAreaList': measureAreaList}
     except Exception as e:
         print("centerANDmorphology_list():", str(e))
         raise Exception("centerANDmorphology_list(): %s" % e)
@@ -398,6 +401,7 @@ def update_phonegroup_info(request):
                 phoneGroup.phone_set.update(morphology=phoneGroup.morphology)
                 phoneGroup.manage = Morphology.objects.filter(morphology=data['morphologyName']).values_list('manage', flat=True)[0]  # 모폴로지 값에 따른 Manage 값
             if 'morphologyDetailId' in data.keys() : phoneGroup.morphologyDetail = MorphologyDetail.objects.filter(id=data['morphologyDetailId'])[0]  # 모폴로지 상세
+            if 'measureArea' in data.keys() : phoneGroup.measureArea = MeasureArea.objects.filter(area=data['measureArea'])[0]  # 측정지역
             phoneGroup.save()
 
             # 측정단말에 대한 사전정보(측정조)가 없거나 다른 경우 역방향 업데이를 한다.

@@ -653,6 +653,11 @@
                             <option v-for="center in centerListAll" v-bind:value="center">[[center]]</option>
                         </select>
                     </p>
+                    <p class="mt-1"><label for="measureArea" class="m-lg-1" style="width: 110px">측정지역</label>
+                        <select name="measureArea" style="width: 90px;" id="measureArea" v-model="selectedPhoneGroup.measureAreaName">
+                            <option v-for="measureArea in measureAreaList" v-bind:value="measureArea">[[measureArea]]</option>
+                        </select>
+                    </p>
                     <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 110px">측정 조</label>
                         <input type="text" style="width: 90px;" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
                     <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 110px">모폴로지</label>
@@ -741,6 +746,7 @@
                     selectedPhoneGroup: {},
                     centerListAll: [], // 전체 센터 리스트
                     morphologyList: [], // 모폴로지 리스트
+                    measureAreaList: [], // 측정지역 리스트
                     tabChangeCheck: false,
                     //activePhoneGroup: {},
                     activeMessage: {},
@@ -947,6 +953,7 @@
                     this.centerListAll = data['centerListAll']  // 전체 센터 리스트
                     this.morphologyList = data['morphologyList']  // 전체 모폴로지 리스트
                     this.MorphDetailDict = data['MorphDetailDict']; // 모폴로지 상세
+                    this.measureAreaList = data['measureAreaList']
                     if (this.selectedPhoneGroup.morphologyDetailId != null) {
                         this.MorphDetailChoice['main'] = this.MorphDetailDict[this.selectedPhoneGroup.morphologyDetailNetwork];
                         this.MorphDetailChoice['middle'] = this.MorphDetailChoice['main'][this.selectedPhoneGroup.morphologyDetailMain];
@@ -1819,7 +1826,8 @@
                             'centerName': this.selectedPhoneGroup.centerName,  // 센터
                             'measuringTeam': this.selectedPhoneGroup.measuringTeam,  // 측정조
                             'morphologyName': this.selectedPhoneGroup.morphologyName,  // 모폴로지 이름
-                            'morphologyDetailId': this.selectedPhoneGroup.morphologyDetailId  // 모폴로지 상세 ID
+                            'morphologyDetailId': this.selectedPhoneGroup.morphologyDetailId,  // 모폴로지 상세 ID
+                            'measureArea': this.selectedPhoneGroup.measureArea  // 측정지역
                         })
                     };
                     const response = await fetch("api/phonegroup/update/info/", requestOptions);

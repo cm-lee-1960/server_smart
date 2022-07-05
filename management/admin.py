@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib import auth
 from django.conf import settings
 from .models import Morphology, SendFailure, LowThroughput, Center, MeasureingTeam, ReportCycle, MorphologyMap, \
-    CenterManageArea, ChatMemberList, PhoneInfo, MorphologyDetail, MessageConfig, EtcConfig
+    CenterManageArea, ChatMemberList, PhoneInfo, MorphologyDetail, MessageConfig, EtcConfig, MeasureArea
 
 ########################################################################################################################
 # 어드민 페이지에서 관리정보를 추가/수정/삭제할 수 있도록 하기 위한 모듈
@@ -203,6 +203,19 @@ class MorphologyDetailAdmin(admin.ModelAdmin):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# 측정지역  정보
+# ----------------------------------------------------------------------------------------------------------------------
+class MeasureAreaAdmin(admin.ModelAdmin):
+    """어드민 페이지에 모폴로지 상세를 보여주기 위한 클래스"""
+    list_display = ['area',]
+    list_display_links = list_display
+    search_fields = ('area',)
+    list_filter = ['area',]
+
+    ordering = ('id', )
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # 메시지 자동전송 여부
 # ----------------------------------------------------------------------------------------------------------------------
 class MessageConfigAdmin(admin.ModelAdmin):
@@ -231,6 +244,7 @@ admin.site.register(MorphologyMap, MorphologyMapAdmin) # 모풀로지 맵 등록
 admin.site.register(SendFailure, SendFailureAdmin) # 전송실패 기준 등록
 admin.site.register(LowThroughput, LowThroughputAdmin) # 속도저하 기준 등록
 admin.site.register(Center, CenterAdmin) # 센터정보 등록(전국 14개 센터)
+admin.site.register(MeasureArea, MeasureAreaAdmin) # 측정지역 등록(19개 지역)
 
 admin.site.register(MeasureingTeam, MeasureingTeamAdmin) # 금일 측정조
 admin.site.register(ReportCycle, ReportCycleAdmin) # 측정 보고주기

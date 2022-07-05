@@ -7,7 +7,7 @@ import random
 from .geo import KakaoLocalAPI
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
 from message.xmcs_msg import send_sms  # 2022.03.04 크로샷 메시지 전송 함수 호출
-from management.models import Center, Morphology, MorphologyMap, CenterManageArea, PhoneInfo, MorphologyDetail
+from management.models import Center, Morphology, MorphologyMap, CenterManageArea, PhoneInfo, MorphologyDetail, MeasureArea
 
 # import logging
 # logger = logging.getLogger(__name__)
@@ -65,6 +65,7 @@ class PhoneGroup(models.Model):
     org_morphology = models.ForeignKey(Morphology, null=True, blank=True, on_delete=models.DO_NOTHING,
                                        verbose_name="모풀로지(Origin)", related_name="org_morphology")
     morphologyDetail = models.ForeignKey(MorphologyDetail, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="모풀로지상세")
+    measureArea = models.ForeignKey(MeasureArea, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name="측정지역")
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
                                      choices=sorted(MEASURINGTEAM_CHOICES, key=itemgetter(0)), verbose_name='측정조')
     ispId = models.CharField(max_length=10, null=True, blank=True, choices=ISPID_CHOICES, \
@@ -652,6 +653,9 @@ class Phone(models.Model):
                     qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)
                 if qs.exists():
                     self.center = qs[0].center  # 관할센터
+                qs_measure_area = MeasureArea.objects.filter(area=self.siDo)
+                if qs_measure_area.exists():
+                    self.phoneGroup.measureArea = qs_measure_area[0]
 
                 if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail and self.center.centerName in ['서울강북', '경기북부', '서울강남', '경기남부', '경기서부']:  ## WiFi + 지하철 + 수도권일 경우 서울강북으로 지정
                     if self.phoneGroup.morphologyDetail.middle_class=="지하철":
@@ -663,6 +667,7 @@ class Phone(models.Model):
                         self.center = Center.objects.get(centerName="서울강북")
                     else: self.center = Center.objects.get(centerName="전체")
                 else: self.center = Center.objects.get(centerName="전체") # 위경도가 없을 경우 센터 전체로 지정
+                self.phoneGroup.measureArea = MeasureArea.objects.filter(area="전국")[0]
 
             # 측정 단말기 정보를 저장한다.
             self.save()

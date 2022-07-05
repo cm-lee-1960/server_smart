@@ -113,6 +113,7 @@ class PhoneGroupSerializer(IdModelSerializer, DynamicFieldsModelSerializer):
     morphologyDetailNetwork = serializers.ReadOnlyField(source = 'morphologyDetail.network_type')  # 모폴로지 상세 대분류
     morphologyDetailMain = serializers.ReadOnlyField(source = 'morphologyDetail.main_class')  # 모폴로지 상세 중분류
     morphologyDetailMiddle = serializers.ReadOnlyField(source = 'morphologyDetail.middle_class')  # 모폴로지 상세 소분류
+    measureAreaName = serializers.ReadOnlyField(source = 'measureArea.area')  # 측정지역
     p_measuringTeam = serializers.ReadOnlyField() # 금일 측정조 (@property decorator)
     phone_list = serializers.ReadOnlyField()  # 단말번호 리스트
     last_updated_time = serializers.ReadOnlyField() # 최종 측정위치보고 시간 (@property decorator) (예: 12:05)
