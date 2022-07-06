@@ -5,7 +5,7 @@ from django.shortcuts import render
 from datetime import datetime
 
 from rest_framework.decorators import api_view
-from monitor.models import PhoneGroup, Message, MeasuringDayClose
+from monitor.models import PhoneGroup, Message, MeasuringDayClose, custom_orderby_nid
 from monitor.serializers import PhoneGroupSerializer, MessageSerializer, ChatMemberListSerializer, MeasuringDayCloseSerializer
 from monitor.close import cal_close_data, make_report_message
 from management.models import Center, Morphology, ChatMemberList, MorphologyDetail, PhoneInfo, MessageConfig, MeasureArea
@@ -549,13 +549,14 @@ def check_data(request, phonegroup_id):
 # ----------------------------------------------------------------------------------------------------------------------
 def check_message(request, phonegroup_id):
     measdate=PhoneGroup.objects.filter(id=phonegroup_id)[0].measdate
-    pg_all = PhoneGroup.objects.filter(measdate=measdate, manage=True).order_by('networkId')
+    pg_all = PhoneGroup.objects.filter(measdate=measdate, manage=True)
+    pg_all_sort = sorted(pg_all, key=lambda x: custom_orderby_nid(x))
     close_message_list = []
     report_message_list = []
     message_end_last = ''
 
     # 1) 각 단말 그룹에 대한 종료 메시지 생성
-    for pg_i in pg_all:  
+    for pg_i in pg_all_sort:  
         md = pg_i.measuringdayclose_set.all()
         if md.exists():
             md = md.last()

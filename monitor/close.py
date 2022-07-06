@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.db.models import Max, Min, Avg, Count, Q, Sum
 from django.db import connection
 
-from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose, networkType_check
+from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose, networkType_check, custom_orderby_nid
 from .inspectdb import TbNdmDataSampleMeasure, TbNdmDataMeasure
 from .events import send_failure_check
 from management.models import Center, Morphology, MorphologyDetail
@@ -511,7 +511,7 @@ def measuring_day_close(phoneGroup_list, measdate):
  
 
     # 각 단말 그룹들의 종료 데이터(MeasuringDayClose)를 보충
-    for phoneGroup in PhoneGroup.objects.filter(manage=True, active=False, measdate=measdate).order_by('networkId', '-last_updated'):
+    for phoneGroup in sorted(PhoneGroup.objects.filter(manage=True, active=False, measdate=measdate).order_by('networkId', '-last_updated'), key=lambda x: custom_orderby_nid(x)):
         cal_close_data(phoneGroup)  # 단말 그룹 별 마감 데이터 생성
         make_report_message(phoneGroup)  # 단말 그룹 별 마감 메시지 생성
    
@@ -523,7 +523,7 @@ def measuring_day_close(phoneGroup_list, measdate):
             for center in centers:
                 mCenter = Center.objects.get(id=center)
                 message_report_center = f'[{mCenter.centerName}]\n\n[평가지역 일일보고]\n\n수신: {mCenter.recipientOfficer}\n\n금일 품질 측정 결과를 공유해 드리오니 참고하시기 바랍니다.'
-                for message in messages.filter(center=center):
+                for message in sorted(messages.filter(center=center), key=lambda x:custom_orderby_nid(x.phoneGroup)):
                     message_report_center += '\n\n' + message.message  # 센터 별 메시지 수합
                 # 메시지를 저장한다.  //  메시지가 이미 존재하면 Update, 없으면 신규 생성
                 message_center_exists = Message.objects.filter(status='REPORT_CENTER', measdate=measdate, center=center)
@@ -555,6 +555,7 @@ def measuring_day_close(phoneGroup_list, measdate):
         if Message.objects.filter(status='REPORT', measdate=measdate).count() != 0:
             message_report_all = '금일 품질 측정 결과를 아래와 같이 보고 드립니다.'
             messages = Message.objects.filter(status='REPORT', measdate=measdate).exclude(phoneGroup__networkId='WiFi').order_by('id', 'center', '-updated_at')
+            messages = sorted(messages, key=lambda x: custom_orderby_nid(x.phoneGroup))
             for message in messages:
                 message_report_all += "\n\n" + message.message  # 운용본부용 전체 메시지 수합
                 message.delete()  # 수합한 개별 메시지 삭제

@@ -310,6 +310,23 @@ def get_morphologyDetail_wifi(userInfo1:str, userInfo2: str) -> MorphologyDetail
                 
     return morphologyDetail
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹을 Custom Ordering 하기 위한 함수 (순서 : '5G', 'LTE', '3G', 'WiFi')
+def custom_orderby_nid(pg):
+    if pg.networkId == '5G':
+        return 1
+    elif pg.networkId == 'LTE':
+        return 2
+    elif pg.networkId == '3G':
+        return 3
+    elif pg.networkId =='WiFi':
+        return 4
+    else:
+        return 5
+# ----------------------------------------------------------------------------------------------------------------------
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # LTE 전환여부를 확인한다.
 # - 네트워크ID가 WiFi, 3G인 경우 처리하지 않고, 입력된 값 그대로 반환한다.
