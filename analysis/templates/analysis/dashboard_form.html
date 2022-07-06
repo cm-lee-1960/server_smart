@@ -1827,7 +1827,7 @@
                             'measuringTeam': this.selectedPhoneGroup.measuringTeam,  // 측정조
                             'morphologyName': this.selectedPhoneGroup.morphologyName,  // 모폴로지 이름
                             'morphologyDetailId': this.selectedPhoneGroup.morphologyDetailId,  // 모폴로지 상세 ID
-                            'measureArea': this.selectedPhoneGroup.measureArea  // 측정지역
+                            'measureArea': this.selectedPhoneGroup.measureAreaName  // 측정지역
                         })
                     };
                     const response = await fetch("api/phonegroup/update/info/", requestOptions);

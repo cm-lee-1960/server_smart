@@ -229,7 +229,7 @@ def get_morphology(networkId: str, userInfo2: str, userInfo1: str=None, phone_no
         morphology = Morphology.objects.filter(morphology="취약지역")[0]
 
     # 이전에 동일한 userInfo1을 가진 단말그룹이 있을 경우 해당 단말그룹과 동일한 모폴로지를 가진다.
-    elif PhoneGroup.objects.filter(userInfo1=userInfo1).exists():
+    elif PhoneGroup.objects.filter(userInfo1=userInfo1).exists() and PhoneGroup.objects.filter(userInfo1=userInfo1).last().morphology.morphology != '커버리지':
         morphology = PhoneGroup.objects.filter(userInfo1=userInfo1).last().morphology
 
     # 측정자 입력값2(userInfo2)에 따라 모폴로지를 결정한다.
@@ -653,9 +653,11 @@ class Phone(models.Model):
                     qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)
                 if qs.exists():
                     self.center = qs[0].center  # 관할센터
-                qs_measure_area = MeasureArea.objects.filter(area=self.siDo)
-                if qs_measure_area.exists():
-                    self.phoneGroup.measureArea = qs_measure_area[0]
+
+                if self.phoneGroup.measureArea is None:  ## 단말그룹 측정지역 매핑
+                    qs_measure_area = MeasureArea.objects.filter(area=self.siDo)
+                    if qs_measure_area.exists():
+                        self.phoneGroup.measureArea = qs_measure_area[0]
 
                 if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail and self.center.centerName in ['서울강북', '경기북부', '서울강남', '경기남부', '경기서부']:  ## WiFi + 지하철 + 수도권일 경우 서울강북으로 지정
                     if self.phoneGroup.morphologyDetail.middle_class=="지하철":
