@@ -676,12 +676,12 @@ class Phone(models.Model):
                     if qs_measure_area.exists():
                         self.phoneGroup.measureArea = qs_measure_area[0]
 
-                if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail and self.center.centerName in ['서울강북', '경기북부', '서울강남', '경기남부', '경기서부']:  ## WiFi + 지하철 + 수도권일 경우 서울강북으로 지정
+                if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail and self.center and self.center.centerName in ['서울강북', '경기북부', '서울강남', '경기남부', '경기서부']:  ## WiFi + 지하철 + 수도권일 경우 서울강북으로 지정
                     if self.phoneGroup.morphologyDetail.middle_class=="지하철":
                         self.center = Center.objects.get(centerName="서울강북")
 
             else: 
-                if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail and self.center.centerName in ['서울강북', '경기북부', '서울강남', '경기남부', '경기서부']:  ## WiFi + 지하철 + 수도권일 경우 서울강북으로 지정
+                if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail and self.center and self.center.centerName in ['서울강북', '경기북부', '서울강남', '경기남부', '경기서부']:  ## WiFi + 지하철 + 수도권일 경우 서울강북으로 지정
                     if self.phoneGroup.morphologyDetail.middle_class=="지하철":
                         self.center = Center.objects.get(centerName="서울강북")
                     else: self.center = Center.objects.get(centerName="전체")
