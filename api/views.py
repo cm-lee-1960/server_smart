@@ -101,7 +101,7 @@ def phonegroup_list(request, measdate):
                       'networkId', 'dl_count', 'downloadBandwidth', 'ul_count', 'uploadBandwidth', 'nr_percent',
                       'last_updated_dt', 'last_updated_time', 'elapsed_time', 'active', 'xmcsmsg_sended',
                       'dl_nr_count', 'ul_nr_count', 'dl_nr_count_z', 'ul_nr_count_z',
-                      'event_count', 'send_failure_dl_count_z', 'send_failure_ul_count_z', 'all_count_event', 'autoSend',
+                      'event_count', 'send_failure_dl_count_z', 'send_failure_ul_count_z', 'all_count_event', 'autoSend', 'created_at',
                       'measureAreaName',]
             for phoneGroup in qs:
                 serializer = PhoneGroupSerializer(phoneGroup, fields=fields)
