@@ -150,40 +150,40 @@
                     </div>
                 </div>
             </div>
-            {%  if request.user.is_superuser %}
+{%  if request.user.is_superuser %}
             {% comment %} <div id="rw" align="right" class="col-3" style ="display: flex"> {% endcomment %}
-            <div id="rw" class="col-3" style="margin-top: 30px; margin-bottom: 5px;bottom: 5px;">
+            <div id="rw" class="col-3" style="margin-top: 50px; margin-bottom: 5px;bottom: 5px;">
                 <div align="right" style ="float:right; padding: 0px; margin-left: 8px;">
-                    <button type="button" class="btn btn-danger btn-lg" style="height: 58px; boder:20px solid; border-radius: 3px;" 
+                    <button type="button" class="btn btn-danger btn-lg" style="height: 54px; width: 55px; border-radius: 3px;"
                     v-show="monitoringCondition==false" v-on:click="set_monitoringConfig(false)"
                     data-toggle="tooltip" data-placement="top" title="자동감시 설정: OFF">
-                        <i id="monitoringSetPlay" class="fa fa-play fa-lg p-lg-2" style="color:white;"></i>
+                        <i id="monitoringSetPlay" class="fa fa-play fa-lg" style="color:white; text-align:center;"></i>
                     </button>
-                    <button type="button" class="btn btn-danger btn-lg" style="height: 58px; boder:20px solid; border-radius: 3px;" 
+                    <button type="button" class="btn btn-danger btn-lg" style="height: 54px; width: 55px; border-radius: 3px;"
                     v-show="monitoringCondition==true" v-on:click="set_monitoringConfig(false)"
                     data-toggle="tooltip" data-placement="top" title="자동감시 설정: ON">
-                        <i id="monitoringSetPause" class="fa fa-pause fa-lg p-lg-2" style="color:white;"></i>
+                        <i id="monitoringSetPause" class="fa fa-pause fa-lg" style="color:white; text-align:center;"></i>
                     </button>
                 </div>
 
                 <div align="right" style="float:right">
                     <div align="right">
-                        <button type="button" style="margin-top:0px;" sytle="width:20px" class="btn btn-secondary btn-lg pt-3" v-on:click="clickMeasuringEnd()" title="선택한 단말그룹을 측정종료 처리하며 해당 지역의 종료 메시지를 생성합니다.">
+                        <button type="button" style="margin-top:0px;" class="btn btn-secondary btn-lg pt-3 p-1" v-on:click="clickMeasuringEnd()" title="선택한 단말그룹을 측정종료 처리하며 해당 지역의 종료 메시지를 생성합니다.">
                             <h5>측정종료</h5>
                         </button>
-                        <button type="button" style="margin-top:0px;" sytle="width:20px" class="btn btn-danger btn-lg pt-3" v-on:click="clickMeasuringClose()" title="전체 단말그룹을 측정종료 처리하고 최종보고 메시지를 생성합니다.">
+                        <button type="button" style="margin-top:0px;" class="btn btn-danger btn-lg pt-3 p-1" v-on:click="clickMeasuringClose()" title="전체 단말그룹을 측정종료 처리하고 최종보고 메시지를 생성합니다.">
                             <h5>일일마감</h5></button>
                     </div>
                 </div>
 
                 <div align="right" style ="float:right; padding: 0px; margin-left: 8px; margin-right: 10px">
-                    <button type="button" class="btn btn-light btn-lg" style="height: 58px; border-radius: 3px;" 
+                    <button type="button" class="btn btn-default btn-lg" style="height: 55px; border-radius: 3px;"
                     v-show="setTTS==true" v-on:click="set_TTS(false)" data-toggle="tooltip" data-placement="top" title="측정시작 알람: ON">
-                        <i id="set_TTS_OFF" class="fa fa-volume-up" style="color:orange">
+                        <i id="set_TTS_OFF" class="fa fa-volume-up fa-lg m-0" style="color:orange">
                     </i></button>
-                    <button type="button" class="btn btn-light btn-lg" style="height: 58px; border-radius: 3px;" 
+                    <button type="button" class="btn btn-default btn-lg" style="height: 55px; border-radius: 3px;"
                     v-show="setTTS==false" v-on:click="set_TTS(true)" data-toggle="tooltip" data-placement="top" title="측정시작 알람: OFF">
-                        <i id="set_TTS_ON" class="fa fa-volume-off" style="color:rgb(70, 70, 67)">
+                        <i id="set_TTS_ON" class="fa fa-volume-off fa-lg m-0" style="color:rgb(70, 70, 67)">
                     </i></button>
                 </div>
             </div>
