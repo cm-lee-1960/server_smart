@@ -918,14 +918,14 @@
                     if (typeof this.date_now != "undefined"  && data['phoneGroupList'].length != 0 && this.setTTS === true) {
                         for(i in data['phoneGroupList']) {
                             if (this.date_now < new Date(data['phoneGroupList'][i].created_at)) {  // 직전 fetch 시간과 단말그룹 create_at 비교
-                                new_phoneGroupList.push(data['phoneGroupList'][i].userInfo1)  // new_phoneGroupList에 userInfo1 추가
+                                new_phoneGroupList.push(data['phoneGroupList'][i].userInfo1 + '측정시작')  // new_phoneGroupList에 userInfo1 추가
                                 userInfo1_text = new_phoneGroupList.join(",", new_phoneGroupList)  // 발화할 내용
                                 window.speechSynthesis.cancel()  // 이전 재생 중이던 TTS 정지
                                 const TTS = new SpeechSynthesisUtterance()  // 선언
-                                TTS.rate = 2 // 재생속도
+                                TTS.rate = 1.5 // 재생속도
                                 TTS.pitch = 1 // 음높이
                                 TTS.lang = 'ko-KR' // 언어
-                                TTS.text = userInfo1_text + '측정시작'  // TTS 내용
+                                TTS.text = userInfo1_text  // TTS 내용
                                 window.speechSynthesis.speak(TTS)  // TTS출력
                             }
                         }
