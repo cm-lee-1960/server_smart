@@ -177,11 +177,11 @@
                 </div>
 
                 <div align="right" style ="float:right; padding: 0px; margin-left: 8px; margin-right: 10px">
-                    <button type="button" class="btn btn-light btn-lg" style="height: 58px; boder:20px solid; border-radius: 3px;" 
+                    <button type="button" class="btn btn-light btn-lg" style="height: 58px; border-radius: 3px;" 
                     v-show="setTTS==true" v-on:click="set_TTS(false)" data-toggle="tooltip" data-placement="top" title="측정시작 알람: ON">
                         <i id="set_TTS_OFF" class="fa fa-volume-up" style="color:orange">
                     </i></button>
-                    <button type="button" class="btn btn-light btn-lg" style="height: 58px; boder:20px solid; border-radius: 3px;" 
+                    <button type="button" class="btn btn-light btn-lg" style="height: 58px; border-radius: 3px;" 
                     v-show="setTTS==false" v-on:click="set_TTS(true)" data-toggle="tooltip" data-placement="top" title="측정시작 알람: OFF">
                         <i id="set_TTS_ON" class="fa fa-volume-off" style="color:rgb(70, 70, 67)">
                     </i></button>
@@ -326,16 +326,18 @@
                                 <a class="nav-link" id="msg-all-tab" data-toggle="tab" href="#msg-all" role="tab"
                                 aria-controls="msg-all" aria-selected="false" v-on:click="message_check('xro')">문자(전체)</a>
                             </li>
-                            <li><i id="setAutoSend_ON" class="fa fa-comment-o" v-if="selectedPhoneGroup.autoSend"
-                                style="font-size:20px;margin-left:12px; font-weight:bold; color:red" v-on:click="clickSetAutoSend()"
-                                data-toggle="tooltip1" data-placement="top" title="메시지 자동전송 'ON' 상태"></i>
-                                <i id="setAutoSend_OFF" class="fa fa-comment-o" v-else="selectedPhoneGroup.autoSend"
-                                style="font-size:20px;margin-left:12px; font-weight:bold; color:gray" v-on:click="clickSetAutoSend()"
-                                data-toggle="tooltip2" data-placement="top" title="메시지 자동전송 'OFF' 상태"></i></li>
                             {% endif %}
                         </ul>
                         <div style="display:flex; align-items: center;">
                             <strong><span>[[selectedPhoneGroup.userInfo1]]</span></strong>
+                            <button type="button" class="btn btn-warning" style="padding:4px; margin-left:20px;margin-right:10px"
+                                    v-show="selectedPhoneGroup.autoSend==true" v-on:click="clickSetAutoSend()"
+                                    data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'ON' 상태"><font size=-1>자동전송: ON</font></button>
+                            <!-- <i id="setAutoSend_ON" class="fa fa-comment-o" style="font-size:20px;font-weight:bold; color:red"></i></button> -->
+                            <button type="button" class="btn btn-secondary" style="padding:4px; margin-left:20px; margin-right:10px"
+                                    v-show="selectedPhoneGroup.autoSend==false" v-on:click="clickSetAutoSend()"
+                                    data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'OFF' 상태"><font size=-1>자동전송: OFF</font></button>
+                            <!-- <i id="setAutoSend_OFF" class="fa fa-comment-o" style="font-size:20px;font-weight:bold; color:gray"></i></button> -->
                             <i id="refreshIconMessage" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                             style="font-size:20px; color:blue" v-on:click="fetch_all_message"
                             data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -516,7 +518,7 @@
                         <div style="display:flex; align-items: center;">
                             <strong><span>[[selectedPhoneGroup.centerName]]</span></strong>
                             {% if request.user.is_superuser %}
-                            <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;">
+                            <button type="button" class="btn btn-default btn-sm" style="border:none;background:none;" data-toggle="tooltip" data-placement="top" title="새 메시지">
                                 <i id="message-new"
                                 class="fa fa-clone"
                                 style="font-size:24px;"
