@@ -172,13 +172,14 @@ def ollehAPI_reverseGEO(latitude, longitude):
     '''olleh API를 통한 좌표->주소 전환
         .파라미터(input): 위도/경도
         .반환값 : dict '''
-    api_key = settings.OLLEH_API_KEY
-    headers = {'Content-Type': 'application/json; charset=utf-8',
-            "Authorization": api_key,
-            "Accept-Language": "ko-KR",
-            }
-    url = f"https://gis.kt.com/search/v1.0/utilities/geocode?point.lat={latitude}&point.lng={longitude}&includeGeometry=false&expectedParcelLevel=LEAFPARCEL&expectedRoadLevel=LEAFSTREET&exactParcelMatch=false&exactRoadMatch=false"
     try:
+        api_key = settings.OLLEH_API_KEY
+        headers = {'Content-Type': 'application/json; charset=utf-8',
+                    "Authorization": api_key,
+                    "Accept-Language": "ko-KR",
+                    }
+        url = f"https://gis.kt.com/search/v1.0/utilities/geocode?point.lat={latitude}&point.lng={longitude}&includeGeometry=false&expectedParcelLevel=LEAFPARCEL&expectedRoadLevel=LEAFSTREET&exactParcelMatch=false&exactRoadMatch=false"
+
         response = requests.get(url, headers=headers)
         data = response.json()
 
