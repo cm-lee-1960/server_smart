@@ -7,6 +7,10 @@ import os
 from haversine import haversine # 이동거리
 from django.conf import settings
 from management.models import AddressRegion
+import logging
+
+
+db_logger = logging.getLogger('db')
 
 ########################################################################################################################
 # 좌표(위도,경도) 및 주소 변환 모듈
@@ -177,6 +181,7 @@ def ollehAPI_reverseGEO(latitude, longitude):
     try:
         response = requests.get(url, headers=headers)
         data = response.json()
+
         if 'residentialAddress' in data.keys():
             siDo = data['residentialAddress'][0]['parcelAddress'][0]['siDo']
             siGunGu1 = data['residentialAddress'][0]['parcelAddress'][0]['siGunGu1']
@@ -187,6 +192,7 @@ def ollehAPI_reverseGEO(latitude, longitude):
             result = {'result':'ok', 'siDo':siDo, 'siGunGu1':siGunGu1, 'eupMyeonDong':eupMyeonDong}
             return result
         else:
+            db_logger.error("ollehAPI_reverseGEO: 주소변환실패" , data)
             return {'result':'fail'}
     except Exception as e:
         db_logger.error("ollehAPI_reverseGEO:", str(e))

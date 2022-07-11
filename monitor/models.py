@@ -619,7 +619,7 @@ class Phone(models.Model):
         """
         try:
             if self.longitude and self.latitude:    # olleh API를 이용하여 좌표(위/경도)를 주소(행정동 명칭)로 변환한다.
-                result = ollehAPI_reverseGEO(self.longitude, self.latitude)
+                result = ollehAPI_reverseGEO(self.latitude, self.longitude)
                 if result['result'] == 'ok':
                     self.siDo =result['siDo']  # 시/도
                     self.guGun = result['siGunGu1']  # 구/군
