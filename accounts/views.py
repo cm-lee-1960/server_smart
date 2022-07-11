@@ -31,8 +31,8 @@ def login(request):
     """메인페이지 로그인 화면 에러내용 추가"""
     # 사내망에서만 접속이 가능하도록 함
     # 사내 공인IP 대역: 147.6.X.X
-    if "147.6." not in get_client_ip(request) :
-        return render(request, 'accounts/login_boot.html', {'error': "스마트상황실은 사내에서만 접속 가능합니다.", 'user_Name': [0]})
+    # if "147.6." not in get_client_ip(request) :
+    #     return render(request, 'accounts/login_boot.html', {'error': "스마트상황실은 사내에서만 접속 가능합니다.", 'user_Name': [0]})
 
     if request.method == 'POST':
         login_form = AuthenticationForm(request, request.POST)

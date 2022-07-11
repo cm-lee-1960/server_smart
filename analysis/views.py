@@ -235,12 +235,12 @@ class ExcelUploadView5g(View):
                     row_value.append(cell.value)
                 all_values.append(row_value)
             
-        PostMeasure5G.objects.all().delete()
+        
         for row in all_values:
-            sample_model = PostMeasure5G(district = row[0],number = row[1],lasttotal5g = row[2],kttotaltotal5g = row[3],kttotalposttotal5g = row[4],skttotalposttotal5g = row[5],lgtotalposttotal5g =row[6],ktranktotal5g = row[7],
-            kthjdtotal5g = row[8],kthjdposttotal5g = row[9],skthjdposttotal5g = row[10],lghjdposttotal5g = row[11],ktrankhjdtotal5g =row[12], ktsidetotal5g = row[13],ktsideposttotal5g = row[14],sktsideposttotal5g = row[15],lgsideposttotal5g = row[16],
-            ktranksidetotal5g = row[17])
-            
+            sample_model = PostMeasure5G(measdate = row[0],district  = row[1],name = row[2],measkt_dl = row[3],measkt_ul = row[4],measkt_rsrp = row[5],measkt_lte =row[6],postmeaskt_dl = row[7],
+            postmeaskt_ul = row[8],postmeaskt_rsrp = row[9],postmeaskt_lte = row[10],postmeasskt_dl = row[11],postmeasskt_ul =row[12], postmeasskt_rsrp = row[13],postmeasskt_lte= row[14],postmeaslg_dl = row[15],
+            postmeaslg_ul = row[16], postmeaslg_rsrp= row[17],postmeaslg_lte=row[18] )
+           
             sample_model.save()
 
         response = {'status': 1, 'message': '엑셀파일이 정상적으로 업로드 됐습니다.'}
@@ -263,8 +263,9 @@ class ExcelUploadViewlte(View):
          
         PostMeasureLTE.objects.all().delete()
         for row in all_values:
-            sample_model = PostMeasureLTE(district = row[0],number = row[1],lasttotallte = row[2],ktdllte = row[3], ktpostdllte = row[4],sktpostdllte = row[5],lgpostdllte = row[6],ktullte =row[7],ktpostullte = row[8],
-            sktpostullte = row[9],lgpostullte = row[10])
+            sample_model = PostMeasureLTE(measdate = row[0],district  = row[1],name = row[2],measkt_dl = row[3],measkt_ul = row[4],measkt_rsrp = row[5],measkt_sinr =row[6],postmeaskt_dl = row[7],
+            postmeaskt_ul = row[8],postmeaskt_rsrp = row[9],postmeaskt_sinr = row[10],postmeasskt_dl = row[11],postmeasskt_ul =row[12], postmeasskt_rsrp = row[13],postmeasskt_sinr= row[14],postmeaslg_dl = row[15],
+            postmeaslg_ul = row[16], postmeaslg_rsrp= row[17],postmeaslg_sinr=row[18] )
             
             sample_model.save()
 
@@ -496,6 +497,36 @@ def delete_closedata(request):
             
     return JsonResponse(data=result, safe=False)
 
+# -------------------------------------------------------------------------------------------------
+# 업데이트
+# -------------------------------------------------------------------------------------------------
+def update_report(request):
+    """측정결과 등록정보를 삭제하는 뷰"""
+   
+    if request.method== "POST":
+       post_save.connect(send_message_hj, sender=MeasuringDayClose)
+       a=MeasuringDayClose.objects.all().values_list('measdate',flat=True).order_by('measdate').distinct()
+       b=LastMeasDayClose.objects.all().values_list('measdate',flat=True).order_by('measdate').distinct()
+       print(a)
+       print(b)
+       diff_measdate = list(set(a)-set(b))
+       
+    #    print(c)
+    #    print(d)
+       
+    #    diff_object = list(set(c)-set(d))
+    #    print(diff_object)
+    #    hoho = []
+       for measdate in diff_measdate:
+         
+          hoho = MeasuringDayClose.objects.filter(measdate= measdate)
+          print(hoho)
+          send_message_hj(hoho)
+        # hoho.append(MeasuringDayClose.objects.filter(measdate= diff_measdate))
+        
+    #    send_message_hj(hoho)
+       ##send_message_hj실행
+    return redirect("analysis:report")
 # -------------------------------------------------------------------------------------------------
 # 6) 측정완료 삭제
 # -------------------------------------------------------------------------------------------------
