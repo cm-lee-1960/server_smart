@@ -177,23 +177,23 @@ def ollehAPI_reverseGEO(latitude, longitude):
             "Authorization": api_key,
             "Accept-Language": "ko-KR",
             }
-    url = f"https://gis.kt.com/search/v1.0/utilities/geocode?point.lat={latitude}&point.lng={longitude}&includeGeometry=false&expectedParcelLevel=LEAFPARCEL&expectedRoadLevel=LEAFSTREET&exactParcelMatch=true&exactRoadMatch=true"
+    url = f"https://gis.kt.com/search/v1.0/utilities/geocode?point.lat={latitude}&point.lng={longitude}&includeGeometry=false&expectedParcelLevel=LEAFPARCEL&expectedRoadLevel=LEAFSTREET&exactParcelMatch=false&exactRoadMatch=false"
     try:
         response = requests.get(url, headers=headers)
         data = response.json()
 
-        if 'residentialAddress' in data.keys():
+        if 'residentialAddress' in data.keys() and len(data['residentialAddress']) != 0:
             siDo = data['residentialAddress'][0]['parcelAddress'][0]['siDo']
-            siGunGu1 = data['residentialAddress'][0]['parcelAddress'][0]['siGunGu1']
+            siGunGu = data['residentialAddress'][0]['parcelAddress'][0]['siGunGu']
             eupMyeonDong = data['residentialAddress'][0]['parcelAddress'][0]['eupMyeonDong']
             # fullAddress = data['residentialAddress'][0]['parcelAddress'][0]['fullAddress']
             # ri = data['residentialAddress'][0]['parcelAddress'][0]['ri']
         
-            result = {'result':'ok', 'siDo':siDo, 'siGunGu1':siGunGu1, 'eupMyeonDong':eupMyeonDong}
+            result = {'result':'ok', 'siDo':siDo, 'siGunGu':siGunGu, 'eupMyeonDong':eupMyeonDong, 'data':data}
             return result
         else:
             db_logger.error("ollehAPI_reverseGEO: 주소변환실패" , data)
-            return {'result':'fail'}
+            return {'result':'fail', 'data':data}
     except Exception as e:
         db_logger.error("ollehAPI_reverseGEO:", str(e))
         return {'result':'fail'}

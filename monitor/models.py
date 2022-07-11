@@ -622,7 +622,7 @@ class Phone(models.Model):
                 result = ollehAPI_reverseGEO(self.latitude, self.longitude)
                 if result['result'] == 'ok':
                     self.siDo =result['siDo']  # 시/도
-                    self.guGun = result['siGunGu1']  # 구/군
+                    self.guGun = result['siGunGu']  # 구/군
                     self.addressDetail = result['eupMyeonDong']  # 행정동(읍/동/면)
                 else:   # ollehAPI 실패할 경우 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.  -- 제외 예정
                     rest_api_key = settings.KAKAO_REST_API_KEY
@@ -675,6 +675,8 @@ class Phone(models.Model):
                     qs = CenterManageArea.objects.filter(siDo=self.siDo, guGun=self.guGun)
                 if qs.exists():
                     self.center = qs[0].center  # 관할센터
+                else:
+                    self.center = Center.objects.get(centerName="전체")
 
                 if self.phoneGroup.measureArea is None:  ## 단말그룹 측정지역 매핑
                     qs_measure_area = MeasureArea.objects.filter(area=self.siDo)
