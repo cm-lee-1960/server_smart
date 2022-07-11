@@ -212,7 +212,7 @@ def make_message(mdata: MeasureCallData):
             qs = MeasureingTeam.objects.filter(measdate=measdate)
             if qs.exists():
                 measuringteam_msg = qs[0].message
-            messages = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}에서 시작되었습니다.\n" + \
+            messages = f"금일({mmdd}일) S-CXI 품질측정이 {hhmm}분에 {mdata.userInfo1}에서 시작되었습니다.({mdata.networkId})\n" + \
                        f"{measuringteam_msg}\n" + \
                        "\n평가에 만전을 기하여 주시기 바랍니다. "
         elif phone.status == 'START_M':
