@@ -186,22 +186,22 @@ button{
 
         <ul class="list-unstyled components">
             <li>
-                <a href="http://127.0.0.1:8000/analysis/report/">일일보고</a>
+                <a href="http://127.0.0.1:8000/smart/analysis/report/">일일보고</a>
             </li>
 			<li>
-                <a href="http://127.0.0.1:8000/analysis/report/list/">일일보고 목록</a>
+                <a href="http://127.0.0.1:8000/smart/analysis/report/list/">일일보고 목록</a>
             </li>
 			<li class="active">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">일일보고 관리</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
                     <li>
-                        <a href="http://127.0.0.1:8000/analysis/report/measplan/">측정대상등록</a>
+                        <a href="http://127.0.0.1:8000/smart/analysis/report/measplan/">측정대상등록</a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:8000/analysis/report/measresult/">측정완료현황</a>
+                        <a href="http://127.0.0.1:8000/smart/analysis/report/measresult/">측정완료현황</a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:8000/analysis/report/postmeas/">사후측정등록</a>
+                        <a href="http://127.0.0.1:8000/smart/analysis/report/postmeas/">사후측정등록</a>
                     </li>
                 </ul>
             </li>
@@ -239,9 +239,9 @@ button{
 			<br>
 			<input type="checkbox" name="meastitle" id="meas23" value="measresultWiFi" checked/> WiFi
 			<br>
-			<input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" /> 사후측정5G
+			<input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" checked/> 사후측정5G
 			<br>
-			<input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" /> 사후측정LTE
+			<input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" checked/> 사후측정LTE
 			<br>
 			<input type="checkbox" name="meastitle" id="meas3" value="measplus" /> 추가사항
 		</div>
@@ -260,7 +260,9 @@ button{
 			
 			
 			<button class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="msgmodify" >메시지수정 <i class="icon-fixed-width icon-pencil"></i></button>
-			
+			<form action="{% url 'analysis:update_report' %}" method="POST" style="display:inline;" id="update">{% csrf_token %}
+			<button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="update" form="update" >업데이트 <i class="icon-fixed-width icon-pencil"></i></button>
+			</form>
 			<button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="msgcomplete" form="reportmsg">완료 <i class="icon-fixed-width icon-check"></i></button>
 			
 		
@@ -269,6 +271,7 @@ button{
 				PDF 다운
 			</button>
 		</div>
+		
 		
 		<form action="{% url 'analysis:create_reportmsg' %}" method="POST" style="display:inline;" id="reportmsg">{% csrf_token %}
 			<input style="display:inline; height:23px;width:200PX;"class="form-control" type="hidden" name="msg5G" id="textmod1copy" value="{{reportmsg.msg5G}}"></input>
@@ -291,23 +294,19 @@ button{
 				<hr class="one">
 				
 				<div id = "meassituation">
-				<div>
-					
+				<div>	
 					<h2>□ 측정 현황 </h2><h4 style="display: inline;font-weight: bold;" id = 'firstdate'>{{firstdate.measdate}}</h4><h4 style="display: inline;font-weight: bold;" id='lastdate'>{{lastdate.measdate}}</h4>
 					<h3>: 전국 </h3><h3 id="tt"></h3><h3> 지역 중 </h3><h3 id="ttf"></h3><h3> 완료</h3><h3 id="pcf"></h3>
 				</div>
 				<br> 
 				<div id="meassituation5G">
 				<div>
-					
-					<h3>&nbsp;&nbsp;○ 5G : 전국 </h3><h3 id="tt1"></h3><h3> {{sregi5G8}}개 완료</h3><h3 id = pc1></h3><h3>,</h3>
+					<h3>&nbsp;&nbsp;○ 5G : 전국 </h3><h3 id="tt1"></h3><h3> {{sregi5Gtotal}}개 완료</h3><h3 id = pc1></h3><h3>,</h3>
 					{% for reportmsg in reportmsg %}
-					<h4 style="color: blue; display:inline;" id='result1'>
-						
+					<h4 style="color: blue; display:inline;" id='result1'>	
 						
 						{{reportmsg.msg5G}}
-						
-					
+											
 					</h4>	
 					<input style="display:inline; height:23px;width:200PX;"class="form-control" type="text" name="msg5G" id="textmod1" value="{{reportmsg.msg5G}}"></input>
 					{% endfor %}
@@ -318,56 +317,47 @@ button{
 						<thead>
 							<tr>
 								<th rowspan = "2">구분</th>
-								<th colspan="3">NSA</th>
-								<th rowspan="2">SA</th>
-								<th rowspan="2">공동망</th>
-								<th colspan="2">커버리지</th>
-								<th rowspan="2">계</th>
+								<th rowspan = "2">계</th>
+								<th colspan = "4">NSA</th>
+								<th>SA</th>
 							</tr>
 							<tr>
 								<th>행정동</th>
 								<th>다중시설/<br>교통인프라</th>
+								<th>공동망</br>(시범)</th>
 								<th>소계</th>
-								<th>다중시설/<br>교통인프라</th>
-								<th>중소시설</th>
+								<th>시범</th>
 							</tr>
 						</thead>
 						<tbody>
 							{% for regi in regi %}
 							<tr>
 								<td>대상</td>
-								<td id="plan5g1">{{regi.nsahjd5G}}</td>
-								<td id="plan5g2">{{regi.nsadg5G}}</td>
-								<td id="plan5g3">{{regi.totalnsa5G}}</td>
-								<td id="plan5g4">{{regi.sa5G}}</td>
-								<td id="plan5g5">{{regi.public5G}}</td>
-								<td id="plan5g6">{{regi.cvdg5G}}</td>
-								<td id="plan5g7">{{regi.cvjs5G}}</td>
-								<td id="5tt">{{regi.total5G}}</td>
-
+								<td id = "plan5gtotal">{{regi.total5G}}</td>
+								<td id = "plan5gnsahjd">{{regi.nsahjd5G}}</td>
+								<td id = "plan5gnsadg">{{regi.nsadg5G}}</td>
+								<td id = "plan5gpublic">{{regi.nsapublic5G}}</td>
+								<td id = "plan5gnsatotal">{{regi.totalnsa5G}}</td>
+								<td id = "plan5gsa">{{regi.sa5G}}</td>
 							</tr>
 							{% endfor %}
 							<tr>
 								<td>누적</td>
-								<td id="result5g1" >{{sregi5G1}}</td>
-								<td id="result5g2">{{sregi5G2}}</td>
-								<td id="result5g3">{{sregi5G3}}</td>
-								<td id="result5g4">{{sregi5G4}}</td>
-								<td id="result5g5">{{sregi5G5}}</td>
-								<td id="result5g6">{{sregi5G6}}</td>
-								<td id="result5g7">{{sregi5G7}}</td>
-								<td id ="5nj">{{sregi5G8}}</td>
+								<td id = "meas5gtotal">{{sregi5Gtotal}}</td>
+								<td id = "meas5gnsahjd" >{{sregi5Ghjd}}</td>
+								<td id = "meas5gnsadg">{{sregi5Gdagyo}}</td>
+								<td id = "meas5gpublic">{{sregi5Gpublic}}</td>
+								<td id = "meas5gnsatotal">{{sregi5Gnsatotal}}</td>
+								<td id = "meas5gsa">{{sregi5Gsatotal}}</td>
 							</tr>
 							<tr>
 								<td>금일</td>
-								<td>{{tregi5G1}}</td>
-								<td>{{tregi5G2}}</td>
-								<td>{{tregi5G3}}</td>
-								<td>{{tregi5G4}}</td>
-								<td>{{tregi5G5}}</td>
-								<td>{{tregi5G6}}</td>
-								<td>{{tregi5G7}}</td>
-								<td>{{tregi5G8}}</td>
+								<td>{{tregi5Gtotal}}</td>
+								<td>{{tregi5Ghjd}}</td>
+								<td>{{tregi5Gdagyo}}</td>
+								<td>{{tregi5Gpublic}}</td>
+								<td>{{tregi5Gnsatotal}}</td>
+								<td>{{tregi5Gsatotal}}</td>
 							</tr>
 						</tbody>
 					</table>
@@ -377,82 +367,16 @@ button{
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
 			<p>※ 지역별 : </p><p id="district5gcount"></p>
 			<script>
-				let district_list = ['서울','인천','부산','울산','대구','광주','대전','경기','강원','경남','경북','전남','전북','충남','충북','세종','전국'];
-				let msg = "";
-				let count = {{district5gcount}};
+				let district_list = ['서울','인천','부산','울산','대구','광주','대전','경기','강원','경남','경북','전남','전북','충남','충북','세종','고속도로','지하철','전국'];
+				let msg5g = "";
+				let count5g = {{district5gcount}};
 				for( var i in district_list ){
-					if(parseInt(count[i])>0){
-						msg += district_list[i]+parseInt(count[i]);
+					if(parseInt(count5g[i])>0){
+						msg5g += district_list[i]+parseInt(count5g[i]) + " ";
 					}
 				}
-				document.getElementById("district5gcount").innerText = msg;
-			</script>
-			<br><p>※ 모폴로지 : </p><p id = "hjd5gttcount" style="font-weight:bold"></p><p id = "hjd5gcount"></p>
-			<p id = "facility5gttcount" style="font-weight:bold"></p><p id = "facility5gcount"></p>
-			<p id = "traffic5gttcount" style="font-weight:bold"></p><p id = "traffic5gcount"></p>
-			<script>
-				let city_list = ["대도시",'중소도시','농어촌'];
-				let facility5g_list = ['대형점포','대학교','아파트','병원','영화관','공항','거리','시장','지하상가','놀이공원','도서관','전시시설','터미널'];
-				let traffic5g_list = ['지하철노선','고속도로','지하철역사','KTX.SRT역사','KTX.SRT노선'];
-				let networkid_list = ["5G NSA", "5G SA", "5G 공동망", "LTE", "WiFi", "품질취약지역"];
-				let inbuildinglte_list = ['대형점포','KTX.SRT역사','대형병원','터미널','지하철역사','공항','전시시설','지하상가'];
-				let themelte_list = ['지하철','전통시장','대학교','놀이공원','주요거리','고속도로','KTX.SRT노선'];
-				let msg1 = "";
-				let count1 = {{city5gcount}};
-				let tmsg1 = 0;
-				for( var i in city_list ){
-					if(parseInt(count1[i])>0){
-						msg1 += city_list[i]+parseInt(count1[i]);
-						tmsg1 += parseInt(count1[i]);
-					}
-				}
-				if(tmsg1 > 0){
-					document.getElementById("hjd5gttcount").innerText = "행정동 " + parseInt(tmsg1) + "-";
-				}
-				document.getElementById("hjd5gcount").innerText = msg1;
-				let msg2 = "";
-				let count2 = {{facility5gcount}};
-				let tmsg2 = 0;
-				for( var i in facility5g_list ){
-					if(parseInt(count2[i])>0){
-						msg2 += facility5g_list[i]+parseInt(count2[i]);
-						tmsg2 += parseInt(count2[i]);
-					}
-				}
-				if(tmsg2 > 0){
-					document.getElementById("facility5gttcount").innerText = "다중이용시설 " + parseInt(tmsg2) + "-";
-				}
-				document.getElementById("facility5gcount").innerText = msg2;
-				
-				let msg3 = "";
-				let count3 = {{traffic5gcount}};
-				let tmsg3 = 0;
-				for( var i in traffic5g_list ){
-					if(parseInt(count3[i])>0){
-						msg3 += traffic5g_list[i]+parseInt(count3[i]);
-						tmsg3 += parseInt(count3[i]);
-					}
-				}
-				if(tmsg3 > 0){
-					document.getElementById("traffic5gttcount").innerText = "교통인프라 " + parseInt(tmsg3) + "-";
-				}
-				document.getElementById("traffic5gcount").innerText = msg3;
-			</script>
-			<br><p>※ SA : </p><p id="districtsa5gcount"></p>
-			<script>
-				let msg4 = "";
-				let count4 = {{districtsa5gcount}};
-				
-				for( var i in district_list ){
-					if(parseInt(count4[i])>0){
-						msg4 += district_list[i]+parseInt(count4[i]);
-						
-					}
-				}
-				
-				document.getElementById("districtsa5gcount").innerText = msg4;
-				
-			</script>
+				document.getElementById("district5gcount").innerText = msg5g;
+			</script>	
 		</div>
 		
 			<br><br>
@@ -460,7 +384,7 @@ button{
 		<div id="meassituationLTE">
 		<div>
 			
-			<h3>&nbsp;&nbsp;○ LTE : 전국 </h3><h3 id = "tt2"></h3><h3> {{sregiLTE}}개 완료</h3><h3 id = pc2></h3><h3>,</h3>
+			<h3>&nbsp;&nbsp;○ LTE : 전국 </h3><h3 id = "tt2"></h3><h3> {{sregiLTEtotal}}개 완료</h3><h3 id = pc2></h3><h3>,</h3>
 			{% for reportmsg in reportmsg %}
 			<h4 style="color: blue;" id='result2' >
 				
@@ -479,7 +403,7 @@ button{
 						<th rowspan = "2" style>계</th>
 						<th colspan = "3" style>행정동</th>
 						<th colspan = "2" style>다중이용시설/교통인프라</th>
-						<th rowspan = "2" style>커버리지</th>
+						
 					</tr>
 					<tr>
 						<th >대도시</th>
@@ -494,114 +418,54 @@ button{
 					<tr>
 						<td >대상</td>
 						{% for regi in regi %}
-						<td id = "ltt">{{regi.totalLTE}}</td>
-						<td id="planarea4">{{regi.bctLTE}}</td>
-						<td id="planarea5">{{regi.mctLTE}}</td>
-						<td id="planarea6">{{regi.sctLTE}}</td>
-						<td id="planarea7">{{regi.ibLTE}}</td>
-						<td id="planarea8">{{regi.tmLTE}}</td>
-						<td id="planarea9">{{regi.cvLTE}}</td>
+						<td id = "planltetotal">{{regi.totalLTE}}</td>
+						<td id="planltebct">{{regi.bctLTE}}</td>
+						<td id="planltemct">{{regi.mctLTE}}</td>
+						<td id="planltesct">{{regi.sctLTE}}</td>
+						<td id="planlteib">{{regi.ibLTE}}</td>
+						<td id="planltetm">{{regi.tmLTE}}</td>
+						
 						{% endfor %}
 				   </tr>
 				   
 					<tr>
 				 		<td >누적</td>
-						<td id = lnj>{{sregiLTE}}</td>
-						<td id="resultarea4">{{sregiLTE1}}</td>
-						<td id="resultarea5">{{sregiLTE2}}</td>
-						<td id="resultarea6">{{sregiLTE3}}</td>
-						<td id="resultarea7">{{sregiLTE4}}</td>
-						<td id="resultarea8">{{sregiLTE5}}</td>
-						<td id="resultarea9">{{sregiLTE6}}</td>
+						<td id = measltetotal>{{sregiLTEtotal}}</td>
+						<td id="resultltebct">{{sregiLTEbct}}</td>
+						<td id="resultltemct">{{sregiLTEmct}}</td>
+						<td id="resultltesct">{{sregiLTEsct}}</td>
+						<td id="resultlteib">{{sregiLTEib}}</td>
+						<td id="resultltetm">{{sregiLTEtm}}</td>
+						
 					</tr>
 					<tr>
 				 		<td >금일</td>
-						<td >{{tregiLTE}}</td>
-						<td >{{tregiLTE1}}</td>
-						<td >{{tregiLTE2}}</td>
-						<td >{{tregiLTE3}}</td>
-						<td >{{tregiLTE4}}</td>
-						<td >{{tregiLTE5}}</td>
-						<td >{{tregiLTE6}}</td>
+						<td >{{tregiLTEtotal}}</td>
+						<td >{{tregiLTEbct}}</td>
+						<td >{{tregiLTEmct}}</td>
+						<td >{{tregiLTEsct}}</td>
+						<td >{{tregiLTEib}}</td>
+						<td >{{tregiLTEtm}}</td>
+						
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p style="font-weight:bold">※ 행정동 : </p><p id = "bctltettcount" style="font-weight:bold"></p><p id="bctltecount"></p>
-							<p id = "mctltettcount" style="font-weight:bold"></p><p id="mctltecount"></p>
-							<p id = "sctltettcount" style="font-weight:bold"></p><p id="sctltecount"></p>
-			<br><p style="font-weight:bold">※ 인빌딩 : </p><p id="ibltecount"></p>
-			<br><p style="font-weight:bold">※ 테마 : </p><p id="tmltecount"></p><br>
+			<p>※ 지역별 : </p><p id="districtltecount"></p>
 			<script>
 				
-				let msg5 = "";
-				let count5 = {{bctltecount}};
-				let tmsg5 = 0;
+				let msglte = "";
+				let countlte = {{districtltecount}};
 				for( var i in district_list ){
-					if(parseInt(count5[i])>0){
-						msg5 += district_list[i]+parseInt(count5[i]);
-						tmsg5 += parseInt(count5[i]);
+					if(parseInt(countlte[i])>0){
+						msglte += district_list[i]+parseInt(countlte[i]) + " ";
 					}
 				}
-				if(tmsg5 > 0){
-					document.getElementById("bctltettcount").innerText = "대도시 " + parseInt(tmsg5) + "-";
-				}
-				document.getElementById("bctltecount").innerText = msg5;
-				
-				let msg6 = "";
-				let count6 = {{mctltecount}};
-				let tmsg6 = 0;
-				for( var i in district_list ){
-					if(parseInt(count6[i])>0){
-						msg6 += district_list[i]+parseInt(count6[i]);
-						tmsg6 += parseInt(count6[i]);
-					}
-				}
-				if(tmsg6 > 0){
-					document.getElementById("mctltettcount").innerText = "중소도시 " + parseInt(tmsg6) + "-";
-				}
-				document.getElementById("mctltecount").innerText = msg6;
-
-				let msg7 = "";
-				let count7 = {{sctltecount}};
-				let tmsg7 = 0;
-				for( var i in district_list ){
-					if(parseInt(count7[i])>0){
-						msg7 += district_list[i]+parseInt(count7[i]);
-						tmsg7 += parseInt(count7[i]);
-					}
-				}
-				if(tmsg7 > 0){
-					document.getElementById("sctltettcount").innerText = "농어촌 " + parseInt(tmsg7) + "-";
-				}
-				document.getElementById("sctltecount").innerText = msg7;
-
-				let msg8 = "";
-				let count8 = {{ibltecount}};
-				
-				for( var i in inbuildinglte_list ){
-					if(parseInt(count8[i])>0){
-						msg8 += inbuildinglte_list[i]+parseInt(count8[i]);
-						
-					}
-				}
-				
-				document.getElementById("ibltecount").innerText = msg8;
-
-				let msg9 = "";
-				let count9 = {{tmltecount}};
-				
-				for( var i in themelte_list ){
-					if(parseInt(count9[i])>0){
-						msg9 += themelte_list[i]+parseInt(count9[i]);
-						
-					}
-				}
-				
-				document.getElementById("tmltecount").innerText = msg9;
-			</script>
+				document.getElementById("districtltecount").innerText = msglte;
+			</script>	
+		</div>
+		
 			
 		<br>	
 		</div>
@@ -611,7 +475,7 @@ button{
 <div id = "meassituationWiFi">
 		<div>
 			<!-- <input type="checkbox" name="meastitle" id="meas13" value="meassituationWiFi"style="color:grey;" checked/> WiFi -->
-			<h3>&nbsp;&nbsp;○ WiFi : 전국 </h3><h3 id="tt3"></h3><h3> {{sregiWiFi}}국소 완료</h3><h3 id = pc3></h3><h3>,</h3>
+			<h3>&nbsp;&nbsp;○ WiFi : 전국 </h3><h3 id="tt3"></h3><h3> {{sregiWiFitotal}}국소 완료</h3><h3 id = pc3></h3><h3>,</h3>
 			{% for reportmsg in reportmsg %}
 			<h4 style="color: blue;" id='result3'>
 				
@@ -638,74 +502,49 @@ button{
 					<tr>
 						<td >대상</td>
 						{% for regi in regi %}
-					   <td id = "witt">{{regi.totalWiFi}}</td>
-					   <td id="planarea10">{{regi.syWiFi}}</td>
-					   <td id="planarea11">{{regi.gbWiFi}}</td>
-					   {% endfor %}
+						<td id = "planwifitotal">{{regi.totalWiFi}}</td>
+						<td id="planwifisy">{{regi.syWiFi}}</td>
+						<td id="planwifigb">{{regi.gbWiFi}}</td>
+						{% endfor %}
 				   </tr>
 				  
 					<tr>
 				 		<td >누적</td>
-						<td id = winj>{{sregiWiFi}}</td>
-						<td id="resultarea10">{{sregiWiFi1}}</td>
-						<td id="resultarea11">{{sregiWiFi2}}</td>
+						<td id = measwifitotal>{{sregiWiFitotal}}</td>
+						<td id="resultwifisy">{{sregiWiFisy}}</td>
+						<td id="resultwifigb">{{sregiWiFigb}}</td>
 					</tr>
 					<tr>
 				 		<td >금일</td>
-						<td >{{tregiWiFi}}</td>
-						<td >{{tregiWiFi1}}</td>
-						<td >{{tregiWiFi2}}</td>
+						<td >{{tregiWiFitotal}}</td>
+						<td >{{tregiWiFisy}}</td>
+						<td >{{tregiWiFigb}}</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
+
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p>※ 상용 :</p><p id = "sywificount"></p>
-			<br/><p>※ 개방 :</p><p id = "gbwificount"></p>
-			<br><p>※ 공공 :</p> <p id = "publicwificount"></p>
+			<p>※ 지역별 : </p><p id="districtWiFicount"></p>
+			<script>
+				let msgWiFi = "";
+				let countWiFi = {{districtWiFicount}};
+				for( var i in district_list ){
+					if(parseInt(countWiFi[i])>0){
+						msgWiFi += district_list[i]+parseInt(countWiFi[i]) + " ";
+					}
+				}
+				document.getElementById("districtWiFicount").innerText = msgWiFi;
+			</script>	
 		</div>
-		<script>
-				
-			let msg10 = "";
-			let count10 = {{sywificount}};
-			for( var i in district_list ){
-				if(parseInt(count10[i])>0){
-					msg10 += district_list[i]+parseInt(count10[i]);
-					
-				}
-			}
 		
-			document.getElementById("sywificount").innerText = msg10;
-
-			let msg11 = "";
-			let count11 = {{gbwificount}};
-			for( var i in district_list ){
-				if(parseInt(count11[i])>0){
-					msg11 += district_list[i]+parseInt(count11[i]);
-					
-				}
-			}
-		
-			document.getElementById("gbwificount").innerText = msg11;
-
-			let msg12 = "";
-			let count12 = {{publicwificount}};
-			for( var i in district_list ){
-				if(parseInt(count12[i])>0){
-					msg12 += district_list[i]+parseInt(count12[i]);
-					
-				}
-			}
-		
-			document.getElementById("publicwificount").innerText = msg12;
-		</script>
 		<br>
 		<br>
 	</div>
 	<div id="meassituationweak">
 		<div>
 			<!-- <input type="checkbox" name="meastitle" id="meas14" value="meassituationweak"style="color:grey;" checked/> 품질취약지역 -->
-			<h3>&nbsp;&nbsp;○ LTE/3G 품질취약지역 : 전국 </h3><h3 id="tt4"></h3><h3> {{sregiweak}}개 완료</h3><h3 id = pc4></h3><h3>,</h3>
+			<h3>&nbsp;&nbsp;○ LTE/3G 품질취약지역 : 전국 </h3><h3 id="tt4"></h3><h3> {{sregiweaktotal}}개 완료</h3><h3 id = pc4></h3><h3>,</h3>
 			{% for reportmsg in reportmsg %}
 			<h4 style="color: blue;" id='result4'>
 				
@@ -734,83 +573,45 @@ button{
 					<tr>
 						<td >대상</td>
 						{% for regi in regi %}
-					   <td id = 'wtt' >{{regi.totalWeakArea}}</td>
-					   <td id="planarea12">{{regi.dsrWeak}}</td>
-					   <td id="planarea13">{{regi.yghrWeak}}</td>
-					   <td id="planarea14">{{regi.yidsWeak}}</td>
-					   <td id="planarea15">{{regi.hadrWeak}}</td>
-					   {% endfor %}
+						<td id = 'planweaktotal' >{{regi.totalWeakArea}}</td>
+						<td id="planweakdsr">{{regi.dsrWeak}}</td>
+						<td id="planweakyghr">{{regi.yghrWeak}}</td>
+						<td id="planweakyids">{{regi.yidsWeak}}</td>
+						<td id="planweakhadr">{{regi.hadrWeak}}</td>
+						{% endfor %}
 					<tr>
 				 		<td >누적</td>
-						<td id="wnj">{{sregiweak}}</td>
-						<td id="resultarea12">{{sregiweak1}}</td>
-						<td id="resultarea13">{{sregiweak2}}</td>
-						<td id="resultarea14">{{sregiweak3}}</td>
-						<td id="resultarea15">{{sregiweak4}}</td>
+						<td id="measweaktotal">{{sregiweaktotal}}</td>
+						<td id="resultweakdsr">{{sregiweakdsr}}</td>
+						<td id="resultweakyghr">{{sregiweakyghr}}</td>
+						<td id="resultweakyids">{{sregiweakyids}}</td>
+						<td id="resultweakhadr">{{sregiweakhadr}}</td>
 					</tr>
 					<tr>
 				 		<td >금일</td>
-						<td >{{tregiweak}}</td>
-						<td >{{tregiweak1}}</td>
-						<td >{{tregiweak2}}</td>
-						<td >{{tregiweak3}}</td>
-						<td >{{tregiweak4}}</td>
+						<td >{{tregiweaktotal}}</td>
+						<td >{{tregiweakdsr}}</td>
+						<td >{{tregiweakyghr}}</td>
+						<td >{{tregiweakyids}}</td>
+						<td >{{tregiweakhadr}}</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 		<div style="display: inline; font-size: 10pt; position: relative; left: 5%;">
-			<p>※ 등산로 : </p><p id="dsrweakcount"></p>
-			<br><p>※ 여객항로 :</p><p id="yghrweakcount"></p>
-			<br><p>※ 유인도서 :</p><p id="yidsweakcount"></p>
-			<br><p>※ 해안도로 :</p><p id="hadrweakcount"></p>
+			<p>※ 지역별 : </p><p id="districtWeakcount"></p>
+			<script>
+				let msgWeak = "";
+				let countWeak = {{districtWeakcount}};
+				for( var i in district_list ){
+					if(parseInt(countWeak[i])>0){
+						msgWeak += district_list[i]+parseInt(countWeak[i]) + " ";
+					}
+				}
+				document.getElementById("districtWeakcount").innerText = msgWeak;
+			</script>	
 		</div>
-		<script>
-				
-			let msg13 = "";
-			let count13 = {{dsrweakcount}};
-			for( var i in district_list ){
-				if(parseInt(count13[i])>0){
-					msg13 += district_list[i]+parseInt(count13[i]);
-					
-				}
-			}
 		
-			document.getElementById("dsrweakcount").innerText = msg13;
-
-			let msg14 = "";
-			let count14 = {{yghrweakcount}};
-			for( var i in district_list ){
-				if(parseInt(count14[i])>0){
-					msg14 += district_list[i]+parseInt(count14[i]);
-					
-				}
-			}
-		
-			document.getElementById("yghrweakcount").innerText = msg14;
-
-			let msg15 = "";
-			let count15 = {{yidsweakcount}};
-			for( var i in district_list ){
-				if(parseInt(count15[i])>0){
-					msg15 += district_list[i]+parseInt(count15[i]);
-					
-				}
-			}
-		
-			document.getElementById("yidsweakcount").innerText = msg15;
-
-			let msg16 = "";
-			let count16 = {{hadrweakcount}};
-			for( var i in district_list ){
-				if(parseInt(count16[i])>0){
-					msg16 += district_list[i]+parseInt(count16[i]);
-					
-				}
-			}
-		
-			document.getElementById("hadrweakcount").innerText = msg16;
-		</script>
 		<br>
 		<br>
 	</div>
@@ -837,101 +638,157 @@ button{
 		<div id ="measresult5GNSA">
 		<div>
 			<!-- <input type="checkbox" name="meastitle" id="meas21" value="measresult5G"style="color:grey;" checked/> 5G -->
+			{% for last5gtotal in last5gtotal %}
 			<h3>&nbsp;&nbsp;○ 5G NSA: DL 속도</h3>
-			<h3 id="target5">{{totalnsa5g.0}}</h3>
-			<h3>Mbps, UL 속도</h3>
-			<h3 id="target6">{{totalnsa5g.1}}</h3>
-			<h3>Mbps, LTE 전환율</h3>
-			<h3 id="target7">{{totalnsa5g.2}}</h3>
-			<h3>%, 전송성공률</h2>
-			<h3 id="target8">{{totalnsa5g.3}}</h3>
-			<h3>%, 지연시간</h2>
-			<h3 id="target9">{{totalnsa5g.4}}</h3>
-			<h3>ms</h2>
-	
+			<h3 id="target5">{{totalnsa5g.0}}Mbps</h3>
+			<p>('21년 대비 <p id="nsa5gdldiff"></p><p>)</p></p>
+			<h3>, UL 속도</h3>
+			<h3 id="target6">{{totalnsa5g.1}}Mbps</h3>
+			<p>('21년 대비 <p id="nsa5guldiff"></p><p>)</p></p>
+			<h3>, LTE 전환율 DL</h3>
+			<h3 id="target7">{{totalnsa5g.2}}%</h3>
+			<p>('21년 대비 <p id="nsa5gltedldiff"></p><p>)</p></p>
+			<h3>, LTE 전환율 UL</h3>
+			<h3 id="target7">{{totalnsa5g.3}}%</h3>
+			<p>('21년 대비 <p id="nsa5glteuldiff"></p><p>)</p></p>
+			<h3>, 지연시간</h2>
+			<h3 id="target9">{{totalnsa5g.4}}ms</h3>
+			<p>('21년 대비 <p id="nsa5gdelaydiff"></p><p>)</p></p>
+			
+			
 		</div>
+		<script>
+		
+		let nsa5gdldiff = ({{totalnsa5g.0}}-{{last5gtotal.DL}}).toFixed(1);
+		let nsa5guldiff = ({{totalnsa5g.1}}-{{last5gtotal.UL}}).toFixed(1);
+		let nsa5gltedldiff = ({{totalnsa5g.2}}-{{last5gtotal.LTEDL}}).toFixed(1);
+		let nsa5glteuldiff = ({{totalnsa5g.3}}-{{last5gtotal.LTEUL}}).toFixed(1);
+		let nsa5gdelaydiff = ({{totalnsa5g.4}}-{{last5gtotal.delay}}).toFixed(1);
+		
+		if(nsa5gdldiff<0){
+			document.getElementById("nsa5gdldiff").innerHTML = Math.abs(nsa5gdldiff) + "Mbps↓";
+		}else{
+			document.getElementById("nsa5gdldiff").innerHTML = Math.abs(nsa5gdldiff) + "Mbps↑";
+		}
+		if(nsa5guldiff<0){
+			document.getElementById("nsa5guldiff").innerHTML = Math.abs(nsa5guldiff) + "Mbps↓";
+		}else{
+			document.getElementById("nsa5guldiff").innerHTML = Math.abs(nsa5guldiff) + "Mbps↑";
+		}
+		if(nsa5gltedldiff<0){
+			document.getElementById("nsa5gltedldiff").innerHTML = Math.abs(nsa5gltedldiff) + "%↓";
+		}else{
+			document.getElementById("nsa5gltedldiff").innerHTML = Math.abs(nsa5gltedldiff) + "%↑";
+		}
+		if(nsa5glteuldiff<0){
+			document.getElementById("nsa5glteuldiff").innerHTML = Math.abs(nsa5glteuldiff) + "%↓";
+		}else{
+			document.getElementById("nsa5glteuldiff").innerHTML = Math.abs(nsa5glteuldiff) + "%↑";
+		}
+		if(nsa5gdelaydiff<0){
+			document.getElementById("nsa5gdelaydiff").innerHTML = Math.abs(nsa5gdelaydiff) + "ms↓";
+		}else{
+			document.getElementById("nsa5gdelaydiff").innerHTML = Math.abs(nsa5gdelaydiff) + "ms↑";
+		}
+		
+		</script>
+		{% endfor %}
 		<br><div id="output1">
 			<table id="5Ggg">
 				<thead>
 					<tr>
-						<th  colspan = "2" rowspan = "2">구분<br>(20년 결과)</th>
+						<th  colspan = "2" rowspan = "2">구분<br>(21년 결과)</th>
 						<th  colspan = "2">전송속도(Mbps)</th>
-						<th  rowspan = "2">LTE전환율(%)</th>
-						<th  rowspan = "2">전송성공률(%)</th>
+						<th  colspan = "2">LTE전환율(%)</th>
 						<th  rowspan = "2">지연시간(ms)</th>
 					</tr>
 					<tr >
 						<th>DL</th>
 						<th>UL</th>
+						<th>DL</th>
+						<th>UL</th>
 					</tr>
 				</thead>
 				<tbody id="graph" >
-					{% for last5g in last5g %}
+					{% for last5gbct in last5gbct %}
 					<tr>
 						<td  rowspan = "3">행정동</td>
 						<td >대도시</td>
-						<td >{{bctnsa5g.0}}({{last5g.bctDL}})</td>
-						<td >{{bctnsa5g.1}}({{last5g.bctUL}})</td>
-						<td >{{bctnsa5g.2}}({{last5g.bctLTE}})</td>
-						<td >{{bctnsa5g.3}}({{last5g.bctsucc}})</td>
-						<td >{{bctnsa5g.4}}({{last5g.bctdelay}})</td>
+						<td >{{bctnsa5g.0}}({{last5gbct.DL}})</td>
+						<td >{{bctnsa5g.1}}({{last5gbct.UL}})</td>
+						<td >{{bctnsa5g.2}}({{last5gbct.LTEDL}})</td>
+						<td >{{bctnsa5g.3}}({{last5gbct.LTEUL}})</td>
+						<td >{{bctnsa5g.4}}({{last5gbct.delay}})</td>
 					</tr>
+					{% endfor %}
+					{% for last5gmct in last5gmct %}
 					<tr>
 						<td >중소도시</td>
-						<td >{{mctnsa5g.0}}({{last5g.mctDL}})</td>
-						<td >{{mctnsa5g.1}}({{last5g.mctUL}})</td>
-						<td >{{mctnsa5g.2}}({{last5g.mctLTE}})</td>
-						<td >{{mctnsa5g.3}}({{last5g.mctsucc}})</td>
-						<td >{{mctnsa5g.4}}({{last5g.mctdelay}})</td>
+						<td >{{mctnsa5g.0}}({{last5gmct.DL}})</td>
+						<td >{{mctnsa5g.1}}({{last5gmct.UL}})</td>
+						<td >{{mctnsa5g.2}}({{last5gmct.LTEDL}})</td>
+						<td >{{mctnsa5g.3}}({{last5gmct.LTEUL}})</td>
+						<td >{{mctnsa5g.4}}({{last5gmct.delay}})</td>
 					</tr>
+					{% endfor %}
+					{% for last5ghjd in last5ghjd %}
 					<tr>
 						<td >계</td>
-						<td >{{hjdnsa5g.0}}({{last5g.totalctDL}})</td>
-						<td >{{hjdnsa5g.1}}({{last5g.totalctUL}})</td>
-						<td >{{hjdnsa5g.2}}({{last5g.totalctLTE}})</td>
-						<td >{{hjdnsa5g.3}}({{last5g.totalctsucc}})</td>
-						<td >{{hjdnsa5g.4}}({{last5g.totalctdelay}})</td>
+						<td >{{hjdnsa5g.0}}({{last5ghjd.DL}})</td>
+						<td >{{hjdnsa5g.1}}({{last5ghjd.UL}})</td>
+						<td >{{hjdnsa5g.2}}({{last5ghjd.LTEDL}})</td>
+						<td >{{hjdnsa5g.3}}({{last5ghjd.LTEUL}})</td>
+						<td >{{hjdnsa5g.4}}({{last5ghjd.delay}})</td>
 					</tr>
+					{% endfor %}
+					{% for last5gdj in last5gdj %}
 					<tr>
 						<td  colspan="2">다중이용시설</td>
-						<td >{{djnsa5g.0}}({{last5g.djDL}})</td>
-						<td >{{djnsa5g.1}}({{last5g.djUL}})</td>
-						<td >{{djnsa5g.2}}({{last5g.djLTE}})</td>
-						<td >{{djnsa5g.3}}({{last5g.djsucc}})</td>
-						<td >{{djnsa5g.4}}({{last5g.djdelay}})</td>
+						<td >{{djnsa5g.0}}({{last5gdj.DL}})</td>
+						<td >{{djnsa5g.1}}({{last5gdj.UL}})</td>
+						<td >{{djnsa5g.2}}({{last5gdj.LTEDL}})</td>
+						<td >{{djnsa5g.3}}({{last5gdj.LTEUL}})</td>
+						<td >{{djnsa5g.4}}({{last5gdj.delay}})</td>
 					</tr>
+					{% endfor %}
+					{% for last5gapt in last5gapt %}
 					<tr>
 						<td  colspan="2">아파트</td>
-						<td >{{aptnsa5g.0}}({{last5g.aptDL}})</td>
-						<td >{{aptnsa5g.1}}({{last5g.aptUL}})</td>
-						<td >{{aptnsa5g.2}}({{last5g.aptLTE}})</td>
-						<td >{{aptnsa5g.3}}({{last5g.aptsucc}})</td>
-						<td >{{aptnsa5g.4}}({{last5g.aptdelay}})</td>
+						<td >{{aptnsa5g.0}}({{last5gapt.DL}})</td>
+						<td >{{aptnsa5g.1}}({{last5gapt.UL}})</td>
+						<td >{{aptnsa5g.2}}({{last5gapt.LTEDL}})</td>
+						<td >{{aptnsa5g.3}}({{last5gapt.LTEUL}})</td>
+						<td >{{aptnsa5g.4}}({{last5gapt.delay}})</td>
 					</tr>
+					{% endfor %}
+					{% for last5guniv in last5guniv %}
 					<tr>
 						<td  colspan="2">대학교</td>
-						<td >{{univnsa5g.0}}({{last5g.univDL}})</td>
-						<td >{{univnsa5g.1}}({{last5g.univUL}})</td>
-						<td >{{univnsa5g.2}}({{last5g.univLTE}})</td>
-						<td >{{univnsa5g.3}}({{last5g.univsucc}})</td>
-						<td >{{univnsa5g.4}}({{last5g.univdelay}})</td>
+						<td >{{univnsa5g.0}}({{last5guniv.DL}})</td>
+						<td >{{univnsa5g.1}}({{last5guniv.UL}})</td>
+						<td >{{univnsa5g.2}}({{last5guniv.LTEDL}})</td>
+						<td >{{univnsa5g.3}}({{last5guniv.LTEUL}})</td>
+						<td >{{univnsa5g.4}}({{last5guniv.delay}})</td>
 					</tr>
+					{% endfor %}
+					{% for last5gtraffic in last5gtraffic %}
 					<tr>
 						<td  colspan="2">교통인프라</td>
-						<td >{{trafficnsa5g.0}}({{last5g.trafficDL}})</td>
-						<td >{{trafficnsa5g.1}}({{last5g.trafficUL}})</td>
-						<td >{{trafficnsa5g.2}}({{last5g.trafficLTE}})</td>
-						<td >{{trafficnsa5g.3}}({{last5g.trafficsucc}})</td>
-						<td >{{trafficnsa5g.4}}({{last5g.trafficdelay}})</td>
+						<td >{{trafficnsa5g.0}}({{last5gtraffic.DL}})</td>
+						<td >{{trafficnsa5g.1}}({{last5gtraffic.UL}})</td>
+						<td >{{trafficnsa5g.2}}({{last5gtraffic.LTEDL}})</td>
+						<td >{{trafficnsa5g.3}}({{last5gtraffic.LTEUL}})</td>
+						<td >{{trafficnsa5g.4}}({{last5gtraffic.delay}})</td>
 					</tr>
-				
+					{% endfor %}
+					{% for last5gtotal in last5gtotal %}
 					<tr>
-						<td  colspan="2">총합</td>
-						<td >{{totalnsa5g.0}}({{last5g.areatotalDL}})</td>
-						<td >{{totalnsa5g.1}}({{last5g.areatotalUL}})</td>
-						<td >{{totalnsa5g.2}}({{last5g.areatotalLTE}})</td>
-						<td >{{totalnsa5g.3}}({{last5g.areatotalsucc}})</td>
-						<td >{{totalnsa5g.4}}({{last5g.areatotaldelay}})</td>
+						<td  colspan="2">종합</td>
+						<td >{{totalnsa5g.0}}({{last5gtotal.DL}})</td>
+						<td >{{totalnsa5g.1}}({{last5gtotal.UL}})</td>
+						<td >{{totalnsa5g.2}}({{last5gtotal.LTEDL}})</td>
+						<td >{{totalnsa5g.3}}({{last5gtotal.LTEUL}})</td>
+						<td >{{totalnsa5g.4}}({{last5gtotal.delay}})</td>
 					</tr>
 					{% endfor %}
 				</tbody>
@@ -946,50 +803,76 @@ button{
 	<div id ="measresult5GSA">
 		<div>
 			<!-- <input type="checkbox" name="meastitle" id="meas21" value="measresult5G"style="color:grey;" checked/> 5G -->
-			<h3>&nbsp;&nbsp;○ 5G SA : DL 속도</h3>
-			<h3 id="target5">{{sa5g.0}}</h3>
-			<h3>Mbps, UL 속도</h3>
-			<h3 id="target6">{{sa5g.1}}</h3>
-			<h3>Mbps, LTE 전환율</h3>
-			<h3 id="target7">{{sa5g.2}}</h3>
-			<h3>%, 전송성공률</h2>
-			<h3 id="target8">{{sa5g.3}}</h3>
-			<h3>%, 지연시간</h2>
-			<h3 id="target9">{{sa5g.4}}</h3>
-			<h3>ms</h2>
-	
+			<h3>&nbsp;&nbsp;-5G SA : NSA 결과 대비 DL </h3>
+			<h3 id="sadldiff"></h3>
+			<h3>, UL </h3>
+			<h3 id="sauldiff"></h3>
+			<h3>, 지연시간 </h2>
+			<h3 id="sadelaydiff"></h3>
 		</div>
+		<script>
+		
+			let sadldiff = ({{sa5g.0}}-{{nsa5g.0}}).toFixed(1);
+			let sauldiff = ({{sa5g.1}}-{{nsa5g.1}}).toFixed(1);
+			let sadelaydiff = ({{sa5g.4}}-{{nsa5g.4}}).toFixed(1);
+			
+			if(sadldiff<0){
+				document.getElementById("sadldiff").innerHTML = Math.abs(sadldiff) + "Mbps↓";
+			}else{
+				document.getElementById("sadldiff").innerHTML = Math.abs(sadldiff) + "Mbps↑";
+			}
+			if(sauldiff<0){
+				document.getElementById("sauldiff").innerHTML = Math.abs(sauldiff) + "Mbps↓";
+			}else{
+				document.getElementById("sauldiff").innerHTML = Math.abs(sauldiff) + "Mbps↑";
+			}
+			if(sadelaydiff<0){
+				document.getElementById("sadelaydiff").innerHTML = Math.abs(sadelaydiff) + "ms↓";
+			}else{
+				document.getElementById("sadelaydiff").innerHTML = Math.abs(sadelaydiff) + "ms↑";
+			}
+			
+			</script>
 		<br><div id="output1">
 			<table id="5Ggg">
 				<thead>
 					<tr>
-						<th  rowspan = "2">구분<br>(20년 결과)</th>
+						<th  rowspan = "2">구분</th>
 						<th  colspan = "2">전송속도(Mbps)</th>
-						<th  rowspan = "2">LTE전환율(%)</th>
-						<th  rowspan = "2">전송성공률(%)</th>
-						<th  rowspan = "2">지연시간(ms)</th>
+						<th  colspan = "2">LTE전환율(%)</th>
+						<th  rowspan = "2">지연시간<br>(ms)</th>
 					</tr>
 					<tr >
+						<th>DL</th>
+						<th>UL</th>
 						<th>DL</th>
 						<th>UL</th>
 					</tr>
 				</thead>
 				<tbody id="graph" >
-					{% for last5g in last5g %}
+					
 					<tr>
-						<td  >종합</td>
-						<td >{{sa5g.0}}({{last5g.bctDL}})</td>
-						<td >{{sa5g.1}}({{last5g.bctUL}})</td>
-						<td >{{sa5g.2}}({{last5g.bctLTE}})</td>
-						<td >{{sa5g.3}}({{last5g.bctsucc}})</td>
-						<td >{{sa5g.4}}({{last5g.bctdelay}})</td>
+						<td  >SA</td>
+						<td >{{sa5g.0}}</td>
+						<td >{{sa5g.1}}</td>
+						<td >{{sa5g.2}}</td>
+						<td >{{sa5g.3}}</td>
+						<td >{{sa5g.4}}</td>
+					</tr>
+					<tr>
+						<td  >NSA</td>
+						<td >{{nsa5g.0}}</td>
+						<td >{{nsa5g.1}}</td>
+						<td >{{nsa5g.2}}</td>
+						<td >{{nsa5g.3}}</td>
+						<td >{{nsa5g.4}}</td>
 					</tr>
 					
-					{% endfor %}
+					
 				</tbody>
 			</table>
 		</div>
-		<!-- <p style="font-size: 10pt;">※서비스 가용률:</p> -->
+		
 		
 	
 	
@@ -999,17 +882,8 @@ button{
 	<div id="measresultpost5G">
 		<div>
 			<!-- <input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" checked/> 사후측정5G -->
-			<h3>&nbsp;&nbsp;※ 5G 사후 측정(DL 속도):</h3>
-			{% for reportmsg in reportmsg %}
-			<h3 style="color: blue;" id='result5'>
-				
-				
-				{{reportmsg.msg5Gafter}}
-				
-			
-			</h3>
-			<input style="display:inline; height:23px;width:350px;" class="form-control"type="text" name="msg5Gafter" id="textmod5" value="{{reportmsg.msg5Gafter}}"></input>
-			{% endfor %}
+			<h3>&nbsp;&nbsp;※ 5G 사후 측정: </h3><h3 style="color:blue;">DL 속도</h3><h3 style="color:blue;" id='5grankdl'></h3>
+			<h4>(</h4><h4 id="ktsktdl"></h4><h4>/</h4><h4 id="ktlgdl"></h4><h4>)</h4>
 		</div>
 		<br><div id="output1">
 			<form action="{% url 'analysis:create_postmeasure5G' %}" method="POST" style="display:inline;" id="postmeas5G">{% csrf_token %}
@@ -1018,55 +892,130 @@ button{
 				<thead>
 					<tr>
 						<th rowspan = "2">지역<br>(측정수)</th>
-						<th rowspan = "2">20년<br>결과</th>
-						<th colspan = "5">종합</th>
-						<th colspan = "5">행정동</th>
-						<th colspan = "5">다중이용시설/교통/아파트/대학</th>
+						<th rowspan = "2">'21년 결과<br>(DL 속도<br>K/S/L)</th>
+						<th rowspan = "2">구분</th>
+						<th colspan = "5">DL 속도(Mbps)/RSRP(dBm)/<br>LTE 대역(MHz)</th>
+						<th colspan = "5">UL 속도(Mbps)</th>						
 					</tr>
 					<tr >
 						<th>KT<br>(본)</th>
 						<th>KT<br>(사후)</th>
 						<th>S사<br>(사후)</th>
 						<th>L사<br>(사후)</th>
-						<th>KT<br>순위</th>
+						<th>KT<br>(사후순위)</th>
 						<th>KT<br>(본)</th>
 						<th>KT<br>(사후)</th>
 						<th>S사<br>(사후)</th>
 						<th>L사<br>(사후)</th>
-						<th>KT<br>순위</th>
-						<th>KT<br>(본)</th>
-						<th>KT<br>(사후)</th>
-						<th>S사<br>(사후)</th>
-						<th>L사<br>(사후)</th>
-						<th>KT<br>순위</th>
-						
+						<th>KT<br>(사후순위)</th>					
+					</tr>	
 				</thead>
 				<tbody id="graph">
-				{% for postmeas5g in postmeas5g %} 	
+				
 					<tr>
-						<td ><p class="postmeasresult">{{postmeas5g.district}}({{postmeas5g.number}})</p></td>
-						<td><p class="postmeasresult">{{postmeas5g.lasttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lasttotal5g" id="post1"value="{{postmeas5g.lasttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.kttotaltotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotaltotal5g" id="post2" value="{{postmeas5g.kttotaltotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.kttotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotalposttotal5g" id="post3" value="{{postmeas5g.kttotalposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.skttotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skttotalposttotal5g" id="post4" value="{{postmeas5g.skttotalposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.lgtotalposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgtotalposttotal5g" id="post5" value="{{postmeas5g.lgtotalposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.ktranktotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.kthjdtotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdtotal5g"id="post7" value="{{postmeas5g.kthjdtotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.kthjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdposttotal5g" id="post8" value="{{postmeas5g.kthjdposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.skthjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skthjdposttotal5g" id="post9" value="{{postmeas5g.skthjdposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.lghjdposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lghjdposttotal5g" id="post10" value="{{postmeas5g.lghjdposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.ktrankhjdtotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktrankhjdtotal5g" id="post11" value="{{postmeas5g.ktrankhjdtotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.ktsidetotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktsidetotal5g"id="post12"  value="{{postmeas5g.ktsidetotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.ktsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktsideposttotal5g" id="post13" value="{{postmeas5g.ktsideposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.sktsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="sktsideposttotal5g" id="post14" value="{{postmeas5g.sktsideposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.lgsideposttotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgsideposttotal5g" id="post15" value="{{postmeas5g.lgsideposttotal5g}}"></input></td>
-						<td><p class="postmeasresult">{{postmeas5g.ktranksidetotal5g}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranksidetotal5g" id="post16" value="{{postmeas5g.ktranksidetotal5g}}"></input></td>
+						<td rowspan = "3">종합({{postmeas5gtotal_district}})</td>
+						<td rowspan = "3">{{postmeas5gtotal_lastkt_dl}}/{{postmeas5gtotal_lastskt_dl}}/{{postmeas5gtotal_lastlg_dl}}</td>
+						<td>속도</td>
+						<td>{{postmeas5gtotal_measkt_dl}}</td>
+						<td>{{postmeas5gtotal_postmeaskt_dl}}</td>
+						<td>{{postmeas5gtotal_postmeasskt_dl}}</td>
+						<td>{{postmeas5gtotal_postmeaslg_dl}}</td>
+						<td rowspan = "3" id = "5grankdltotal"></td>
+						<td rowspan = "3">{{postmeas5gtotal_measkt_ul}}</td>
+						<td rowspan = "3">{{postmeas5gtotal_postmeaskt_ul}}</td>
+						<td rowspan = "3">{{postmeas5gtotal_postmeasskt_ul}}</td>
+						<td rowspan = "3">{{postmeas5gtotal_postmeaslg_ul}}</td>
+						<td rowspan = "3" id = "5grankultotal"></td>
 					</tr>
-				{% endfor %}	
-					
-					
+					<tr>
+						<td>RSRP</td>
+						<td>{{postmeas5gtotal_measkt_rsrp}}</td>
+						<td>{{postmeas5gtotal_postmeaskt_rsrp}}</td>
+						<td>{{postmeas5gtotal_postmeasskt_rsrp}}</td>
+						<td>{{postmeas5gtotal_postmeaslg_rsrp}}</td>						
+					</tr>
+					<tr>
+						<td>LTE 평균대역</td>
+						<td>{{postmeas5gtotal_measkt_lte}}</td>
+						<td>{{postmeas5gtotal_postmeaskt_lte}}</td>
+						<td>{{postmeas5gtotal_postmeasskt_lte}}</td>
+						<td>{{postmeas5gtotal_postmeaslg_lte}}</td>						
+					</tr>
+					<script>
+					function rank(value, arr) {
+						const sorted = arr.slice().sort(function(a,b){return b-a});
+						const rank = sorted.indexOf(value);
+						if(rank > -1) return rank+1;
+						return null;
+					}	
+						let kttotaldl = {{postmeas5gtotal_postmeaskt_dl}};
+						let skttotaldl = {{postmeas5gtotal_postmeasskt_dl}};
+						let lgtotaldl = {{postmeas5gtotal_postmeaslg_dl}};
+						let dltotallist = [kttotaldl,skttotaldl,lgtotaldl]
+						let ktsktdl = kttotaldl - skttotaldl;
+						let ktlgdl = kttotaldl - lgtotaldl;
+						if(ktsktdl>0){
+							document.getElementById("ktsktdl").innerText = "S사 대비" + Math.abs(ktsktdl) + "M ↑ 우위";
+						}else{
+							document.getElementById("ktsktdl").innerText = "S사 대비" + Math.abs(ktsktdl) + "M ↓ 열위";
+							document.getElementById("ktsktdl").style.color = 'red';
+						}
+						if(ktlgdl>0){
+							document.getElementById("ktlgdl").innerText = "L사 대비" + Math.abs(ktsktdl) + "M ↑ 우위";
+						}else{
+							document.getElementById("ktlgdl").innerText = "L사 대비" + Math.abs(ktsktdl) + "M ↓ 열위";
+							document.getElementById("ktlgdl").style.color = 'red';
+						}  
+						document.getElementById("5grankdltotal").innerText = rank(kttotaldl,dltotallist)+"위";
+						document.getElementById("5grankdl").innerText = rank(kttotaldl,dltotallist)+"위";
+						let kttotalul = {{postmeas5gtotal_postmeaskt_ul}};
+						let skttotalul = {{postmeas5gtotal_postmeasskt_ul}};
+						let lgtotalul = {{postmeas5gtotal_postmeaslg_ul}};
+						let ultotallist = [kttotalul,skttotalul,lgtotalul]
+						document.getElementById("5grankultotal").innerText = rank(kttotalul,ultotallist)+"위";
+						let rank5g1 = rank(kttotaldl,dltotallist);
+						let rank5g2 = rank(kttotalul,ultotallist);
+						if(rank5g1 == 3){
+							document.getElementById("5grankdltotal").style.color = 'red';
+						}
+						if(rank5g2 == 3){
+							document.getElementById("5grankultotal").style.color = 'red';
+						}
 						
-					
+					</script>
+					{% load index %}
+					{% for i in postmeas5glist %}
+					<tr>
+						<td rowspan = "3" id="5gdistrict">{{postmeas5glist|index:forloop.counter0}}({{postmeas5g_district|index:forloop.counter0}})</td>
+						<td rowspan = "3" id="5glastdl">{{postmeas5g_lastkt_dl|index:forloop.counter0}}/{{postmeas5g_lastskt_dl|index:forloop.counter0}}/{{postmeas5g_lastlg_dl|index:forloop.counter0}}</td>
+						<td>속도</td>
+						<td id="5gmeaskt_dl">{{postmeas5g_measkt_dl|index:forloop.counter0}}</td>
+						<td id="5gpostmeaskt_dl">{{postmeas5g_postmeaskt_dl|index:forloop.counter0}}</td>
+						<td id="5gpostmeasskt_dl">{{postmeas5g_postmeasskt_dl|index:forloop.counter0}}</td>
+						<td id="5gpostmeaslg_dl">{{postmeas5g_postmeaslg_dl|index:forloop.counter0}}</td>
+						<td rowspan = "3" id="5grank1"> {{postmeas5grankdllist|index:forloop.counter0}}</td>
+						<td rowspan = "3" id="5gmeaskt_ul">{{postmeas5g_measkt_ul|index:forloop.counter0}}</td>
+						<td rowspan = "3" id="5gpostmeaskt_ul">{{postmeas5g_postmeaskt_ul|index:forloop.counter0}}</td>
+						<td rowspan = "3" id="5gpostmeasskt_ul">{{postmeas5g_postmeasskt_ul|index:forloop.counter0}}</td>
+						<td rowspan = "3" id="5gpostmeaslg_ul">{{postmeas5g_postmeaslg_ul|index:forloop.counter0}}</td>
+						<td rowspan = "3" id="5grank2">{{postmeas5grankullist|index:forloop.counter0}}</td>
+					</tr>
+					<tr>
+						<td>RSRP</td>
+						<td id="5gmeaskt_rsrp">{{postmeas5g_measkt_rsrp|index:forloop.counter0}}</td>
+						<td id="5gpostmeaskt_rsrp">{{postmeas5g_postmeaskt_rsrp|index:forloop.counter0}}</td>
+						<td id="5gpostmeasskt_rsrp">{{postmeas5g_postmeasskt_rsrp|index:forloop.counter0}}</td>
+						<td id="5gpostmeaslg_rsrp">{{postmeas5g_postmeaslg_rsrp|index:forloop.counter0}}</td>		
+					</tr>
+					<tr>
+						<td>LTE 평균대역</td>
+						<td id="5gmeaskt_lte">{{postmeas5g_measkt_lte|index:forloop.counter0}}</td>
+						<td id="5gpostmeaskt_lte">{{postmeas5g_postmeaskt_lte|index:forloop.counter0}}</td>
+						<td id="5gpostmeasskt_lte">{{postmeas5g_postmeasskt_lte|index:forloop.counter0}}</td>
+						<td id="5gpostmeaslg_lte">{{postmeas5g_postmeaslg_lte|index:forloop.counter0}}</td>						
+					</tr>
+					{% endfor %}
+				
 					
 				</tbody>
 			</table>
@@ -1090,23 +1039,49 @@ button{
 <div id="measresultLTE">
 	<div>
 		<!-- <input type="checkbox" name="meastitle" id="meas22" value="measresultLTE"style="color:grey;background-color: white;" checked/> LTE -->
-		<h3>&nbsp;&nbsp;○ LTE : DL 속도 </h3>
-		<h3 id="target5">{{totallte.0}}</h3>
-		<h3>Mbps, UL 속도 </h2>
-		<h3 id="target6">{{totallte.1}}</h3>
-		<h3>Mbps, 전송성공률 </h3>
-		<h3>{{totallte.2}}</h3>
-		<h3 id='target3'>%, 지연시간 </h3>
-		<h3>{{totallte.3}}</h3>
-		<h3>ms</h3>
-	</div>
+		{% for lastltetotal in lastltetotal %}
+			<h3>&nbsp;&nbsp;○ LTE: DL 속도</h3>
+			<h3>{{totallte.0}}Mbps</h3>
+			<p>('21년 대비 <p id="ltedldiff"></p><p>)</p></p>
+			<h3>, UL 속도</h3>
+			<h3>{{totallte.1}}Mbps</h3>
+			<p>('21년 대비 <p id="lteuldiff"></p><p>)</p></p>
+			<h3>, 지연시간</h2>
+			<h3>{{totallte.2}}ms</h3>
+			<p>('21년 대비 <p id="ltedelaydiff"></p><p>)</p></p>
+			
+			
+		</div>
+		<script>
+
+		let ltedldiff = ({{totallte.0}}-{{lastltetotal.DL}}).toFixed(1);
+		let lteuldiff = ({{totallte.1}}-{{lastltetotal.UL}}).toFixed(1);
+		let ltedelaydiff = ({{totallte.2}}-{{lastltetotal.delay}}).toFixed(1);
+		
+		if(ltedldiff<0){
+			document.getElementById("ltedldiff").innerHTML = Math.abs(ltedldiff) + "Mbps↓";
+		}else{
+			document.getElementById("ltedldiff").innerHTML = Math.abs(ltedldiff) + "Mbps↑";
+		}
+		if(lteuldiff<0){
+			document.getElementById("lteuldiff").innerHTML = Math.abs(lteuldiff) + "Mbps↓";
+		}else{
+			document.getElementById("lteuldiff").innerHTML = Math.abs(lteuldiff) + "Mbps↑";
+		}
+		if(ltedelaydiff<0){
+			document.getElementById("ltedelaydiff").innerHTML = Math.abs(ltedelaydiff) + "ms↓";
+		}else{
+			document.getElementById("ltedelaydiff").innerHTML = Math.abs(ltedelaydiff) + "ms↑";
+		}
+		
+		</script>
+		{% endfor %}
 	<br><div id="output1">
 		<table id="5Ghh">
 			<thead>
 				<tr>
-					<th rowspan="2" colspan="2">구분<br/>('20년 결과)</th>
+					<th rowspan="2" colspan="2">구분<br/>('21년 결과)</th>
 					<th colspan="2">전송속도(Mbps)</th>
-					<th rowspan="2">전송성공률<br/>(%)</th>
 					<th rowspan="2">지연시간<br/>(ms)</th>
 				</tr>
 				<tr>
@@ -1115,56 +1090,61 @@ button{
 				</tr>
 			</thead>
 			<tbody>
+				{% for lastltebct in lastltebct %}
 				<tr>
-					{% for lastlte in lastlte %}
 					<td rowspan="4">행정동</td>
 					<td>대도시</td>
-				  	<td >{{bctlte.0}}({{lastlte.bctDL}})</td>
-					<td >{{bctlte.1}}({{lastlte.bctUL}})</td>
-					<td >{{bctlte.2}}({{lastlte.bctsucc}})</td>
-					<td >{{bctlte.3}}({{lastlte.bctdelay}})</td>
+				  	<td >{{bctlte.0}}({{lastltebct.DL}})</td>
+					<td >{{bctlte.1}}({{lastltebct.UL}})</td>
+					<td >{{bctlte.2}}({{lastltebct.delay}})</td>
 				</tr>
+				{% endfor %}
+				{% for lastltemct in lastltemct %}
 				<tr>
 					<td>중소도시</td>
-					<td >{{mctlte.0}}({{lastlte.mctDL}})</td>
-					<td >{{mctlte.1}}({{lastlte.mctUL}})</td>
-					<td >{{mctlte.2}}({{lastlte.mctsucc}})</td>
-					<td >{{mctlte.3}}({{lastlte.mctdelay}})</td>
+					<td >{{mctlte.0}}({{lastltemct.DL}})</td>
+					<td >{{mctlte.1}}({{lastltemct.UL}})</td>
+					<td >{{mctlte.2}}({{lastltemct.delay}})</td>
 				</tr>
+				{% endfor %}
+				{% for lastltesct in lastltesct %}
 				<tr>
 					<td>농어촌</td>                           
-					<td >{{sctlte.0}}({{lastlte.sctDL}})</td>
-					<td >{{sctlte.1}}({{lastlte.sctUL}})</td>
-					<td >{{sctlte.2}}({{lastlte.sctsucc}})</td>
-					<td >{{sctlte.3}}({{lastlte.sctdelay}})</td>
+					<td >{{sctlte.0}}({{lastltesct.DL}})</td>
+					<td >{{sctlte.1}}({{lastltesct.UL}})</td>
+					<td >{{sctlte.2}}({{lastltesct.delay}})</td>
 				</tr>
+				{% endfor %}
+				{% for lastltehjd in lastltehjd %}
 				<tr>
 					<td>계</td>
-					<td >{{hjdlte.0}}({{lastlte.totalctDL}})</td>
-					<td >{{hjdlte.1}}({{lastlte.totalctUL}})</td>
-					<td >{{hjdlte.2}}({{lastlte.totalctsucc}})</td>
-					<td >{{hjdlte.3}}({{lastlte.totalctdelay}})</td>
+					<td >{{hjdlte.0}}({{lastltehjd.DL}})</td>
+					<td >{{hjdlte.1}}({{lastltehjd.UL}})</td>
+					<td >{{hjdlte.2}}({{lastltehjd.delay}})</td>
 				</tr>
+				{% endfor %}
+				{% for lastlteib in lastlteib %}
 				<tr>
 					<td colspan="2">인빌딩</td>
-					<td >{{iblte.0}}({{lastlte.ibDL}})</td>
-					<td >{{iblte.1}}({{lastlte.ibUL}})</td>
-					<td >{{iblte.2}}({{lastlte.ibsucc}})</td>
-					<td >{{iblte.3}}({{lastlte.ibdelay}})</td>
+					<td >{{iblte.0}}({{lastlteib.DL}})</td>
+					<td >{{iblte.1}}({{lastlteib.UL}})</td>
+					<td >{{iblte.2}}({{lastlteib.delay}})</td>
 				</tr>
+				{% endfor %}
+				{% for lastltetm in lastltetm %}
 				<tr>
 					<td colspan="2">테마</td>
-					<td >{{tmlte.0}}({{lastlte.tmDL}})</td>
-					<td >{{tmlte.1}}({{lastlte.tmUL}})</td>
-					<td >{{tmlte.2}}({{lastlte.tmsucc}})</td>
-					<td >{{tmlte.3}}({{lastlte.tmdelay}})</td>
+					<td >{{tmlte.0}}({{lastltetm.DL}})</td>
+					<td >{{tmlte.1}}({{lastltetm.UL}})</td>					
+					<td >{{tmlte.2}}({{lastltetm.delay}})</td>
 				</tr>
+				{% endfor %}
+				{% for lastltetotal in lastltetotal %}
 				<tr>
 					<td colspan="2">종합</td>
-					<td >{{totallte.0}}({{lastlte.areatotalDL}})</td>
-					<td >{{totallte.1}}({{lastlte.areatotalUL}})</td>
-					<td >{{totallte.2}}({{lastlte.areatotalsucc}})</td>
-					<td >{{totallte.3}}({{lastlte.areatotaldelay}})</td>
+					<td >{{totallte.0}}({{lastltetotal.DL}})</td>
+					<td >{{totallte.1}}({{lastltetotal.UL}})</td>
+					<td >{{totallte.2}}({{lastltetotal.delay}})</td>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -1182,60 +1162,136 @@ button{
 <div id="measresultpostLTE">
 	<div>
 		<!-- <input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" checked/> 사후측정LTE -->
-		<h3>&nbsp;&nbsp;※ LTE 사후 측정(지하철 품질 포함):</h3>
-		{% for reportmsg in reportmsg %}
-		<h3 style="color: blue;" id='result6'>
-				
-			
-			{{reportmsg.msgLTEafter}}
-			
-		
-		</h3>
-		<input style="display:inline;height:23px; width:350px;"class="form-control" type="text" name="msgLTEafter" id="textmod6" value="{{reportmsg.msgLTEafter}}"></input>
-		{% endfor %}
+		<h3>&nbsp;&nbsp;※ LTE 사후 측정: </h3><h3 style="color:blue;">DL 속도</h3><h3 style="color:blue;" id='lterankdl'></h3>
+		<h4>(</h4><h4 id="ktsktdllte"></h4><h4>/</h4><h4 id="ktlgdllte"></h4><h4>)</h4>
 	</div>
-
-	<br><div id="output1">
-		<table id="5Gsh" style="border: solid 1px black;" >
+	<br>
+	<div id="output1">
+		<table id="5Gsh" style="border: solid 1px black;">
+				
 			<thead>
 				<tr>
 					<th rowspan = "2">지역<br>(측정수)</th>
-					<th rowspan = "2">20년<br>결과</th>
-					<th colspan = "4">DL 속도(Mbps)</th>
-					<th colspan = "4">UL 속도(Mbps)</th>
-					
+					<th rowspan = "2">'21년 결과<br>(DL 속도<br>K/S/L)</th>
+					<th rowspan = "2">구분</th>
+					<th colspan = "5">DL 속도(Mbps)/RSRP(dBm)/<br>SINR(dB)</th>
+					<th colspan = "5">UL 속도(Mbps)</th>						
 				</tr>
 				<tr >
 					<th>KT<br>(본)</th>
 					<th>KT<br>(사후)</th>
 					<th>S사<br>(사후)</th>
 					<th>L사<br>(사후)</th>
-					
+					<th>KT<br>(사후순위)</th>
 					<th>KT<br>(본)</th>
 					<th>KT<br>(사후)</th>
 					<th>S사<br>(사후)</th>
 					<th>L사<br>(사후)</th>
-					
-					
+					<th>KT<br>(사후순위)</th>					
+				</tr>	
 			</thead>
-			<tbody id="graph" >
-				{% for postmeaslte in postmeaslte %} 	
-				<tr>
-					<td ><p class="postmeasresult">{{postmeaslte.district}}({{postmeaslte.number}})</p></td>
-					<td><p class="postmeasresult">{{postmeaslte.lasttotallte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lasttotal5g" id="post1"value="{{postmeas5g.lasttotal5g}}"></input></td>
-					<td><p class="postmeasresult">{{postmeaslte.ktdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotaltotal5g" id="post2" value="{{postmeas5g.kttotaltotal5g}}"></input></td>
-					<td><p class="postmeasresult">{{postmeaslte.ktpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kttotalposttotal5g" id="post3" value="{{postmeas5g.kttotalposttotal5g}}"></input></td>
-					<td><p class="postmeasresult">{{postmeaslte.sktpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="skttotalposttotal5g" id="post4" value="{{postmeas5g.skttotalposttotal5g}}"></input></td>
-					<td><p class="postmeasresult">{{postmeaslte.lgpostdllte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="lgtotalposttotal5g" id="post5" value="{{postmeas5g.lgtotalposttotal5g}}"></input></td>
-					<td><p class="postmeasresult">{{postmeaslte.ktullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
-					<td><p class="postmeasresult">{{postmeaslte.ktpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="ktranktotal5g"id="post6" value="{{postmeas5g.ktranktotal5g}}"></input></td>
-					<td><p class="postmeasresult">{{postmeaslte.sktpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdtotal5g"id="post7" value="{{postmeas5g.kthjdtotal5g}}"></input></td>
-					<td><p class="postmeasresult">{{postmeaslte.lgpostullte}}</p><input style="display:inline;" class="form-control postmeas5g" type="text" name="kthjdposttotal5g" id="post8" value="{{postmeas5g.kthjdposttotal5g}}"></input></td>
-					
-				</tr>
-				{% endfor %}	
+			<tbody id="graph">
 			
+				<tr>
+					<td rowspan = "3">종합({{postmeasltetotal_district}})</td>
+					<td rowspan = "3">{{postmeasltetotal_lastkt_dl}}/{{postmeasltetotal_lastskt_dl}}/{{postmeasltetotal_lastlg_dl}}</td>
+					<td>속도</td>
+					<td>{{postmeasltetotal_measkt_dl}}</td>
+					<td>{{postmeasltetotal_postmeaskt_dl}}</td>
+					<td>{{postmeasltetotal_postmeasskt_dl}}</td>
+					<td>{{postmeasltetotal_postmeaslg_dl}}</td>
+					<td rowspan = "3" id = "lterankdltotal"></td>
+					<td rowspan = "3">{{postmeasltetotal_measkt_ul}}</td>
+					<td rowspan = "3">{{postmeasltetotal_postmeaskt_ul}}</td>
+					<td rowspan = "3">{{postmeasltetotal_postmeasskt_ul}}</td>
+					<td rowspan = "3">{{postmeasltetotal_postmeaslg_ul}}</td>
+					<td rowspan = "3" id = "lterankultotal"></td>
+				</tr>
+				<tr>
+					<td>RSRP</td>
+					<td>{{postmeasltetotal_measkt_rsrp}}</td>
+					<td>{{postmeasltetotal_postmeaskt_rsrp}}</td>
+					<td>{{postmeasltetotal_postmeasskt_rsrp}}</td>
+					<td>{{postmeasltetotal_postmeaslg_rsrp}}</td>						
+				</tr>
+				<tr>
+					<td>SINR</td>
+					<td>{{postmeasltetotal_measkt_sinr}}</td>
+					<td>{{postmeasltetotal_postmeaskt_sinr}}</td>
+					<td>{{postmeasltetotal_postmeasskt_sinr}}</td>
+					<td>{{postmeasltetotal_postmeaslg_sinr}}</td>						
+				</tr>
+				<script>
+				function rank(value, arr) {
+					const sorted = arr.slice().sort(function(a,b){return b-a});
+					const rank = sorted.indexOf(value);
+					if(rank > -1) return rank+1;
+					return null;
+				}	
+					let kttotaldllte = {{postmeasltetotal_postmeaskt_dl}};
+					let skttotaldllte = {{postmeasltetotal_postmeasskt_dl}};
+					let lgtotaldllte = {{postmeasltetotal_postmeaslg_dl}};
+					let dltotallistlte = [kttotaldl,skttotaldl,lgtotaldl]
+					let ktsktdllte = kttotaldllte - skttotaldllte;
+					let ktlgdllte = kttotaldllte - lgtotaldllte;
+					if(ktsktdllte>0){
+						document.getElementById("ktsktdllte").innerText = "S사 대비" + Math.abs(ktsktdllte) + "M ↑ 우위";
+					}else{
+						document.getElementById("ktsktdllte").innerText = "S사 대비" + Math.abs(ktsktdllte) + "M ↓ 열위";
+						document.getElementById("ktsktdllte").style.color = 'red';
+					}
+					if(ktlgdllte>0){
+						document.getElementById("ktlgdllte").innerText = "L사 대비" + Math.abs(ktsktdllte) + "M ↑ 우위";
+					}else{
+						document.getElementById("ktlgdllte").innerText = "L사 대비" + Math.abs(ktsktdllte) + "M ↓ 열위";
+						document.getElementById("ktlgdllte").style.color = 'red';
+					}  
+					document.getElementById("lterankdltotal").innerText = rank(kttotaldllte,dltotallistlte)+"위";
+					document.getElementById("lterankdl").innerText = rank(kttotaldllte,dltotallistlte)+"위";
+					let kttotalullte = {{postmeasltetotal_postmeaskt_ul}};
+					let skttotalullte = {{postmeasltetotal_postmeasskt_ul}};
+					let lgtotalullte = {{postmeasltetotal_postmeaslg_ul}};
+					let ultotallistlte = [kttotalul,skttotalul,lgtotalul]
+					document.getElementById("lterankultotal").innerText = rank(kttotalullte,ultotallistlte)+"위";
+				</script>
+				{% load index %}
+				{% for i in postmeasltelist %}
+				<tr>
+					<td rowspan = "3" id="ltedistrict">{{postmeasltelist|index:forloop.counter0}}({{postmeaslte_district|index:forloop.counter0}})</td>
+					<td rowspan = "3" id="ltelastdl">{{postmeaslte_lastkt_dl|index:forloop.counter0}}/{{postmeaslte_lastskt_dl|index:forloop.counter0}}/{{postmeaslte_lastlg_dl|index:forloop.counter0}}</td>
+					<td>속도</td>
+					<td id="ltemeaskt_dl">{{postmeaslte_measkt_dl|index:forloop.counter0}}</td>
+					<td id="ltepostmeaskt_dl">{{postmeaslte_postmeaskt_dl|index:forloop.counter0}}</td>
+					<td id="ltepostmeasskt_dl">{{postmeaslte_postmeasskt_dl|index:forloop.counter0}}</td>
+					<td id="ltepostmeaslg_dl">{{postmeaslte_postmeaslg_dl|index:forloop.counter0}}</td>
+					<td rowspan = "3" id="lterank1"> {{postmeaslterankdllist|index:forloop.counter0}}</td>
+					<td rowspan = "3" id="ltemeaskt_ul">{{postmeaslte_measkt_ul|index:forloop.counter0}}</td>
+					<td rowspan = "3" id="ltepostmeaskt_ul">{{postmeaslte_postmeaskt_ul|index:forloop.counter0}}</td>
+					<td rowspan = "3" id="ltepostmeasskt_ul">{{postmeaslte_postmeasskt_ul|index:forloop.counter0}}</td>
+					<td rowspan = "3" id="ltepostmeaslg_ul">{{postmeaslte_postmeaslg_ul|index:forloop.counter0}}</td>
+					<td rowspan = "3" id="lterank2">{{postmeaslterankullist|index:forloop.counter0}}</td>
+					</tr>
+					<tr>
+					<td>RSRP</td>
+					<td id="ltemeaskt_rsrp">{{postmeaslte_measkt_rsrp|index:forloop.counter0}}</td>
+					<td id="ltepostmeaskt_rsrp">{{postmeaslte_postmeaskt_rsrp|index:forloop.counter0}}</td>
+					<td id="ltepostmeasskt_rsrp">{{postmeaslte_postmeasskt_rsrp|index:forloop.counter0}}</td>
+					<td id="ltepostmeaslg_rsrp">{{postmeaslte_postmeaslg_rsrp|index:forloop.counter0}}</td>		
+					</tr>
+					<tr>
+					<td>SINR</td>
+					<td id="ltemeaskt_lte">{{postmeaslte_measkt_sinr|index:forloop.counter0}}</td>
+					<td id="ltepostmeaskt_lte">{{postmeaslte_postmeaskt_sinr|index:forloop.counter0}}</td>
+					<td id="ltepostmeasskt_lte">{{postmeaslte_postmeasskt_sinr|index:forloop.counter0}}</td>
+					<td id="ltepostmeaslg_lte">{{postmeaslte_postmeaslg_sinr|index:forloop.counter0}}</td>						
+					</tr>
+					<script>
+						console.log({{postmeaslteranklist}})
+					</script>
 					
+			{% endfor %}
+			
+				
 			</tbody>
 		</table>
 	</div>
@@ -1315,14 +1371,14 @@ button{
 	<div>
 		<!-- <input type="checkbox" name="meastitle" id="meas23" value="measresultWiFi" checked/> WiFi -->
 		<h3>&nbsp;&nbsp;○ WiFi</h3></br></br>
-		<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;종합(지하철제외)</h3>
+		<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;종합(지하철 제외)</h3>
 	</div>
 
 	<div id="output1">
 		<table id="5Ghh">
 			<thead>
 				<tr>
-					<th rowspan="2">구분<br/>('20년 결과)</th>
+					<th rowspan="2">구분<br/>('21년 결과)</th>
 					<th colspan="3">DL(Mbps)</th>
 					<th colspan="3">UL(Mbps)</th>
 				</tr>
@@ -1330,29 +1386,35 @@ button{
 					<th>계</th>
 					<th>상용</th>
 					<th>개방</th>
-					
 					<th>계</th>
 					<th>상용</th>
 					<th>개방</th>
-					
 				</tr>
 			</thead>
 			<tbody>
-				{% for lastwifi in lastwifi %}
+				
 				<tr>
 					<td>누적</td>
-					<td>{{totalwifidl}}({{lastwifi.totalwifidl}})</td>
-					<td>{{totalsywifidl}}({{lastwifi.sywifidl}})</td>
-					<td>{{totalgbwifidl}}({{lastwifi.gbwifidl}})</td>
-					
-					<td>{{totalwifiul}}({{lastwifi.totalwifiul}})</td>
-					<td>{{totalsywifiul}}({{lastwifi.sywifiul}})</td>
-					<td>{{totalgbwifiul}}({{lastwifi.gbwifiul}})</td>
-					
+					{% for lastwifitotal in lastwifitotal %}
+					<td>{{totalwifidl}}({{lastwifitotal.DL}})</td>
+					{% endfor %}
+					{% for lastwifisy in lastwifisy %}
+					<td>{{totalsywifidl}}({{lastwifisy.DL}})</td>
+					{% endfor %}
+					{% for lastwifigb in lastwifigb %}
+					<td>{{totalgbwifidl}}({{lastwifigb.DL}})</td>
+					{% endfor %}
+					{% for lastwifitotal in lastwifitotal %}
+					<td>{{totalwifiul}}({{lastwifitotal.UL}})</td>
+					{% endfor %}
+					{% for lastwifisy in lastwifisy %}
+					<td>{{totalsywifiul}}({{lastwifisy.UL}})</td>
+					{% endfor %}
+					{% for lastwifigb in lastwifigb %}
+					<td>{{totalgbwifiul}}({{lastwifigb.UL}})</td>
+					{% endfor %}
 				</tr>
-				{% endfor %}
-				
-			
+	
 			</tbody>
 		</table>
 	</div>
@@ -1478,7 +1540,7 @@ button{
 		<table id="5Ghh">
 			<thead>
 				<tr>
-					<th rowspan>구분</th>
+					<th rowspan>구분<br/>('21년 결과)</th>
 					<th colspan>계</th>
 					<th colspan>수도권</th>
 					<th colspan>부산</th>
@@ -1492,15 +1554,17 @@ button{
 				<tr>
 					
 					<td>DL(Mbps)</td>
+					{% load index %}
 					{% for wifitraindl in wifitraindl %}
-					<td>{{wifitraindl}}</td>
+					<td>{{wifitraindl}}({{wifitrainlastdl|index:forloop.counter0}})</td>
 					{% endfor %}
-				
+					
 				</tr>
 				<tr>
 					<td>UL(Mbps)</td>
+					{% load index %}
 					{% for wifitrainul in wifitrainul %}
-					<td>{{wifitrainul}}</td>
+					<td>{{wifitrainul}}({{wifitrainlastul|index:forloop.counter0}})</td>
 					{% endfor %}
 					
 				</tr>
@@ -1513,8 +1577,8 @@ button{
 <br>
 <br>
 <div>
-	<h2>□ 별첨. 금일</h2><h2></h2><h2> 측정 결과 세부내역</h2> 
-	<br><h3>&nbsp;&nbsp;○ 5G : NSA </h3><h3 ></h3><h3>지역</h3><h3></h3><h3>, SA</h3><h3></h3><h3>지역</h3>
+	<h2>□ 별첨. 금일</h2><h2 id="today_m/d"></h2><h2> 측정 결과 세부내역</h2> 
+	<br><h3>&nbsp;&nbsp;○ 5G :</h3><h3></h3><h3></h3><h3></h3><h3></h3><h3></h3><h3></h3>
 
 	<div id="output1">
 		<table id="5Ghh">
@@ -1524,16 +1588,18 @@ button{
 					<th rowspan="2">구분</th>
 					<th colspan="2">지역명</th>
 					<th colspan="2">속도(Mbps)</th>
-					<th rowspan="2">LTE전환율(%)</th>
-					<th rowspan="2">전송성공률(%)</th>
-					<th rowspan="2">접속/지연(ms)</th>
+					<th colspan="2">LTE전환율(%)</th>
+					<th colspan="2">'21 S-CXI 속도(K/S/L)</th>
 				</tr>
 				<tr>
 					<th>시도</th>
 					<th>측정 지역</th>
 					<th>DL</th>
 					<th>UL</th>
-					
+					<th>DL</th>
+					<th>UL</th>
+					<th>DL</th>
+					<th>UL</th>
 				</tr>
 				
 			</thead>
@@ -1543,12 +1609,13 @@ button{
 					<td>{{tresult5g.center}}</td>
 					<td>{{tresult5g.mopho}}</td>
 					<td>{{tresult5g.district}}</td>
-					<td>{{tresult5g.siDo}} {{tresult5g.guGun}}({{tresult5g.nettype}})</td>
+					<td>{{tresult5g.userInfo1}}</td>
 					<td>{{tresult5g.downloadBandwidth}}</td>
 					<td>{{tresult5g.uploadBandwidth}}</td>
-					<td>{{tresult5g.lte_percent}}</td>
-					<td>{{tresult5g.success_rate}}</td>
-					<td>{{tresult5g.connect_time}}/{{tresult5g.udpJitter}}</td>
+					<td>{{tresult5g.dl_nr_percent}}</td>
+					<td>{{tresult5g.ul_nr_percent}}</td>
+					<td>{{tresult5g.ktlastdl}}/{{tresult5g.sktlastdl}}/{{tresult5g.lglastdl}}</td>
+					<td>{{tresult5g.ktlastul}}/{{tresult5g.sktlastul}}/{{tresult5g.lglastul}}</td>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -1558,7 +1625,7 @@ button{
 </div>
 <div>
 	
-	<br><h3>&nbsp;&nbsp;○ LTE :</h3><h3 ></h3><h3>지역</h3><h3></h3>
+	<br><h3>&nbsp;&nbsp;○ LTE :</h3><h3 ></h3><h3></h3><h3></h3>
 
 	<div id="output1">
 		<table id="5Ghh">
@@ -1568,15 +1635,15 @@ button{
 					<th rowspan="2">구분</th>
 					<th colspan="2">지역명</th>
 					<th colspan="2">속도(Mbps)</th>
-					<th rowspan="2">전송성공률(%)</th>
-					<th rowspan="2">접속/지연(ms)</th>
+					<th colspan="2">'21 S-CXI 속도(K/S/L)</th>
 				</tr>
 				<tr>
 					<th>시도</th>
 					<th>측정 지역</th>
 					<th>DL</th>
 					<th>UL</th>
-					
+					<th>DL</th>
+					<th>UL</th>
 				</tr>
 				
 			</thead>
@@ -1586,10 +1653,10 @@ button{
 					<td>{{tresultlte.center}}</td>
 					<td>{{tresultlte.mopho}}</td>
 					<td>{{tresultlte.district}}</td>
-					<td>{{tresultlte.siDo}} {{tresultlte.guGun}}({{tresultlte.nettype}})</td>
+					<td>{{tresultlte.userInfo1}}</td>
 					<td>{{tresultlte.downloadBandwidth}}</td>
 					<td>{{tresultlte.uploadBandwidth}}</td>
-					<td>{{tresultlte.success_rate}}</td>
+					
 					<td>{{tresultlte.connect_time}}/{{tresultlte.udpJitter}}</td>
 				</tr>
 				{% endfor %}
@@ -1599,7 +1666,7 @@ button{
 <br>					
 </div>
 <div>
-	<br><h3>&nbsp;&nbsp;○ 품질취약: </h3><h3 ></h3><h3>지역</h3><h3></h3>
+	<br><h3>&nbsp;&nbsp;○ 품질취약지역: </h3><h3 ></h3><h3></h3><h3></h3>
 
 	<div id="output1">
 		<table id="5Ghh">
@@ -1610,7 +1677,6 @@ button{
 					<th rowspan="2">측정지역</th>
 					<th colspan="2">속도(Mbps)</th>
 					<th rowspan="2">비고</th>
-					
 				</tr>
 				<tr>
 					
@@ -1625,7 +1691,7 @@ button{
 				<tr>
 					<td>{{tresultweak.center}}</td>
 					<td>{{tresultweak.mopho}}</td>
-					<td>{{tresultweak.siDo}} {{tresultweak.guGun}}({{tresultweak.nettype}})</td>
+					<td>{{tresultweak.userInfo1}}</td>
 					<td>{{tresultweak.downloadBandwidth}}</td>
 					<td>{{tresultweak.uploadBandwidth}}</td>
 					<td>{{tresultweak.subadd}}</td>
@@ -1639,7 +1705,7 @@ button{
 <br>					
 </div>		
 <div>
-	<br><h3>&nbsp;&nbsp;○ WiFi: </h3><h3 ></h3><h3>국소</h3><h3></h3>
+	<br><h3>&nbsp;&nbsp;○ WiFi: </h3><h3 ></h3><h3></h3><h3></h3>
 
 	<div id="output1">
 		<table id="5Ghh">
@@ -1649,23 +1715,19 @@ button{
 					<th rowspan="2">구분</th>
 					<th rowspan="2">측정국소</th>
 					<th colspan="2">속도(Mbps)</th>
-					<th rowspan="2">비고</th>
-					
+					<th rowspan="2">비고</th>	
 				</tr>
 				<tr>
-			
 					<th>DL</th>
-					<th>UL</th>
-					
+					<th>UL</th>	
 				</tr>
-				
 			</thead>
 			<tbody>
 				{% for tresultwifi in tresultwifi %}
 				<tr>
 					<td>{{tresultwifi.center}}</td>
 					<td>{{tresultwifi.mopho}}</td>
-					<td>{{tresultwifi.siDo}} {{tresultwifi.guGun}}({{tresultwifi.nettype}})</td>
+					<td>{{tresultwifi.userInfo1}}</td>
 					<td>{{tresultwifi.downloadBandwidth}}</td>
 					<td>{{tresultwifi.uploadBandwidth}}</td>
 					<td>{{tresultwifi.subadd}}</td>
@@ -1715,7 +1777,7 @@ button{
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
 
-<script type="text/javascript" defer src="{% static "js/reportdata.js" %}"></script>
+
 <script type="text/javascript" defer src="{% static "js/html2canvas.js" %}"></script>
 
 <script>
@@ -1833,8 +1895,7 @@ $(document).ready(function() {
 		}
 
 	});
-	$("#measresultpostLTE").hide()
-	$("#measresultpost5G").hide()
+	
 	$('#meas23').change( function(){
 		if($(this).is(":checked")){
 				$("#measresultWiFi").show();
@@ -2036,6 +2097,141 @@ $(document).ready(function () {
 	$('#dashboard_nav').addClass('nav-item');
 	
 </script>
+<!-- 리포트데이터 -->
+<script>
+//그래프 퍼센트 데이터
+var plan5gnsahjd = parseInt(document.getElementById("plan5gnsahjd").outerText);
+var plan5gnsadg = parseInt(document.getElementById("plan5gnsadg").outerText);
+var plan5gnsatotal = parseInt(
+  document.getElementById("plan5gnsatotal").outerText
+);
+var plan5gsa = parseInt(document.getElementById("plan5gsa").outerText);
+var plan5gpublic = parseInt(document.getElementById("plan5gpublic").outerText);
 
+var planltebct = parseInt(document.getElementById("planltebct").outerText);
+var planltemct = parseInt(document.getElementById("planltemct").outerText);
+var planltesct = parseInt(document.getElementById("planltesct").outerText);
+var planlteib = parseInt(document.getElementById("planlteib").outerText);
+var planltetm = parseInt(document.getElementById("planltetm").outerText);
+
+var planwifisy = parseInt(document.getElementById("planwifisy").outerText);
+var planwifigb = parseInt(document.getElementById("planwifigb").outerText);
+var planweakdsr = parseInt(document.getElementById("planweakdsr").outerText);
+var planweakyghr = parseInt(document.getElementById("planweakyghr").outerText);
+var planweakyids = parseInt(document.getElementById("planweakyids").outerText);
+var planweakhadr = parseInt(document.getElementById("planweakhadr").outerText);
+var meas5gnsahjd = parseInt(document.getElementById("meas5gnsahjd").outerText);
+var meas5gnsadg = parseInt(document.getElementById("meas5gnsadg").outerText);
+var meas5gnsatotal = parseInt(document.getElementById("meas5gnsatotal").outerText);
+var meas5gsa = parseInt(document.getElementById("meas5gsa").outerText);
+var meas5gpublic = parseInt(document.getElementById("meas5gpublic").outerText);
+
+var resultltebct = parseInt(document.getElementById("resultltebct").outerText);
+var resultltemct = parseInt(document.getElementById("resultltemct").outerText);
+var resultltesct = parseInt(document.getElementById("resultltesct").outerText);
+var resultlteib = parseInt(document.getElementById("resultlteib").outerText);
+var resultltetm = parseInt(document.getElementById("resultltetm").outerText);
+
+var resultwifisy = parseInt(document.getElementById("resultwifisy").outerText);
+var resultwifigb = parseInt(document.getElementById("resultwifigb").outerText);
+var resultweakdsr = parseInt(document.getElementById("resultweakdsr").outerText);
+var resultweakyghr = parseInt(document.getElementById("resultweakyghr").outerText);
+var resultweakyids = parseInt(document.getElementById("resultweakyids").outerText);
+var resultweakhadr = parseInt(document.getElementById("resultweakhadr").outerText);
+
+document.getElementById("meas5gnsahjd").innerHTML =
+  meas5gnsahjd + "(" + ((meas5gnsahjd / plan5gnsahjd) * 100).toFixed(0) + "%)";
+document.getElementById("meas5gnsadg").innerHTML =
+  meas5gnsadg + "(" + ((meas5gnsadg / plan5gnsadg) * 100).toFixed(0) + "%)";
+document.getElementById("meas5gnsatotal").innerHTML =
+  meas5gnsatotal + "(" + ((meas5gnsatotal / plan5gnsatotal) * 100).toFixed(0) + "%)";
+document.getElementById("meas5gsa").innerHTML =
+  meas5gsa + "(" + ((meas5gsa / plan5gpublic) * 100).toFixed(0) + "%)";
+document.getElementById("meas5gpublic").innerHTML =
+  meas5gpublic + "(" + ((meas5gpublic / plan5gsa) * 100).toFixed(0) + "%)";
+
+document.getElementById("resultltebct").innerHTML =
+  resultltebct + "(" + ((resultltebct / planltebct) * 100).toFixed(0) + "%)";
+document.getElementById("resultltemct").innerHTML =
+  resultltemct + "(" + ((resultltemct / planltemct) * 100).toFixed(0) + "%)";
+document.getElementById("resultltesct").innerHTML =
+  resultltesct + "(" + ((resultltesct / planltesct) * 100).toFixed(0) + "%)";
+document.getElementById("resultlteib").innerHTML =
+  resultlteib + "(" + ((resultlteib / planlteib) * 100).toFixed(0) + "%)";
+document.getElementById("resultltetm").innerHTML =
+  resultltetm + "(" + ((resultltetm / planltetm) * 100).toFixed(0) + "%)";
+
+document.getElementById("resultwifisy").innerHTML =
+  resultwifisy + "(" + ((resultwifisy / planwifisy) * 100).toFixed(0) + "%)";
+document.getElementById("resultwifigb").innerHTML =
+  resultwifigb + "(" + ((resultwifigb / planwifigb) * 100).toFixed(0) + "%)";
+document.getElementById("resultweakdsr").innerHTML =
+  resultweakdsr + "(" + ((resultweakdsr / planweakdsr) * 100).toFixed(0) + "%)";
+document.getElementById("resultweakyghr").innerHTML =
+  resultweakyghr + "(" + ((resultweakyghr / planweakyghr) * 100).toFixed(0) + "%)";
+document.getElementById("resultweakyids").innerHTML =
+  resultweakyids + "(" + ((resultweakyids / planweakyids) * 100).toFixed(0) + "%)";
+document.getElementById("resultweakhadr").innerHTML =
+  resultweakhadr + "(" + ((resultweakhadr / planweakhadr) * 100).toFixed(0) + "%)";
+
+// 리포트데이터 정제
+var plan5gtotal = parseInt(document.getElementById("plan5gtotal").outerText);
+var planltetotal = parseInt(document.getElementById("planltetotal").outerText);
+var planwifitotal = parseInt(document.getElementById("planwifitotal").outerText);
+var planweaktotal = parseInt(document.getElementById("planweaktotal").outerText);
+var meas5gtotal = parseInt(document.getElementById("meas5gtotal").outerText);
+var measltetotal = parseInt(document.getElementById("measltetotal").outerText);
+var measwifitotal = parseInt(document.getElementById("measwifitotal").outerText);
+var measweaktotal = parseInt(document.getElementById("measweaktotal").outerText);
+
+document.getElementById("tt1").innerHTML = plan5gtotal + "개 지역 중";
+document.getElementById("tt2").innerHTML = planltetotal + "개 지역 중";
+document.getElementById("tt3").innerHTML = planwifitotal + "개 지역 중";
+document.getElementById("tt4").innerHTML = planweaktotal + "개 지역 중";
+document.getElementById("pc1").innerHTML =
+  "(" + ((meas5gtotal / plan5gtotal) * 100).toFixed(2) + "%)";
+document.getElementById("pc2").innerHTML =
+  "(" + ((measltetotal / planltetotal) * 100).toFixed(2) + "%)";
+document.getElementById("pc3").innerHTML =
+  "(" + ((measwifitotal / planwifitotal) * 100).toFixed(2) + "%)";
+document.getElementById("pc4").innerHTML =
+  "(" + ((measweaktotal / planweaktotal) * 100).toFixed(2) + "%)";
+document.getElementById("tt").innerHTML =
+plan5gtotal + planltetotal + planwifitotal + planweaktotal + "개";
+document.getElementById("ttf").innerHTML =
+  meas5gtotal + measltetotal + measwifitotal + measweaktotal + "개";
+document.getElementById("pcf").innerHTML =
+  "(진도율:" +
+  (
+    ((meas5gtotal + measltetotal + measwifitotal + measweaktotal) /
+      (plan5gtotal + planltetotal + planwifitotal + planweaktotal)) *
+    100
+  ).toFixed(0) +
+  "%)";
+
+// 리포트 날짜
+date = new Date();
+year = date.getFullYear();
+month = date.getMonth() + 1;
+day = date.getDate();
+document.getElementById("current_date").innerHTML =year + "." + month + "." + day;
+document.getElementById("today_m/d").innerHTML ="(" + month + "." + day + "일)";
+let date1 = document.getElementById("firstdate").outerText;
+date11 = String(date1);
+year1 = date11.substr(0, 4);
+month1 = date11.substr(4, 2);
+day1 = date11.substr(6, 2);
+document.getElementById("firstdate").innerHTML =
+  "(" + month1 + "." + day1 + "~";
+
+let date2 = document.getElementById("lastdate").outerText;
+date22 = String(date2);
+year2 = date22.substr(0, 4);
+month2 = date22.substr(4, 2);
+day2 = date22.substr(6, 2);
+document.getElementById("lastdate").innerHTML = month2 + "." + day2 + ")";
+
+
+</script>
 
 {% endblock %}
