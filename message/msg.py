@@ -233,7 +233,11 @@ def make_message(mdata: MeasureCallData):
                            f"{phone.networkId}({phone.phoneGroup.morphologyDetail.main_class}): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 5G 측정 데이터의 경우
             elif phone.networkId == '5G':
-                messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.userInfo1} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
+                messages = f"S-CXI {phone.measuringTeam} "
+                if phone.phoneGroup.morphologyDetail is not None:
+                    messages += f"{phone.phoneGroup.morphologyDetail.network_type} "
+                else: messages += f"{phone.networkId} "
+                messages += f"{mdata.userInfo1} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 기타(LTE, 3G) 측정데이터의 경우
