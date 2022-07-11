@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from datetime import datetime, timedelta, timezone
 import random
-from .geo import KakaoLocalAPI
+from .geo import KakaoLocalAPI, ollehAPI_reverseGEO
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
 from message.xmcs_msg import send_sms  # 2022.03.04 크로샷 메시지 전송 함수 호출
 from management.models import Center, Morphology, MorphologyMap, CenterManageArea, PhoneInfo, MorphologyDetail, MeasureArea
@@ -618,43 +618,48 @@ class Phone(models.Model):
             - 반환값: 없음
         """
         try:
-            # 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.
-            if self.longitude and self.latitude:
-                rest_api_key = settings.KAKAO_REST_API_KEY
-                kakao = KakaoLocalAPI(rest_api_key)
-                input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
-                output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+            if self.longitude and self.latitude:    # olleh API를 이용하여 좌표(위/경도)를 주소(행정동 명칭)로 변환한다.
+                result = ollehAPI_reverseGEO(self.longitude, self.latitude)
+                if result['result'] == 'ok':
+                    self.siDo =result['siDo']  # 시/도
+                    self.guGun = result['siGunGu1']  # 구/군
+                    self.addressDetail = result['eupMyeonDong']  # 행정동(읍/동/면)
+                else:   # ollehAPI 실패할 경우 카카오 지도API를 통해 해당 위도,경도에 대한 행정동 명칭을 가져온다.  -- 제외 예정
+                    rest_api_key = settings.KAKAO_REST_API_KEY
+                    kakao = KakaoLocalAPI(rest_api_key)
+                    input_coord = "WGS84"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
+                    output_coord = "TM"  # WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM
 
-                result = kakao.geo_coord2regioncode(self.longitude, self.latitude, input_coord, output_coord)
-                # [ 리턴값 형식 ]
-                # print("out_measuring_range():", result)
-                # {'meta': {'total_count': 2},
-                # 'documents': [{'region_type': 'B',
-                # 'code': '4824012400',
-                # 'address_name': '경상남도 사천시 노룡동',
-                # 'region_1depth_name': '경상남도',
-                # 'region_2depth_name': '사천시',
-                # 'region_3depth_name': '노룡동', <-- 주소지 동
-                # 'region_4depth_name': '',
-                # 'x': 296184.5342265043,
-                # 'y': 165683.29710986698},
-                # {'region_type': 'H',
-                # 'code': '4824059500',
-                # 'address_name': '경상남도 사천시 남양동',
-                # 'region_1depth_name': '경상남도',
-                # 'region_2depth_name': '사천시',
-                # 'region_3depth_name': '남양동', <-- 행정구역
-                # 'region_4depth_name': '',
-                # 'x': 297008.1130364056,
-                # 'y': 164008.47612447804}]}
+                    result = kakao.geo_coord2regioncode(self.longitude, self.latitude, input_coord, output_coord)
+                    # [ 리턴값 형식 ]
+                    # print("out_measuring_range():", result)
+                    # {'meta': {'total_count': 2},
+                    # 'documents': [{'region_type': 'B',
+                    # 'code': '4824012400',
+                    # 'address_name': '경상남도 사천시 노룡동',
+                    # 'region_1depth_name': '경상남도',
+                    # 'region_2depth_name': '사천시',
+                    # 'region_3depth_name': '노룡동', <-- 주소지 동
+                    # 'region_4depth_name': '',
+                    # 'x': 296184.5342265043,
+                    # 'y': 165683.29710986698},
+                    # {'region_type': 'H',
+                    # 'code': '4824059500',
+                    # 'address_name': '경상남도 사천시 남양동',
+                    # 'region_1depth_name': '경상남도',
+                    # 'region_2depth_name': '사천시',
+                    # 'region_3depth_name': '남양동', <-- 행정구역
+                    # 'region_4depth_name': '',
+                    # 'x': 297008.1130364056,
+                    # 'y': 164008.47612447804}]}
 
-                region_1depth_name = result['documents'][1]['region_1depth_name']  # 시/도
-                region_2depth_name = result['documents'][1]['region_2depth_name']  # 구/군
-                region_3depth_name = result['documents'][1]['region_3depth_name']  # 행정동(읍/동/면)
+                    region_1depth_name = result['documents'][1]['region_1depth_name']  # 시/도
+                    region_2depth_name = result['documents'][1]['region_2depth_name']  # 구/군
+                    region_3depth_name = result['documents'][1]['region_3depth_name']  # 행정동(읍/동/면)
 
-                self.siDo = region_1depth_name  # 시/도
-                self.guGun = region_2depth_name  # 구/군
-                self.addressDetail = region_3depth_name  # 행정동(읍/동/면)
+                    self.siDo = region_1depth_name  # 시/도
+                    self.guGun = region_2depth_name  # 구/군
+                    self.addressDetail = region_3depth_name  # 행정동(읍/동/면)
 
                 # # 모폴로지와 관리대상 여부를 설정한다.   --> views.py 에서 지정
                 # morphology = get_morphology(self.networkId, self.userInfo2, self.userInfo1) # 측정자 입력값2

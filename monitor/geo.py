@@ -160,6 +160,40 @@ class KakaoLocalAPI:
 
 
 ########################################################################################################################
+# 좌표(위도,경도) 및 주소 변환 모듈2 - olleh API
+# - Test Page : https://gis.kt.com/doc/search/testUI_kr.html
+# - API KEY 절대 외부 유출 금지!
+########################################################################################################################
+def ollehAPI_reverseGEO(latitude, longitude):
+    '''olleh API를 통한 좌표->주소 전환
+        .파라미터(input): 위도/경도
+        .반환값 : dict '''
+    api_key = settings.OLLEH_API_KEY
+    headers = {'Content-Type': 'application/json; charset=utf-8',
+            "Authorization": api_key,
+            "Accept-Language": "ko-KR",
+            }
+    url = f"https://gis.kt.com/search/v1.0/utilities/geocode?point.lat={latitude}&point.lng={longitude}&includeGeometry=false&expectedParcelLevel=LEAFPARCEL&expectedRoadLevel=LEAFSTREET&exactParcelMatch=true&exactRoadMatch=true"
+    try:
+        response = requests.get(url, headers=headers)
+        data = response.json()
+        if 'residentialAddress' in data.keys():
+            siDo = data['residentialAddress'][0]['parcelAddress'][0]['siDo']
+            siGunGu1 = data['residentialAddress'][0]['parcelAddress'][0]['siGunGu1']
+            eupMyeonDong = data['residentialAddress'][0]['parcelAddress'][0]['eupMyeonDong']
+            # fullAddress = data['residentialAddress'][0]['parcelAddress'][0]['fullAddress']
+            # ri = data['residentialAddress'][0]['parcelAddress'][0]['ri']
+        
+            result = {'result':'ok', 'siDo':siDo, 'siGunGu1':siGunGu1, 'eupMyeonDong':eupMyeonDong}
+            return result
+        else:
+            return {'result':'fail'}
+    except Exception as e:
+        db_logger.error("ollehAPI_reverseGEO:", str(e))
+        return {'result':'fail'}
+
+
+########################################################################################################################
 # 측정 위치에 대한 지도맵 그리기
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.02 - 파일명에 통신사업자 코드를 넣음(파일명으로 어느 통신사 측정단말인지 알기 위해)
