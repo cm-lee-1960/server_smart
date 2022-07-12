@@ -323,7 +323,7 @@ def check_message_send(message):
         return False
     elif MessageConfig.objects.all().values_list('ALL', flat=True)[0] == False:
         return False
-    elif message.phoneGroup.autoSend == False:
+    elif message.phoneGroup and message.phoneGroup.autoSend == False:
         return False
     elif message.messageType == 'EVENT':
         eventTypes = event_type_check(message)
