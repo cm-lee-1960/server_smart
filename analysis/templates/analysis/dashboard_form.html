@@ -689,6 +689,7 @@
                         </select>
                         <br><font color="red" size="2pt">  * 모폴로지 상세는 모두 입력해야 변경됩니다.</font>
                     </p>
+                    {% if request.user.is_superuser %}
                     <p class="mt-1"><label for="morph_detail" class="m-lg-1" style="width: 120px">메시지 자동전송</label>
                         <button type="button" class="btn btn-warning" style="padding-top:0px;padding-bottom:0px;padding-left:15px;padding-right:15px;font-weight:bold;"
                                 v-show="selectedPhoneGroup.autoSend==true" v-on:click="clickSetAutoSend()"
@@ -697,9 +698,12 @@
                                 v-show="selectedPhoneGroup.autoSend==false" v-on:click="clickSetAutoSend()"
                                 data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'OFF' 상태"><font size=-1>OFF</font></button>
                     </p>
+                    {% endif %}
                 </div>
                 <div class="modal-footer">
+                    {% if request.user.is_superuser %}
                     <button type="button" class="btn btn-danger mr-auto" data-dismiss="modal" v-on:click="clickUnmanagePhonegroup" style="float:left;">관리대상 제외</button>
+                    {% endif %}
                     <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm"  style="float:right;">저장</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="fetch_all_phoneGroup" style="float:right;">취소</button>
                 </div>
