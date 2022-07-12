@@ -290,8 +290,6 @@
                                            title="해당 단말그룹의 측정위치를 지도위에 보여줍니다.">측정데이터 지도맵</a>
                                         <a class="dropdown-item" @click="clickShowData(phoneGroup.id)"
                                            title="종료 처리한 단말 그룹들의 마감 데이터 계산값을 보여줍니다.">데이터 상세보기</a>
-                                        <a class="dropdown-item" @click="clickUnmanagePhonegroup(phoneGroup.id)"
-                                           title="선택한 단말그룹을 관리대상에서 제외합니다.">관리대상 제외</a>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -330,14 +328,6 @@
                         </ul>
                         <div style="display:flex; align-items: center;">
                             <strong><span>[[selectedPhoneGroup.userInfo1]]</span></strong>
-                            <button type="button" class="btn btn-warning" style="padding:4px; margin-left:20px;margin-right:10px"
-                                    v-show="selectedPhoneGroup.autoSend==true" v-on:click="clickSetAutoSend()"
-                                    data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'ON' 상태"><font size=-1>자동전송: ON</font></button>
-                            <!-- <i id="setAutoSend_ON" class="fa fa-comment-o" style="font-size:20px;font-weight:bold; color:red"></i></button> -->
-                            <button type="button" class="btn btn-secondary" style="padding:4px; margin-left:20px; margin-right:10px"
-                                    v-show="selectedPhoneGroup.autoSend==false" v-on:click="clickSetAutoSend()"
-                                    data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'OFF' 상태"><font size=-1>자동전송: OFF</font></button>
-                            <!-- <i id="setAutoSend_OFF" class="fa fa-comment-o" style="font-size:20px;font-weight:bold; color:gray"></i></button> -->
                             <i id="refreshIconMessage" class="fa fa-refresh fa-2x fa-spin-hover ml-2"
                             style="font-size:20px; color:blue" v-on:click="fetch_all_message"
                             data-toggle="tooltip" data-placement="top" title="클릭하면 데이터가 갱신됩니다."></i>
@@ -666,24 +656,24 @@
                 <div class="modal-body">
                     <font color='blue' size="5pt"><b>[[selectedPhoneGroup.userInfo1]]</b></font><br>
                     ( [[selectedPhoneGroup.userInfo2]] )
-                    <p class="mt-1"><label for="center" class="m-lg-1" style="width: 110px">센터</label>
+                    <p class="mt-1"><label for="center" class="m-lg-1" style="width: 120px">센터</label>
                         <select name="center" style="width: 90px;" id="center" v-model="selectedPhoneGroup.centerName">
                             <option v-for="center in centerListAll" v-bind:value="center">[[center]]</option>
                         </select>
                     </p>
-                    <p class="mt-1"><label for="measureArea" class="m-lg-1" style="width: 110px">측정지역</label>
+                    <p class="mt-1"><label for="measureArea" class="m-lg-1" style="width: 120px">측정지역</label>
                         <select name="measureArea" style="width: 90px;" id="measureArea" v-model="selectedPhoneGroup.measureAreaName">
                             <option v-for="measureArea in measureAreaList" v-bind:value="measureArea">[[measureArea]]</option>
                         </select>
                     </p>
-                    <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 110px">측정 조</label>
+                    <p class="mt-1"><label for="measuringTeam" class="m-lg-1" style="width: 120px">측정 조</label>
                         <input type="text" style="width: 90px;" id="measuringTeam" v-model="selectedPhoneGroup.measuringTeam"/></p>
-                    <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 110px">모폴로지</label>
+                    <p class="mt-1"><label for="morphology" class="m-lg-1" style="width: 120px">모폴로지</label>
                         <select name="morphology" style="width: 90px;" id="morphology" v-model="selectedPhoneGroup.morphologyName">
                             <option v-for="morphology in morphologyList" v-bind:value="morphology">[[morphology]]</option>
                         </select>
                     </p>
-                    <p class="mt-1"><label for="morph_detail" class="m-lg-1" style="width: 110px">모폴로지 상세</label>
+                    <p class="mt-1"><label for="morph_detail" class="m-lg-1" style="width: 120px">모폴로지 상세</label>
                         <select v-model="selectedPhoneGroup.morphologyDetailNetwork" style="width: 90px;" @change="updateMorphDetail_main($event)">
                             <option v-for="(value, key) in MorphDetailDict" v-bind:value="key">[[key]]</option>
                         </select>
@@ -695,10 +685,19 @@
                         </select>
                         <br><font color="red" size="2pt">  * 모폴로지 상세는 모두 입력해야 변경됩니다.</font>
                     </p>
+                    <p class="mt-1"><label for="morph_detail" class="m-lg-1" style="width: 120px">메시지 자동전송</label>
+                        <button type="button" class="btn btn-warning" style="padding-top:0px;padding-bottom:0px;padding-left:15px;padding-right:15px;font-weight:bold;"
+                                v-show="selectedPhoneGroup.autoSend==true" v-on:click="clickSetAutoSend()"
+                                data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'ON' 상태"><font size=-1>ON</font></button>
+                        <button type="button" class="btn btn-secondary" style="padding-top:0px;padding-bottom:0px;padding-left:15px;padding-right:15px;font-weight:bold;"
+                                v-show="selectedPhoneGroup.autoSend==false" v-on:click="clickSetAutoSend()"
+                                data-toggle="tooltip" data-placement="top" title="메시지 자동전송 'OFF' 상태"><font size=-1>OFF</font></button>
+                    </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm">저장</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="fetch_all_phoneGroup">취소</button>
+                    <button type="button" class="btn btn-danger mr-auto" data-dismiss="modal" v-on:click="clickUnmanagePhonegroup" style="float:left;">관리대상 제외</button>
+                    <button type="button" class="btn btn-primary" v-on:click="clickModalModifyConfirm"  style="float:right;">저장</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="fetch_all_phoneGroup" style="float:right;">취소</button>
                 </div>
             </div>
         </div>
@@ -1804,7 +1803,7 @@
                 /*---------------------------------------------------------------------------------------
                  * 단말 그룹 비활성화(manage=False) 함수
                  --------------------------------------------------------------------------------------*/
-                clickUnmanagePhonegroup(phoneGroup_id){
+                clickUnmanagePhonegroup(){
                     this.isModelConfirmDisabled = true
                     $("#modal-btn-confirm").html('관리대상 제외');
                     $("#modal_body").html("해당 단말그룹을 관리대상에서 제외하시겠습니까?");
