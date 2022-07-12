@@ -109,8 +109,12 @@ def measuring_end(phoneGroup):
             start_meastime = str(meastime__min)[8:10] + ':' + str(meastime__min)[10:12]
             end_meastime = str(meastime__max)[8:10] + ':' + str(meastime__max)[10:12]
 
+            ## 22.07.11 5G일 경우 SA/NSA/공동망 구분을 위해 변수 추가
+            if phoneGroup.networkId == "5G" and phoneGroup.morphologyDetail is not None:
+                msg_nid = phoneGroup.morphologyDetail.network_type
+            else: msg_nid = phoneGroup.networkId
             # 메시지를 작성한다.
-            message = f"ㅇS-CXI {phoneGroup.measuringTeam} {phoneGroup.networkId} {phoneGroup.userInfo1} " + \
+            message = f"ㅇS-CXI {phoneGroup.measuringTeam} {msg_nid} {phoneGroup.userInfo1} " + \
                     f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n"
             # 5G의 경우 메시지 내용에 LTE전환율 포함한다.
             if phoneGroup.networkId == '5G':
