@@ -641,15 +641,22 @@ def unmanage_pg(request, phonegroup_id):
 @api_view(['POST'])
 def monitoring_condition(request):
     data = request.data
-    if data['purpose'] == True:  # 현재 상태 체크 목적으로 POST 요청이 온 경우
-        result = {'result' : 'ok', 'status' : MessageConfig.objects.all().values_list('ALL', flat=True)[0]}
-    else:  # 측정 상태 변경을 위한 목적으로 POST 요청이 온 경우
-        if data['status'] == True:
-            MessageConfig.objects.all().update(ALL=False)         # 자동감시(자동메시지 전송) OFF 설정
-            result = {'result' : 'ok', 'status' : False}
-        else: 
-            MessageConfig.objects.all().update(ALL=True)
-            result = {'result' : 'ok', 'status' : True}          # 자동감시(자동메시지 전송) ON 설정
+    try:
+        qs = MessageConfig.objects.get(messageStatus='ALL')
+        if data['purpose'] == True:  # 현재 상태 체크 목적으로 POST 요청이 온 경우
+            result = {'result' : 'ok', 'status' : qs.booleanValue}
+        else:  # 측정 상태 변경을 위한 목적으로 POST 요청이 온 경우
+            if data['status'] == True:
+                qs.booleanValue = False         # 자동감시(자동메시지 전송) OFF 설정
+                qs.save()
+                result = {'result' : 'ok', 'status' : False}
+            else: 
+                qs.booleanValue = True
+                qs.save()
+                result = {'result' : 'ok', 'status' : True}          # 자동감시(자동메시지 전송) ON 설정
+    except Exception as e:
+        db_logger.error("monitoring_condition: 자동감시 설정값 존재 확인 필요", str(e))
+        result = {'result' : 'fail'}
     return JsonResponse(data=result, safe=False)
 
 

@@ -374,20 +374,9 @@ class MorphologyDetail(models.Model):
 class MessageConfig(models.Model):
     """이벤트 메시지를 텔레그렘으로 전송할지 말지 여부 모델
         : 폰그룹 별로, 이벤트 종류마다 전송할지 말지"""
-    # PhoneGroup = models.ForeignKey(PhoneGroup, null=True, on_delete=models.DO_NOTHING)
-    eventFailure = models.BooleanField(default=True, verbose_name="전송실패") # 전송실패 이벤트
-    eventLowThroughput = models.BooleanField(default=True, verbose_name="속도저하") # 속도저하 이벤트
-    eventVoiceDrop = models.BooleanField(default=True, verbose_name="음성 콜 드랍") # 음성 콜 드랍 이벤트
-    eventNR = models.BooleanField(default=True, verbose_name="LTE전환") # 5G->LTE 전환 이벤트
-    evntOffZone = models.BooleanField(default=True, verbose_name="측정범위 벗어남") # 측정범위 벗어나는 이벤트
-    eventStay = models.BooleanField(default=True, verbose_name="한 곳에 머뭄") # 측정콜 한군데 머무는 이벤트
-    eventDuplication = models.BooleanField(default=True, verbose_name="중복측정") # 측정단말의 중복측정 이벤트
-    START_F = models.BooleanField(default=True, verbose_name="최초시작") # 최초 측정시작 메시지
-    START_M = models.BooleanField(default=True, verbose_name="지역시작") # 해당지역 측정시작 메시지
-    MEASURING = models.BooleanField(default=True, verbose_name="주기보고") # 측정 주기보고 메시지
-    END = models.BooleanField(default=True, verbose_name="측정종료") # 측정종료 메시지
-    END_LAST = models.BooleanField(default=True, verbose_name="최종종료") # 마지막 단말 측정종료 메시지
-    ALL = models.BooleanField(default=True, verbose_name="자동감시") # False일 경우 모든 메시지가 True/False 값과 상관없이 미전송
+    settingName = models.CharField(max_length=100, null=False, blank=False, verbose_name='설명') # 설정 이름
+    booleanValue = models.BooleanField(default=True, verbose_name="전송여부") # True / False
+    messageStatus = models.CharField(max_length=100, null=False, blank=False, verbose_name='코드값') # 백엔드 코드값(message status)
     
     class Meta:
         verbose_name = ("메시지 자동전송 설정")
@@ -414,8 +403,8 @@ class EtcConfig(models.Model):
 
 
 
-def row_limit(sender, instance, created, **kwargs):
-    """ 모델이 가지는 ROW 개수를 1개로 제한하는 함수
+def EtcConfig_row_limit(sender, instance, created, **kwargs):
+    """ EtcConfig 모델이 가지는 ROW 개수를 1개로 제한하는 함수 - row가 추가되면 이전 row는 삭제
         - 파라미터
           . sender: 모델 클래스
           . instace: 객체 (생성된 레코드 하나 데이터)
@@ -428,13 +417,28 @@ def row_limit(sender, instance, created, **kwargs):
         field_list.append(field.name)  ## 모델의 컬럼 리스트 추출
 
     if created:  # 신규 row가 생성되면
-        if 'category' in field_list:  # 모델구분: category 필드가 없으면 MessageConfig, 있으면 EtcConfig
-            qs = sender.objects.filter(category=instance.category)
-        else:
-            qs = sender.objects.order_by('id')
+        qs = sender.objects.filter(category=instance.category)
+
+        # if 'category' in field_list:  # 모델구분: category 필드가 없으면 MessageConfig, 있으면 EtcConfig
+        #     qs = sender.objects.filter(category=instance.category)
+        # else:
+        #     qs = sender.objects.order_by('id')
         
         if qs.count() == 2:  # row가 2 이상이면 삭제
             qs[0].delete()
 
-post_save.connect(row_limit, sender=MessageConfig)
-post_save.connect(row_limit, sender=EtcConfig)
+def MessageConfig_duplicate_limit(sender, instance, created, **kwargs):
+    """ MessageConfig 모델의 messageStatus 컬럼의 값 중복을 제한하는 함수 - 같은 값을 가진 객체가 생성되면 이전 객체 삭제
+        - 파라미터
+          . sender: 모델 클래스
+          . instace: 객체 (생성된 레코드 하나 데이터)
+          . created: 신규생성 여부(True or False)
+          . kwargs: 키워트 파라미터
+        - 반환값: 없음
+    """
+    if created and (len(sender.objects.filter(messageStatus=instance.messageStatus).values_list('messageStatus', flat=True))>1):
+        sender.objects.filter(messageStatus=instance.messageStatus)[0].delete()
+
+
+post_save.connect(MessageConfig_duplicate_limit, sender=MessageConfig)
+post_save.connect(EtcConfig_row_limit, sender=EtcConfig)
