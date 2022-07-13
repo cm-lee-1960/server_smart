@@ -220,8 +220,9 @@ class MeasureAreaAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 class MessageConfigAdmin(admin.ModelAdmin):
     """어드민 페이지에 메시지 자동전송 여부(MessageConfig)를 보여주기 위한 클래스"""
-    list_display = ['eventFailure', 'eventLowThroughput', 'eventVoiceDrop', 'eventNR', 'evntOffZone', 'eventStay', 'eventDuplication', \
-                    'START_F', 'START_M', 'MEASURING', 'END', 'END_LAST', 'ALL', ]
+    # list_display = ['eventFailure', 'eventLowThroughput', 'eventVoiceDrop', 'eventNR', 'evntOffZone', 'eventStay', 'eventDuplication', \
+    #                 'START_F', 'START_M', 'MEASURING', 'END', 'END_LAST', 'ALL', ]
+    list_display = ['settingName', 'booleanValue',]
     list_display_links = list_display
     ordering = ('id', )
 

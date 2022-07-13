@@ -43,7 +43,7 @@ def phoneloc_proc(data):
         elif eventType == "DetachRequest":
             phoneInfo.power = False
         else:
-            phoneInfo.power = False
+            phoneInfo.power = True
 
         # 측정단말 사전정보를 업데이트 한다.
         phoneInfo.save()

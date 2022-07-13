@@ -321,19 +321,22 @@ def check_message_send(message):
         .반환값 : Boolean(True or False)"""
     if message.sendType == "XMCS":
         return False
-    elif MessageConfig.objects.all().values_list('ALL', flat=True)[0] == False:
+
+    elif MessageConfig.objects.get(messageStatus='ALL').booleanValue == False:
         return False
     elif message.phoneGroup and message.phoneGroup.autoSend == False:
         return False
     elif message.messageType == 'EVENT':
         eventTypes = event_type_check(message)
-        eventStatus = MessageConfig.objects.all().values()
+        eventStatus = MessageConfig.objects.filter(booleanValue=True).values_list('messageStatus', flat=True)
         sendStatus = []
         for event in eventTypes:
-            sendStatus.append(eventStatus[0][event])
-        if True in sendStatus:
-            return True
-        else:
-            return False
+            if event in eventStatus:
+                return True
+            else: pass
+        return False
+
+    elif MessageConfig.objects.filter(messageStatus=message.status).exists():
+        return MessageConfig.objects.get(messageStatus=message.status).booleanValue
     else:
-        return MessageConfig.objects.all().values()[0][message.status]
+        return True
