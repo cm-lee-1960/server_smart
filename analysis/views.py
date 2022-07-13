@@ -277,7 +277,7 @@ class ExcelUploadViewlte(View):
 def report(request):
     """일일보고 페이지 뷰"""
     # 레포트에서 사용할 데이터(컨텍스트)를 가져온다.
-    context = get_report_cntx()
+    context = get_report_cntx(request)
     return render(request, "analysis/daily_report_form.html", context)
 
 # -------------------------------------------------------------------------------------------------
@@ -546,19 +546,20 @@ def create_reportmsg(request):
     if request.method == "POST":
         # 빈 객체를 생성한다.
         reportmsg = ReportMessage()
-
+        reportmsg.measdate = request.POST['measdate']
         reportmsg.msg5G = request.POST['msg5G']
         reportmsg.msgLTE = request.POST['msgLTE']
         reportmsg.msgWiFi = request.POST['msgWiFi']
         reportmsg.msgWeak = request.POST['msgWeak']
         reportmsg.msg5Gafter = request.POST['msg5Gafter']
         reportmsg.msgLTEafter = request.POST['msgLTEafter']
-
-        ReportMessage.objects.all().delete()
+        ReportMessage.objects.filter(measdate = reportmsg.measdate).delete()
+        
 
         reportmsg.save()
 
-    return redirect("analysis:report")
+    # return redirect("analysis:report")
+    return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
 
 # -------------------------------------------------------------------------------------------------
 # 추가사항 삭제

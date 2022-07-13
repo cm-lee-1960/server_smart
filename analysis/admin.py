@@ -84,7 +84,7 @@ class ReportMessageAdmin(admin.ModelAdmin):
     '''대상등록을 위한 클래스'''
     
     model = ReportMessage
-    list_display = ['msg5G',
+    list_display = ['measdate','msg5G',
     'msgLTE',
     'msgWiFi',
     'msgWeak',

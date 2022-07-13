@@ -142,7 +142,11 @@ button{
 
 	.bg-dark{
 	background-color: #343a40 !important;
-}
+ 	}
+
+	.form-control{
+		display: inline;
+	}
 
 	</style>
 	
@@ -220,7 +224,7 @@ button{
 				</button>
 			</div>
 		</nav>
-		<div id = checkbox style="z-index: 3; position:fixed; top :150px; padding:5px;border: 1px solid rgba(183, 180, 180, 0.839);border-radius:10px;color:grey;background-color: white; " >
+		<div id = checkbox style="z-index: 3; position:fixed; top :150px; padding:5px;border: 1px solid rgba(183, 180, 180, 0.839);border-radius:10px;color:grey;background-color: white;display:none; " >
 			<input type="checkbox" name="meastitle" id="meas1" value="meassituation" style="color:grey;background-color: white;"checked/> 측정현황
 			<br>
 			<input type="checkbox" name="meastitle" id="meas11" value="meassituation5G"style="color:grey;" checked/> 5G
@@ -257,15 +261,53 @@ button{
 
 	<div id="show" style="width:90%">
 		<div id = 'btnzone'> 
+			<!-- 테스트 -->
+			<form method="get" action="" class="form" id="datesearch">
+				<div class="mt-1" style="display:block">
+					<input style="height: 24px; width:160px; margin: 0 auto;" type="date" class="form-control" name="reportdate" id ="reportdate">
+				</div>
+			</form>
+			<!-- <form method="get" action="" class="form" id="planyearsearch">
+                <select class="form-select form-select-sm mb-2" aria-label=".form-select-sm select example" style="width:130px;" name="planYear" id="id_yy">
+                <option disabled id = measyear>측정년도</option>
+                <option value="2019">2019년</option>
+                <option value="2020"> 2020년</option>
+                <option value="2021"> 2021년</option>
+                <option value="2022"> 2022년</option>
+                <option value="2023"> 2023년</option>
+           
+                </select>
+            </form> -->
+			<script>
+				//선택년도 데이터 추출
+				console.log("{{reportdate}}")
+				$("input#reportdate").val("{{reportdate}}");
+				console.log($('input#reportdate').val());
+				$("input#reportdate").change(function () {
+					console.log($('input#reportdate').val());
+					$('#datesearch').submit();	
+				});
+				
+			</script>
 			
+			<!-- <script>
+				//선택된 년도 입력
+				$(document).ready(function() {
+					var s = document.getElementById("reportdate");
+					var ss = s.options[s.selectedIndex].value;
+					document.getElementById("yearyear").value = ss;
+					});
+			
+			</script> -->
+			<!-- 테스트 -->
+			<form action="{% url 'analysis:update_report' %}" method="POST" style="display:inline;" id="update">{% csrf_token %}
+				<button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="update" form="update" >업데이트 <i class="icon-fixed-width icon-pencil"></i></button>
+			</form>
 			
 			<button class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="msgmodify" >메시지수정 <i class="icon-fixed-width icon-pencil"></i></button>
-			<form action="{% url 'analysis:update_report' %}" method="POST" style="display:inline;" id="update">{% csrf_token %}
-			<button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="update" form="update" >업데이트 <i class="icon-fixed-width icon-pencil"></i></button>
-			</form>
-			<button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="msgcomplete" form="reportmsg">완료 <i class="icon-fixed-width icon-check"></i></button>
 			
-		
+			<button type="submit" class="btn btn-secondary btn-sm" style="display:none; margin-left:5px;font-weight: bold;" id="msgcomplete" form="reportmsg">완료 <i class="icon-fixed-width icon-check"></i></button>
+			
 			<div style="display: inline" id="editor"></div>
 			<button type="button" class="btn btn-secondary btn-sm" id="cmd" style="font-weight: bold;">
 				PDF 다운
@@ -274,6 +316,7 @@ button{
 		
 		
 		<form action="{% url 'analysis:create_reportmsg' %}" method="POST" style="display:inline;" id="reportmsg">{% csrf_token %}
+			<input style="display:inline; height:23px;width:200PX;"class="form-control" type="hidden" name="measdate" id="textmodmeasdate" value="{{reportdate}}"></input>
 			<input style="display:inline; height:23px;width:200PX;"class="form-control" type="hidden" name="msg5G" id="textmod1copy" value="{{reportmsg.msg5G}}"></input>
 			<input style="display:inline;height:23px;width:200px;" class="form-control" type="hidden" name="msgLTE" id="textmod2copy" value="{{reportmsg.msgLTE}}"></input>
 			<input style="display:inline; height:23px;width:200px;" class="form-control" type="hidden" name="msgWiFi" id="textmod3copy" value="{{reportmsg.msgWiFi}}"></input>
@@ -288,28 +331,30 @@ button{
 				<div id='title' style="text-align:center;">
 					<h1>S-CXI 상황실 일일 보고</h1>
 					<h3 >(</h3>
-					<h3  id="current_date"></h3>
+					<h3 id="current_date"></h3>
 					<h3>)</h3>
 				</div>
 				<hr class="one">
 				
 				<div id = "meassituation">
 				<div>	
-					<h2>□ 측정 현황 </h2><h4 style="display: inline;font-weight: bold;" id = 'firstdate'>{{firstdate.measdate}}</h4><h4 style="display: inline;font-weight: bold;" id='lastdate'>{{lastdate.measdate}}</h4>
+					<h2>□ 측정 현황 </h2><h4 style="display: inline;font-weight: bold;" id = 'firstdate'></h4><h4 style="display: inline;font-weight: bold;" id='lastdate'></h4>
 					<h3>: 전국 </h3><h3 id="tt"></h3><h3> 지역 중 </h3><h3 id="ttf"></h3><h3> 완료</h3><h3 id="pcf"></h3>
 				</div>
 				<br> 
 				<div id="meassituation5G">
 				<div>
 					<h3>&nbsp;&nbsp;○ 5G : 전국 </h3><h3 id="tt1"></h3><h3> {{sregi5Gtotal}}개 완료</h3><h3 id = pc1></h3><h3>,</h3>
-					{% for reportmsg in reportmsg %}
-					<h4 style="color: blue; display:inline;" id='result1'>	
-						
-						{{reportmsg.msg5G}}
-											
-					</h4>	
-					<input style="display:inline; height:23px;width:200PX;"class="form-control" type="text" name="msg5G" id="textmod1" value="{{reportmsg.msg5G}}"></input>
-					{% endfor %}
+					{% if reportmsg %}
+						{% for reportmsg in reportmsg %}
+						<h4 style="color: blue; display:inline;" id='result1'>	
+							{{reportmsg.msg5G}}						
+						</h4>
+						<input style="display:none; height:23px;width:200PX;"class="form-control" type="text" name="msg5G" id="textmod1" value="{{reportmsg.msg5G}}"></input>
+						{% endfor %}	
+					{% else %}
+						<input style="display:none; height:23px;width:200PX;"class="form-control" type="text" name="msg5G" id="textmod1" ></input>
+					{% endif %}
 				</div>
 				<br>
 				<div id="output">
@@ -385,14 +430,17 @@ button{
 		<div>
 			
 			<h3>&nbsp;&nbsp;○ LTE : 전국 </h3><h3 id = "tt2"></h3><h3> {{sregiLTEtotal}}개 완료</h3><h3 id = pc2></h3><h3>,</h3>
-			{% for reportmsg in reportmsg %}
-			<h4 style="color: blue;" id='result2' >
-				
-				{{reportmsg.msgLTE}}
-				
-			</h4>	
-			<input style="display:inline;height:23px;width:200px;" class="form-control"type="text" name="msgLTE" id="textmod2" value="{{reportmsg.msgLTE}}"></input>
-			{% endfor %}
+			{% if reportmsg %}
+				{% for reportmsg in reportmsg %}
+
+				<h4 style="color: blue;" id='result2' >					
+					{{reportmsg.msgLTE}}					
+				</h4>	
+				<input style="display:none;height:23px;width:200px;" class="form-control"type="text" name="msgLTE" id="textmod2" value="{{reportmsg.msgLTE}}"></input>
+				{% endfor %}
+			{% else %}
+				<input style="display:none;height:23px;width:200px;" class="form-control"type="text" name="msgLTE" id="textmod2"></input>
+			{% endif %}
 		</div>
 		<br>
 		<div id="output">
@@ -476,14 +524,16 @@ button{
 		<div>
 			<!-- <input type="checkbox" name="meastitle" id="meas13" value="meassituationWiFi"style="color:grey;" checked/> WiFi -->
 			<h3>&nbsp;&nbsp;○ WiFi : 전국 </h3><h3 id="tt3"></h3><h3> {{sregiWiFitotal}}국소 완료</h3><h3 id = pc3></h3><h3>,</h3>
-			{% for reportmsg in reportmsg %}
-			<h4 style="color: blue;" id='result3'>
-				
-				{{reportmsg.msgWiFi}}
-				
-			</h4>
-			<input style="display:inline; height:23px;width:200px;" class="form-control" type="text" name="msgWiFi" id="textmod3" value="{{reportmsg.msgWiFi}}"></input>
-			{% endfor %}
+			{% if reportmsg %}	
+				{% for reportmsg in reportmsg %}
+				<h4 style="color: blue;" id='result3'>					
+					{{reportmsg.msgWiFi}}					
+				</h4>
+				<input style="display:none; height:23px;width:200px;" class="form-control" type="text" name="msgWiFi" id="textmod3" value="{{reportmsg.msgWiFi}}"></input>
+				{% endfor %}
+			{% else %}
+				<input style="display:none; height:23px;width:200px;" class="form-control" type="text" name="msgWiFi" id="textmod3"></input>
+			{% endif %}
 		</div>
 		<br>
 		<div id="output">
@@ -545,15 +595,16 @@ button{
 		<div>
 			<!-- <input type="checkbox" name="meastitle" id="meas14" value="meassituationweak"style="color:grey;" checked/> 품질취약지역 -->
 			<h3>&nbsp;&nbsp;○ LTE/3G 품질취약지역 : 전국 </h3><h3 id="tt4"></h3><h3> {{sregiweaktotal}}개 완료</h3><h3 id = pc4></h3><h3>,</h3>
-			{% for reportmsg in reportmsg %}
-			<h4 style="color: blue;" id='result4'>
-				
-				{{reportmsg.msgWeak}}
-				
-			</h4>
-			<input style="display:inline; height:23px;width:200px;" class="form-control" type="text" name="msgWeak" id="textmod4" value="{{reportmsg.msgWeak}}"></input>
-			{% endfor %}
-			
+			{% if reportmsg %}
+				{% for reportmsg in reportmsg %}
+				<h4 style="color: blue;" id='result4'>				
+					{{reportmsg.msgWeak}}					
+				</h4>
+				<input style="display:none; height:23px;width:200px;" class="form-control" type="text" name="msgWeak" id="textmod4" value="{{reportmsg.msgWeak}}"></input>
+				{% endfor %}
+			{% else %}
+				<input style="display:none; height:23px;width:200px;" class="form-control" type="text" name="msgWeak" id="textmod4"></input>
+			{% endif %}
 		</div>
 		<br>
 		<div id="output">
@@ -811,10 +862,11 @@ button{
 			<h3 id="sadelaydiff"></h3>
 		</div>
 		<script>
+			let sadldiff = ('{{sa5g.0}}'-'{{nsa5g.0}}').toFixed(1);
+			let sauldiff = ('{{sa5g.1}}'-'{{nsa5g.1}}').toFixed(1);
+			let sadelaydiff = ('{{sa5g.4}}'-'{{nsa5g.4}}').toFixed(1);
 		
-			let sadldiff = ({{sa5g.0}}-{{nsa5g.0}}).toFixed(1);
-			let sauldiff = ({{sa5g.1}}-{{nsa5g.1}}).toFixed(1);
-			let sadelaydiff = ({{sa5g.4}}-{{nsa5g.4}}).toFixed(1);
+			
 			
 			if(sadldiff<0){
 				document.getElementById("sadldiff").innerHTML = Math.abs(sadldiff) + "Mbps↓";
@@ -948,9 +1000,9 @@ button{
 						if(rank > -1) return rank+1;
 						return null;
 					}	
-						let kttotaldl = {{postmeas5gtotal_postmeaskt_dl}};
-						let skttotaldl = {{postmeas5gtotal_postmeasskt_dl}};
-						let lgtotaldl = {{postmeas5gtotal_postmeaslg_dl}};
+						let kttotaldl = '{{postmeas5gtotal_postmeaskt_dl}}';
+						let skttotaldl = '{{postmeas5gtotal_postmeasskt_dl}}';
+						let lgtotaldl = '{{postmeas5gtotal_postmeaslg_dl}}';
 						let dltotallist = [kttotaldl,skttotaldl,lgtotaldl]
 						let ktsktdl = kttotaldl - skttotaldl;
 						let ktlgdl = kttotaldl - lgtotaldl;
@@ -968,9 +1020,9 @@ button{
 						}  
 						document.getElementById("5grankdltotal").innerText = rank(kttotaldl,dltotallist)+"위";
 						document.getElementById("5grankdl").innerText = rank(kttotaldl,dltotallist)+"위";
-						let kttotalul = {{postmeas5gtotal_postmeaskt_ul}};
-						let skttotalul = {{postmeas5gtotal_postmeasskt_ul}};
-						let lgtotalul = {{postmeas5gtotal_postmeaslg_ul}};
+						let kttotalul = '{{postmeas5gtotal_postmeaskt_ul}}';
+						let skttotalul = '{{postmeas5gtotal_postmeasskt_ul}}';
+						let lgtotalul = '{{postmeas5gtotal_postmeaslg_ul}}';
 						let ultotallist = [kttotalul,skttotalul,lgtotalul]
 						document.getElementById("5grankultotal").innerText = rank(kttotalul,ultotallist)+"위";
 						let rank5g1 = rank(kttotaldl,dltotallist);
@@ -1228,9 +1280,9 @@ button{
 					if(rank > -1) return rank+1;
 					return null;
 				}	
-					let kttotaldllte = {{postmeasltetotal_postmeaskt_dl}};
-					let skttotaldllte = {{postmeasltetotal_postmeasskt_dl}};
-					let lgtotaldllte = {{postmeasltetotal_postmeaslg_dl}};
+					let kttotaldllte = '{{postmeasltetotal_postmeaskt_dl}}';
+					let skttotaldllte = '{{postmeasltetotal_postmeasskt_dl}}';
+					let lgtotaldllte = '{{postmeasltetotal_postmeaslg_dl}}';
 					let dltotallistlte = [kttotaldl,skttotaldl,lgtotaldl]
 					let ktsktdllte = kttotaldllte - skttotaldllte;
 					let ktlgdllte = kttotaldllte - lgtotaldllte;
@@ -1248,9 +1300,9 @@ button{
 					}  
 					document.getElementById("lterankdltotal").innerText = rank(kttotaldllte,dltotallistlte)+"위";
 					document.getElementById("lterankdl").innerText = rank(kttotaldllte,dltotallistlte)+"위";
-					let kttotalullte = {{postmeasltetotal_postmeaskt_ul}};
-					let skttotalullte = {{postmeasltetotal_postmeasskt_ul}};
-					let lgtotalullte = {{postmeasltetotal_postmeaslg_ul}};
+					let kttotalullte = '{{postmeasltetotal_postmeaskt_ul}}';
+					let skttotalullte = '{{postmeasltetotal_postmeasskt_ul}}';
+					let lgtotalullte = '{{postmeasltetotal_postmeaslg_ul}}';
 					let ultotallistlte = [kttotalul,skttotalul,lgtotalul]
 					document.getElementById("lterankultotal").innerText = rank(kttotalullte,ultotallistlte)+"위";
 				</script>
@@ -1323,38 +1375,38 @@ button{
 					
 					<td>등산로</td>
 					
-				  	<td >00</td>
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
+				  	<td ></td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
 				</tr>
 				<tr>
 					<td>여객항로</td>
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
 				</tr>
 				<tr>
 					<td>유인도서</td>                           
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
 				</tr>
 				<tr>
 					<td>해안도로</td>
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
 				</tr>
 				<tr>
 					<td >계</td>
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
-					<td >00</td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
+					<td ></td>
 				</tr>
 			</tbody>
 		</table>
@@ -1940,6 +1992,7 @@ $(document).ready(function() {
 			$(result[i]).toggle();
 		};
 		$("#checkbox").toggle();
+		$("#cmd").toggle();
 		let text1 = $("#textmod1").val();
 		$("#textmod1copy").val(text1);
 		let text2 = $("#textmod2").val();
@@ -2210,26 +2263,25 @@ document.getElementById("pcf").innerHTML =
   "%)";
 
 // 리포트 날짜
-date = new Date();
-year = date.getFullYear();
-month = date.getMonth() + 1;
-day = date.getDate();
+// date = new Date();
+// year = date.getFullYear();
+// month = date.getMonth() + 1;
+// day = date.getDate();
+let today = String(new Date());
+date = '{{report_day}}';
+year = date.substr(0, 4);
+month = date.substr(4, 2);
+day = date.substr(6, 2);
 document.getElementById("current_date").innerHTML =year + "." + month + "." + day;
+// document.getElementById("reportdate").value = today;
 document.getElementById("today_m/d").innerHTML ="(" + month + "." + day + "일)";
-let date1 = document.getElementById("firstdate").outerText;
-date11 = String(date1);
-year1 = date11.substr(0, 4);
-month1 = date11.substr(4, 2);
-day1 = date11.substr(6, 2);
-document.getElementById("firstdate").innerHTML =
-  "(" + month1 + "." + day1 + "~";
+date1 = "{{report_firstday}}";
+year1 = date1.substr(0, 4);
+month1 = date1.substr(4, 2);
+day1 = date1.substr(6, 2);
+document.getElementById("firstdate").innerHTML ="(" + month1 + "." + day1 + "~";
+document.getElementById("lastdate").innerHTML = month + "." + day + ")";
 
-let date2 = document.getElementById("lastdate").outerText;
-date22 = String(date2);
-year2 = date22.substr(0, 4);
-month2 = date22.substr(4, 2);
-day2 = date22.substr(6, 2);
-document.getElementById("lastdate").innerHTML = month2 + "." + day2 + ")";
 
 
 </script>
