@@ -310,7 +310,7 @@ def report_measresult(request):
 # -------------------------------------------------------------------------------------------------
 def report_postmeas(request):
     """일일보고 대상등록 페이지 뷰"""
-    context = get_report_cntx()
+    context = get_report_cntx(request)
     return render(request, "analysis/register_postmeas_form.html", context)
 
 
@@ -322,7 +322,7 @@ def register_measdata(request):
     """ 대상등록 페이지 뷰
         - 등록대상 : 측정대상, 측정완료, 전년도결과(5G, LTE), 추가기입사항
     """
-    context = get_measresult_cntx()
+    context = get_measresult_cntx(request)
     return render(request, "analysis/register_measdata_form.html", context)
 
 # -------------------------------------------------------------------------------------------------
