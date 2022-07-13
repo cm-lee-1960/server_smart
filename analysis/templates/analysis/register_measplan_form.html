@@ -541,13 +541,14 @@
     $(document).ready(function() {
         $('#SELECTS').val('measyear').prop('selected',true);
         $("select[name=planYear]" ).val("{{yy_text}}");
+        console.log("{{yy_text}}")
         $('select[name=planYear]').change(function () {
         console.log($('select[name=planYear]').val());
         year = $('select[name=planYear]').val();
         $('.form').submit();
         
+        });
     });
-});
 </script>
 
 <script>

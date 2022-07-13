@@ -9,7 +9,7 @@ from operator import itemgetter
 from django.db import models
 from django.db.models.signals import post_save
 from django.conf import settings
-from datetime import datetime, timedelta, timezone
+from django.utils import timezone
 import random
 
 from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래스
@@ -22,7 +22,7 @@ from message.xmcs_msg import send_sms  # 2022.03.04 크로샷 메시지 전송 �
 class PostMeasure5G(models.Model):
     district_choice = (('서울','서울'),('인천','인천'),('부산','부산'),('울산','울산'),('대구','대구'),('광주','광주'),('대전','대전'),('경기','경기'),('강원','강원'),('경남','경남'),
                        ('경북','경북'),('전남','전남'),('전북','전북'),('충남','충남'),('충북','충북'),('세종','세종'),('고속도로','고속도로'),('지하철','지하철'),('전국','전국'),)
-    measdate = models.IntegerField(null=True, default=0, verbose_name="측정일자")
+    measdate = models.DateField(default=timezone.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     district = models.CharField(max_length=50,null=True,  blank=True, verbose_name="지역",choices=district_choice)
     name = models.CharField(max_length=50,null=True,  blank=True, verbose_name="측정국소")
     measkt_dl = models.FloatField(null=True, default=0,verbose_name="KT(DL)")
@@ -52,7 +52,7 @@ class PostMeasure5G(models.Model):
 class PostMeasureLTE(models.Model):    
     district_choice = (('서울','서울'),('인천','인천'),('부산','부산'),('울산','울산'),('대구','대구'),('광주','광주'),('대전','대전'),('경기','경기'),('강원','강원'),('경남','경남'),
                        ('경북','경북'),('전남','전남'),('전북','전북'),('충남','충남'),('충북','충북'),('세종','세종'),('고속도로','고속도로'),('지하철','지하철'),('전국','전국'),)
-    measdate = models.IntegerField(null=True, default=0, verbose_name="측정일자")
+    measdate = models.DateField(default=timezone.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     district = models.CharField(max_length=50,null=True,  blank=True, verbose_name="지역",choices=district_choice)
     name = models.CharField(max_length=50,null=True,  blank=True, verbose_name="측정국소")
     measkt_dl = models.FloatField(null=True, default=0,verbose_name="KT(DL)")
@@ -129,6 +129,7 @@ class MeasPlan(models.Model):
 ###############################################################################################################################################################################
 
 class ReportMessage(models.Model):
+    measdate = models.DateField(default=timezone.now, verbose_name="보고서 설명 날짜")
     msg5G = models.CharField(max_length=50, null=True, blank=True)
     msgLTE = models.CharField(max_length=50, null=True, blank=True)
     msgWiFi = models.CharField(max_length=50, null=True, blank=True)
@@ -271,9 +272,10 @@ def send_message_hj(hoho, **kwargs):
         a = Phone.objects.filter(userInfo1 = instance.userInfo1, measdate = instance.measdate)
         b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
         c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
+        format_data = "%Y%m%d"
 
         qs = LastMeasDayClose.objects.create(
-                    measdate =  instance.measdate,  # 측정일자(예: 20211101)
+                    measdate =  datetime.strptime(instance.measdate, format_data).date(),  # 측정일자(예: 20211101)
                     userInfo1 = instance.userInfo1,
                     networkId = instance.networkId,  # 네트워크ID(5G, LTE, 3G, WiFi)
                     center = instance.center.centerName,
@@ -317,7 +319,7 @@ class LastMeasDayClose(models.Model):
     center_choice = (('서울강북','서울강북'),('강원','강원'),('경기북부','경기북부'),('서울강남','서울강남'),('경기남부','경기남부'),('경기서부','경기서부'),('부산','부산'),
                        ('경남','경남'),('대구','대구'),('경북','경북'),('전남','전남'),('전북','전북'),('충남','충남'),('충북','충북'),)
     
-    measdate = models.CharField(max_length=10, verbose_name='측정일자')  # 측정일자(예: 20211101)
+    measdate = models.DateField(default=timezone.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="네트워크(raw)")  # 네트워크ID(5G, LTE, 3G, WiFi)
     nettype = models.CharField(max_length=100, null=True, blank=True,verbose_name="네트워크",default='',choices=nettype_choice)

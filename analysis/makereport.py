@@ -6,6 +6,7 @@ from analysis.models import *
 import pandas as pd
 import numpy as np
 import datetime
+from datetime import date, timedelta
 from django.db.models import Sum
 from django.db.models import Q
 ###################################################################################################
@@ -32,15 +33,49 @@ inbuildinglte_list = ['대형점포','KTX.SRT역사','대형병원','터미널',
 themelte_list = ['지하철','전통시장','대학교','놀이공원','주요거리','고속도로','KTX.SRT노선']
 center_list1 = ['서울강북','강원','경기북부','서울강남','경기남부','경기서부','부산']
 center_list2 = ['경남','대구','경북','전남','전북','충남','충북']
-def get_report_cntx():
+def get_report_cntx(request):
     """ 일일보고 페이지에 보여질 데이터를 조회해서 JSON으로 반환하는 함수
         - 파라미터:
           . year : 해당년도
         - 반환값: context (JSON형태)
     """
+   
+    #리포트 날짜 추출 및 검색
+    
+    # if reportdate == "GET" :
+    #     reportdate = request.GET.get('reportdate')
+    # else : 
+    #     reportdate = date.today()
+    
+    reportdate = request.GET.get('reportdate')
+    try:
+        firstday = LastMeasDayClose.objects.last().measdate
+    except:
+        firstday = date.today()
     #사후측정 전체
-    postmeasure5g = PostMeasure5G.objects.all()
-    postmeasurelte = PostMeasureLTE.objects.all()
+    print(type(firstday),firstday)
+    if reportdate is None:
+        hodate = date.today()
+        reportdate = date.today().strftime('%Y-%m-%d')
+       
+    else :
+        format_data = "%Y-%m-%d"
+        hodate = datetime.datetime.strptime(reportdate, format_data).date()    
+       
+    
+    # class comment(LastMeasDayClose):
+    #     date = LastMeasDayClose.measdate()
+    # class F(FilterSet):
+    #     date = DateFromToRangeFilter()
+    #     class Meta:
+    #         model = comment
+    #         fields = ['date']
+    
+    # f = F({'date_after':firstday, 'date_before':hodate})
+    # print(f)
+
+    postmeasure5g = PostMeasure5G.objects.filter(measdate__range=[firstday,hodate])
+    postmeasurelte = PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate])
     #사후측정 5G
     postmeas5glist = [] 
     postmeas5grankdllist = []
@@ -65,7 +100,7 @@ def get_report_cntx():
     postmeas5g_postmeaslg_ul = []
     postmeas5g_postmeaslg_rsrp = []
     postmeas5g_postmeaslg_lte = []
-    postmeas5gtotal_district = PostMeasure5G.objects.all().count()
+    postmeas5gtotal_district = PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).count()
     try:
         postmeas5gtotal_lastkt_dl = round(MeasLastyeardistrict.objects.get(district = '종합', nettype = '5G').KTDL)
     except:
@@ -79,75 +114,75 @@ def get_report_cntx():
     except:
         postmeas5gtotal_lastlg_dl = ""
     try:
-        postmeas5gtotal_measkt_dl = round(PostMeasure5G.objects.all().aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1)
+        postmeas5gtotal_measkt_dl = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1)
     except:
         postmeas5gtotal_measkt_dl = ""
     try:
-        postmeas5gtotal_measkt_ul = round(PostMeasure5G.objects.all().aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1)
+        postmeas5gtotal_measkt_ul = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1)
     except:
         postmeas5gtotal_measkt_ul = ""
     try:
-        postmeas5gtotal_measkt_rsrp = round(PostMeasure5G.objects.all().aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1)
+        postmeas5gtotal_measkt_rsrp = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1)
     except:
         postmeas5gtotal_measkt_rsrp = ""
     try:
-        postmeas5gtotal_measkt_lte = round(PostMeasure5G.objects.all().aggregate(Avg("measkt_lte"))["measkt_lte__avg"],1)
+        postmeas5gtotal_measkt_lte = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_lte"))["measkt_lte__avg"],1)
     except:
         postmeas5gtotal_measkt_lte = ""
     try:
-        postmeas5gtotal_postmeaskt_dl = round(PostMeasure5G.objects.all().aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
+        postmeas5gtotal_postmeaskt_dl = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
     except:
         postmeas5gtotal_postmeaskt_dl = ""
     try:
-        postmeas5gtotal_postmeaskt_ul = round(PostMeasure5G.objects.all().aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
+        postmeas5gtotal_postmeaskt_ul = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
     except:
         postmeas5gtotal_postmeaskt_ul = ""
     try:
-        postmeas5gtotal_postmeaskt_rsrp = round(PostMeasure5G.objects.all().aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1)
+        postmeas5gtotal_postmeaskt_rsrp = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1)
     except:
         postmeas5gtotal_postmeaskt_rsrp = ""
     try:
-        postmeas5gtotal_postmeaskt_lte = round(PostMeasure5G.objects.all().aggregate(Avg("postmeaskt_lte"))["postmeaskt_lte__avg"],1)
+        postmeas5gtotal_postmeaskt_lte = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_lte"))["postmeaskt_lte__avg"],1)
     except:
         postmeas5gtotal_postmeaskt_lte = ""
     try:
-        postmeas5gtotal_postmeasskt_dl = round(PostMeasure5G.objects.all().aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
+        postmeas5gtotal_postmeasskt_dl = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
     except:
         postmeas5gtotal_postmeasskt_dl = ""
     try:
-        postmeas5gtotal_postmeasskt_ul = round(PostMeasure5G.objects.all().aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
+        postmeas5gtotal_postmeasskt_ul = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
     except:
         postmeas5gtotal_postmeasskt_ul = ""
     try:
-        postmeas5gtotal_postmeasskt_rsrp = round(PostMeasure5G.objects.all().aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1)
+        postmeas5gtotal_postmeasskt_rsrp = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1)
     except:
         postmeas5gtotal_postmeasskt_rsrp = ""
     try:
-        postmeas5gtotal_postmeasskt_lte = round(PostMeasure5G.objects.all().aggregate(Avg("postmeasskt_lte"))["postmeasskt_lte__avg"],1)
+        postmeas5gtotal_postmeasskt_lte = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_lte"))["postmeasskt_lte__avg"],1)
     except:
         postmeas5gtotal_postmeasskt_lte = ""
     try:
-        postmeas5gtotal_postmeaslg_dl = round(PostMeasure5G.objects.all().aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)
+        postmeas5gtotal_postmeaslg_dl = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)
     except:
         postmeas5gtotal_postmeaslg_dl = ""
     try:
-        postmeas5gtotal_postmeaslg_ul = round(PostMeasure5G.objects.all().aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)
+        postmeas5gtotal_postmeaslg_ul = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)
     except:
         postmeas5gtotal_postmeaslg_ul = ""
     try:
-        postmeas5gtotal_postmeaslg_rsrp = round(PostMeasure5G.objects.all().aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1)
+        postmeas5gtotal_postmeaslg_rsrp = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1)
     except:
         postmeas5gtotal_postmeaslg_rsrp = ""
     try:
-        postmeas5gtotal_postmeaslg_lte = round(PostMeasure5G.objects.all().aggregate(Avg("postmeaslg_lte"))["postmeaslg_lte__avg"],1)
+        postmeas5gtotal_postmeaslg_lte = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_lte"))["postmeaslg_lte__avg"],1)
     except:
         postmeas5gtotal_postmeaslg_lte = ""
     for i in district_list:
-        if PostMeasure5G.objects.filter(district = i).count() > 0 :
+        if PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).count() > 0 :
             postmeas5glist.append(i)
     for i in postmeas5glist:
         
-        postmeas5g_district.append((PostMeasure5G.objects.filter(district = i)).count())
+        postmeas5g_district.append((PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate])).count())
         
         try:
             postmeas5g_lastkt_dl.append(round(MeasLastyeardistrict.objects.get(district = i, nettype = '5G').KTDL))
@@ -162,78 +197,78 @@ def get_report_cntx():
         except:
             postmeas5g_lastlg_dl.append("")
         try:
-            postmeas5g_measkt_dl.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1))
+            postmeas5g_measkt_dl.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1))
         except:
             postmeas5g_measkt_dl.append("")
         try:
-            postmeas5g_measkt_ul.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1))
+            postmeas5g_measkt_ul.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1))
         except:
             postmeas5g_measkt_ul.append("")
         try:
-            postmeas5g_measkt_rsrp.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1))
+            postmeas5g_measkt_rsrp.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1))
         except:
             postmeas5g_measkt_rsrp.append("")
         try:
-            postmeas5g_measkt_lte.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("measkt_lte"))["measkt_lte__avg"],1))
+            postmeas5g_measkt_lte.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_lte"))["measkt_lte__avg"],1))
         except:
             postmeas5g_measkt_lte.append("")
         try:
-            postmeas5g_postmeaskt_dl.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1))
+            postmeas5g_postmeaskt_dl.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1))
         except:
             postmeas5g_postmeaskt_dl.append("")
         try:
-            postmeas5g_postmeaskt_ul.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1))
+            postmeas5g_postmeaskt_ul.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1))
         except:
             postmeas5g_postmeaskt_ul.append("")
         try:
-            postmeas5g_postmeaskt_rsrp.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1))
+            postmeas5g_postmeaskt_rsrp.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1))
         except:
             postmeas5g_postmeaskt_rsrp.append("")
         try:
-            postmeas5g_postmeaskt_lte.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaskt_lte"))["postmeaskt_lte__avg"],1))
+            postmeas5g_postmeaskt_lte.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_lte"))["postmeaskt_lte__avg"],1))
         except:
             postmeas5g_postmeaskt_lte.append("")
         try:
-            postmeas5g_postmeasskt_dl.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1))
+            postmeas5g_postmeasskt_dl.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1))
         except:
             postmeas5g_postmeasskt_dl.append("")
         try:
-            postmeas5g_postmeasskt_ul.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1))
+            postmeas5g_postmeasskt_ul.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1))
         except:
             postmeas5g_postmeasskt_ul.append("")
         try:
-            postmeas5g_postmeasskt_rsrp.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1))
+            postmeas5g_postmeasskt_rsrp.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1))
         except:
             postmeas5g_postmeasskt_rsrp.append("")
         try:
-            postmeas5g_postmeasskt_lte.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeasskt_lte"))["postmeasskt_lte__avg"],1))
+            postmeas5g_postmeasskt_lte.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_lte"))["postmeasskt_lte__avg"],1))
         except:
             postmeas5g_postmeasskt_lte.append("")
         try:
-            postmeas5g_postmeaslg_dl.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1))
+            postmeas5g_postmeaslg_dl.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1))
         except:
             postmeas5g_postmeaslg_dl.append("")
         try:
-            postmeas5g_postmeaslg_ul.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1))
+            postmeas5g_postmeaslg_ul.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1))
         except:
             postmeas5g_postmeaslg_ul.append("")
         try:
-            postmeas5g_postmeaslg_rsrp.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1))
+            postmeas5g_postmeaslg_rsrp.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1))
         except:
             postmeas5g_postmeaslg_rsrp.append("")
         try:
-            postmeas5g_postmeaslg_lte.append(round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaslg_lte"))["postmeaslg_lte__avg"],1))
+            postmeas5g_postmeaslg_lte.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_lte"))["postmeaslg_lte__avg"],1))
         except:
             postmeas5g_postmeaslg_lte.append("")
-        data_testdl5g = [round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
-                     ,round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
-                     ,round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)]
+        data_testdl5g = [round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
+                     ,round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
+                     ,round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)]
         df_testdl5g = pd.DataFrame(data_testdl5g)
         df_testdl5g = df_testdl5g.rank(axis=0, method='min', ascending=False)
         postmeas5grankdllist.append(str(round(df_testdl5g.iloc[0,0]))+"위")
-        data_testul5g = [round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
-                     ,round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
-                     ,round(PostMeasure5G.objects.filter(district = i).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)]
+        data_testul5g = [round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
+                     ,round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
+                     ,round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)]
         df_testul5g = pd.DataFrame(data_testul5g)
         df_testul5g = df_testul5g.rank(axis=0, method='min', ascending=False)
         postmeas5grankullist.append(str(round(df_testul5g.iloc[0,0]))+"위")
@@ -264,7 +299,7 @@ def get_report_cntx():
     postmeaslte_postmeaslg_ul = []
     postmeaslte_postmeaslg_rsrp = []
     postmeaslte_postmeaslg_sinr = []
-    postmeasltetotal_district = PostMeasureLTE.objects.all().count()
+    postmeasltetotal_district = PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).count()
     try:
         postmeasltetotal_lastkt_dl = round(MeasLastyeardistrict.objects.get(district = '종합', nettype = 'LTE').KTDL)
     except:
@@ -278,75 +313,75 @@ def get_report_cntx():
     except:
         postmeasltetotal_lastlg_dl = ""
     try:
-        postmeasltetotal_measkt_dl = round(PostMeasureLTE.objects.all().aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1)
+        postmeasltetotal_measkt_dl = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1)
     except:
         postmeasltetotal_measkt_dl = ""
     try:
-        postmeasltetotal_measkt_ul = round(PostMeasureLTE.objects.all().aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1)
+        postmeasltetotal_measkt_ul = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1)
     except:
         postmeasltetotal_measkt_ul = ""
     try:
-        postmeasltetotal_measkt_rsrp = round(PostMeasureLTE.objects.all().aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1)
+        postmeasltetotal_measkt_rsrp = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1)
     except:
         postmeasltetotal_measkt_rsrp = ""
     try:
-        postmeasltetotal_measkt_sinr = round(PostMeasureLTE.objects.all().aggregate(Avg("measkt_sinr"))["measkt_sinr__avg"],1)
+        postmeasltetotal_measkt_sinr = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_sinr"))["measkt_sinr__avg"],1)
     except:
         postmeasltetotal_measkt_sinr = ""
     try:
-        postmeasltetotal_postmeaskt_dl = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
+        postmeasltetotal_postmeaskt_dl = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
     except:
         postmeasltetotal_postmeaskt_dl = ""
     try:
-        postmeasltetotal_postmeaskt_ul = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
+        postmeasltetotal_postmeaskt_ul = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
     except:
         postmeasltetotal_postmeaskt_ul = ""
     try:
-        postmeasltetotal_postmeaskt_rsrp = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1)
+        postmeasltetotal_postmeaskt_rsrp = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1)
     except:
         postmeasltetotal_postmeaskt_rsrp = ""
     try:
-        postmeasltetotal_postmeaskt_sinr = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeaskt_sinr"))["postmeaskt_sinr__avg"],1)
+        postmeasltetotal_postmeaskt_sinr = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_sinr"))["postmeaskt_sinr__avg"],1)
     except:
         postmeasltetotal_postmeaskt_sinr = ""
     try:
-        postmeasltetotal_postmeasskt_dl = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
+        postmeasltetotal_postmeasskt_dl = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
     except:
         postmeasltetotal_postmeasskt_dl = ""
     try:
-        postmeasltetotal_postmeasskt_ul = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
+        postmeasltetotal_postmeasskt_ul = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
     except:
         postmeasltetotal_postmeasskt_ul = ""
     try:
-        postmeasltetotal_postmeasskt_rsrp = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1)
+        postmeasltetotal_postmeasskt_rsrp = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1)
     except:
         postmeasltetotal_postmeasskt_rsrp = ""
     try:
-        postmeasltetotal_postmeasskt_sinr = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeasskt_sinr"))["postmeasskt_sinr__avg"],1)
+        postmeasltetotal_postmeasskt_sinr = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_sinr"))["postmeasskt_sinr__avg"],1)
     except:
         postmeasltetotal_postmeasskt_sinr = ""
     try:
-        postmeasltetotal_postmeaslg_dl = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)
+        postmeasltetotal_postmeaslg_dl = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)
     except:
         postmeasltetotal_postmeaslg_dl = ""
     try:
-        postmeasltetotal_postmeaslg_ul = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)
+        postmeasltetotal_postmeaslg_ul = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)
     except:
         postmeasltetotal_postmeaslg_ul = ""
     try:
-        postmeasltetotal_postmeaslg_rsrp = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1)
+        postmeasltetotal_postmeaslg_rsrp = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1)
     except:
         postmeasltetotal_postmeaslg_rsrp = ""
     try:
-        postmeasltetotal_postmeaslg_sinr = round(PostMeasureLTE.objects.all().aggregate(Avg("postmeaslg_sinr"))["postmeaslg_sinr__avg"],1)
+        postmeasltetotal_postmeaslg_sinr = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_sinr"))["postmeaslg_sinr__avg"],1)
     except:
         postmeasltetotal_postmeaslg_sinr = ""
     for i in district_list:
-        if PostMeasureLTE.objects.filter(district = i).count() > 0 :
+        if PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).count() > 0 :
             postmeasltelist.append(i)
     for i in postmeasltelist:
         
-        postmeaslte_district.append((PostMeasureLTE.objects.filter(district = i)).count())
+        postmeaslte_district.append((PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate])).count())
         
         try:
             postmeaslte_lastkt_dl.append(round(MeasLastyeardistrict.objects.get(district = i, nettype = 'LTE').KTDL))
@@ -361,214 +396,222 @@ def get_report_cntx():
         except:
             postmeaslte_lastlg_dl.append("")
         try:
-            postmeaslte_measkt_dl.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1))
+            postmeaslte_measkt_dl.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1))
         except:
             postmeaslte_measkt_dl.append("")
         try:
-            postmeaslte_measkt_ul.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1))
+            postmeaslte_measkt_ul.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1))
         except:
             postmeaslte_measkt_ul.append("")
         try:
-            postmeaslte_measkt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1))
+            postmeaslte_measkt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1))
         except:
             postmeaslte_measkt_rsrp.append("")
         try:
-            postmeaslte_measkt_sinr.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("measkt_sinr"))["measkt_sinr__avg"],1))
+            postmeaslte_measkt_sinr.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_sinr"))["measkt_sinr__avg"],1))
         except:
             postmeaslte_measkt_sinr.append("")
         try:
-            postmeaslte_postmeaskt_dl.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1))
+            postmeaslte_postmeaskt_dl.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1))
         except:
             postmeaslte_postmeaskt_dl.append("")
         try:
-            postmeaslte_postmeaskt_ul.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1))
+            postmeaslte_postmeaskt_ul.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1))
         except:
             postmeaslte_postmeaskt_ul.append("")
         try:
-            postmeaslte_postmeaskt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1))
+            postmeaslte_postmeaskt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1))
         except:
             postmeaslte_postmeaskt_rsrp.append("")
         try:
-            postmeaslte_postmeaskt_sinr.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaskt_sinr"))["postmeaskt_sinr__avg"],1))
+            postmeaslte_postmeaskt_sinr.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_sinr"))["postmeaskt_sinr__avg"],1))
         except:
             postmeaslte_postmeaskt_sinr.append("")
         try:
-            postmeaslte_postmeasskt_dl.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1))
+            postmeaslte_postmeasskt_dl.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1))
         except:
             postmeaslte_postmeasskt_dl.append("")
         try:
-            postmeaslte_postmeasskt_ul.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1))
+            postmeaslte_postmeasskt_ul.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1))
         except:
             postmeaslte_postmeasskt_ul.append("")
         try:
-            postmeaslte_postmeasskt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1))
+            postmeaslte_postmeasskt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1))
         except:
             postmeaslte_postmeasskt_rsrp.append("")
         try:
-            postmeaslte_postmeasskt_sinr.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeasskt_sinr"))["postmeasskt_sinr__avg"],1))
+            postmeaslte_postmeasskt_sinr.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_sinr"))["postmeasskt_sinr__avg"],1))
         except:
             postmeaslte_postmeasskt_sinr.append("")
         try:
-            postmeaslte_postmeaslg_dl.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1))
+            postmeaslte_postmeaslg_dl.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1))
         except:
             postmeaslte_postmeaslg_dl.append("")
         try:
-            postmeaslte_postmeaslg_ul.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1))
+            postmeaslte_postmeaslg_ul.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1))
         except:
             postmeaslte_postmeaslg_ul.append("")
         try:
-            postmeaslte_postmeaslg_rsrp.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1))
+            postmeaslte_postmeaslg_rsrp.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1))
         except:
             postmeaslte_postmeaslg_rsrp.append("")
         try:
-            postmeaslte_postmeaslg_sinr.append(round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaslg_sinr"))["postmeaslg_sinr__avg"],1))
+            postmeaslte_postmeaslg_sinr.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_sinr"))["postmeaslg_sinr__avg"],1))
         except:
             postmeaslte_postmeaslg_sinr.append("")
-        data_testdllte = [round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
-                     ,round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
-                     ,round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)]
+        data_testdllte = [round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
+                     ,round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
+                     ,round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)]
         df_testdllte = pd.DataFrame(data_testdllte)
         df_testdllte = df_testdllte.rank(axis=0, method='min', ascending=True)
         postmeaslterankdllist.append(str(round(df_testdllte.iloc[0,0]))+"위")
-        data_testullte = [round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
-                     ,round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
-                     ,round(PostMeasureLTE.objects.filter(district = i).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)]
+        data_testullte = [round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
+                     ,round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
+                     ,round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)]
         df_testullte = pd.DataFrame(data_testullte)
         df_testullte = df_testullte.rank(axis=0, method='min', ascending=False)
         postmeaslterankullist.append(str(round(df_testullte.iloc[0,0]))+"위")  
             
 #측정대상
-    regi = MeasPlan.objects.filter(planYear = str(datetime.date.today().year))
+    regi = MeasPlan.objects.filter(planYear="2022")
 #측정일자(처음~마지막) 
-    firstdate = LastMeasDayClose.objects.last()
-    lastdate = LastMeasDayClose.objects.first()
+    firstdate = firstday
+    lastdate = hodate
 #리포트메세지    
-    reportmsg = ReportMessage.objects.all()
+    reportmsg = ReportMessage.objects.filter(measdate = hodate)
+    
+    # reportmsg_msg5G = ReportMessage.objects.get(measdate = hodate).msg5G
+    # reportmsg_msgLTE = ReportMessage.objects.get(measdate = hodate).msgLTE
+    # reportmsg_msgWiFi = ReportMessage.objects.get(measdate = hodate).msgWiFi
+    # reportmsg_msgWeak = ReportMessage.objects.get(measdate = hodate).msgWeak
+    # reportmsg_msg5Gafter = ReportMessage.objects.get(measdate = hodate).msg5Gafter
+    # reportmsg_msgLTEafter = ReportMessage.objects.get(measdate = hodate).msgLTEafter
+    
 #측정전체    
-    sregi = LastMeasDayClose.objects.all()
+    sregi = LastMeasDayClose.objects.filter(measdate__range=[firstday,hodate])
 #당일측정
-    tregi = LastMeasDayClose.objects.filter(measdate = datetime.date.today())
+    tregi = LastMeasDayClose.objects.filter(measdate = hodate)
 #5G측정전체개수    
-    sregi5Ghjd = LastMeasDayClose.objects.filter(nettype = "5G NSA", mopho = "행정동").count()
-    sregi5Gdagyo = LastMeasDayClose.objects.filter(Q(nettype = "5G NSA")&(Q(mopho = "다중이용시설")|Q(mopho = "교통인프라"))).count()
-    sregi5Gnsatotal = LastMeasDayClose.objects.filter(nettype = "5G NSA").count()
-    sregi5Gsatotal = LastMeasDayClose.objects.filter(nettype = "5G SA ").count()
-    sregi5Gpublic = LastMeasDayClose.objects.filter(nettype = "5G 공동망").count()
-    sregi5Gcv = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망")) & Q(mopho = "커버리지")).count()
-    sregi5Gtotal = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))).count()
+    sregi5Ghjd = LastMeasDayClose.objects.filter(nettype = "5G NSA", mopho = "행정동",measdate__range=[firstday,hodate]).count()
+    sregi5Gdagyo = LastMeasDayClose.objects.filter(Q(nettype = "5G NSA")&(Q(mopho = "다중이용시설")|Q(mopho = "교통인프라"))&Q(measdate__range=[firstday,hodate])).count()
+    sregi5Gnsatotal = LastMeasDayClose.objects.filter(nettype = "5G NSA",measdate__range=[firstday,hodate]).count()
+    sregi5Gsatotal = LastMeasDayClose.objects.filter(nettype = "5G SA",measdate__range=[firstday,hodate]).count()
+    sregi5Gpublic = LastMeasDayClose.objects.filter(nettype = "5G 공동망",measdate__range=[firstday,hodate]).count()
+    sregi5Gcv = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망")) & Q(mopho = "커버리지")&Q(measdate__range=[firstday,hodate])).count()
+    sregi5Gtotal = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate__range=[firstday,hodate])).count()
 #5G당일측정전체개수   
-    tregi5Ghjd = LastMeasDayClose.objects.filter(nettype = "5G NSA", mopho = "행정동", measdate = datetime.date.today().strftime('%Y%m%d')).count()
-    tregi5Gdagyo = LastMeasDayClose.objects.filter(Q(nettype = "5G NSA")&(Q(mopho = "다중이용시설")|Q(mopho = "교통인프라"))&Q(measdate = datetime.date.today().strftime('%Y%m%d'))).count()
-    tregi5Gnsatotal = LastMeasDayClose.objects.filter(nettype = "5G NSA", measdate = datetime.date.today().strftime('%Y%m%d')).count()
-    tregi5Gsatotal = LastMeasDayClose.objects.filter(nettype = "5G SA ", measdate = datetime.date.today().strftime('%Y%m%d')).count()
-    tregi5Gpublic = LastMeasDayClose.objects.filter(nettype = "5G 공동망", measdate = datetime.date.today().strftime('%Y%m%d')).count()
-    tregi5Gcv = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망")) & Q(mopho = "커버리지")&Q(measdate = datetime.date.today().strftime('%Y%m%d'))).count()
-    tregi5Gtotal = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate = datetime.date.today().strftime('%Y%m%d'))).count()
+    tregi5Ghjd = LastMeasDayClose.objects.filter(nettype = "5G NSA", mopho = "행정동", measdate = hodate).count()
+    tregi5Gdagyo = LastMeasDayClose.objects.filter(Q(nettype = "5G NSA")&(Q(mopho = "다중이용시설")|Q(mopho = "교통인프라"))&Q(measdate = hodate)).count()
+    tregi5Gnsatotal = LastMeasDayClose.objects.filter(nettype = "5G NSA",measdate = hodate).count()
+    tregi5Gsatotal = LastMeasDayClose.objects.filter(nettype = "5G SA ",measdate = hodate).count()
+    tregi5Gpublic = LastMeasDayClose.objects.filter(nettype = "5G 공동망",measdate = hodate).count()
+    tregi5Gcv = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망")) & Q(mopho = "커버리지")&Q(measdate = hodate)).count()
+    tregi5Gtotal = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate = hodate)).count()
 #5G지역별측정개수
     district5gcount = []
     for i in district_list:
-        district5gcount.append(LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(district = i)).count())
+        district5gcount.append(LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(district = i)&Q(measdate__range=[firstday,hodate])).count())
     city5gcount = []
     for i in city_list:
-        city5gcount.append(LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(detailadd = i)).count())
+        city5gcount.append(LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(detailadd = i)&Q(measdate__range=[firstday,hodate])).count())
     facility5gcount = []
     for i in facility5g_list:
-        facility5gcount.append(LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(detailadd = i)).count())
+        facility5gcount.append(LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(detailadd = i)&Q(measdate__range=[firstday,hodate])).count())
     traffic5gcount = []
     for i in traffic5g_list:
-        traffic5gcount.append(LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(detailadd = i)).count())
+        traffic5gcount.append(LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(detailadd = i)&Q(measdate__range=[firstday,hodate])).count())
     districtsa5gcount = []
     for i in district_list:
-        districtsa5gcount.append(LastMeasDayClose.objects.filter(nettype = "5G SA", district = i).count())
+        districtsa5gcount.append(LastMeasDayClose.objects.filter(nettype = "5G SA", district = i,measdate__range=[firstday,hodate]).count())
     
 #LTE측정전체개수
-    sregiLTEbct = LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "대도시").count()
-    sregiLTEmct = LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "중소도시").count()
-    sregiLTEsct = LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "농어촌").count()
-    sregiLTEib = LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "인빌딩").count()
-    sregiLTEtm = LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "테마").count()
-    sregiLTEcv = LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "커버리지").count()
-    sregiLTEtotal = LastMeasDayClose.objects.filter(nettype = "LTE").count()
+    sregiLTEbct = LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "대도시",measdate__range=[firstday,hodate]).count()
+    sregiLTEmct = LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "중소도시",measdate__range=[firstday,hodate]).count()
+    sregiLTEsct = LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "농어촌",measdate__range=[firstday,hodate]).count()
+    sregiLTEib = LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "인빌딩",measdate__range=[firstday,hodate]).count()
+    sregiLTEtm = LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "테마",measdate__range=[firstday,hodate]).count()
+    sregiLTEcv = LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "커버리지",measdate__range=[firstday,hodate]).count()
+    sregiLTEtotal = LastMeasDayClose.objects.filter(nettype = "LTE",measdate__range=[firstday,hodate]).count()
 #LTE당일측정전체개수    
-    tregiLTEbct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = datetime.date.today().strftime('%Y%m%d'), detailadd = "대도시").count()
-    tregiLTEmct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = datetime.date.today().strftime('%Y%m%d'), detailadd = "중소도시").count()
-    tregiLTEsct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = datetime.date.today().strftime('%Y%m%d'), detailadd = "농어촌").count()
-    tregiLTEib = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = datetime.date.today().strftime('%Y%m%d'), mopho = "인빌딩").count()
-    tregiLTEtm = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = datetime.date.today().strftime('%Y%m%d'), mopho = "테마").count()
-    tregiLTEcv = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = datetime.date.today().strftime('%Y%m%d'), mopho = "커버리지").count()
-    tregiLTEtotal = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = datetime.date.today().strftime('%Y%m%d')).count()
+    tregiLTEbct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, detailadd = "대도시").count()
+    tregiLTEmct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, detailadd = "중소도시").count()
+    tregiLTEsct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, detailadd = "농어촌").count()
+    tregiLTEib = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, mopho = "인빌딩").count()
+    tregiLTEtm = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, mopho = "테마").count()
+    tregiLTEcv = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, mopho = "커버리지").count()
+    tregiLTEtotal = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate).count()
 #LTE지역별측정개수
     districtltecount = []
     for i in district_list:
-        districtltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", district = i).count())
+        districtltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", district = i,measdate__range=[firstday,hodate]).count())
     bctltecount = []
     for i in district_list:
-        bctltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "대도시" ,district = i).count())
+        bctltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "대도시" ,district = i,measdate__range=[firstday,hodate]).count())
     mctltecount = []
     for i in district_list:
-        mctltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "중소도시" ,district = i).count())
+        mctltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "중소도시" ,district = i,measdate__range=[firstday,hodate]).count())
     sctltecount = []
     for i in district_list:
-        sctltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "농어촌" ,district = i).count())
+        sctltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd = "농어촌" ,district = i,measdate__range=[firstday,hodate]).count())
     ibltecount = []
     for i in inbuildinglte_list:
-        ibltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "인빌딩" ,detailadd = i).count())
+        ibltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "인빌딩" ,detailadd = i,measdate__range=[firstday,hodate]).count())
     tmltecount = []
     for i in themelte_list:
-        tmltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "테마" ,detailadd = i).count()) 
+        tmltecount.append(LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "테마" ,detailadd = i,measdate__range=[firstday,hodate]).count()) 
 
 #WiFi측정전체개수
-    sregiWiFisy = LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용").count()
-    sregiWiFigb = LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방").count()
-    sregiWiFipublic = LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "공공").count()
-    sregiWiFitotal = LastMeasDayClose.objects.filter(nettype = "WiFi").count()
+    sregiWiFisy = LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용",measdate__range=[firstday,hodate]).count()
+    sregiWiFigb = LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방",measdate__range=[firstday,hodate]).count()
+    sregiWiFipublic = LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "공공",measdate__range=[firstday,hodate]).count()
+    sregiWiFitotal = LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).count()
 #WiFi당일측정전체개수
-    tregiWiFisy = LastMeasDayClose.objects.filter(nettype = "WiFi",  measdate = datetime.date.today().strftime('%Y%m%d'), mopho = "상용").count()
-    tregiWiFigb = LastMeasDayClose.objects.filter(nettype = "WiFi",  measdate = datetime.date.today().strftime('%Y%m%d'), mopho = "개방").count()
-    tregiWiFipublic = LastMeasDayClose.objects.filter(nettype = "WiFi",  measdate = datetime.date.today().strftime('%Y%m%d'), mopho = "공공").count()
-    tregiWiFitotal = LastMeasDayClose.objects.filter(nettype = "WiFi",  measdate = datetime.date.today().strftime('%Y%m%d')).count()
+    tregiWiFisy = LastMeasDayClose.objects.filter(nettype = "WiFi",  measdate = hodate, mopho = "상용").count()
+    tregiWiFigb = LastMeasDayClose.objects.filter(nettype = "WiFi",  measdate = hodate, mopho = "개방").count()
+    tregiWiFipublic = LastMeasDayClose.objects.filter(nettype = "WiFi",  measdate = hodate, mopho = "공공").count()
+    tregiWiFitotal = LastMeasDayClose.objects.filter(nettype = "WiFi",  measdate = hodate).count()
 #WiFi지역별측정개수     
     districtWiFicount = []
     for i in district_list:
-        districtWiFicount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", district = i).count())
+        districtWiFicount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", district = i,measdate__range=[firstday,hodate]).count())
     sywificount = []
     for i in district_list:
-        sywificount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용" ,district = i).count())
+        sywificount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용" ,district = i,measdate__range=[firstday,hodate]).count())
     gbwificount = []
     for i in district_list:
-        gbwificount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방" ,district = i).count())
+        gbwificount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방" ,district = i,measdate__range=[firstday,hodate]).count())
     publicwificount = []
     for i in district_list:
-        publicwificount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "공공" ,district = i).count())
+        publicwificount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "공공" ,district = i,measdate__range=[firstday,hodate]).count())
     
 #품질취약지역측정전체개수
-    sregiweakdsr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "등산로").count()
-    sregiweakyghr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "여객항로").count()
-    sregiweakyids = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "유인도서").count()
-    sregiweakhadr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "해안도로").count()
+    sregiweakdsr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "등산로",measdate__range=[firstday,hodate]).count()
+    sregiweakyghr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "여객항로",measdate__range=[firstday,hodate]).count()
+    sregiweakyids = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "유인도서",measdate__range=[firstday,hodate]).count()
+    sregiweakhadr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "해안도로",measdate__range=[firstday,hodate]).count()
     sregiweaktotal = LastMeasDayClose.objects.filter(mopho = "품질취약지역").count()
 #품질취약지역당일측정전체개수   
-    tregiweakdsr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = datetime.date.today().strftime('%Y%m%d'), detailadd = "등산로").count()
-    tregiweakyghr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = datetime.date.today().strftime('%Y%m%d'), detailadd = "여객항로").count()
-    tregiweakyids = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = datetime.date.today().strftime('%Y%m%d'), detailadd = "유인도서").count()
-    tregiweakhadr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = datetime.date.today().strftime('%Y%m%d'), detailadd = "해안도로").count()
-    tregiweaktotal = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = datetime.date.today().strftime('%Y%m%d')).count()
+    tregiweakdsr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "등산로").count()
+    tregiweakyghr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "여객항로").count()
+    tregiweakyids = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "유인도서").count()
+    tregiweakhadr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "해안도로").count()
+    tregiweaktotal = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate).count()
 #품질취약지역지역별측정개수    
     districtWeakcount = []
     for i in district_list:
-        districtWeakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", district = i).count())
+        districtWeakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", district = i,measdate__range=[firstday,hodate]).count())
     dsrweakcount = []
     for i in district_list:
-        dsrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "등산로" ,district = i).count())
+        dsrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "등산로" ,district = i,measdate__range=[firstday,hodate]).count())
     yghrweakcount = []
     for i in district_list:
-        yghrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "여객항로" ,district = i).count())
+        yghrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "여객항로" ,district = i,measdate__range=[firstday,hodate]).count())
     yidsweakcount = []
     for i in district_list:
-        yidsweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "유인도서" ,district = i).count())
+        yidsweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "유인도서" ,district = i,measdate__range=[firstday,hodate]).count())
     hadrweakcount = []
     for i in district_list:
-        hadrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "해안도로" ,district = i).count())
+        hadrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "해안도로" ,district = i,measdate__range=[firstday,hodate]).count())
     
 #모폴로지별작년측정결과
     #5G
@@ -605,44 +648,44 @@ def get_report_cntx():
     totalnsa5g = []
     for i in result5g_list :
         try:
-            bctnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "대도시").aggregate(Avg(i[0]))[i[1]],1))
+            bctnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "대도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             bctnsa5g.append("")
         try:
-            mctnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "중소도시").aggregate(Avg(i[0]))[i[1]],1))
+            mctnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "중소도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             mctnsa5g.append("")
         try:
-            hjdnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",mopho = "행정동").aggregate(Avg(i[0]))[i[1]],1))
+            hjdnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",mopho = "행정동",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             hjdnsa5g.append("")
         try:
-            djnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "다중이용시설").aggregate(Avg(i[0]))[i[1]],1))
+            djnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "다중이용시설",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             djnsa5g.append("")
         try:
-            aptnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "아파트").aggregate(Avg(i[0]))[i[1]],1))
+            aptnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "아파트",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             aptnsa5g.append("")
         try:
-            univnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "대학교").aggregate(Avg(i[0]))[i[1]],1))
+            univnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "대학교",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             univnsa5g.append("")
         try:
-            trafficnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",mopho = "교통인프라").aggregate(Avg(i[0]))[i[1]],1))
+            trafficnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",mopho = "교통인프라",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             trafficnsa5g.append("")
         try:
-            totalnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA").aggregate(Avg(i[0]))[i[1]],1))
+            totalnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             totalnsa5g.append("")
          
 #5G SA 측정결과 및 보고양식
     result5g_list = [["downloadBandwidth","downloadBandwidth__avg"],["uploadBandwidth","uploadBandwidth__avg"],["dl_nr_percent","dl_nr_percent__avg"],["ul_nr_percent","ul_nr_percent__avg"],["udpJitter","udpJitter__avg"]] 
     same_userinfo1 = [] 
-    for n in range(len(LastMeasDayClose.objects.filter(nettype = "5G SA"))):
-        same_userinfo1.append(LastMeasDayClose.objects.filter(nettype = "5G SA")[n].userInfo1)
-    print(same_userinfo1)
+    for n in range(len(LastMeasDayClose.objects.filter(nettype = "5G SA",measdate__range=[firstday,hodate]))):
+        same_userinfo1.append(LastMeasDayClose.objects.filter(nettype = "5G SA",measdate__range=[firstday,hodate])[n].userInfo1)
+    
     
     nsa5G_list = []
     sa5g=[]  
@@ -660,21 +703,21 @@ def get_report_cntx():
                       
     for i in result5g_list :
         try:
-            sa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G SA").aggregate(Avg(i[0]))[i[1]],1))
+            sa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G SA",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
             
         except:
             sa5g.append("") 
 
     for n in same_userinfo1:
         try:
-            print(n)
-            nsa5g_dl += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n).downloadBandwidth
-            nsa5g_ul += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n).uploadBandwidth
-            nsa5g_ltedl += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n).dl_nr_percent
-            nsa5g_lteul += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n).ul_nr_percent
-            nsa5g_delay += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n).udpJitter
             
-            print(nsa5g_sum)
+            nsa5g_dl += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n,measdate__range=[firstday,hodate]).downloadBandwidth
+            nsa5g_ul += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n,measdate__range=[firstday,hodate]).uploadBandwidth
+            nsa5g_ltedl += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n,measdate__range=[firstday,hodate]).dl_nr_percent
+            nsa5g_lteul += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n,measdate__range=[firstday,hodate]).ul_nr_percent
+            nsa5g_delay += LastMeasDayClose.objects.get(nettype = "5G NSA" , userInfo1 = n,measdate__range=[firstday,hodate]).udpJitter
+            
+            
             #nsa5g.append(round(nsa5G_list.objects.all().aggregate(Avg(i[0]))[i[1]],1))
         except:
             nsa5g_dl += 0
@@ -682,12 +725,30 @@ def get_report_cntx():
             nsa5g_ltedl += 0
             nsa5g_lteul += 0
             nsa5g_delay += 0
-    print(nsa5g_dl/len(same_userinfo1))
-    nsa5g.append(round(nsa5g_dl/len(same_userinfo1),1))
-    nsa5g.append(round(nsa5g_ul/len(same_userinfo1),1))
-    nsa5g.append(round(nsa5g_ltedl/len(same_userinfo1),1))
-    nsa5g.append(round(nsa5g_lteul/len(same_userinfo1),1))
-    nsa5g.append(round(nsa5g_delay/len(same_userinfo1),1))
+    
+    try:
+        nsa5g.append(round(nsa5g_dl/len(same_userinfo1),1))
+    except:
+        nsa5g.append("")
+    try:
+        nsa5g.append(round(nsa5g_ul/len(same_userinfo1),1))
+    except:
+        nsa5g.append("")
+    try:
+        nsa5g.append(round(nsa5g_ltedl/len(same_userinfo1),1))
+    except:
+        nsa5g.append("")
+    try:
+        nsa5g.append(round(nsa5g_lteul/len(same_userinfo1),1))
+    except:
+        nsa5g.append("")
+    try:
+        nsa5g.append(round(nsa5g_delay/len(same_userinfo1),1))
+    except:
+        nsa5g.append("")   
+    
+    
+    
     nsa5g_dl = 0
     nsa5g_ul = 0
     nsa5g_ltedl = 0
@@ -705,31 +766,31 @@ def get_report_cntx():
     totallte = []
     for i in resultlte_list :                    
         try:
-            bctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="대도시").aggregate(Avg(i[0]))[i[1]],1))
+            bctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="대도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             bctlte.append("")
         try:
-            mctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="중소도시").aggregate(Avg(i[0]))[i[1]],1))
+            mctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="중소도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             mctlte.append("")
         try:
-            sctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="농어촌").aggregate(Avg(i[0]))[i[1]],1))
+            sctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="농어촌",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             sctlte.append("")
         try:
-            hjdlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="행정동").aggregate(Avg(i[0]))[i[1]],1))
+            hjdlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="행정동",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             hjdlte.append("")
         try:
-            iblte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="인빌딩").aggregate(Avg(i[0]))[i[1]],1))
+            iblte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="인빌딩",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             iblte.append("")
         try:
-            tmlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="테마").aggregate(Avg(i[0]))[i[1]],1))
+            tmlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="테마",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             tmlte.append("")
         try:
-            totallte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE").aggregate(Avg(i[0]))[i[1]],1))
+            totallte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
         except:
             totallte.append("")
                     
@@ -737,27 +798,27 @@ def get_report_cntx():
        
 #wifi측정결과(종합)
     try:
-        totalwifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi").exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
+        totalwifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
     except:
         totalwifidl = ""
     try:
-        totalsywifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용").exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
+        totalsywifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
     except:
         totalsywifidl = ""
     try:
-        totalgbwifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방").exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
+        totalgbwifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
     except:
         totalgbwifidl = ""
     try:
-        totalwifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi").exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
+        totalwifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
     except:
         totalwifiul = ""
     try:
-        totalsywifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용").exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
+        totalsywifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
     except:
         totalsywifiul = ""
     try:
-        totalgbwifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방").exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
+        totalgbwifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
     except:
         totalgbwifiul = ""
 
@@ -768,36 +829,36 @@ def get_report_cntx():
     wificenterul2 = []
     for i in center_list1:
         try:
-            wificenterdl.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용").exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wificenterdl.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
         except:
             wificenterdl.append("")
         try:
-            wificenterdl.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방").exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wificenterdl.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
         except:
             wificenterdl.append("")
         try:    
-            wificenterul.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용").exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wificenterul.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
         except:    
             wificenterul.append("")
         try:    
-            wificenterul.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방").exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wificenterul.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
         except:    
             wificenterul.append("")
     for i in center_list2:
         try:
-            wificenterdl2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용").exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wificenterdl2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
         except:
             wificenterdl2.append("")
         try:
-            wificenterdl2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방").exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wificenterdl2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
         except:
             wificenterdl2.append("")
         try:    
-            wificenterul2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용").exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wificenterul2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
         except:    
             wificenterul2.append("")
         try:    
-            wificenterul2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방").exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wificenterul2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
         except:    
             wificenterul2.append("")
 
@@ -821,42 +882,48 @@ def get_report_cntx():
     try:
         wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(district='서울')|Q(district='인천')|Q(district='경기')|
                                                                                   Q(district='부산')|Q(district='대구')|Q(district='광주')|
-                                                                                  Q(district='대전'))&Q(detailadd='지하철')).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+                                                                                  Q(district='대전'))&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
     except:
         wifitraindl.append("")
     try:
         wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(district='서울')|Q(district='인천')|Q(district='경기'))
-                                                             &Q(detailadd='지하철')).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+                                                             &Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
     except:
         wifitraindl.append("")
     try:
         wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(district='서울')|Q(district='인천')|Q(district='경기')|
                                                                                   Q(district='부산')|Q(district='대구')|Q(district='광주')|
-                                                                                  Q(district='대전'))&Q(detailadd='지하철')).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+                                                                                  Q(district='대전'))&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
     except:
         wifitrainul.append("")
     try:
         wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(district='서울')|Q(district='인천')|Q(district='경기'))
-                                                             &Q(detailadd='지하철')).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+                                                             &Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
     except:
         wifitrainul.append("")
     for i in train_list:
         try:
-            wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(district=i)&Q(detailadd='지하철')).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(district=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
         except:
             wifitraindl.append("")
         try:
-            wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(district=i)&Q(detailadd='지하철')).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(district=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
         except:
             wifitrainul.append("")
 
 #금일 측정 결과 
-    tresult5g = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate = datetime.date.today().strftime('%Y%m%d')))
-    tresultlte = LastMeasDayClose.objects.filter(nettype = "LTE", measdate = datetime.date.today().strftime('%Y%m%d'))
-    tresultwifi = LastMeasDayClose.objects.filter(nettype = "WiFi", measdate = datetime.date.today().strftime('%Y%m%d'))
-    tresultweak = LastMeasDayClose.objects.filter(nettype = "품질취약지역", measdate = datetime.date.today().strftime('%Y%m%d'))
+    tresult5g = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate = hodate))
+    tresultlte = LastMeasDayClose.objects.filter(nettype = "LTE", measdate = hodate)
+    tresultwifi = LastMeasDayClose.objects.filter(nettype = "WiFi", measdate = hodate)
+    tresultweak = LastMeasDayClose.objects.filter(nettype = "품질취약지역", measdate = hodate)
+
+#리포트 날짜 스트링변환
+    report_day = hodate.strftime('%Y%m%d') 
+    report_firstday = firstdate.strftime('%Y%m%d') 
+    
    
     context = { 
+    'reportdate':reportdate,'hodate':hodate,'report_day':report_day,'report_firstday':report_firstday,
     'wificenterdl':wificenterdl,'wificenterul':wificenterul,'center_list1':center_list1,'center_list2':center_list2,'district_list':district_list,
     'wificenterdl2':wificenterdl2,'wificenterul2':wificenterul2,
     'district5gcount':district5gcount,'city5gcount':city5gcount,'facility5gcount':facility5gcount,'traffic5gcount':traffic5gcount,'districtsa5gcount':districtsa5gcount,
@@ -864,6 +931,12 @@ def get_report_cntx():
     'districtWiFicount':districtWiFicount,'sywificount':sywificount,'gbwificount':gbwificount,'publicwificount':publicwificount,
     'districtWeakcount':districtWeakcount,'dsrweakcount':dsrweakcount,'yghrweakcount':yghrweakcount,'yidsweakcount':yidsweakcount,'hadrweakcount':hadrweakcount,
     'tresult5g':tresult5g,'tresultlte':tresultlte,'tresultwifi':tresultwifi,'tresultweak':tresultweak,
+    # 'reportmsg_msg5G':reportmsg_msg5G,
+    # 'reportmsg_msgLTE':reportmsg_msgLTE,
+    # 'reportmsg_msgWiFi':reportmsg_msgWiFi,
+    # 'reportmsg_msgWeak':reportmsg_msgWeak,
+    # 'reportmsg_msg5Gafter':reportmsg_msg5Gafter,
+    # 'reportmsg_msgLTEafter':reportmsg_msgLTEafter,
     'regi':regi, 'reportmsg':reportmsg,'sregi':sregi,'firstdate':firstdate,'lastdate':lastdate,
     'tregi5Ghjd':tregi5Ghjd,'tregi5Gdagyo':tregi5Gdagyo,'tregi5Gnsatotal':tregi5Gnsatotal,'tregi5Gsatotal':tregi5Gsatotal, 'tregi5Gpublic':tregi5Gpublic,'tregi5Gcv':tregi5Gcv,'tregi5Gtotal':tregi5Gtotal,
     'sregi5Ghjd':sregi5Ghjd,'sregi5Gdagyo':sregi5Gdagyo,'sregi5Gnsatotal':sregi5Gnsatotal,'sregi5Gsatotal':sregi5Gsatotal,'sregi5Gpublic':sregi5Gpublic,'sregi5Gcv':sregi5Gcv,'sregi5Gtotal':sregi5Gtotal,
