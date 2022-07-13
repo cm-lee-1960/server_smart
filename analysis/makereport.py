@@ -48,10 +48,12 @@ def get_report_cntx(request):
     #     reportdate = date.today()
     
     reportdate = request.GET.get('reportdate')
-   
-    firstday = LastMeasDayClose.objects.last().measdate
+    try:
+        firstday = LastMeasDayClose.objects.last().measdate
+    except:
+        firstday = date.today()
     #사후측정 전체
-    
+    print(type(firstday),firstday)
     if reportdate is None:
         hodate = date.today()
         reportdate = date.today().strftime('%Y-%m-%d')
