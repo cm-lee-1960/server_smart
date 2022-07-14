@@ -334,6 +334,11 @@ class LastMeasDayClose(models.Model):
     dl_nr_percent = models.FloatField(null=True, default=0.0, verbose_name='DL LTE전환율')  # 5G->NR 전환 전환율(dl)
     ul_nr_percent = models.FloatField(null=True, default=0.0, verbose_name='UL LTE전환율')  # 5G->NR 전환 전환율(ul)
     udpJitter = models.FloatField(null=True, default=0.0, verbose_name='지연시간')  # 지연시간
+    telesucc = models.FloatField(null=True, default=0.0, verbose_name='통화성공율')  
+    datasucc = models.FloatField(null=True, default=0.0, verbose_name='전송성공율')
+    rsrpavg = models.FloatField(null=True, default=0.0, verbose_name='평균RSRP')
+    sinravg = models.FloatField(null=True, default=0.0, verbose_name='평균SINR')
+    lteband = models.FloatField(null=True, default=0.0, verbose_name='LTE평균대역')
     ktlastdl = models.FloatField(null=True, blank=True, verbose_name='작년 KT DL')
     ktlastul = models.FloatField(null=True, blank=True, verbose_name='작년 KT UL')
     sktlastdl = models.FloatField(null=True, blank=True, verbose_name='작년 S사 DL')

@@ -795,7 +795,48 @@ def get_report_cntx(request):
             totallte.append("")
                     
 #품질취약지역측정결과
-       
+    weakdistrict = ['등산로','여객항로','유인도서','해안도로']
+    weakvolte = []
+    weaktele3g = []
+    weaklte = []
+    weak3g = []
+    
+    for i in weakdistrict :
+        try:
+            weakvolte.append(round(LastMeasDayClose.objects.filter(detailadd= i,networkId= "LTE", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("telesucc"))["telesucc__avg"],1))
+            
+        except:
+            weakvolte.append("")
+        try:
+            weaktele3g.append(round(LastMeasDayClose.objects.filter(detailadd= i,networkId= "3G", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("telesucc"))["telesucc__avg"],1))
+            
+        except:
+            weaktele3g.append("")
+        try:
+            weaklte.append(round(LastMeasDayClose.objects.filter(detailadd= i,networkId= "LTE", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("datasucc"))["datasucc__avg"],1))
+        except:
+            weaklte.append("")
+        try:
+            weak3g.append(round(LastMeasDayClose.objects.filter(detailadd = i,networkId= "3G", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("datasucc"))["datasucc__avg"],1))
+        except:
+            weak3g.append("")
+    
+    try:
+        weakvolte.append(round(LastMeasDayClose.objects.filter(networkId= "LTE", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("telesucc")),1))
+    except:
+        weakvolte.append("")
+    try:
+        weaktele3g.append(round(LastMeasDayClose.objects.filter(networkId= "3G", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("telesucc")),1))
+    except:
+        weaktele3g.append("")
+    try:
+        weaklte.append(round(LastMeasDayClose.objects.filter(networkId= "LTE", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("datasucc")),1))
+    except:
+        weaklte.append("")
+    try:
+        weak3g.append(round(LastMeasDayClose.objects.filter(networkId= "3G", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("datasucc")),1))
+    except:
+        weak3g.append("")
 #wifi측정결과(종합)
     try:
         totalwifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
@@ -931,12 +972,10 @@ def get_report_cntx(request):
     'districtWiFicount':districtWiFicount,'sywificount':sywificount,'gbwificount':gbwificount,'publicwificount':publicwificount,
     'districtWeakcount':districtWeakcount,'dsrweakcount':dsrweakcount,'yghrweakcount':yghrweakcount,'yidsweakcount':yidsweakcount,'hadrweakcount':hadrweakcount,
     'tresult5g':tresult5g,'tresultlte':tresultlte,'tresultwifi':tresultwifi,'tresultweak':tresultweak,
-    # 'reportmsg_msg5G':reportmsg_msg5G,
-    # 'reportmsg_msgLTE':reportmsg_msgLTE,
-    # 'reportmsg_msgWiFi':reportmsg_msgWiFi,
-    # 'reportmsg_msgWeak':reportmsg_msgWeak,
-    # 'reportmsg_msg5Gafter':reportmsg_msg5Gafter,
-    # 'reportmsg_msgLTEafter':reportmsg_msgLTEafter,
+    'weakvolte':weakvolte,
+    'weaktele3g':weaktele3g,
+    'weaklte':weaklte,
+    'weak3g':weak3g,
     'regi':regi, 'reportmsg':reportmsg,'sregi':sregi,'firstdate':firstdate,'lastdate':lastdate,
     'tregi5Ghjd':tregi5Ghjd,'tregi5Gdagyo':tregi5Gdagyo,'tregi5Gnsatotal':tregi5Gnsatotal,'tregi5Gsatotal':tregi5Gsatotal, 'tregi5Gpublic':tregi5Gpublic,'tregi5Gcv':tregi5Gcv,'tregi5Gtotal':tregi5Gtotal,
     'sregi5Ghjd':sregi5Ghjd,'sregi5Gdagyo':sregi5Gdagyo,'sregi5Gnsatotal':sregi5Gnsatotal,'sregi5Gsatotal':sregi5Gsatotal,'sregi5Gpublic':sregi5Gpublic,'sregi5Gcv':sregi5Gcv,'sregi5Gtotal':sregi5Gtotal,
