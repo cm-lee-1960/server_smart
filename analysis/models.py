@@ -16,7 +16,7 @@ from message.tele_msg import TelegramBot  # 텔레그램 메시지 전송 클래
 from message.xmcs_msg import send_sms  # 2022.03.04 크로샷 메시지 전송 함수 호출
 
 ###############################################################################################################################################################################
-#04.20 일일보고 사후측정 데이터
+#일일보고 사후측정 데이터
 ###############################################################################################################################################################################
 
 class PostMeasure5G(models.Model):
@@ -81,11 +81,10 @@ class PostMeasureLTE(models.Model):
         return f"{self.name}"
     
 ###############################################################################################################################################################################
-#3.16 측정대상 모델(수정완료)(클래스명 변경 필요, MeasPlan으로 변경예정)
+#측정대상 모델
 ###############################################################################################################################################################################
 class MeasPlan(models.Model):
     planYear = models.IntegerField(null=True, default=0, verbose_name="계획년도") # 계획년도 
-    
     nsahjd5G = models.IntegerField(null=True, default=0, verbose_name="5G 행정동") # 5G NSA - 행정동
     nsadg5G = models.IntegerField(null=True, default=0, verbose_name="5G 다중이용시설/교통인프라") # - 5G NSA 다중이용시설/교통인프라
     sa5G = models.IntegerField(null=True, default=0, verbose_name="5G SA") #SA  5G
@@ -116,8 +115,8 @@ class MeasPlan(models.Model):
     total = models.IntegerField(null=True, default=0, verbose_name="Total")
 
     class Meta:
-        verbose_name = ('대상등록')
-        verbose_name_plural = ('대상등록')
+        verbose_name = ('측정계획')
+        verbose_name_plural = ('측정계획')
         
     
     def __str__(self):
@@ -125,7 +124,7 @@ class MeasPlan(models.Model):
 
 
 ###############################################################################################################################################################################
-#3.17 일일보고 추가 메세지 등록모델(수정중)
+#일일보고 추가 메세지 등록모델(수정중)
 ###############################################################################################################################################################################
 
 class ReportMessage(models.Model):
@@ -142,13 +141,13 @@ class ReportMessage(models.Model):
         verbose_name_plural = ('리포트 메시지')
 
 ###############################################################################################################################################################################
-#3.17 일일보고 작년 측정 결과 등록 모델 5G
+#일일보고 작년 측정 결과 등록 모델 5G
 ###############################################################################################################################################################################
 
 class MeasLastyear5G(models.Model):
+    measYear = models.IntegerField(null=True, default=0, verbose_name="측정년도") # 측정년도
     area_choice = (('대도시','대도시'),('중소도시','중소도시'),('행정동','행정동'),('다중이용시설','다중이용시설'),('아파트','아파트'),('대학교','대학교'),('교통인프라','교통인프라'),('종합','종합'),)
     measarea = models.CharField(max_length=50, null=True, blank=True,choices=area_choice,verbose_name="측정 모폴로지")
-    
     DL = models.FloatField(null=True, default=0,verbose_name="전송속도(DL)")
     UL = models.FloatField(null=True, default=0,verbose_name="전송속도(UL)")
     LTEDL= models.FloatField(null=True, default=0,verbose_name="LTE 전환율(DL)")
@@ -165,13 +164,13 @@ class MeasLastyear5G(models.Model):
 
 
 ###############################################################################################################################################################################
-#3.17 일일보고 작년 측정 결과 등록 모델 LTE
+#일일보고 작년 측정 결과 등록 모델 LTE
 ###############################################################################################################################################################################
 
 class MeasLastyearLTE(models.Model):
+    measYear = models.IntegerField(null=True, default=0, verbose_name="측정년도") # 측정년도
     area_choice = (('대도시','대도시'),('중소도시','중소도시'),('농어촌','농어촌'),('행정동','행정동'),('인빌딩','인빌딩'),('테마','테마'),('종합','종합'),)
     measarea = models.CharField(max_length=50, null=True, blank=True,choices=area_choice)
-    
     DL = models.FloatField(null=True, default=0,verbose_name="전송속도(DL)")
     UL = models.FloatField(null=True, default=0,verbose_name="전송속도(UL)")
     delay = models.FloatField(null=True, default=0,verbose_name="지연시간")
@@ -185,14 +184,14 @@ class MeasLastyearLTE(models.Model):
         return f"{self.measarea}"
     
 ###############################################################################################################################################################################
-#3.17 일일보고 지역별 작년측정 DL
+#일일보고 지역별 작년측정 DL
 ###############################################################################################################################################################################
 
 class MeasLastyeardistrict(models.Model):
+    measYear = models.IntegerField(null=True, default=0, verbose_name="측정년도") # 측정년도
     nettype_choice = (("5G","5G"),("LTE","LTE"),("WiFi지하철","WiFi지하철"))
     district_choice = (('종합','종합'),('서울','서울'),('수도권','수도권'),('인천','인천'),('부산','부산'),('울산','울산'),('대구','대구'),('광주','광주'),('대전','대전'),('경기','경기'),('강원','강원'),('경남','경남'),
                        ('경북','경북'),('전남','전남'),('전북','전북'),('충남','충남'),('충북','충북'),('세종','세종'),('고속도로','고속도로'),('지하철','지하철'),('전국','전국'),)
-    
     nettype = models.CharField(max_length=50, null=True, blank=True,choices=nettype_choice)
     district = models.CharField(max_length=50, null=True, blank=True,choices=district_choice) 
     KTDL = models.FloatField(null=True, default=0,verbose_name="KT 전송속도(DL)")
@@ -209,13 +208,34 @@ class MeasLastyeardistrict(models.Model):
         return f"{self.nettype}/{self.district}"
 
 ###############################################################################################################################################################################
-#4.25 일일보고 작년 측정 결과 등록 모델 WiFi(수정중)
+#일일보고 작년 측정 결과 등록 모델 품질취약지역
+###############################################################################################################################################################################
+
+class MeasLastyearWeak(models.Model):
+    measYear = models.IntegerField(null=True, default=0, verbose_name="측정년도") # 측정년도
+    type_choice = (('등산로','등산로'),('여객항로','여객항로'),('유인도서','유인도서'),('해안도로','해안도로'),('계','계'))
+    weakmopho = models.CharField(max_length=50, null=True, blank=True, choices=type_choice)
+    weakvolte = models.FloatField(null=True, default=0,verbose_name="통화성공률(VoLTE)")
+    weaktele3g = models.FloatField(null=True, default=0,verbose_name="통화성공률(3G)")
+    weaklte = models.FloatField(null=True, default=0,verbose_name="전송성공률(LTE)")
+    weak3g = models.FloatField(null=True, default=0,verbose_name="전송성공률(3G)")
+    
+    class Meta:
+        verbose_name = ('작년결과(품질취약지역)')
+        verbose_name_plural = ('작년결과(품질취약지역)')
+        
+    
+    def __str__(self):
+        return f"{self.weakmopho}"
+
+###############################################################################################################################################################################
+#일일보고 작년 측정 결과 등록 모델 WiFi
 ###############################################################################################################################################################################
 
 class MeasLastyearWiFi(models.Model):
+    measYear = models.IntegerField(null=True, default=0, verbose_name="측정년도") # 측정년도
     type_choice = (('상용','상용'),('개방','개방'),('공공','공공'),('종합','종합'),)
     WiFitype = models.CharField(max_length=50, null=True, blank=True,choices=type_choice)
-    
     DL = models.FloatField(null=True, default=0,verbose_name="전송속도(DL)")
     UL = models.FloatField(null=True, default=0,verbose_name="전송속도(UL)")
     
@@ -285,10 +305,12 @@ def send_message_hj(hoho, **kwargs):
                     dl_nr_percent = instance.dl_nr_percent,
                     ul_nr_percent = instance.ul_nr_percent ,
                     udpJitter = instance.udpJitter,  # 지연시간
+                    datasucc = instance.success_rate,
                     siDo = a[0].siDo,
                     guGun = a[0].guGun,
                     addressDetail = a[0].addressDetail,
                     district = instance.phoneGroup.measureArea,
+                    
                     
         )
         if c.exists():

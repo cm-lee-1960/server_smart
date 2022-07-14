@@ -207,6 +207,8 @@ def pdf_merge(request):
     merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test.pdf", 'rb')))
     merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test (1).pdf", 'rb')))
     merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test (2).pdf", 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test (3).pdf", 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test (4).pdf", 'rb')))
 
 
     # merger가 새 pdf파일로 저장
