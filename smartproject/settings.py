@@ -54,7 +54,7 @@ KAKAO_REST_API_KEY = get_secret("KAKAO_REST_API_KEY")
 TELEGRAM_API_ID = get_secret("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = get_secret("TELEGRAM_API_HASH")
 # olleh API Key
-OLLEH_API_KEY = get_secret("OLLEH_API_KEY")
+#OLLEH_API_KEY = get_secret("OLLEH_API_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     ### third apps #####################################################################################################
     'django_extensions',
     'rest_framework',
+    'rest_framework.authtoken',
     # 'django_db_logger',
     ### local apps #####################################################################################################
     'monitor',
@@ -88,7 +89,11 @@ INSTALLED_APPS = [
     'logs',
     'api',
 ]
-
+RESTFRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
