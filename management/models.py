@@ -303,9 +303,15 @@ class PhoneInfo(models.Model):
         ("WiFi", "WiFi"),
         ("품질취약", "품질취약"),
     )
+    MODE_CHOICES = (
+        ("NSA", "NSA"),
+        ("SA", "SA"),
+        ("", None)
+    )
     phone_no = models.BigIntegerField(verbose_name="측정단말")
     networkId = models.CharField(max_length=100, null=True, blank=True,
                                  choices=sorted(NETWORKID_CHOICES, key=itemgetter(0)), verbose_name="유형")  # 네트워크ID(5G, LTE, 3G, WiFi)
+    mode = models.CharField(max_length=10, null=True, blank=True, choices=MODE_CHOICES, verbose_name="모드") # 5G의 경우에 사용(NSA, SA), 그외 널(NULL)
     measuringTeam = models.CharField(max_length=20, null=True, blank=True, \
                                      choices=sorted(MEASURINGTEAM_CHOICES, key=itemgetter(0)), verbose_name='측정조')
     siDo = models.CharField(max_length=100, null=True, blank=True, verbose_name="시,도")  # 시도
