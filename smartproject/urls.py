@@ -17,7 +17,7 @@ from django.conf.urls import include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path, re_path
+from django.urls import path, re_path, url
 from analysis.views import dashboard
 from django.views.static import serve
 
@@ -64,7 +64,6 @@ urlpatterns = [
     path("smart/message/", include("message.urls")), # 전송 메시지
     path("smart/accounts/", include("accounts.urls")), # 계정
     path("smart/api/", include("api.urls")),  # API
-    path('smart/rest-auth/', include('rest_auth.urls')),
     
     re_path(r'^smart/media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}), 
     re_path(r'^smart/static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
