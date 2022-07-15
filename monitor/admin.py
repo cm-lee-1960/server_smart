@@ -178,7 +178,7 @@ class PhoneAdmin(admin.ModelAdmin):
     # 2022.02.25 - 화면상의 항목들을 세션/그룹핑해서 보여준다. 
     fieldsets = (
         ('단말정보', {
-            'fields': ('phone_no',
+            'fields': (('phone_no', 'phoneGroup'),
                         ('networkId', 'ispId'),
             ),
             # 'description' : '단말에 대한 정보를 보여줍니다.'

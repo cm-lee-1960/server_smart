@@ -95,7 +95,7 @@ class PhoneGroup(models.Model):
         verbose_name_plural = "단말 그룹"
 
     def __str__(self):
-        return f"{self.measdate} / {self.userInfo1} / {self.morphology}"
+        return f"{self.measdate} / {self.userInfo1} / {self.morphology} / {self.id}"
 
     # 해당 단말그룹의 측정조를 업데이트 한다.
     def update_initial_data(self):
@@ -444,7 +444,7 @@ class Phone(models.Model):
         ("UL", "UL")
     )
 
-    phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
+    phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING, verbose_name="단말그룹")
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     starttime = models.CharField(max_length=10, verbose_name="측정시작시간")  # 측정시작시간
     phone_no = models.BigIntegerField(verbose_name="측정단말")
