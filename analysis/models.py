@@ -353,7 +353,7 @@ class LastMeasDayClose(models.Model):
                        ('경남','경남'),('대구','대구'),('경북','경북'),('전남','전남'),('전북','전북'),('충남','충남'),('충북','충북'),)
     
     measdate = models.DateField(default=timezone.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
-    userInfo1 = models.CharField(max_length=100, verbose_name="측정자 입력값1")
+    userInfo1 = models.CharField(max_length=100, null=True, blank=True, verbose_name="측정자 입력값1")
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="네트워크(raw)")  # 네트워크ID(5G, LTE, 3G, WiFi)
     nettype = models.CharField(max_length=100, null=True, blank=True,verbose_name="네트워크",default='',choices=nettype_choice)
     center = models.CharField(max_length=100,null=True, blank=True, verbose_name="센터", choices=center_choice)
