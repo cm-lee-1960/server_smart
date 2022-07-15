@@ -299,12 +299,14 @@ def send_message_hj(hoho, **kwargs):
                     dl_nr_percent = instance.dl_nr_percent,
                     ul_nr_percent = instance.ul_nr_percent ,
                     udpJitter = instance.udpJitter,  # 지연시간
-                    datasucc = instance.success_rate,
-                    siDo = a[0].siDo,
-                    guGun = a[0].guGun,
-                    addressDetail = a[0].addressDetail,)
+                    datasucc = instance.success_rate,)
                     
-        
+        if a.filter(siDo__isnull=False):
+            data.siDo = a[0].siDo
+        if a.filter(guGun__isnull=False):
+            data.siDo = a[0].guGun
+        if a.filter(addressDetail__isnull=False):
+            data.addressDetail = a[0].addressDetail
         if b.filter(morphologyDetail__isnull=False):
             c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
             data.nettype, data.mopho, data.detailadd, data.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class     
