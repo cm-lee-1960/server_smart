@@ -288,7 +288,6 @@ def send_message_hj(hoho, **kwargs):
     #if instance.phoneGroup != None:  # 커버리지의 경우 PhoneGroup 미존재
         a = Phone.objects.filter(userInfo1 = instance.userInfo1, measdate = instance.measdate)
         b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
-       
         format_data = "%Y%m%d"
 
         data = LastMeasDayClose.objects.create(
@@ -312,11 +311,16 @@ def send_message_hj(hoho, **kwargs):
         if b.filter(measureArea__isnull=False):
             d = MeasureArea.objects.filter(id = b[0].measureArea_id)
             data.district = d[0].area
-        if instance.filter(center__isnull=False):
-            data.center = instance.center.centerName
-        if instance.filter(morphology__isnull=False):
-            data.morphology = instance.morphology.morphology   
-                    
+        try:
+            centerfilter = Center.objects.filter(id=instance.center_id)
+            data.center = centerfilter[0].centerName
+        except:
+            pass
+        try:
+            mophofilter =  Morphology.objects.filter(id=instance.morphology_id)
+            data.morphology = mophofilter[0].morphology   
+        except:
+            pass            
        
         # if c.exists():
         #     data.nettype, data.mopho, data.detailadd, data.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
