@@ -265,18 +265,18 @@ admin.site.unregister(auth.models.Group)
 # ----------------------------------------------------------------------------------------------------------------------
 # 환경설정 관리(management) 모델 클래스를 정렬한다.
 # ----------------------------------------------------------------------------------------------------------------------
-def get_app_list(self, request):
-    """환경설정 관리 모델 클래스를 정렬하는 함수"""
-    app_dict = self._build_app_dict(request)
-    # 관리자 페이지 앱들을 재정렬한다.
-    ordering = settings.APPS_ORDERING
-    app_list = sorted(app_dict.values(), key=lambda x: ordering[x['name']])
-    for app in app_list:
-        # 관리자 페이지 운영환경 관리의 모델들을 재정렬 한다. 
-        if app['app_label'] == 'management':
-            ordering = settings.MANAGEMENT_MODELS_ORDERING
-            app['models'].sort(key=lambda x: ordering[x['name']])
+# def get_app_list(self, request):
+#     """환경설정 관리 모델 클래스를 정렬하는 함수"""
+#     app_dict = self._build_app_dict(request)
+#     # 관리자 페이지 앱들을 재정렬한다.
+#     ordering = settings.APPS_ORDERING
+#     app_list = sorted(app_dict.values(), key=lambda x: ordering[x['name']])
+#     for app in app_list:
+#         # 관리자 페이지 운영환경 관리의 모델들을 재정렬 한다. 
+#         if app['app_label'] == 'management':
+#             ordering = settings.MANAGEMENT_MODELS_ORDERING
+#             app['models'].sort(key=lambda x: ordering[x['name']])
 
-    return app_list
+#     return app_list
 
-admin.AdminSite.get_app_list = get_app_list
+# admin.AdminSite.get_app_list = get_app_list
