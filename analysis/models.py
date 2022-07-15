@@ -274,9 +274,6 @@ class MeasLastyearWiFi(models.Model):
 ########################################################################################################################
 # 허재 측정마감 테스트 (모델가져오기)
 ########################################################################################################################
-
-
-#def send_message_hj(sender, instance, created, **kwargs):
 def send_message_hj(hoho, **kwargs):
     """ 생성된 메시지를 크로샷 또는 텔레그램으로 전송하는 함수
         - 파라미터
@@ -291,10 +288,12 @@ def send_message_hj(hoho, **kwargs):
     #if instance.phoneGroup != None:  # 커버리지의 경우 PhoneGroup 미존재
         a = Phone.objects.filter(userInfo1 = instance.userInfo1, measdate = instance.measdate)
         b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
-        c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
+        if b.filter(morphologyDetail__isnull=False):
+            c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
+            data.nettype, data.mopho, data.detailadd, data.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
         format_data = "%Y%m%d"
 
-        qs = LastMeasDayClose.objects.create(
+        data = LastMeasDayClose.objects.create(
                     measdate =  datetime.strptime(instance.measdate, format_data).date(),  # 측정일자(예: 20211101)
                     userInfo1 = instance.userInfo1,
                     networkId = instance.networkId,  # 네트워크ID(5G, LTE, 3G, WiFi)
@@ -313,11 +312,11 @@ def send_message_hj(hoho, **kwargs):
                     
                     
         )
-        if c.exists():
-            qs.nettype, qs.mopho, qs.detailadd, qs.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
-            qs.save()
-    else:  # PhoneGroup이 None인 커버리지의 경우
-        pass
+        # if c.exists():
+        #     data.nettype, data.mopho, data.detailadd, data.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
+        data.save()
+        # else:  # PhoneGroup이 None인 커버리지의 경우
+        #     pass
        
     # else:
     #     # 메시지가 업데이트 되었을 때는 아무런 처리를 하지 않는다.
@@ -332,7 +331,7 @@ def send_message_hj(hoho, **kwargs):
 class LastMeasDayClose(models.Model):
     """측정마감 클래스"""
     nettype_choice = (("5G NSA","5G NSA"),("5G SA","5G SA"),("5G 공동망","5G 공동망"),("LTE","LTE"),("WiFi","WiFi"),("품질취약지역","품질취약지역"),)
-    mopho_choice = (("행정동","행정동"),("다중이용시설","다중이용시설"),("교통인프라","교통인프라"),("커버리지","커버리지"),("인빌딩","인빌딩"),("테마","테마"),("상용","상용"),("개방","개방"),("공공","공공"),("품질취약지역","품질취약지역"),)
+    mopho_choice = (("행정동","행정동"),("다중이용시설","다중이용시설"),("교통인프라","교통인프라"),("커버리지","커버리지"),("인빌딩","인빌딩"),("테마","테마"),("상용","상용"),("개방","개방"),("공공","공공"),("기타","기타"),("품질취약지역","품질취약지역"),)
     detailadd_choice = (("대도시","대도시"),("중소도시","중소도시"),("농어촌","농어촌"),("대형점포","대형점포"),("대학교","대학교"),("아파트","아파트"),("대형병원","대형병원"),("영화관","영화관"),("공항","공항"),
                         ("주요거리","주요거리"),("시장","시장"),("지하상가","지하상가"),("놀이공원","놀이공원"),("도서관","도서관"),("전시시설","전시시설"),("터미널","터미널"),("지하철노선","지하철노선"),("고속도로","고속도로"),
                         ("지하철역사","지하철역사"),("KTX,SRT역사","KTX,SRT역사"),("KTX,SRT노선","KTX,SRT노선"),("지하철","지하철"),("등산로","등산로"),("여객항로","여객항로"),("유인도서","유인도서"),("해안도로","해안도로"),)
@@ -384,7 +383,6 @@ class LastMeasDayClose(models.Model):
         return f"{self.userInfo1}"
 
 
-# post_save.connect(send_message_hj, sender=MeasuringDayClose)
 
 
 
