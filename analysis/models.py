@@ -288,9 +288,7 @@ def send_message_hj(hoho, **kwargs):
     #if instance.phoneGroup != None:  # 커버리지의 경우 PhoneGroup 미존재
         a = Phone.objects.filter(userInfo1 = instance.userInfo1, measdate = instance.measdate)
         b = PhoneGroup.objects.filter(id= instance.phoneGroup_id)
-        if b.filter(morphologyDetail__isnull=False):
-            c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
-            data.nettype, data.mopho, data.detailadd, data.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
+       
         format_data = "%Y%m%d"
 
         data = LastMeasDayClose.objects.create(
@@ -307,11 +305,18 @@ def send_message_hj(hoho, **kwargs):
                     datasucc = instance.success_rate,
                     siDo = a[0].siDo,
                     guGun = a[0].guGun,
-                    addressDetail = a[0].addressDetail,
-                    district = instance.phoneGroup.measureArea,
+                    addressDetail = a[0].addressDetail,)
                     
+        
+        if b.filter(morphologyDetail__isnull=False):
+            c = MorphologyDetail.objects.filter(id = b[0].morphologyDetail_id)
+            data.nettype, data.mopho, data.detailadd, data.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class     
+        if b.filter(measureArea__isnull=False):
+            d = MeasureArea.objects.filter(id = b[0].measureArea_id)
+            data.district = d[0].area
+            
                     
-        )
+       
         # if c.exists():
         #     data.nettype, data.mopho, data.detailadd, data.subadd = c[0].network_type, c[0].main_class, c[0].middle_class, c[0].sub_class
         data.save()
