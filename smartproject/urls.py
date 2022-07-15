@@ -64,6 +64,7 @@ urlpatterns = [
     path("smart/message/", include("message.urls")), # 전송 메시지
     path("smart/accounts/", include("accounts.urls")), # 계정
     path("smart/api/", include("api.urls")),  # API
+    path('smart/rest-auth/', include('rest_auth.urls')),
     
     re_path(r'^smart/media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}), 
     re_path(r'^smart/static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
