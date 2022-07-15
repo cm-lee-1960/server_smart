@@ -158,15 +158,33 @@ class MeasLastyearWeakAdmin(admin.ModelAdmin):
 # ----------------------------------------------------------------------------------------------------------------------
 # 관리자 페이지에 모델을 등록한다.
 # ----------------------------------------------------------------------------------------------------------------------
-admin.site.register(MeasPlan, MeasPlanAdmin) # 대상등록 등록
-admin.site.register(MeasLastyear5G, MeasLastyear5GAdmin) # 작년5G 등록
-admin.site.register(MeasLastyearLTE, MeasLastyearLTEAdmin) # 작년LTE 등록
-admin.site.register(MeasLastyearWiFi, MeasLastyearWiFiAdmin) # 작년WiFi 등록
-admin.site.register(MeasLastyeardistrict, MeasLastyeardistrictAdmin) # 작년WiFi 등록
-admin.site.register(MeasLastyearWeak, MeasLastyearWeakAdmin) # 작년품질취약지역 등록
-admin.site.register(LastMeasDayClose, LastMeasDayCloseAdmin) # 작년WiFi 등록
-admin.site.register(ReportMessage, ReportMessageAdmin) # 작년WiFi 등록
-admin.site.register(PostMeasure5G, PostMeasure5GAdmin) # 작년WiFi 등록
-admin.site.register(PostMeasureLTE, PostMeasureLTEAdmin) # 작년WiFi 등록
+# admin.site.register(MeasPlan, MeasPlanAdmin) # 대상등록 등록
+# admin.site.register(MeasLastyear5G, MeasLastyear5GAdmin) # 작년5G 등록
+# admin.site.register(MeasLastyearLTE, MeasLastyearLTEAdmin) # 작년LTE 등록
+# admin.site.register(MeasLastyearWiFi, MeasLastyearWiFiAdmin) # 작년WiFi 등록
+# admin.site.register(MeasLastyeardistrict, MeasLastyeardistrictAdmin) # 작년WiFi 등록
+# admin.site.register(MeasLastyearWeak, MeasLastyearWeakAdmin) # 작년품질취약지역 등록
+# admin.site.register(LastMeasDayClose, LastMeasDayCloseAdmin) # 작년WiFi 등록
+# admin.site.register(ReportMessage, ReportMessageAdmin) # 작년WiFi 등록
+# admin.site.register(PostMeasure5G, PostMeasure5GAdmin) # 작년WiFi 등록
+# admin.site.register(PostMeasureLTE, PostMeasureLTEAdmin) # 작년WiFi 등록
 
 
+
+################################## 별도 관리자 페이지 코드 (22.07.15) #######################################
+class ReportAdminSite(admin.AdminSite):
+    site_header = "일일보고 관리자 페이지"
+    site_title = "일일보고 관리자 페이지"
+    index_title = "일일보고 관리자 페이지"
+report_admin_site = ReportAdminSite(name='report_admin')
+
+report_admin_site.register(MeasPlan, MeasPlanAdmin) # 대상등록 등록
+report_admin_site.register(MeasLastyear5G, MeasLastyear5GAdmin) # 작년5G 등록
+report_admin_site.register(MeasLastyearLTE, MeasLastyearLTEAdmin) # 작년LTE 등록
+report_admin_site.register(MeasLastyearWiFi, MeasLastyearWiFiAdmin) # 작년WiFi 등록
+report_admin_site.register(MeasLastyeardistrict, MeasLastyeardistrictAdmin) # 작년WiFi 등록
+report_admin_site.register(MeasLastyearWeak, MeasLastyearWeakAdmin) # 작년품질취약지역 등록
+report_admin_site.register(LastMeasDayClose, LastMeasDayCloseAdmin) # 작년WiFi 등록
+report_admin_site.register(ReportMessage, ReportMessageAdmin) # 작년WiFi 등록
+report_admin_site.register(PostMeasure5G, PostMeasure5GAdmin) # 작년WiFi 등록
+report_admin_site.register(PostMeasureLTE, PostMeasureLTEAdmin) # 작년WiFi 등록
