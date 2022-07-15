@@ -294,9 +294,7 @@ def send_message_hj(hoho, **kwargs):
         data = LastMeasDayClose.objects.create(
                     measdate =  datetime.strptime(instance.measdate, format_data).date(),  # 측정일자(예: 20211101)
                     userInfo1 = instance.userInfo1,
-                    networkId = instance.networkId,  # 네트워크ID(5G, LTE, 3G, WiFi)
-                    center = instance.center.centerName,
-                    morphology = instance.morphology.morphology,
+                    networkId = instance.networkId,  # 네트워크ID(5G, LTE, 3G, WiFi)                   
                     downloadBandwidth = instance.downloadBandwidth,  # DL속도 (초단위 데이터 평균)
                     uploadBandwidth = instance.uploadBandwidth,  # UP속도 (초단위 데이터 평균) 
                     dl_nr_percent = instance.dl_nr_percent,
@@ -314,7 +312,10 @@ def send_message_hj(hoho, **kwargs):
         if b.filter(measureArea__isnull=False):
             d = MeasureArea.objects.filter(id = b[0].measureArea_id)
             data.district = d[0].area
-            
+        if instance.filter(center__isnull=False):
+            data.center = instance.center.centerName
+        if instance.filter(morphology__isnull=False):
+            data.morphology = instance.morphology.morphology   
                     
        
         # if c.exists():
