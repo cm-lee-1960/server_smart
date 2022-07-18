@@ -115,12 +115,11 @@ def measuring_end(phoneGroup):
             else: msg_nid = phoneGroup.networkId
             # 메시지를 작성한다.
             message = f"ㅇS-CXI {phoneGroup.measuringTeam} {msg_nid} {phoneGroup.userInfo1} " + \
-                    f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n"
+                    f"측정종료({start_meastime}~{end_meastime}, {total_count}콜)\n" + \
+                    f"- 속도(DL/UL, Mbps): {avg_bandwidth['avg_downloadBandwidth']} / {avg_bandwidth['avg_uploadBandwidth']}"
             # 5G의 경우 메시지 내용에 LTE전환율 포함한다.
             if phoneGroup.networkId == '5G':
-                message += f"- LTE 전환율(DL/UL, %): {nr_percent['dl_nr_percent']} / {nr_percent['ul_nr_percent']}\n"
-            # 평균 속도값을 메시지에 추가한다.
-            message += f"- 속도(DL/UL, Mbps): {avg_bandwidth['avg_downloadBandwidth']} / {avg_bandwidth['avg_uploadBandwidth']}"
+                message += f"\n- LTE 전환율(DL/UL, %): {nr_percent['dl_nr_percent']} / {nr_percent['ul_nr_percent']}\n"
             # 메시지를 저장한다.
             try: # phonegroup과 foreign-key 로 묶인 center 의 channelId 를 가져온다.
                 chatId = phoneGroup.center.channelId
