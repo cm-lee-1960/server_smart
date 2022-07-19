@@ -721,7 +721,7 @@ def cal_success_rate(phoneGroup):
     return success_rate
 
 ###### 접속시간, LTE CA비율, 평균 DL/UL속도 등은 계산식 확인 후 업데이트 필요
-def cal_connect_time(phoneGroup):
+def cal_connect_time2(phoneGroup):
     ''' 접속시간 계산 함수 (콜데이터)
      . 파라미터: phoneGroup
      . 반환값 : Dict {connect_time_dl:접속시간(DL), connect_time_ul:접속시간(UL)} '''
@@ -759,7 +759,36 @@ def cal_connect_time(phoneGroup):
 
     connect_time = round(((dl_sum + ul_sum) / (dl_count + ul_count))*1000, 1)  # 접속시간 전체평균
     return {'connect_time_dl':connect_time_dl, 'connect_time_ul':connect_time_ul, 'connect_time':connect_time}
+############################################################################################################################################################
+def cal_connect_time(phoneGroup):
+    ''' 접속시간 계산 함수 (콜데이터)
+     . 파라미터: phoneGroup
+     . 반환값 : Dict {connect_time_dl:접속시간(DL), connect_time_ul:접속시간(UL)} '''
+    phone_list = phoneGroup.phone_set.all()
+    phone_no = phone_list.values_list('phone_no', flat=True)
+    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                    userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
+    qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
 
+    if qs_dl.exists():
+        dl_count = qs_dl.count()
+        connect_time_dl = round(qs_dl.aggregate(Avg('downloadconnectionsuccess'))['downloadconnectionsuccess__avg']*1000, 1)  # DL 접속시간
+        dl_sum = qs_dl.aggregate(Sum('downloadconnectionsuccess'))['downloadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
+    else:
+        connect_time_dl, dl_sum, dl_count = 0.0, 0, 1
+    
+    qs_ul = qs.filter(uploadelapse=9, uploadnetworkvalidation=55, uploadconnectionsuccess__isnull=False)
+
+    if qs_ul.exists():
+        ul_count = qs_ul.count()
+        connect_time_ul = round(qs_ul.aggregate(Avg('uploadconnectionsuccess'))['uploadconnectionsuccess__avg']*1000, 1)  # UL 접속시간
+        ul_sum = qs_ul.aggregate(Sum('uploadconnectionsuccess'))['uploadconnectionsuccess__sum']  # 전체 접속시간 평균을 구하기 위해 합/카운트 계산
+    else:
+        connect_time_ul, ul_sum, ul_count = 0.0, 0, 1
+
+    connect_time = round(((dl_sum + ul_sum) / (dl_count + ul_count))*1000, 1)  # 접속시간 전체평균
+    return {'connect_time_dl':connect_time_dl, 'connect_time_ul':connect_time_ul, 'connect_time':connect_time}
+############################################################################################################################################################
 def cal_lte_ca(phoneGroup):
     ''' LTE CA비율 계산 함수 (콜데이터)
      . 파라미터: phoneGroup
