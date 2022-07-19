@@ -3,7 +3,8 @@ from . import views
 
 app_name = 'monitor'
 urlpatterns = [
-    path("json/", views.receive_json), # 측정 데이터 처리
+    #path("json/", views.receive_json), # 측정 데이터 처리
+    path("json/", views.Receive_Json.as_view(), name='json'),
     path("json_loc/", views.receive_json_loc), # 측정단말 위치정보 데이터 처리
     path("end/<int:phonegroup_id>", views.measuring_end_view, name='measuring_end'), # 측정종료
     path("end/cancel/<int:phonegroup_id>", views.measuring_end_cancel_view), # 측정종료 취소
