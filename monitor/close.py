@@ -768,7 +768,7 @@ def cal_connect_time(phoneGroup):
     phone_no = phone_list.values_list('phone_no', flat=True)
     qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
                     userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, testnetworktype='speed')
-    qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False)
+    qs_dl = qs.filter(downloadelapse=9, downloadnetworkvalidation=55, downloadconnectionsuccess__isnull=False).exclude(downloadconnectionsuccess=0)
 
     if qs_dl.exists():
         dl_count = qs_dl.count()
@@ -777,7 +777,7 @@ def cal_connect_time(phoneGroup):
     else:
         connect_time_dl, dl_sum, dl_count = 0.0, 0, 1
     
-    qs_ul = qs.filter(uploadelapse=9, uploadnetworkvalidation=55, uploadconnectionsuccess__isnull=False)
+    qs_ul = qs.filter(uploadelapse=9, uploadnetworkvalidation=55, uploadconnectionsuccess__isnull=False).exclude(uploadconnectionsuccess=0)
 
     if qs_ul.exists():
         ul_count = qs_ul.count()
