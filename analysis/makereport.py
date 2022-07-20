@@ -24,7 +24,6 @@ from django.db.models import Q
 # -------------------------------------------------------------------------------------------------
 networkid_list = ["5G NSA", "5G SA", "5G 공동망", "LTE", "WiFi", "품질취약지역"]
 district_list = ['서울','인천','부산','울산','대구','광주','대전','경기','강원','경남','경북','전남','전북','충남','충북','세종','고속도로','지하철','전국']
-
 center_list = ['서울강북','강원','경기북부','서울강남','경기남부','경기서부','부산','경남','대구','경북','전남','전북','충남','충북']
 city_list = ["대도시",'중소도시','농어촌']
 facility5g_list = ['대형점포','대학교','아파트','병원','영화관','공항','거리','시장','지하상가','놀이공원','도서관','전시시설','터미널']
@@ -41,41 +40,27 @@ def get_report_cntx(request):
     """
    
     #리포트 날짜 추출 및 검색
-    
-    # if reportdate == "GET" :
-    #     reportdate = request.GET.get('reportdate')
-    # else : 
-    #     reportdate = date.today()
-    
     reportdate = request.GET.get('reportdate')
-    try:
-        firstday = LastMeasDayClose.objects.last().measdate
-    except:
-        firstday = date.today()
-    #사후측정 전체
-    print(type(firstday),firstday)
+    
     if reportdate is None:
         hodate = date.today()
         reportdate = date.today().strftime('%Y-%m-%d')
-       
     else :
         format_data = "%Y-%m-%d"
         hodate = datetime.datetime.strptime(reportdate, format_data).date()    
-       
     
-    # class comment(LastMeasDayClose):
-    #     date = LastMeasDayClose.measdate()
-    # class F(FilterSet):
-    #     date = DateFromToRangeFilter()
-    #     class Meta:
-    #         model = comment
-    #         fields = ['date']
+    #리포트 해당년도 및 리포트 첫번째내용 날짜 추출   
+    reportyear = reportdate[0:4]
+    reportlastyear = int(reportyear)-1
+    try:
+        firstday = LastMeasDayClose.objects.filter(measdate__startswith=reportyear).last().measdate
+    except:
+        firstday = date.today()
     
-    # f = F({'date_after':firstday, 'date_before':hodate})
-    # print(f)
-
+    #사후측정 전체
     postmeasure5g = PostMeasure5G.objects.filter(measdate__range=[firstday,hodate])
     postmeasurelte = PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate])
+    
     #사후측정 5G
     postmeas5glist = [] 
     postmeas5grankdllist = []
@@ -473,24 +458,21 @@ def get_report_cntx(request):
         postmeaslterankullist.append(str(round(df_testullte.iloc[0,0]))+"위")  
             
 #측정대상
-    regi = MeasPlan.objects.filter(planYear="2022")
+    regi = MeasPlan.objects.filter(planYear=reportyear)
+
 #측정일자(처음~마지막) 
     firstdate = firstday
     lastdate = hodate
+
 #리포트메세지    
     reportmsg = ReportMessage.objects.filter(measdate = hodate)
-    
-    # reportmsg_msg5G = ReportMessage.objects.get(measdate = hodate).msg5G
-    # reportmsg_msgLTE = ReportMessage.objects.get(measdate = hodate).msgLTE
-    # reportmsg_msgWiFi = ReportMessage.objects.get(measdate = hodate).msgWiFi
-    # reportmsg_msgWeak = ReportMessage.objects.get(measdate = hodate).msgWeak
-    # reportmsg_msg5Gafter = ReportMessage.objects.get(measdate = hodate).msg5Gafter
-    # reportmsg_msgLTEafter = ReportMessage.objects.get(measdate = hodate).msgLTEafter
-    
+   
 #측정전체    
     sregi = LastMeasDayClose.objects.filter(measdate__range=[firstday,hodate])
+
 #당일측정
     tregi = LastMeasDayClose.objects.filter(measdate = hodate)
+
 #5G측정전체개수    
     sregi5Ghjd = LastMeasDayClose.objects.filter(nettype = "5G NSA", mopho = "행정동",measdate__range=[firstday,hodate]).count()
     sregi5Gdagyo = LastMeasDayClose.objects.filter(Q(nettype = "5G NSA")&(Q(mopho = "다중이용시설")|Q(mopho = "교통인프라"))&Q(measdate__range=[firstday,hodate])).count()
@@ -499,6 +481,7 @@ def get_report_cntx(request):
     sregi5Gpublic = LastMeasDayClose.objects.filter(nettype = "5G 공동망",measdate__range=[firstday,hodate]).count()
     sregi5Gcv = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망")) & Q(mopho = "커버리지")&Q(measdate__range=[firstday,hodate])).count()
     sregi5Gtotal = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate__range=[firstday,hodate])).count()
+
 #5G당일측정전체개수   
     tregi5Ghjd = LastMeasDayClose.objects.filter(nettype = "5G NSA", mopho = "행정동", measdate = hodate).count()
     tregi5Gdagyo = LastMeasDayClose.objects.filter(Q(nettype = "5G NSA")&(Q(mopho = "다중이용시설")|Q(mopho = "교통인프라"))&Q(measdate = hodate)).count()
@@ -589,7 +572,7 @@ def get_report_cntx(request):
     sregiweakyghr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "여객항로",measdate__range=[firstday,hodate]).count()
     sregiweakyids = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "유인도서",measdate__range=[firstday,hodate]).count()
     sregiweakhadr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "해안도로",measdate__range=[firstday,hodate]).count()
-    sregiweaktotal = LastMeasDayClose.objects.filter(mopho = "품질취약지역").count()
+    sregiweaktotal = LastMeasDayClose.objects.filter(mopho = "품질취약지역",measdate__range=[firstday,hodate]).count()
 #품질취약지역당일측정전체개수   
     tregiweakdsr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "등산로").count()
     tregiweakyghr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "여객항로").count()
@@ -615,27 +598,32 @@ def get_report_cntx(request):
     
 #모폴로지별작년측정결과
     #5G
-    last5gbct = MeasLastyear5G.objects.filter(measarea='대도시')
-    last5gmct = MeasLastyear5G.objects.filter(measarea='중소도시')
-    last5ghjd = MeasLastyear5G.objects.filter(measarea='행정동')
-    last5gdj = MeasLastyear5G.objects.filter(measarea='다중이용시설')
-    last5gapt = MeasLastyear5G.objects.filter(measarea='아파트')
-    last5gtraffic = MeasLastyear5G.objects.filter(measarea='교통인프라')
-    last5gtotal = MeasLastyear5G.objects.filter(measarea='종합')
+    last5gbct = MeasLastyear5G.objects.filter(measarea='대도시' , measYear = reportlastyear)
+    last5gmct = MeasLastyear5G.objects.filter(measarea='중소도시', measYear = reportlastyear)
+    last5ghjd = MeasLastyear5G.objects.filter(measarea='행정동', measYear = reportlastyear)
+    last5gdj = MeasLastyear5G.objects.filter(measarea='다중이용시설', measYear = reportlastyear)
+    last5gapt = MeasLastyear5G.objects.filter(measarea='아파트', measYear = reportlastyear)
+    last5gtraffic = MeasLastyear5G.objects.filter(measarea='교통인프라', measYear = reportlastyear)
+    last5gtotal = MeasLastyear5G.objects.filter(measarea='종합', measYear = reportlastyear)
     #LTE
-    lastltebct = MeasLastyearLTE.objects.filter(measarea='대도시')
-    lastltemct = MeasLastyearLTE.objects.filter(measarea='중소도시')
-    lastltesct = MeasLastyearLTE.objects.filter(measarea='농어촌')
-    lastltehjd = MeasLastyearLTE.objects.filter(measarea='행정동')
-    lastlteib = MeasLastyearLTE.objects.filter(measarea='인빌딩')
-    lastltetm = MeasLastyearLTE.objects.filter(measarea='테마')
-    lastltetotal = MeasLastyearLTE.objects.filter(measarea='종합')
+    lastltebct = MeasLastyearLTE.objects.filter(measarea='대도시', measYear = reportlastyear)
+    lastltemct = MeasLastyearLTE.objects.filter(measarea='중소도시', measYear = reportlastyear)
+    lastltesct = MeasLastyearLTE.objects.filter(measarea='농어촌', measYear = reportlastyear)
+    lastltehjd = MeasLastyearLTE.objects.filter(measarea='행정동', measYear = reportlastyear)
+    lastlteib = MeasLastyearLTE.objects.filter(measarea='인빌딩', measYear = reportlastyear)
+    lastltetm = MeasLastyearLTE.objects.filter(measarea='테마', measYear = reportlastyear)
+    lastltetotal = MeasLastyearLTE.objects.filter(measarea='종합', measYear = reportlastyear)
     #WiFi
-    lastwifigb = MeasLastyearWiFi.objects.filter(WiFitype='개방')
-    lastwifisy = MeasLastyearWiFi.objects.filter(WiFitype='상용')
-    lastwifipublic = MeasLastyearWiFi.objects.filter(WiFitype='공공')
-    lastwifitotal = MeasLastyearWiFi.objects.filter(WiFitype='종합')
-    
+    lastwifigb = MeasLastyearWiFi.objects.filter(WiFitype='개방', measYear = reportlastyear)
+    lastwifisy = MeasLastyearWiFi.objects.filter(WiFitype='상용', measYear = reportlastyear)
+    lastwifipublic = MeasLastyearWiFi.objects.filter(WiFitype='공공', measYear = reportlastyear)
+    lastwifitotal = MeasLastyearWiFi.objects.filter(WiFitype='종합', measYear = reportlastyear)
+    #품질취약지역
+    weakdsr = MeasLastyearWeak.objects.filter(weakmopho="등산로", measYear = reportlastyear)
+    weakyghr = MeasLastyearWeak.objects.filter(weakmopho="여객항로", measYear = reportlastyear)
+    weakyids = MeasLastyearWeak.objects.filter(weakmopho="유인도서", measYear = reportlastyear)
+    weakhadr = MeasLastyearWeak.objects.filter(weakmopho="해안도로", measYear = reportlastyear)
+    weaktotal = MeasLastyearWeak.objects.filter(weakmopho="계", measYear = reportlastyear)
 #5G측정결과
     result5g_list = [["downloadBandwidth","downloadBandwidth__avg"],["uploadBandwidth","uploadBandwidth__avg"],["dl_nr_percent","dl_nr_percent__avg"],["ul_nr_percent","ul_nr_percent__avg"],["udpJitter","udpJitter__avg"]] 
     bctnsa5g = []
@@ -795,7 +783,47 @@ def get_report_cntx(request):
             totallte.append("")
                     
 #품질취약지역측정결과
-       
+    weakdistrict = ['등산로','여객항로','유인도서','해안도로']
+    weakvolte = []
+    weaktele3g = []
+    weaklte = []
+    weak3g = []
+    
+    for i in weakdistrict :
+        try:
+            weakvolte.append(round(LastMeasDayClose.objects.filter(detailadd= i,networkId= "LTE", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("telesucc"))["telesucc__avg"],1))
+            
+        except:
+            weakvolte.append("")
+        try:
+            weaktele3g.append(round(LastMeasDayClose.objects.filter(detailadd= i,networkId= "3G", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("telesucc"))["telesucc__avg"],1))           
+        except:
+            weaktele3g.append("")
+        try:
+            weaklte.append(round(LastMeasDayClose.objects.filter(detailadd= i,networkId= "LTE", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("datasucc"))["datasucc__avg"],1))
+        except:
+            weaklte.append("")
+        try:
+            weak3g.append(round(LastMeasDayClose.objects.filter(detailadd = i,networkId= "3G", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("datasucc"))["datasucc__avg"],1))
+        except:
+            weak3g.append("")
+    
+    try:
+        weakvolte.append(round(LastMeasDayClose.objects.filter(networkId= "LTE", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("telesucc"))["telesucc__avg"],1))
+    except:
+        weakvolte.append("")
+    try:
+        weaktele3g.append(round(LastMeasDayClose.objects.filter(networkId= "3G", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("telesucc"))["telesucc__avg"],1))
+    except:
+        weaktele3g.append("")
+    try:
+        weaklte.append(round(LastMeasDayClose.objects.filter(networkId= "LTE", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("datasucc"))["datasucc__avg"],1))
+    except:
+        weaklte.append("")
+    try:
+        weak3g.append(round(LastMeasDayClose.objects.filter(networkId= "3G", nettype = "품질취약지역",measdate__range=[firstday,hodate]).aggregate(Avg("datasucc"))["datasucc__avg"],1))
+    except:
+        weak3g.append("")
 #wifi측정결과(종합)
     try:
         totalwifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
@@ -931,12 +959,10 @@ def get_report_cntx(request):
     'districtWiFicount':districtWiFicount,'sywificount':sywificount,'gbwificount':gbwificount,'publicwificount':publicwificount,
     'districtWeakcount':districtWeakcount,'dsrweakcount':dsrweakcount,'yghrweakcount':yghrweakcount,'yidsweakcount':yidsweakcount,'hadrweakcount':hadrweakcount,
     'tresult5g':tresult5g,'tresultlte':tresultlte,'tresultwifi':tresultwifi,'tresultweak':tresultweak,
-    # 'reportmsg_msg5G':reportmsg_msg5G,
-    # 'reportmsg_msgLTE':reportmsg_msgLTE,
-    # 'reportmsg_msgWiFi':reportmsg_msgWiFi,
-    # 'reportmsg_msgWeak':reportmsg_msgWeak,
-    # 'reportmsg_msg5Gafter':reportmsg_msg5Gafter,
-    # 'reportmsg_msgLTEafter':reportmsg_msgLTEafter,
+    'weakvolte':weakvolte,
+    'weaktele3g':weaktele3g,
+    'weaklte':weaklte,
+    'weak3g':weak3g,
     'regi':regi, 'reportmsg':reportmsg,'sregi':sregi,'firstdate':firstdate,'lastdate':lastdate,
     'tregi5Ghjd':tregi5Ghjd,'tregi5Gdagyo':tregi5Gdagyo,'tregi5Gnsatotal':tregi5Gnsatotal,'tregi5Gsatotal':tregi5Gsatotal, 'tregi5Gpublic':tregi5Gpublic,'tregi5Gcv':tregi5Gcv,'tregi5Gtotal':tregi5Gtotal,
     'sregi5Ghjd':sregi5Ghjd,'sregi5Gdagyo':sregi5Gdagyo,'sregi5Gnsatotal':sregi5Gnsatotal,'sregi5Gsatotal':sregi5Gsatotal,'sregi5Gpublic':sregi5Gpublic,'sregi5Gcv':sregi5Gcv,'sregi5Gtotal':sregi5Gtotal,
@@ -950,6 +976,11 @@ def get_report_cntx(request):
     'last5gbct':last5gbct,'last5gmct':last5gmct,'last5ghjd':last5ghjd,'last5gdj':last5gdj,'last5gapt':last5gapt,'last5gtraffic':last5gtraffic,'last5gtotal':last5gtotal,
     'lastltebct':lastltebct,'lastltemct':lastltemct,'lastltesct':lastltesct,'lastltehjd':lastltehjd,'lastlteib':lastlteib,'lastltetm':lastltetm,'lastltetotal':lastltetotal,
     'lastwifigb':lastwifigb,'lastwifisy':lastwifisy,'lastwifipublic':lastwifipublic,'lastwifitotal':lastwifitotal,
+    'weakdsr':weakdsr,
+    'weakyghr':weakyghr,
+    'weakyids':weakyids,
+    'weakhadr':weakhadr,
+    'weaktotal':weaktotal,
     'wifitraindl':wifitraindl,'wifitrainul':wifitrainul,'wifitrainlastdl':wifitrainlastdl,'wifitrainlastul':wifitrainlastul,
     'totalwifidl':totalwifidl,'totalsywifidl':totalsywifidl,'totalgbwifidl':totalgbwifidl,'totalwifiul':totalwifiul,'totalsywifiul':totalsywifiul,'totalgbwifiul':totalgbwifiul,
     'postmeasure5g':postmeasure5g,'postmeasurelte':postmeasurelte,

@@ -28,7 +28,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponsePermanentRedirect, JsonResponse
 from .ajax import *
-
+import os
 from django.views.generic import ListView
 from django.shortcuts import get_list_or_404
 from django.views.generic import TemplateView
@@ -202,18 +202,26 @@ def dashboard_test(request):
 def pdf_merge(request):
     # merger라는 이름의 pdf병합기를 준비
     merger = PdfFileMerger()
-
+    username = os.environ.get('USERNAME')
+    saveday = datetime.now().strftime("%Y%m%d")
     # 준비한 파일들을 하나씩 읽은 후, merger에 추가
-    merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test.pdf", 'rb')))
-    merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test (1).pdf", 'rb')))
-    merger.append(PdfFileReader(open("C:/Users/82109/Downloads/test (2).pdf", 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제) (1).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제) (2).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제) (3).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제) (4).pdf".format(username), 'rb')))
 
 
     # merger가 새 pdf파일로 저장
-    merger.write("C:/Users/82109/Downloads/testone.pdf")
+    merger.write("C:/Users/{}/Downloads/일일보고({}생성).pdf".format(username,saveday))
     response = {'status': 1, 'message': '엑셀파일이 정상적으로 업로드 됐습니다.'}
+    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제).pdf".format(username))
+    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제) (1).pdf".format(username))
+    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제) (2).pdf".format(username))
+    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제) (3).pdf".format(username))
+    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제) (4).pdf".format(username))
     return HttpResponse(json.dumps(response), content_type='application/json')
-
+    
 
 ################################################################################################
 # 엑셀업로드테스트
@@ -310,7 +318,7 @@ def report_measresult(request):
 # -------------------------------------------------------------------------------------------------
 def report_postmeas(request):
     """일일보고 대상등록 페이지 뷰"""
-    context = get_report_cntx()
+    context = get_report_cntx(request)
     return render(request, "analysis/register_postmeas_form.html", context)
 
 
@@ -322,7 +330,7 @@ def register_measdata(request):
     """ 대상등록 페이지 뷰
         - 등록대상 : 측정대상, 측정완료, 전년도결과(5G, LTE), 추가기입사항
     """
-    context = get_measresult_cntx()
+    context = get_measresult_cntx(request)
     return render(request, "analysis/register_measdata_form.html", context)
 
 # -------------------------------------------------------------------------------------------------
@@ -504,12 +512,17 @@ def update_report(request):
     """측정결과 등록정보를 삭제하는 뷰"""
    
     if request.method== "POST":
-       post_save.connect(send_message_hj, sender=MeasuringDayClose)
-       a=MeasuringDayClose.objects.all().values_list('measdate',flat=True).order_by('measdate').distinct()
-       b=LastMeasDayClose.objects.all().values_list('measdate',flat=True).order_by('measdate').distinct()
-       print(a)
-       print(b)
-       diff_measdate = list(set(a)-set(b))
+        post_save.connect(send_message_hj, sender=MeasuringDayClose)
+        a=MeasuringDayClose.objects.all().values_list('measdate',flat=True).order_by('measdate').distinct()
+        b=LastMeasDayClose.objects.all().values_list('measdate',flat=True).order_by('measdate').distinct()
+        c= []
+        format_data = "%Y%m%d"
+        for i in range(len(b)):
+            c.append(b[i].strftime('%Y%m%d'))
+             
+        print(a)
+        print(c)
+        diff_measdate = list(set(a)-set(c))
        
     #    print(c)
     #    print(d)
@@ -517,15 +530,14 @@ def update_report(request):
     #    diff_object = list(set(c)-set(d))
     #    print(diff_object)
     #    hoho = []
-       for measdate in diff_measdate:
-         
-          hoho = MeasuringDayClose.objects.filter(measdate= measdate)
-          print(hoho)
-          send_message_hj(hoho)
-        # hoho.append(MeasuringDayClose.objects.filter(measdate= diff_measdate))
+        for measdate in diff_measdate:
+            
+            hoho = MeasuringDayClose.objects.filter(measdate= measdate)
+            send_message_hj(hoho)
+            # hoho.append(MeasuringDayClose.objects.filter(measdate= diff_measdate))
+        post_save.disconnect(send_message_hj, sender=MeasuringDayClose)
         
-    #    send_message_hj(hoho)
-       ##send_message_hj실행
+
     return redirect("analysis:report")
 # -------------------------------------------------------------------------------------------------
 # 6) 측정완료 삭제

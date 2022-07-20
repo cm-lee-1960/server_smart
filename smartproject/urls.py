@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from django.urls import path, re_path
 from analysis.views import dashboard
 from django.views.static import serve
+from analysis.admin import report_admin_site
 
 ########################################################################################################################
 # 스마트상황실 프로젝트
@@ -56,14 +57,15 @@ from django.views.static import serve
 ########################################################################################################################
 
 urlpatterns = [
-    path('smart/', dashboard, name='dashboard'),
-    path('smart/admin/', admin.site.urls),
+    path('smart/', dashboard, name='dashboard'), # 대쉬보드
+    path('smart/admin/', admin.site.urls), # 유저 관리자페이지
     path('smart/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path("smart/monitor/", include("monitor.urls")), # 측정 모니터링
     path("smart/analysis/", include("analysis.urls")), # 분석
     path("smart/message/", include("message.urls")), # 전송 메시지
     path("smart/accounts/", include("accounts.urls")), # 계정
     path("smart/api/", include("api.urls")),  # API
+    path("smart/report_admin/", report_admin_site.urls), # 일일보고를 위한 관리자 페이지
     
     re_path(r'^smart/media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}), 
     re_path(r'^smart/static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),

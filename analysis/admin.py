@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib import auth
 from django.conf import settings
-from .models import MeasPlan,MeasLastyear5G,MeasLastyearLTE,MeasLastyearWiFi,LastMeasDayClose,ReportMessage,PostMeasure5G,PostMeasureLTE,MeasLastyeardistrict
+from .models import MeasPlan,MeasLastyear5G,MeasLastyearLTE,MeasLastyearWiFi,LastMeasDayClose,ReportMessage,PostMeasure5G,PostMeasureLTE,MeasLastyeardistrict,MeasLastyearWeak
 
     
 # class MeasPlanAdmin(admin.ModelAdmin):
@@ -43,7 +43,7 @@ class MeasLastyear5GAdmin(admin.ModelAdmin):
     '''대상등록을 위한 클래스'''
    
     model = MeasLastyear5G
-    list_display = ['measarea','DL','UL','LTEDL','LTEUL','delay',]
+    list_display = ['measYear','measarea','DL','UL','LTEDL','LTEUL','delay',]
     list_display_links = ['measarea',]
     search_fields = ('measarea',)
 
@@ -51,7 +51,7 @@ class MeasLastyearLTEAdmin(admin.ModelAdmin):
     '''대상등록을 위한 클래스'''
     
     model = MeasLastyearLTE
-    list_display = ['measarea','DL','UL','delay',]
+    list_display = ['measYear','measarea','DL','UL','delay',]
     list_display_links = ['measarea',]
     search_fields = ('measarea',)
     
@@ -59,7 +59,7 @@ class MeasLastyeardistrictAdmin(admin.ModelAdmin):
     '''대상등록을 위한 클래스'''
     
     model = MeasLastyeardistrict
-    list_display = ['nettype','district','KTDL','SKTDL','LGDL']
+    list_display = ['measYear','nettype','district','KTDL','SKTDL','LGDL']
     list_display_links = ['nettype','district',]
     search_fields = ('nettype','district',)
 
@@ -67,7 +67,7 @@ class MeasLastyearWiFiAdmin(admin.ModelAdmin):
     '''대상등록을 위한 클래스'''
     
     model = MeasLastyearWiFi
-    list_display = ['WiFitype','DL','UL',]
+    list_display = ['measYear','WiFitype','DL','UL',]
     list_display_links = ['WiFitype',]
     search_fields = ('WiFitype',)
     
@@ -145,16 +145,46 @@ class PostMeasureLTEAdmin(admin.ModelAdmin):
     list_display_links = ['name',]
     search_fields = ('name','measdate') 
 
+class MeasLastyearWeakAdmin(admin.ModelAdmin):
+    '''취약지역 작년결과를 위한 클래스'''
+    model = MeasLastyearWeak
+    list_display = ['measYear','weakmopho',
+    'weakvolte',
+    'weaktele3g',
+    'weaklte',
+    'weak3g',]
+    list_display_links = ['weakmopho',]
+    search_fields = ('weakmopho',) 
 # ----------------------------------------------------------------------------------------------------------------------
 # 관리자 페이지에 모델을 등록한다.
 # ----------------------------------------------------------------------------------------------------------------------
-admin.site.register(MeasPlan, MeasPlanAdmin) # 대상등록 등록
-admin.site.register(MeasLastyear5G, MeasLastyear5GAdmin) # 작년5G 등록
-admin.site.register(MeasLastyearLTE, MeasLastyearLTEAdmin) # 작년LTE 등록
-admin.site.register(MeasLastyearWiFi, MeasLastyearWiFiAdmin) # 작년WiFi 등록
-admin.site.register(MeasLastyeardistrict, MeasLastyeardistrictAdmin) # 작년WiFi 등록
-admin.site.register(LastMeasDayClose, LastMeasDayCloseAdmin) # 작년WiFi 등록
-admin.site.register(ReportMessage, ReportMessageAdmin) # 작년WiFi 등록
-admin.site.register(PostMeasure5G, PostMeasure5GAdmin) # 작년WiFi 등록
-admin.site.register(PostMeasureLTE, PostMeasureLTEAdmin) # 작년WiFi 등록
+# admin.site.register(MeasPlan, MeasPlanAdmin) # 대상등록 등록
+# admin.site.register(MeasLastyear5G, MeasLastyear5GAdmin) # 작년5G 등록
+# admin.site.register(MeasLastyearLTE, MeasLastyearLTEAdmin) # 작년LTE 등록
+# admin.site.register(MeasLastyearWiFi, MeasLastyearWiFiAdmin) # 작년WiFi 등록
+# admin.site.register(MeasLastyeardistrict, MeasLastyeardistrictAdmin) # 작년WiFi 등록
+# admin.site.register(MeasLastyearWeak, MeasLastyearWeakAdmin) # 작년품질취약지역 등록
+# admin.site.register(LastMeasDayClose, LastMeasDayCloseAdmin) # 작년WiFi 등록
+# admin.site.register(ReportMessage, ReportMessageAdmin) # 작년WiFi 등록
+# admin.site.register(PostMeasure5G, PostMeasure5GAdmin) # 작년WiFi 등록
+# admin.site.register(PostMeasureLTE, PostMeasureLTEAdmin) # 작년WiFi 등록
 
+
+
+################################## 별도 관리자 페이지 코드 (22.07.15) #######################################
+class ReportAdminSite(admin.AdminSite):
+    site_header = "일일보고 관리자 페이지"
+    site_title = "일일보고 관리자 페이지"
+    index_title = "일일보고 관리자 페이지"
+report_admin_site = ReportAdminSite(name='report_admin')
+
+report_admin_site.register(MeasPlan, MeasPlanAdmin) # 대상등록 등록
+report_admin_site.register(MeasLastyear5G, MeasLastyear5GAdmin) # 작년5G 등록
+report_admin_site.register(MeasLastyearLTE, MeasLastyearLTEAdmin) # 작년LTE 등록
+report_admin_site.register(MeasLastyearWiFi, MeasLastyearWiFiAdmin) # 작년WiFi 등록
+report_admin_site.register(MeasLastyeardistrict, MeasLastyeardistrictAdmin) # 작년WiFi 등록
+report_admin_site.register(MeasLastyearWeak, MeasLastyearWeakAdmin) # 작년품질취약지역 등록
+report_admin_site.register(LastMeasDayClose, LastMeasDayCloseAdmin) # 작년WiFi 등록
+report_admin_site.register(ReportMessage, ReportMessageAdmin) # 작년WiFi 등록
+report_admin_site.register(PostMeasure5G, PostMeasure5GAdmin) # 작년WiFi 등록
+report_admin_site.register(PostMeasureLTE, PostMeasureLTEAdmin) # 작년WiFi 등록

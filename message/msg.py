@@ -238,15 +238,15 @@ def make_message(mdata: MeasureCallData):
                     messages += f"{phone.phoneGroup.morphologyDetail.network_type} "
                 else: messages += f"{phone.networkId} "
                 messages += f"{mdata.userInfo1} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
-                           f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}\n" + \
-                           f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
+                           f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}\n" + \
+                           f"- LTE 전환(DL/UL, 콜): {dl_nr_count}/{ul_nr_count}"
             # 기타(LTE, 3G) 측정데이터의 경우
             else:
                 messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.userInfo1} 측정\n({phone.starttime}~, {reportCallCount}콜 진행중)\n" + \
                            f"- 속도(DL/UL, Mbps): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 이벤트 메시지 내용 추가
-            messages +=  f"\n- 전송실패 이벤트(DL/UL, 건): {msg.filter(message__contains='DL전송실패', center=phone.center).count()}/{msg.filter(message__contains='UL전송실패', center=phone.center).count()}" + \
-                         f"\n- 속도저하 이벤트(DL/UL, 건): {msg.filter(message__contains='DL속도저하', center=phone.center).count()}/{msg.filter(message__contains='UL속도저하', center=phone.center).count()}"
+            messages +=  f"\n- 속도저하 이벤트(DL/UL, 건): {msg.filter(message__contains='DL속도저하', center=phone.center).count()}/{msg.filter(message__contains='UL속도저하', center=phone.center).count()}" + \
+                         f"\n- 전송실패 이벤트(DL/UL, 건): {msg.filter(message__contains='DL전송실패', center=phone.center).count()}/{msg.filter(message__contains='UL전송실패', center=phone.center).count()}"
 
 
         # [측정종료 메시지] --------------------------------------------------------------------------------------------

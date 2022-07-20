@@ -12,7 +12,7 @@ urlpatterns = [
    # 추가사항(필요없는것은 삭제예정)
     path("report/update/", views.update_report, name='update_report'), # 리포트 업데이트
     path("report/measplan/", views.report_measplan, name='report_measplan'), # 측정대상등록 페이지
-    path("report/list/", views.report_list, name='report_list'), # 일일보고 리스트 페이지
+    # path("report/list/", views.report_list, name='report_list'), # 일일보고 리스트 페이지
     path("report/measresult/", views.report_measresult, name='report_measresult'), # 측정결과현황 페이지
     path("report/postmeas/", views.report_postmeas, name='report_postmeas'), # 사후측정 등록 페이지
 

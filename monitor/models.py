@@ -95,7 +95,7 @@ class PhoneGroup(models.Model):
         verbose_name_plural = "단말 그룹"
 
     def __str__(self):
-        return f"{self.measdate} / {self.userInfo1} / {self.morphology}"
+        return f"{self.measdate} / {self.userInfo1} / {self.morphology} / {self.id}"
 
     # 해당 단말그룹의 측정조를 업데이트 한다.
     def update_initial_data(self):
@@ -444,7 +444,7 @@ class Phone(models.Model):
         ("UL", "UL")
     )
 
-    phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING)
+    phoneGroup = models.ForeignKey(PhoneGroup, on_delete=models.DO_NOTHING, verbose_name="단말그룹")
     measdate = models.CharField(max_length=10, verbose_name="측정일자")
     starttime = models.CharField(max_length=10, verbose_name="측정시작시간")  # 측정시작시간
     phone_no = models.BigIntegerField(verbose_name="측정단말")
@@ -676,7 +676,7 @@ class Phone(models.Model):
                 if qs.exists():
                     self.center = qs[0].center  # 관할센터
                 else:
-                    self.center = Center.objects.get(centerName="전체")
+                    self.center = Center.objects.filter(centerName="전체")[0]
 
                 if self.phoneGroup.measureArea is None:  ## 단말그룹 측정지역 매핑
                     qs_measure_area = MeasureArea.objects.filter(area=self.siDo)
@@ -685,14 +685,14 @@ class Phone(models.Model):
 
                 if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail and self.center and self.center.centerName in ['서울강북', '경기북부', '서울강남', '경기남부', '경기서부']:  ## WiFi + 지하철 + 수도권일 경우 서울강북으로 지정
                     if self.phoneGroup.morphologyDetail.middle_class=="지하철":
-                        self.center = Center.objects.get(centerName="서울강북")
+                        self.center = Center.objects.filter(centerName="서울강북")[0]
 
             else: 
                 if self.networkId == 'WiFi' and self.phoneGroup.morphologyDetail and self.center and self.center.centerName in ['서울강북', '경기북부', '서울강남', '경기남부', '경기서부']:  ## WiFi + 지하철 + 수도권일 경우 서울강북으로 지정
                     if self.phoneGroup.morphologyDetail.middle_class=="지하철":
-                        self.center = Center.objects.get(centerName="서울강북")
-                    else: self.center = Center.objects.get(centerName="전체")
-                else: self.center = Center.objects.get(centerName="전체") # 위경도가 없을 경우 센터 전체로 지정
+                        self.center = Center.objects.filter(centerName="서울강북")[0]
+                    else: self.center = Center.objects.fiter(centerName="전체")[0]
+                else: self.center = Center.objects.filter(centerName="전체")[0] # 위경도가 없을 경우 센터 전체로 지정
                 self.phoneGroup.measureArea = MeasureArea.objects.filter(area="전국")[0]
 
             # 측정 단말기 정보를 저장한다.

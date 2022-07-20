@@ -121,7 +121,7 @@
 	}
 	
 	#sidebar .sidebar-header {
-		padding: 20px;
+		padding: 10px;
 		background: #343a40;
 	}
 	
@@ -170,52 +170,89 @@
     <!-- 테스트 사이드바 -->
 
 
+<!--  사이드바 -->
 <div class="wrapper">
     
 	<!-- Sidebar -->
     <nav id="sidebar">
         <div class="sidebar-header">
             <h2>일일보고</h2>
+			<div id="content" style="height:10px; width:10px; display:inline-block; margin-left:130px">
+
+				<nav class="navbar navbar-expand-lg">
+					<div class="container-fluid">
+			
+						<button type="button" id="sidebarCollapse" class="btn btn-secondary">
+							<div id="outdentsidebar">
+								<i class="fas fa-outdent"></i>
+							</div>
+		
+							<div id="indentsidebar" style="display:none;">
+								<i  class="fas fa-indent" ></i>
+							</div>
+							
+							<span></span>
+						</button>
+					
+					</div>
+				</nav>
+				<!-- <div id = checkbox style="z-index: 3; position:fixed; top :150px; padding:5px;border: 1px solid rgba(183, 180, 180, 0.839);border-radius:10px;color:grey;background-color: white;display:none; " >
+					<input type="checkbox" name="meastitle" id="meas1" value="meassituation" style="color:grey;background-color: white;"checked/> 측정현황
+					<br>
+					<input type="checkbox" name="meastitle" id="meas11" value="meassituation5G"style="color:grey;" checked/> 5G
+					<br>
+					<input type="checkbox" name="meastitle" id="meas12" value="meassituationLTE"style="color:grey;" checked/> LTE
+					<br>
+					<input type="checkbox" name="meastitle" id="meas13" value="meassituationWiFi"style="color:grey;" checked/> WiFi
+					<br>
+					<input type="checkbox" name="meastitle" id="meas14" value="meassituationweak"style="color:grey;" checked/> 품질취약지역
+					<br>
+					<input type="checkbox" name="meastitle" id="meas2" value="measresult"style="color:grey;" checked/> 측정결과
+					<br>
+					<input type="checkbox" name="meastitle" id="meas21" value="measresult5G"style="color:grey;" checked/> 5G
+					<br>
+					<input type="checkbox" name="meastitle" id="meas22" value="measresultLTE"style="color:grey;background-color: white;" checked/> LTE
+					<br>
+					<input type="checkbox" name="meastitle" id="meas23" value="measresultWiFi" checked/> WiFi
+					<br>
+					<input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" checked/> 사후측정5G
+					<br>
+					<input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" checked/> 사후측정LTE
+					<br>
+					<input type="checkbox" name="meastitle" id="meas3" value="measplus" /> 추가사항
+				</div> -->
+			
+			</div>
         </div>
 
         <ul class="list-unstyled components">
             <li>
-                <a href="http://127.0.0.1:8000/smart/analysis/report/">일일보고</a>
+                <a href="{% url 'analysis:report' %}">일일보고</a>
             </li>
-			<li>
+			<!-- <li>
                 <a href="http://127.0.0.1:8000/smart/analysis/report/list/">일일보고 목록</a>
-            </li>
+            </li> -->
 			<li class="active">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">일일보고 관리</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
                     <li>
-                        <a href="http://127.0.0.1:8000/smart/analysis/report/measplan/">측정대상등록</a>
+                        <a href="{% url 'analysis:report_measplan' %}">측정대상등록</a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:8000/smart/analysis/report/measresult/">측정완료현황</a>
+                        <a href="{% url 'analysis:report_measresult' %}">측정완료현황</a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:8000/smart/analysis/report/postmeas/">사후측정등록</a>
+                        <a href="{% url 'analysis:report_postmeas' %}">사후측정등록</a>
                     </li>
                 </ul>
             </li>
         
         </ul>
     </nav>
-	<div id="content" style="height:10px; width:10px;">
-
-		<nav class="navbar navbar-expand-lg">
-			<div class="container-fluid">
 	
-				<button type="button" id="sidebarCollapse" class="btn btn-primary">
-					<i class="fas fa-align-left"></i>
-					<span></span>
-				</button>
-			</div>
-		</nav>
-	</div>
-</div>
+	
 
+</div>
 <div id="blank" style="width:250px;"></div>
 
 <div id="show1" style="margin:20px;border: 1px solid rgb(228, 223, 223); padding: 10px; width:95%;">
@@ -317,10 +354,12 @@
 <!-- 테스트 사이드바 -->
 <script>
     $(document).ready(function () {
-        $('#sidebarCollapse').on('click', function () {
-            $('#sidebar').toggleClass('active');
-            $(this).toggleClass('active');
-        });
+    $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active');
+        $(this).toggleClass('active');
+		$('#indentsidebar').toggle();
+		$('#outdentsidebar').toggle();
+    });
     });
     $('#report_nav').addClass('nav-item active');
 	$('#dashboard_nav').removeClass('nav-item active');

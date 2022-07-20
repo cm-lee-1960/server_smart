@@ -183,10 +183,15 @@ def ollehAPI_reverseGEO(latitude, longitude):
         response = requests.get(url, headers=headers)
         data = response.json()
 
-        if 'residentialAddress' in data.keys() and len(data['residentialAddress']) != 0:
-            siDo = data['residentialAddress'][0]['parcelAddress'][0]['siDo']
-            siGunGu = data['residentialAddress'][0]['parcelAddress'][0]['siGunGu']
-            eupMyeonDong = data['residentialAddress'][0]['parcelAddress'][0]['eupMyeonDong']
+        if 'residentialAddress' in data.keys() and len(data['residentialAddress']) != 0 and \
+            'parcelAddress' in data['residentialAddress'][0].keys() and len(data['residentialAddress'][0]['parcelAddress']) != 0:
+            dt = data['residentialAddress'][0]['parcelAddress'][0]
+            if 'siDo' in dt.keys(): siDo = dt['siDo']
+            else: siDo = None
+            if 'siGunGu' in dt.keys(): siGunGu = dt['siGunGu']
+            else: siGunGu = None
+            if 'eupMyeonDong' in dt.keys(): eupMyeonDong = dt['eupMyeonDong']
+            else: eupMyeonDong = None
             # fullAddress = data['residentialAddress'][0]['parcelAddress'][0]['fullAddress']
             # ri = data['residentialAddress'][0]['parcelAddress'][0]['ri']
         

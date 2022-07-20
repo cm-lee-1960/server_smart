@@ -106,7 +106,7 @@ button{
 	}
 	
 	#sidebar .sidebar-header {
-		padding: 20px;
+		padding: 10px;
 		background: #343a40;
 	}
 	
@@ -156,56 +156,80 @@ button{
 <body>
 	<!-- 메인화면 -->
 <div style="display:flex; flex-flow: row nowrap;">
-	<!-- 사이드바 -->
-	<!-- <div style="width:200px; border-right:1px solid rgb(226, 221, 221);margin-top:5px;" >
-		
-		<div style="position:fixed;width:200px; display:flex;">
-			<nav>
-				<div style="margin:40px 10px 10px 10px"> 
-					<a href="http://127.0.0.1:8000/analysis/report/" style="text-decoration-line:none; text-decoration:none;color:grey;">일일보고 </a>
-				</div>
-				<div style="margin:10px" >
-					<a href="http://127.0.0.1:8000/analysis/report/list/" style="text-decoration-line:none; text-decoration:none;color:grey">일일보고 리스트 </a>
-				</div>
-				<div style="margin:10px" >
-				  <a href="http://127.0.0.1:8000/analysis/report/measplan/" style="text-decoration-line:none; text-decoration:none;color:grey">측정대상등록 </a>
-				</div>
-				<div style="margin:10px" >
-					<a href="http://127.0.0.1:8000/analysis/report/measresult/" style="text-decoration-line:none; text-decoration:none;color:grey">측정완료현황</a>
-				</div>  
-			</nav>
-		</div> -->
-		
-	<!-- </div> -->
-<!-- 테스트 사이드바 -->
-
-
+	
+<!--  사이드바 -->
 <div class="wrapper">
     
 	<!-- Sidebar -->
     <nav id="sidebar">
         <div class="sidebar-header">
             <h2>일일보고</h2>
+			<div id="content" style="height:10px; width:10px; display:inline-block; margin-left:130px">
+
+				<nav class="navbar navbar-expand-lg">
+					<div class="container-fluid">
+			
+						<button type="button" id="sidebarCollapse" class="btn btn-secondary">
+							<div id="outdentsidebar">
+								<i class="fas fa-outdent"></i>
+							</div>
+		
+							<div id="indentsidebar" style="display:none;">
+								<i  class="fas fa-indent" ></i>
+							</div>
+							
+							<span></span>
+						</button>
+					
+					</div>
+				</nav>
+				<!-- <div id = checkbox style="z-index: 3; position:fixed; top :150px; padding:5px;border: 1px solid rgba(183, 180, 180, 0.839);border-radius:10px;color:grey;background-color: white;display:none; " >
+					<input type="checkbox" name="meastitle" id="meas1" value="meassituation" style="color:grey;background-color: white;"checked/> 측정현황
+					<br>
+					<input type="checkbox" name="meastitle" id="meas11" value="meassituation5G"style="color:grey;" checked/> 5G
+					<br>
+					<input type="checkbox" name="meastitle" id="meas12" value="meassituationLTE"style="color:grey;" checked/> LTE
+					<br>
+					<input type="checkbox" name="meastitle" id="meas13" value="meassituationWiFi"style="color:grey;" checked/> WiFi
+					<br>
+					<input type="checkbox" name="meastitle" id="meas14" value="meassituationweak"style="color:grey;" checked/> 품질취약지역
+					<br>
+					<input type="checkbox" name="meastitle" id="meas2" value="measresult"style="color:grey;" checked/> 측정결과
+					<br>
+					<input type="checkbox" name="meastitle" id="meas21" value="measresult5G"style="color:grey;" checked/> 5G
+					<br>
+					<input type="checkbox" name="meastitle" id="meas22" value="measresultLTE"style="color:grey;background-color: white;" checked/> LTE
+					<br>
+					<input type="checkbox" name="meastitle" id="meas23" value="measresultWiFi" checked/> WiFi
+					<br>
+					<input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" checked/> 사후측정5G
+					<br>
+					<input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" checked/> 사후측정LTE
+					<br>
+					<input type="checkbox" name="meastitle" id="meas3" value="measplus" /> 추가사항
+				</div> -->
+			
+			</div>
         </div>
 
         <ul class="list-unstyled components">
             <li>
-                <a href="http://127.0.0.1:8000/smart/analysis/report/">일일보고</a>
+                <a href="{% url 'analysis:report' %}">일일보고</a>
             </li>
-			<li>
+			<!-- <li>
                 <a href="http://127.0.0.1:8000/smart/analysis/report/list/">일일보고 목록</a>
-            </li>
+            </li> -->
 			<li class="active">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">일일보고 관리</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
                     <li>
-                        <a href="http://127.0.0.1:8000/smart/analysis/report/measplan/">측정대상등록</a>
+                        <a href="{% url 'analysis:report_measplan' %}">측정대상등록</a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:8000/smart/analysis/report/measresult/">측정완료현황</a>
+                        <a href="{% url 'analysis:report_measresult' %}">측정완료현황</a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:8000/smart/analysis/report/postmeas/">사후측정등록</a>
+                        <a href="{% url 'analysis:report_postmeas' %}">사후측정등록</a>
                     </li>
                 </ul>
             </li>
@@ -213,44 +237,7 @@ button{
         </ul>
     </nav>
 	
-	<div id="content" style="height:10px; width:10px;">
-
-		<nav class="navbar navbar-expand-lg">
-			<div class="container-fluid">
 	
-				<button type="button" id="sidebarCollapse" class="btn btn-primary">
-					<i class="fas fa-align-left"></i>
-					<span></span>
-				</button>
-			</div>
-		</nav>
-		<div id = checkbox style="z-index: 3; position:fixed; top :150px; padding:5px;border: 1px solid rgba(183, 180, 180, 0.839);border-radius:10px;color:grey;background-color: white;display:none; " >
-			<input type="checkbox" name="meastitle" id="meas1" value="meassituation" style="color:grey;background-color: white;"checked/> 측정현황
-			<br>
-			<input type="checkbox" name="meastitle" id="meas11" value="meassituation5G"style="color:grey;" checked/> 5G
-			<br>
-			<input type="checkbox" name="meastitle" id="meas12" value="meassituationLTE"style="color:grey;" checked/> LTE
-			<br>
-			<input type="checkbox" name="meastitle" id="meas13" value="meassituationWiFi"style="color:grey;" checked/> WiFi
-			<br>
-			<input type="checkbox" name="meastitle" id="meas14" value="meassituationweak"style="color:grey;" checked/> 품질취약지역
-			<br>
-			<input type="checkbox" name="meastitle" id="meas2" value="measresult"style="color:grey;" checked/> 측정결과
-			<br>
-			<input type="checkbox" name="meastitle" id="meas21" value="measresult5G"style="color:grey;" checked/> 5G
-			<br>
-			<input type="checkbox" name="meastitle" id="meas22" value="measresultLTE"style="color:grey;background-color: white;" checked/> LTE
-			<br>
-			<input type="checkbox" name="meastitle" id="meas23" value="measresultWiFi" checked/> WiFi
-			<br>
-			<input type="checkbox" name="meastitle" id="meas24" value="measresultpost5G" checked/> 사후측정5G
-			<br>
-			<input type="checkbox" name="meastitle" id="meas25" value="measresultpostLTE" checked/> 사후측정LTE
-			<br>
-			<input type="checkbox" name="meastitle" id="meas3" value="measplus" /> 추가사항
-		</div>
-	
-	</div>
 
 </div>
 <div id="blank" style="width:250px;">
@@ -375,17 +362,19 @@ button{
 							</tr>
 						</thead>
 						<tbody>
-							{% for regi in regi %}
+							
 							<tr>
 								<td>대상</td>
+								{% for regi in regi %}
 								<td id = "plan5gtotal">{{regi.total5G}}</td>
 								<td id = "plan5gnsahjd">{{regi.nsahjd5G}}</td>
 								<td id = "plan5gnsadg">{{regi.nsadg5G}}</td>
 								<td id = "plan5gpublic">{{regi.nsapublic5G}}</td>
 								<td id = "plan5gnsatotal">{{regi.totalnsa5G}}</td>
 								<td id = "plan5gsa">{{regi.sa5G}}</td>
+								{% endfor %}
 							</tr>
-							{% endfor %}
+							
 							<tr>
 								<td>누적</td>
 								<td id = "meas5gtotal">{{sregi5Gtotal}}</td>
@@ -1349,6 +1338,16 @@ button{
 	</div>
 </br>
 </div>
+<br>
+	<br>
+	<br>
+	<br>
+	<hr class="one">
+	<br>
+	<br>
+	<br>
+	<br>
+<div class="page4" id="page4">
 <div id="measresultweak">
 	<div>
 		<!-- <input type="checkbox" name="meastitle" id="meas22" value="measresultLTE"style="color:grey;background-color: white;" checked/> LTE -->
@@ -1359,7 +1358,7 @@ button{
 		<table id="5Ghh">
 			<thead>
 				<tr>
-					<th rowspan="2">구분<br/>('20년 결과)</th>
+					<th rowspan="2">구분<br/>('21년 결과)</th>
 					<th colspan="2">통화성공률(%)</th>
 					<th colspan="2">전송성공률(%)</th>
 				</tr>
@@ -1374,39 +1373,48 @@ button{
 				<tr>
 					
 					<td>등산로</td>
-					
-				  	<td ></td>
-					<td ></td>
-					<td ></td>
-					<td ></td>
+					{% for weakdsr in weakdsr %}
+				  	<td >{{weakvolte.0}}({{weakdsr.weakvolte}})</td>
+					<td >{{weaktele3g.0}}({{weakdsr.weaktele3g}})</td>
+					<td >{{weaklte.0}}({{weakdsr.weaklte}})</td>
+					<td >{{weak3g.0}}({{weakdsr.weak3g}})</td>
+					{% endfor %}
 				</tr>
 				<tr>
-					<td>여객항로</td>
-					<td ></td>
-					<td ></td>
-					<td ></td>
-					<td ></td>
+					<td>해상로</td>
+					{% for weakyghr in weakyghr %}
+					<td >{{weakvolte.1}}({{weakyghr.weakvolte}})</td>
+					<td >{{weaktele3g.1}}({{weakyghr.weaktele3g}})</td>
+					<td >{{weaklte.1}}({{weakyghr.weaklte}})</td>
+					<td >{{weak3g.1}}({{weakyghr.weak3g}})</td>
+					{% endfor %}
 				</tr>
 				<tr>
-					<td>유인도서</td>                           
-					<td ></td>
-					<td ></td>
-					<td ></td>
-					<td ></td>
+					<td>도서</td>     
+					{% for weakyids in weakyids %}                      
+					<td >{{weakvolte.2}}({{weakyids.weakvolte}})</td>
+					<td >{{weaktele3g.2}}({{weakyids.weaktele3g}})</td>
+					<td >{{weaklte.2}}({{weakyids.weaklte}})</td>
+					<td >{{weak3g.2}}({{weakyids.weak3g}})</td>
+					{% endfor %}
 				</tr>
 				<tr>
 					<td>해안도로</td>
-					<td ></td>
-					<td ></td>
-					<td ></td>
-					<td ></td>
+					{% for weakhadr in weakhadr %}
+					<td >{{weakvolte.3}}({{weakhadr.weakvolte}})</td>
+					<td >{{weaktele3g.3}}({{weakhadr.weaktele3g}})</td>
+					<td >{{weaklte.3}}({{weakhadr.weaklte}})</td>
+					<td >{{weak3g.3}}({{weakhadr.weak3g}})</td>
+					{% endfor %}
 				</tr>
 				<tr>
 					<td >계</td>
-					<td ></td>
-					<td ></td>
-					<td ></td>
-					<td ></td>
+					{% for weaktotal in weaktotal %}
+					<td >{{weakvolte.4}}({{weaktotal.weakvolte}})</td>
+					<td >{{weaktele3g.4}}({{weaktotal.weaktele3g}})</td>
+					<td >{{weaklte.4}}({{weaktotal.weaklte}})</td>
+					<td >{{weak3g.4}}({{weaktotal.weak3g}})</td>
+					{% endfor %}
 				</tr>
 			</tbody>
 		</table>
@@ -1626,8 +1634,19 @@ button{
 	</div>
 
 </div>
+</div>
 <br>
 <br>
+<br>
+	<br>
+	<br>
+	<hr class="one">
+	<br>
+	<br>
+	<br>
+	<br>
+<br>
+<div class="page5" id="page5">
 <div>
 	<h2>□ 별첨. 금일</h2><h2 id="today_m/d"></h2><h2> 측정 결과 세부내역</h2> 
 	<br><h3>&nbsp;&nbsp;○ 5G :</h3><h3></h3><h3></h3><h3></h3><h3></h3><h3></h3><h3></h3>
@@ -1813,6 +1832,7 @@ button{
 </div>	
 </div>
 </div>	
+</div>
 </div>
 </div>
 </body>
@@ -2029,7 +2049,7 @@ $(document).ready(function() {
 							return true;
 						}
 					};
-					let pagenum = ['#page1','#page2','#page3']
+					let pagenum = ['#page1','#page2','#page3', '#page4', '#page5']
 					// html2canvas($('.page'), {	
 					// 	onrendered : function(canvas) {
 					
@@ -2062,7 +2082,7 @@ $(document).ready(function() {
 							var position = 15;
 							var doc = new jsPDF("p", "mm", 'a4');
 	
-							doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight-100);
+							doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
 							// heightLeft -= pageHeight;
 							// 한 페이지 이상일 경우 루프 돌면서 출력
 							// while (heightLeft >= 15) {
@@ -2071,7 +2091,7 @@ $(document).ready(function() {
 							// 	doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
 							// 	heightLeft -= pageHeight;
 							// }
-							doc.save('test.pdf');
+							doc.save("일일보고병합용(삭제).pdf");
 						});
 						html2canvas(document.querySelector('#page2')).then(canvas =>{
 							var imgData2 = canvas.toDataURL('jpeg', 1.0);
@@ -2083,8 +2103,8 @@ $(document).ready(function() {
 							var position = 15;
 							var doc = new jsPDF("p", "mm", 'a4');
 							
-							doc.addImage(imgData2, 'JPEG', margin, position, imgWidth, imgHeight-150);
-							doc.save('test.pdf');
+							doc.addImage(imgData2, 'JPEG', margin, position, imgWidth, imgHeight);
+							doc.save('일일보고병합용(삭제).pdf');
 						});
 						html2canvas(document.querySelector('#page3')).then(canvas =>{
 							var imgData3 = canvas.toDataURL('jpeg', 1.0);
@@ -2095,13 +2115,36 @@ $(document).ready(function() {
 							var margin = 15; // 출력 페이지 여백설정
 							var position = 15;
 							var doc = new jsPDF("p", "mm", 'a4');
-							
-							
-							doc.addImage(imgData3, 'JPEG', margin, position, imgWidth, imgHeight-40);
-							doc.save('test.pdf');
+								
+							doc.addImage(imgData3, 'JPEG', margin, position, imgWidth, imgHeight);
+							doc.save('일일보고병합용(삭제).pdf');
 						});
-						
-					
+						html2canvas(document.querySelector('#page4')).then(canvas =>{
+							var imgData4 = canvas.toDataURL('jpeg', 1.0);
+							var imgWidth = 180; // 이미지 가로 길이(mm) A4 기준
+							var pageHeight = imgWidth / 210 * 297; // 출력 페이지 세로 길이 계산 A4 기준
+							var imgHeight = canvas.height * imgWidth / canvas.width;
+							var heightLeft = imgHeight;
+							var margin = 15; // 출력 페이지 여백설정
+							var position = 15;
+							var doc = new jsPDF("p", "mm", 'a4');
+							
+							doc.addImage(imgData4, 'JPEG', margin, position, imgWidth, imgHeight);
+							doc.save('일일보고병합용(삭제).pdf');
+						});
+							html2canvas(document.querySelector('#page5')).then(canvas =>{
+							var imgData5 = canvas.toDataURL('jpeg', 1.0);
+							var imgWidth = 180; // 이미지 가로 길이(mm) A4 기준
+							var pageHeight = imgWidth / 210 * 297; // 출력 페이지 세로 길이 계산 A4 기준
+							var imgHeight = canvas.height * imgWidth / canvas.width;
+							var heightLeft = imgHeight;
+							var margin = 15; // 출력 페이지 여백설정
+							var position = 15;
+							var doc = new jsPDF("p", "mm", 'a4');
+							
+							doc.addImage(imgData5, 'JPEG', margin, position, imgWidth, imgHeight);
+							doc.save('일일보고병합용(삭제).pdf');
+						});	
 						function merge_test(){
 											$.ajaxSetup({
 											headers: { "X-CSRFToken": '{{csrf_token}}'}
@@ -2114,11 +2157,11 @@ $(document).ready(function() {
 
 												//data : formData,
 												success: function() {
-													alert("성공성공");
+													alert("일일보고서 생성 성공");
 													//location.reload();
 												},
 												error: function() {
-													alert("실패실패");
+													alert("일일보고서 생성 실패");
 												},
 										});
 
@@ -2136,7 +2179,8 @@ $(document).ready(function () {
     $('#sidebarCollapse').on('click', function () {
         $('#sidebar').toggleClass('active');
         $(this).toggleClass('active');
-		
+		$('#indentsidebar').toggle();
+		$('#outdentsidebar').toggle();
     });
 
 	
