@@ -17,6 +17,7 @@ from monitor.models import Phone
 from analysis.models import *
 import pandas as pd
 import datetime
+from datetime import date, timedelta
 from django.db.models import Sum
 from .makereport import *
 from django.urls import reverse
@@ -202,24 +203,24 @@ def dashboard_test(request):
 def pdf_merge(request):
     # merger라는 이름의 pdf병합기를 준비
     merger = PdfFileMerger()
-    username = os.environ.get('USERNAME')
+    username = os.environ['HOME']
     saveday = datetime.now().strftime("%Y%m%d")
     # 준비한 파일들을 하나씩 읽은 후, merger에 추가
-    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제).pdf".format(username), 'rb')))
-    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제) (1).pdf".format(username), 'rb')))
-    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제) (2).pdf".format(username), 'rb')))
-    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제) (3).pdf".format(username), 'rb')))
-    merger.append(PdfFileReader(open("C:/Users/{}/Downloads/일일보고병합용(삭제) (4).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("{}/Downloads/일일보고병합용(삭제).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("{}/Downloads/일일보고병합용(삭제) (1).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("{}/Downloads/일일보고병합용(삭제) (2).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("{}/Downloads/일일보고병합용(삭제) (3).pdf".format(username), 'rb')))
+    merger.append(PdfFileReader(open("{}/Downloads/일일보고병합용(삭제) (4).pdf".format(username), 'rb')))
 
 
     # merger가 새 pdf파일로 저장
-    merger.write("C:/Users/{}/Downloads/일일보고({}생성).pdf".format(username,saveday))
+    merger.write("{}/Downloads/일일보고({}생성).pdf".format(username,saveday))
     response = {'status': 1, 'message': '엑셀파일이 정상적으로 업로드 됐습니다.'}
-    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제).pdf".format(username))
-    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제) (1).pdf".format(username))
-    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제) (2).pdf".format(username))
-    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제) (3).pdf".format(username))
-    os.remove("C:/Users/{}/Downloads/일일보고병합용(삭제) (4).pdf".format(username))
+    os.remove("{}/Downloads/일일보고병합용(삭제).pdf".format(username))
+    os.remove("{}/Downloads/일일보고병합용(삭제) (1).pdf".format(username))
+    os.remove("{}/Downloads/일일보고병합용(삭제) (2).pdf".format(username))
+    os.remove("{}/Downloads/일일보고병합용(삭제) (3).pdf".format(username))
+    os.remove("{}/Downloads/일일보고병합용(삭제) (4).pdf".format(username))
     return HttpResponse(json.dumps(response), content_type='application/json')
     
 
@@ -245,10 +246,11 @@ class ExcelUploadView5g(View):
             
         
         for row in all_values:
+            
             sample_model = PostMeasure5G(measdate = row[0],district  = row[1],name = row[2],measkt_dl = row[3],measkt_ul = row[4],measkt_rsrp = row[5],measkt_lte =row[6],postmeaskt_dl = row[7],
             postmeaskt_ul = row[8],postmeaskt_rsrp = row[9],postmeaskt_lte = row[10],postmeasskt_dl = row[11],postmeasskt_ul =row[12], postmeasskt_rsrp = row[13],postmeasskt_lte= row[14],postmeaslg_dl = row[15],
             postmeaslg_ul = row[16], postmeaslg_rsrp= row[17],postmeaslg_lte=row[18] )
-           
+            print(sample_model)
             sample_model.save()
 
         response = {'status': 1, 'message': '엑셀파일이 정상적으로 업로드 됐습니다.'}
@@ -269,7 +271,6 @@ class ExcelUploadViewlte(View):
                     row_value.append(cell.value)
                 all_values.append(row_value)
          
-        PostMeasureLTE.objects.all().delete()
         for row in all_values:
             sample_model = PostMeasureLTE(measdate = row[0],district  = row[1],name = row[2],measkt_dl = row[3],measkt_ul = row[4],measkt_rsrp = row[5],measkt_sinr =row[6],postmeaskt_dl = row[7],
             postmeaskt_ul = row[8],postmeaskt_rsrp = row[9],postmeaskt_sinr = row[10],postmeasskt_dl = row[11],postmeasskt_ul =row[12], postmeasskt_rsrp = row[13],postmeasskt_sinr= row[14],postmeaslg_dl = row[15],
@@ -379,29 +380,28 @@ def update_closedata(request):
         """ 대쉬보드에서 단말그룹 더블클릭하여 정보 수정할 때 함수
         반환값: {result : 'ok' / 'fail'} """
         data = request.data
+        print(data)
         data_len = data['select_tr']
-        try:
-            closedata = LastMeasDayClose.objects.filter(phoneGroup=int(data['select_tr'][0]),measdate=data['select_tr'][1],userInfo1=data['select_tr'][2])
-            # if closedata.exists():
-               
-            closedata.phoneGroup = int(data_len[0])
-            closedata.measdate = data_len[1]
-            closedata.userInfo1 = data_len[2]
+        format_data = "%Y-%m-%d"
+        try:            
+            print(type(data_len[0]),data_len[0])
+            closedata = LastMeasDayClose.objects.filter(measdate=data['select_tr'][0],userInfo1=data['select_tr'][1],networkId=data['select_tr'][2])
+            closedata.measdate = datetime.datetime.strptime(data_len[0], format_data).date()
+            closedata.userInfo1 = data_len[1]
+            closedata.networkId = data_len[2]
             closedata.nettype = data_len[3]
             closedata.center = data_len[4]
-            closedata.mopho = data_len[5]
-            closedata.district = data_len[6]
-            closedata.guGun = data_len[7]
-            closedata.detailadd = data_len[8]
-            closedata.downloadBandwidth = float(data_len[9])
-            closedata.uploadBandwidth = float(data_len[10])
-            closedata.lte_percent =float(data_len[11])
-            closedata.success_rate = float(data_len[12])
-            closedata.connect_time = float(data_len[13])
-            closedata.udpJitter = float(data_len[14])
-            closedata.subadd = data_len[14]
+            closedata.district = data_len[5]
+            closedata.mopho = data_len[6]
+            closedata.detailadd = data_len[7]
+            closedata.downloadBandwidth = float(data_len[8])
+            closedata.uploadBandwidth = float(data_len[9])
+            closedata.lte_percent =float(data_len[10])
+            closedata.success_rate = float(data_len[11])
+            closedata.udpJitter = float(data_len[12])
+            
             # 기존에 등록된 측정결과 데이터가 있으면 삭제한다.
-            LastMeasDayClose.objects.filter(phoneGroup=int(data['select_tr'][0]),measdate=data['select_tr'][1],userInfo1=data['select_tr'][2]).delete()
+            LastMeasDayClose.objects.filter(measdate=data['select_tr'][0],userInfo1=data['select_tr'][1],networkId=data['select_tr'][2]).delete()
             # 측정결과를 저장한다.
             closedata.save()
            
@@ -434,22 +434,19 @@ def update_closedata(request):
         except Exception as e:
            
             closedata_new = LastMeasDayClose.objects.create( 
-                phoneGroup = int(data_len[0]),
-                measdate = data_len[1],
-                userInfo1 = data_len[2],
+                measdate = datetime.datetime.strptime(data_len[0], format_data).date(),
+                userInfo1 = data_len[1],
+                networkId = data_len[2],
                 nettype = data_len[3],
                 center = data_len[4],
-                mopho = data_len[5],
-                district = data_len[6],
-                guGun = data_len[7],
-                detailadd = data_len[8],
-                downloadBandwidth = float(data_len[9]),
-                uploadBandwidth = float(data_len[10]),
-                lte_percent =float(data_len[11]),
-                success_rate = float(data_len[12]),
-                connect_time = float(data_len[13]),
-                udpJitter = float(data_len[14]),
-                subadd = data_len[15]
+                district = data_len[5],
+                mopho = data_len[6],
+                detailadd = data_len[7],
+                downloadBandwidth = float(data_len[8]),
+                uploadBandwidth = float(data_len[9]),
+                lte_percent =float(data_len[10]),
+                success_rate = float(data_len[11]),
+                udpJitter = float(data_len[12]),
             )
   
             result = {'result' : 'ok',}

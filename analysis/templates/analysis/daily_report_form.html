@@ -222,14 +222,17 @@ button{
 			<li class="active">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">일일보고 관리</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
-                    <li>
+                    <!-- <li>
                         <a href="{% url 'analysis:report_measplan' %}">측정대상등록</a>
-                    </li>
+                    </li> -->
                     <li>
                         <a href="{% url 'analysis:report_measresult' %}">측정완료현황</a>
                     </li>
                     <li>
                         <a href="{% url 'analysis:report_postmeas' %}">사후측정등록</a>
+                    </li>
+					<li>
+                        <a href="../report/report_admin/">일일보고 관리자페이지</a>
                     </li>
                 </ul>
             </li>
@@ -1649,8 +1652,36 @@ button{
 <div class="page5" id="page5">
 <div>
 	<h2>□ 별첨. 금일</h2><h2 id="today_m/d"></h2><h2> 측정 결과 세부내역</h2> 
-	<br><h3>&nbsp;&nbsp;○ 5G :</h3><h3></h3><h3></h3><h3></h3><h3></h3><h3></h3><h3></h3>
-
+	<br><h3>&nbsp;&nbsp;○ 5G :</h3><h3 id="5gtodaynsatotal"></h3><h3 id="5gtodaynsahjd"></h3><h3 id="5gtodaynsada"></h3><h3 id="5gtodaynsagyo"></h3><h3 id="5gtodaysatotal"></h3>
+	<script>
+		
+		if('{{tregi5Gnsatotal}}'>0){
+			document.getElementById("5gtodaynsatotal").innerHTML = "NSA " + '{{tregi5Gnsatotal}}' + "개(";
+		}else{
+			document.getElementById("5gtodaynsatotal").innerHTML = "("
+		}
+		if('{{tregi5Ghjd}}'>0){
+			document.getElementById("5gtodaynsahjd").innerHTML = "행정동 " + '{{tregi5Ghjd}}' + "개 ";
+		}else{
+			document.getElementById("5gtodaynsahjd").innerHTML = ""
+		}
+		if('{{tregi5Gda}}'>0){
+			document.getElementById("5gtodaynsada").innerHTML = "다중이용시설 " + '{{tregi5Gda}}' + "개 ";
+		}else{
+			document.getElementById("5gtodaynsada").innerHTML = ""
+		}
+		if('{{tregi5Ggyo}}'>0){
+			document.getElementById("5gtodaynsagyo").innerHTML = "교통인프라 " + '{{tregi5Ggyo}}' + "개) ";
+		}else{
+			document.getElementById("5gtodaynsagyo").innerHTML = ")";
+		}
+		if('{{tregi5Gsatotal}}'>0){
+			document.getElementById("5gtodaysatotal").innerHTML = "SA " + '{{tregi5Gsatotal}}' + "개";
+		}else{
+			document.getElementById("5gtodaysatotal").innerHTML = ""
+		}
+		
+	</script>
 	<div id="output1">
 		<table id="5Ghh">
 			<thead>
@@ -1685,8 +1716,16 @@ button{
 					<td>{{tresult5g.uploadBandwidth}}</td>
 					<td>{{tresult5g.dl_nr_percent}}</td>
 					<td>{{tresult5g.ul_nr_percent}}</td>
-					<td>{{tresult5g.ktlastdl}}/{{tresult5g.sktlastdl}}/{{tresult5g.lglastdl}}</td>
-					<td>{{tresult5g.ktlastul}}/{{tresult5g.sktlastul}}/{{tresult5g.lglastul}}</td>
+					<td id="nullcheck5gdl">{{tresult5g.ktlastdl}}/{{tresult5g.sktlastdl}}/{{tresult5g.lglastdl}}</td>
+					<td id="nullcheck5gul">{{tresult5g.ktlastul}}/{{tresult5g.sktlastul}}/{{tresult5g.lglastul}}</td>
+					<script>
+						if('{{tresult5g.ktlastdl}}' == "None"){
+							document.getElementById("nullcheck5gdl").innerText="-"
+						}
+						if('{{tresult5g.ktlastul}}' == "None"){
+							document.getElementById("nullcheck5gul").innerText="-"
+						}
+					</script>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -1696,8 +1735,32 @@ button{
 </div>
 <div>
 	
-	<br><h3>&nbsp;&nbsp;○ LTE :</h3><h3 ></h3><h3></h3><h3></h3>
-
+	<br><h3>&nbsp;&nbsp;○ LTE :</h3><h3 id="ltetodaytotal"></h3><h3 id="ltetodayhjd"></h3><h3 id="ltetodayib"></h3><h3 id="ltetodaytm"></h3>
+	<script>
+		
+		if('{{tregiLTEtotal}}'>0){
+			document.getElementById("ltetodaytotal").innerHTML = '{{tregiLTEtotal}}' + "개(";
+		}else{
+			document.getElementById("ltetodaytotal").innerHTML = "("
+		}
+		if('{{tregiLTEbct}}+{{tregiLTEmct}}+{{tregiLTEsct}}'>0){
+			document.getElementById("ltetodayhjd").innerHTML = "행정동 " + '{{tregiLTEbct}}+{{tregiLTEmct}}+{{tregiLTEsct}}' + "개 ";
+		}else{
+			document.getElementById("ltetodayhjd").innerHTML = ""
+		}
+		if('{{tregiLTEib}}'>0){
+			document.getElementById("ltetodayib").innerHTML = "인빌딩 " + '{{tregiLTEib}}' + "개 ";
+		}else{
+			document.getElementById("ltetodayib").innerHTML = ""
+		}
+		if('{{tregiLTEtm}}'>0){
+			document.getElementById("ltetodaytm").innerHTML = "테마 " + '{{tregiLTEtm}}' + "개) ";
+		}else{
+			document.getElementById("ltetodaytm").innerHTML = ")";
+		}
+		
+		
+	</script>
 	<div id="output1">
 		<table id="5Ghh">
 			<thead>
@@ -1727,8 +1790,16 @@ button{
 					<td>{{tresultlte.userInfo1}}</td>
 					<td>{{tresultlte.downloadBandwidth}}</td>
 					<td>{{tresultlte.uploadBandwidth}}</td>
-					
-					<td>{{tresultlte.connect_time}}/{{tresultlte.udpJitter}}</td>
+					<td id="nullcheckltedl">{{tresultlte.ktlastdl}}/{{tresultlte.sktlastdl}}/{{tresultlte.lglastdl}}</td>
+					<td id="nullchecklteul">{{tresultlte.ktlastul}}/{{tresultlte.sktlastul}}/{{tresultlte.lglastul}}</td>
+					<script>
+						if('{{tresultlte.ktlastdl}}' == "None"){
+							document.getElementById("nullcheckltedl").innerText="-"
+						}
+						if('{{tresultlte.ktlastul}}' == "None"){
+							document.getElementById("nullchecklteul").innerText="-"
+						}
+					</script>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -1737,8 +1808,38 @@ button{
 <br>					
 </div>
 <div>
-	<br><h3>&nbsp;&nbsp;○ 품질취약지역: </h3><h3 ></h3><h3></h3><h3></h3>
-
+	<br><h3>&nbsp;&nbsp;○ 품질취약지역: </h3><h3 id="weaktodaytotal"></h3><h3 id="weaktodaydsr"></h3><h3 id="weaktodayyghr"></h3><h3 id="weaktodayyids"></h3><h3 id="weaktodayhadr"></h3>
+	
+	<script>
+		
+		if('{{tregiweaktotal}}'>0){
+			document.getElementById("weaktodaytotal").innerHTML = '{{tregiweaktotal}}' + "개(";
+		}else{
+			document.getElementById("weaktodaytotal").innerHTML = "("
+		}
+		if('{{tregiweakdsr}}'>0){
+			document.getElementById("weaktodaydsr").innerHTML = "등산로 " + '{{tregiweakdsr}}' + "개 ";
+		}else{
+			document.getElementById("weaktodaydsr").innerHTML = ""
+		}
+		if('{{tregiweakyghr}}'>0){
+			document.getElementById("weaktodayyghr").innerHTML = "해상로 " + '{{tregiweakyghr}}' + "개 ";
+		}else{
+			document.getElementById("weaktodayyghr").innerHTML = ""
+		}
+		if('{{tregiweakyids}}'>0){
+			document.getElementById("weaktodayyids").innerHTML = "도서 " + '{{tregiweakyids}}' + "개 ";
+		}else{
+			document.getElementById("weaktodayyids").innerHTML = "";
+		}
+		if('{{tregiweakhadr}}'>0){
+			document.getElementById("weaktodayhadr").innerHTML = "해안도로 " + '{{tregiweakhadr}}' + "개) ";
+		}else{
+			document.getElementById("weaktodayhadr").innerHTML = ")";
+		}
+		
+		
+	</script>
 	<div id="output1">
 		<table id="5Ghh">
 			<thead>
@@ -1746,29 +1847,35 @@ button{
 					<th rowspan="2">센터</th>
 					<th rowspan="2">구분</th>
 					<th rowspan="2">측정지역</th>
-					<th colspan="2">속도(Mbps)</th>
-					<th rowspan="2">비고</th>
+					<th colspan="2">통화성공율(%)</th>
+					<th colspan="2">전송성공율(%)</th>
 				</tr>
 				<tr>
 					
-					<th>DL</th>
-					<th>UL</th>
+					<th>VoLTE</th>
+					<th>3G</th>
+					<th>LTE</th>
+					<th>3G</th>
 					
 				</tr>
 				
 			</thead>
 			<tbody>
-				{% for tresultweak in tresultweak %}
+				
+				
+			
+			{% for todayweak in todayweak %}
 				<tr>
-					<td>{{tresultweak.center}}</td>
-					<td>{{tresultweak.mopho}}</td>
-					<td>{{tresultweak.userInfo1}}</td>
-					<td>{{tresultweak.downloadBandwidth}}</td>
-					<td>{{tresultweak.uploadBandwidth}}</td>
-					<td>{{tresultweak.subadd}}</td>
-					
+					<td>{{todayweak.0}}</td>
+					<td>{{todayweak.1}}</td>
+					<td>{{todayweak.2}}</td>
+					<td>{{todayweak.3}}</td>
+					<td>{{todayweak.4}}</td>
+					<td>{{todayweak.5}}</td>
+					<td>{{todayweak.6}}</td>	
 				</tr>
-				{% endfor %}
+			{% endfor %}	
+				
 				
 			</tbody>
 		</table>
@@ -1776,8 +1883,27 @@ button{
 <br>					
 </div>		
 <div>
-	<br><h3>&nbsp;&nbsp;○ WiFi: </h3><h3 ></h3><h3></h3><h3></h3>
+	<br><h3>&nbsp;&nbsp;○ WiFi: </h3><h3 id="wifitodaytotal"></h3><h3 id="wifitodaysy"></h3><h3 id="wifitodaygb"></h3>
 
+	<script>
+		
+		if('{{tregiWiFitotal}}'>0){
+			document.getElementById("wifitodaytotal").innerHTML = '{{tregiWiFitotal}}' + "개(";
+		}else{
+			document.getElementById("wifitodaytotal").innerHTML = "("
+		}
+		if('{{tregiWiFisy}}'>0){
+			document.getElementById("wifitodaysy").innerHTML = "상용 " + '{{tregiWiFisy}}' + "개 ";
+		}else{
+			document.getElementById("wifitodaysy").innerHTML = ""
+		}
+		if('{{tregiWiFigb}}'>0){
+			document.getElementById("wifitodaygb").innerHTML = "개방 " + '{{tregiWiFigb}}' + "개) ";
+		}else{
+			document.getElementById("wifitodaygb").innerHTML = ")"
+		}
+		
+	</script>
 	<div id="output1">
 		<table id="5Ghh">
 			<thead>
@@ -1801,8 +1927,12 @@ button{
 					<td>{{tresultwifi.userInfo1}}</td>
 					<td>{{tresultwifi.downloadBandwidth}}</td>
 					<td>{{tresultwifi.uploadBandwidth}}</td>
-					<td>{{tresultwifi.subadd}}</td>
-					
+					<td id="nullcheck">{{tresultwifi.subadd}}</td>
+					<script>
+						if('{{tresultwifi.subadd}}' == "None"){
+							document.getElementById("nullcheck").innerText = "-"
+						}
+					</script>
 				</tr>
 				{% endfor %}
 				
@@ -2182,7 +2312,7 @@ $(document).ready(function () {
 		$('#indentsidebar').toggle();
 		$('#outdentsidebar').toggle();
     });
-
+	
 	
 	
 

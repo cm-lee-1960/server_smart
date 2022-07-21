@@ -235,14 +235,17 @@
 			<li class="active">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">일일보고 관리</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
-                    <li>
+                    <!-- <li>
                         <a href="{% url 'analysis:report_measplan' %}">측정대상등록</a>
-                    </li>
+                    </li> -->
                     <li>
                         <a href="{% url 'analysis:report_measresult' %}">측정완료현황</a>
                     </li>
                     <li>
                         <a href="{% url 'analysis:report_postmeas' %}">사후측정등록</a>
+                    </li>
+                    <li>
+                        <a href="../report_admin/">일일보고 관리자페이지</a>
                     </li>
                 </ul>
             </li>
@@ -275,19 +278,17 @@
                 <tr>
                     <th>날짜</th>
                     <th>측정명</th>
-                    <th>구분{{price1}}</th>
+                    <th>네트워크</th>
+                    <th>구분</th>
                     <th>센터</th>
-                    <th>모폴로지</th>
                     <th>지역</th>
-                    <th>구군</th>
+                    <th>모폴로지</th>
                     <th>상세정보</th>
                     <th>DL</th>
                     <th>UL</th>
                     <th>LTE전환율</th>
                     <th>전송성공율</th>
-                    <th>접속</th>
                     <th>지연</th>
-                    <th>추가사항</th>
                     <th>수정</th>
                 </tr>
             </thead>
@@ -296,9 +297,10 @@
                 {% for measclose in measclose %}
                  
                 <tr data-value ="${measclose}">
-                    <td style="display:none;"><p></p><input type = 'text'  name="phoneGroup" value="{{measclose.phoneGroup}}"></input></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.measdate}}</p> <input style="display:inline;" class="form-control mod" type="text" name="measdate" id="textmod1" value="{{measclose.measdate}}"></input></td>
+                    
+                    <td style="width:8%"><p class="measclosedata">{{measclose.measdate}}</p> <input style="height: 30px; width:160px; margin: 0 auto;" type="date" class="form-control mod" name="measdate" id="textmod1" value="{{measclose.measdate}}"></td>
                     <td style="width:15%"><p class="measclosedata">{{measclose.userInfo1}}</p> <input style="display:inline;" class="form-control mod" type="text" name="userInfo1" id="textmod2" value="{{measclose.userInfo1}}"></input></td> 
+                    <td style="width:5%"><p class="measclosedata">{{measclose.networkId}}</p> <input style="display:inline;" class="form-control mod" type="text" name="networkId" id="textmod3" value="{{measclose.networkId}}"></input></td> 
                     <td style="width:5%"><p class="measclosedata">{{measclose.nettype}}</p> 
                         <select style="display:inline;" class="form-control mod" type="text" name="nettype" id="textmod4" value="{{measclose.nettype}}">
                             <option value="{{measclose.nettype}}">{{measclose.nettype}}</option>
@@ -313,7 +315,6 @@
                             <option value="{{center}}">{{center}}</option>
                             {% endfor %}
                         </select></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.mopho}}</p> <input style="display:inline;" class="form-control mod" type="text" name="mopho" id="textmod5" value="{{measclose.mopho}}"></input></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.district}}</p> 
                         <select style="display:inline;" class="form-control mod" type="text" name="district" id="textmod4" value="{{measclose.district}}">
                             <option value="{{measclose.district}}">{{measclose.district}}</option>
@@ -321,19 +322,17 @@
                             <option value="{{district}}">{{district}}</option>
                             {% endfor %}
                         </select></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.guGun}}</p> <input style="display:inline;" class="form-control mod" type="text" name="guGun" id="textmod7" value="{{measclose.guGun}}"></input></td></td>
+                    <td style="width:5%"><p class="measclosedata">{{measclose.mopho}}</p> <input style="display:inline;" class="form-control mod" type="text" name="mopho" id="textmod5" value="{{measclose.mopho}}"></input></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.detailadd}}</p> <input style="display:inline;" class="form-control mod" type="text" name="detailadd" id="textmod7" value="{{measclose.detailadd}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.downloadBandwidth}}</p> <input style="display:inline;" class="form-control mod" type="text" name="downloadBandwidth" id="textmod6" value="{{measclose.downloadBandwidth}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.uploadBandwidth}}</p> <input style="display:inline;" class="form-control mod" type="text" name="uploadBandwidth" id="textmod7" value="{{measclose.uploadBandwidth}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.lte_percent}}</p> <input style="display:inline; " class="form-control mod" type="text" name="lte_percent" id="textmod7" value="{{measclose.lte_percent}}"></input></td></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.success_rate}}</p> <input style="display:inline;" class="form-control mod" type="text" name="success_rate" id="textmod7" value="{{measclose.success_rate}}"></input></td></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.connect_time}}</p> <input style="display:inline;" class="form-control mod" type="text" name="connect_time" id="textmod7" value="{{measclose.connect_time}}"></input></td>
                     <td style="width:5%"><p class="measclosedata">{{measclose.udpJitter}}</p> <input style="display:inline;" class="form-control mod" type="text" name="udpJitter" id="textmod7" value="{{measclose.udpJitter}}"></input></td>
-                    <td style="width:5%"><p class="measclosedata">{{measclose.subadd}}</p> <input style="display:inline;" class="form-control mod" type="text" name="subadd" id="textmod7" value='{{measclose.subadd}}'></input></td>
                     <td style="width:10%"><button class="btn btn-secondary btn-sm modifybtn" onclick="modify_closedata()">수정 <i class="icon-fixed-width icon-pencil" onclick="event.stopPropagation()"></i></button> <button class="btn btn-secondary btn-sm completebtn" onclick="update_closedata()">완료 <i class="icon-fixed-width icon-check" onclick="event.stopPropagation()"></i></button>
                     <button class="btn btn-secondary btn-sm deletebtn" onclick="delete_closedata()">삭제 <i class="icon-trash" onclick="event.stopPropagation()"></i></button><button class="btn btn-secondary btn-sm canclebtn" onclick="cancle_closedata()">취소 <i class="icon-ban-circle" onclick="event.stopPropagation()"></i></button></td>    
                 </tr>
-               
+                
                 {% endfor %}
             
         
@@ -381,7 +380,7 @@ async function update_closedata(){
         console.log($(parentTr.children[i].children[1]).val())
         data_len.push($(parentTr.children[i].children[1]).val())
     }
-    console.log(data_len)
+    // console.log(data_len)
     const requestOptions = {         
                 method: "POST",
                 headers: {
@@ -398,7 +397,7 @@ async function update_closedata(){
     const res = await fetch("/analysis/measresult/create/", requestOptions);
     const data = await res.json();
     
-    console.log(data)
+    // console.log(data)
     if(data['result'] == 'ok'){
         window.location.reload()
     }
@@ -446,7 +445,12 @@ function modify_closedata(){
     $('.updateRow').find('.modifybtn').hide();
     $('.updateRow').find('.deletebtn').hide();
     $('.updateRow').find('.measclosedata').hide();	
+    $(".updateRow").find('input#textmod1').val("{{measclose.measdate}}");
 	parentTr.classList.remove("updateRow");
+    
+    
+                    
+                
 }
 
 function cancle_closedata(){

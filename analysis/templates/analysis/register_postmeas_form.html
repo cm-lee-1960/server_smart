@@ -276,14 +276,17 @@
 			<li class="active">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">일일보고 관리</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
-                    <li>
+                    <!-- <li>
                         <a href="{% url 'analysis:report_measplan' %}">측정대상등록</a>
-                    </li>
+                    </li> -->
                     <li>
                         <a href="{% url 'analysis:report_measresult' %}">측정완료현황</a>
                     </li>
                     <li>
                         <a href="{% url 'analysis:report_postmeas' %}">사후측정등록</a>
+                    </li>
+                    <li>
+                        <a href="../report_admin/">일일보고 관리자페이지</a>
                     </li>
                 </ul>
             </li>
