@@ -7,6 +7,7 @@
 # from django.db.models import Sum
 # from makereport import *
 # import sys
+from pathlib import Path
 from django.db.models import Q
 from multiprocessing.sharedctypes import Value
 from operator import mod
@@ -203,7 +204,9 @@ def dashboard_test(request):
 def pdf_merge(request):
     # merger라는 이름의 pdf병합기를 준비
     merger = PdfFileMerger()
-    username = os.environ['HOME']
+    # username = os.environ['HOME']
+    username = str(Path.home())
+    print(username)
     saveday = datetime.now().strftime("%Y%m%d")
     # 준비한 파일들을 하나씩 읽은 후, merger에 추가
     merger.append(PdfFileReader(open("{}/Downloads/일일보고병합용(삭제).pdf".format(username), 'rb')))
@@ -310,7 +313,7 @@ def report_list(request):
 # -------------------------------------------------------------------------------------------------
 def report_measresult(request):
     """일일보고 대상등록 페이지 뷰"""
-    context = get_measclose_cntx(request)
+    context = get_report_cntx(request)
     
     return render(request, "analysis/register_measresult_form.html", context)
 
@@ -379,29 +382,64 @@ def update_closedata(request):
     if request.method == "POST":
         """ 대쉬보드에서 단말그룹 더블클릭하여 정보 수정할 때 함수
         반환값: {result : 'ok' / 'fail'} """
-        data = request.data
-        print(data)
-        data_len = data['select_tr']
-        format_data = "%Y-%m-%d"
+        # data = request.data
+        # print(data)
+        # data_len = data['select_tr']
+        format_data = "%Y년 %m월 %d일"
         try:            
-            print(type(data_len[0]),data_len[0])
-            closedata = LastMeasDayClose.objects.filter(measdate=data['select_tr'][0],userInfo1=data['select_tr'][1],networkId=data['select_tr'][2])
-            closedata.measdate = datetime.datetime.strptime(data_len[0], format_data).date()
-            closedata.userInfo1 = data_len[1]
-            closedata.networkId = data_len[2]
-            closedata.nettype = data_len[3]
-            closedata.center = data_len[4]
-            closedata.district = data_len[5]
-            closedata.mopho = data_len[6]
-            closedata.detailadd = data_len[7]
-            closedata.downloadBandwidth = float(data_len[8])
-            closedata.uploadBandwidth = float(data_len[9])
-            closedata.lte_percent =float(data_len[10])
-            closedata.success_rate = float(data_len[11])
-            closedata.udpJitter = float(data_len[12])
-            
-            # 기존에 등록된 측정결과 데이터가 있으면 삭제한다.
-            LastMeasDayClose.objects.filter(measdate=data['select_tr'][0],userInfo1=data['select_tr'][1],networkId=data['select_tr'][2]).delete()
+            # print(type(data_len[0]),data_len[0])
+            # closedata = LastMeasDayClose.objects.filter(measdate=data['select_tr'][0],userInfo1=data['select_tr'][1],networkId=data['select_tr'][2])
+            # closedata.measdate = datetime.datetime.strptime(data_len[0], format_data).date()
+            # closedata.userInfo1 = data_len[1]
+            # closedata.networkId = data_len[2]
+            # closedata.nettype = data_len[3]
+            # closedata.center = data_len[4]
+            # closedata.district = data_len[5]
+            # closedata.mopho = data_len[6]
+            # closedata.detailadd = data_len[7]
+            # closedata.downloadBandwidth = float(data_len[8])
+            # closedata.uploadBandwidth = float(data_len[9])
+            # closedata.dl_nr_percent =float(data_len[10])
+            # closedata.ul_nr_percent =float(data_len[10])
+            # closedata.udpJitter = float(data_len[12])
+            # closedata.telesucc = float(data_len[12])
+            # closedata.datasucc = float(data_len[12])
+            # closedata.rsrpavg = float(data_len[12])
+            # closedata.sinravg = float(data_len[12])
+            # closedata.lteband = float(data_len[12])
+            # closedata.ktlastdl = float(data_len[12])
+            # closedata.ktlastul = float(data_len[12])
+            # closedata.sktlastdl = float(data_len[12])
+            # closedata.sktlastul = float(data_len[12])
+            # closedata.lglastdl = float(data_len[12])
+            # closedata.lglastul = float(data_len[12])
+            closedata = LastMeasDayClose.objects.filter(measdate=datetime.strptime(request.POST['measdate'], format_data).date(),userInfo1=request.POST['userinfo1'],networkId=request.POST['networkid'])
+            closedata.measdate = datetime.strptime(request.POST['measdate'], format_data).date()
+            closedata.userInfo1 = request.POST['userinfo1']
+            closedata.networkId = request.POST['networkid']
+            closedata.nettype = request.POST['nettype']
+            closedata.center = request.POST['center']
+            closedata.district = request.POST['district']
+            closedata.mopho = request.POST['mopho']
+            closedata.detailadd = request.POST['detailadd']
+            closedata.downloadBandwidth = request.POST['dl']
+            closedata.uploadBandwidth = request.POST['ul']
+            closedata.dl_nr_percent =request.POST['dllterate']
+            closedata.ul_nr_percent =request.POST['ullterate']
+            closedata.udpJitter = request.POST['delay']
+            closedata.telesucc = request.POST['telesucc']
+            closedata.datasucc = request.POST['datasucc']
+            closedata.rsrpavg = request.POST['rsrpavg']
+            closedata.sinravg = request.POST['sinravg']
+            closedata.lteband = request.POST['ltebandavg']
+            closedata.ktlastdl = request.POST['lastktdl']
+            closedata.ktlastul = request.POST['lastktul']
+            closedata.sktlastdl = request.POST['lastsktdl']
+            closedata.sktlastul = request.POST['lastsktul']
+            closedata.lglastdl = request.POST['lastlgdl']
+            closedata.lglastul = request.POST['lastlgul']
+            # 기존에 등록된 측정결과 데이터가 있으면 삭제한다.request.POST['measdate']
+            LastMeasDayClose.objects.filter(measdate=request.POST['measdate'],userInfo1=request.POST['measdate'],networkId=request.POST['measdate']).delete()
             # 측정결과를 저장한다.
             closedata.save()
            
@@ -434,19 +472,30 @@ def update_closedata(request):
         except Exception as e:
            
             closedata_new = LastMeasDayClose.objects.create( 
-                measdate = datetime.datetime.strptime(data_len[0], format_data).date(),
-                userInfo1 = data_len[1],
-                networkId = data_len[2],
-                nettype = data_len[3],
-                center = data_len[4],
-                district = data_len[5],
-                mopho = data_len[6],
-                detailadd = data_len[7],
-                downloadBandwidth = float(data_len[8]),
-                uploadBandwidth = float(data_len[9]),
-                lte_percent =float(data_len[10]),
-                success_rate = float(data_len[11]),
-                udpJitter = float(data_len[12]),
+            measdate = datetime.strptime(request.POST['measdate'], format_data).date(),
+            userInfo1 = request.POST['userinfo1'],
+            networkId = request.POST['networkid'],
+            nettype = request.POST['nettype'],
+            center = request.POST['center'],
+            district = request.POST['district'],
+            mopho = request.POST['mopho'],
+            detailadd = request.POST['detailadd'],
+            downloadBandwidth = request.POST['dl'],
+            uploadBandwidth = request.POST['ul'],
+            dl_nr_percent =request.POST['dllterate'],
+            ul_nr_percent =request.POST['ullterate'],
+            udpJitter = request.POST['delay'],
+            telesucc = request.POST['telesucc'],
+            datasucc = request.POST['datasucc'],
+            rsrpavg = request.POST['rsrpavg'],
+            sinravg = request.POST['sinravg'],
+            lteband = request.POST['ltebandavg'],
+            ktlastdl = request.POST['lastktdl'],
+            ktlastul = request.POST['lastktul'],
+            sktlastdl = request.POST['lastsktdl'],
+            sktlastul = request.POST['lastsktul'],
+            lglastdl = request.POST['lastlgdl'],
+            lglastul = request.POST['lastlgul'],
             )
   
             result = {'result' : 'ok',}
@@ -464,8 +513,8 @@ def update_closedata(request):
             
             
             
-    return JsonResponse(data=result, safe=False)
-
+    # return JsonResponse(data=result, safe=False)
+    return redirect("analysis:report_measresult")
 
 ###################
 #마감데이터 삭제
@@ -506,7 +555,7 @@ def delete_closedata(request):
 # 업데이트
 # -------------------------------------------------------------------------------------------------
 def update_report(request):
-    """측정결과 등록정보를 삭제하는 뷰"""
+    """DB 업데이트"""
    
     if request.method== "POST":
         post_save.connect(send_message_hj, sender=MeasuringDayClose)

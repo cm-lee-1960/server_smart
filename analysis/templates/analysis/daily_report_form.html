@@ -257,38 +257,19 @@ button{
 					<input style="height: 24px; width:160px; margin: 0 auto;" type="date" class="form-control" name="reportdate" id ="reportdate">
 				</div>
 			</form>
-			<!-- <form method="get" action="" class="form" id="planyearsearch">
-                <select class="form-select form-select-sm mb-2" aria-label=".form-select-sm select example" style="width:130px;" name="planYear" id="id_yy">
-                <option disabled id = measyear>측정년도</option>
-                <option value="2019">2019년</option>
-                <option value="2020"> 2020년</option>
-                <option value="2021"> 2021년</option>
-                <option value="2022"> 2022년</option>
-                <option value="2023"> 2023년</option>
-           
-                </select>
-            </form> -->
+			
 			<script>
 				//선택년도 데이터 추출
-				console.log("{{reportdate}}")
+				
 				$("input#reportdate").val("{{reportdate}}");
-				console.log($('input#reportdate').val());
+				
 				$("input#reportdate").change(function () {
-					console.log($('input#reportdate').val());
+					
 					$('#datesearch').submit();	
 				});
 				
 			</script>
 			
-			<!-- <script>
-				//선택된 년도 입력
-				$(document).ready(function() {
-					var s = document.getElementById("reportdate");
-					var ss = s.options[s.selectedIndex].value;
-					document.getElementById("yearyear").value = ss;
-					});
-			
-			</script> -->
 			<!-- 테스트 -->
 			<form action="{% url 'analysis:update_report' %}" method="POST" style="display:inline;" id="update">{% csrf_token %}
 				<button type="submit" class="btn btn-secondary btn-sm" style="display:inline; margin-left:5px;font-weight: bold;" id="update" form="update" >업데이트 <i class="icon-fixed-width icon-pencil"></i></button>
@@ -406,7 +387,7 @@ button{
 			<script>
 				let district_list = ['서울','인천','부산','울산','대구','광주','대전','경기','강원','경남','경북','전남','전북','충남','충북','세종','고속도로','지하철','전국'];
 				let msg5g = "";
-				let count5g = {{district5gcount}};
+				let count5g = '{{district5gcount}}';
 				for( var i in district_list ){
 					if(parseInt(count5g[i])>0){
 						msg5g += district_list[i]+parseInt(count5g[i]) + " ";
@@ -496,7 +477,7 @@ button{
 			<script>
 				
 				let msglte = "";
-				let countlte = {{districtltecount}};
+				let countlte = '{{districtltecount}}';
 				for( var i in district_list ){
 					if(parseInt(countlte[i])>0){
 						msglte += district_list[i]+parseInt(countlte[i]) + " ";
@@ -570,7 +551,7 @@ button{
 			<p>※ 지역별 : </p><p id="districtWiFicount"></p>
 			<script>
 				let msgWiFi = "";
-				let countWiFi = {{districtWiFicount}};
+				let countWiFi = '{{districtWiFicount}}';
 				for( var i in district_list ){
 					if(parseInt(countWiFi[i])>0){
 						msgWiFi += district_list[i]+parseInt(countWiFi[i]) + " ";
@@ -645,7 +626,7 @@ button{
 			<p>※ 지역별 : </p><p id="districtWeakcount"></p>
 			<script>
 				let msgWeak = "";
-				let countWeak = {{districtWeakcount}};
+				let countWeak = '{{districtWeakcount}}';
 				for( var i in district_list ){
 					if(parseInt(countWeak[i])>0){
 						msgWeak += district_list[i]+parseInt(countWeak[i]) + " ";
@@ -702,11 +683,11 @@ button{
 		</div>
 		<script>
 		
-		let nsa5gdldiff = ({{totalnsa5g.0}}-{{last5gtotal.DL}}).toFixed(1);
-		let nsa5guldiff = ({{totalnsa5g.1}}-{{last5gtotal.UL}}).toFixed(1);
-		let nsa5gltedldiff = ({{totalnsa5g.2}}-{{last5gtotal.LTEDL}}).toFixed(1);
-		let nsa5glteuldiff = ({{totalnsa5g.3}}-{{last5gtotal.LTEUL}}).toFixed(1);
-		let nsa5gdelaydiff = ({{totalnsa5g.4}}-{{last5gtotal.delay}}).toFixed(1);
+		let nsa5gdldiff = ('{{totalnsa5g.0}}'-'{{last5gtotal.DL}}').toFixed(1);
+		let nsa5guldiff = ('{{totalnsa5g.1}}'-'{{last5gtotal.UL}}').toFixed(1);
+		let nsa5gltedldiff = ('{{totalnsa5g.2}}'-'{{last5gtotal.LTEDL}}').toFixed(1);
+		let nsa5glteuldiff = ('{{totalnsa5g.3}}'-'{{last5gtotal.LTEUL}}').toFixed(1);
+		let nsa5gdelaydiff = ('{{totalnsa5g.4}}'-'{{last5gtotal.delay}}').toFixed(1);
 		
 		if(nsa5gdldiff<0){
 			document.getElementById("nsa5gdldiff").innerHTML = Math.abs(nsa5gdldiff) + "Mbps↓";
@@ -1098,9 +1079,9 @@ button{
 		</div>
 		<script>
 
-		let ltedldiff = ({{totallte.0}}-{{lastltetotal.DL}}).toFixed(1);
-		let lteuldiff = ({{totallte.1}}-{{lastltetotal.UL}}).toFixed(1);
-		let ltedelaydiff = ({{totallte.2}}-{{lastltetotal.delay}}).toFixed(1);
+		let ltedldiff = ('{{totallte.0}}'-'{{lastltetotal.DL}}').toFixed(1);
+		let lteuldiff = ('{{totallte.1}}'-'{{lastltetotal.UL}}').toFixed(1);
+		let ltedelaydiff = ('{{totallte.2}}'-'{{lastltetotal.delay}}').toFixed(1);
 		
 		if(ltedldiff<0){
 			document.getElementById("ltedldiff").innerHTML = Math.abs(ltedldiff) + "Mbps↓";
@@ -1329,9 +1310,7 @@ button{
 					<td id="ltepostmeasskt_lte">{{postmeaslte_postmeasskt_sinr|index:forloop.counter0}}</td>
 					<td id="ltepostmeaslg_lte">{{postmeaslte_postmeaslg_sinr|index:forloop.counter0}}</td>						
 					</tr>
-					<script>
-						console.log({{postmeaslteranklist}})
-					</script>
+					
 					
 			{% endfor %}
 			
@@ -1711,23 +1690,20 @@ button{
 					<td>{{tresult5g.center}}</td>
 					<td>{{tresult5g.mopho}}</td>
 					<td>{{tresult5g.district}}</td>
-					<td>{{tresult5g.userInfo1}}</td>
+					<td style="width:25%;">{{tresult5g.userInfo1}}</td>
 					<td>{{tresult5g.downloadBandwidth}}</td>
 					<td>{{tresult5g.uploadBandwidth}}</td>
 					<td>{{tresult5g.dl_nr_percent}}</td>
 					<td>{{tresult5g.ul_nr_percent}}</td>
-					<td id="nullcheck5gdl">{{tresult5g.ktlastdl}}/{{tresult5g.sktlastdl}}/{{tresult5g.lglastdl}}</td>
-					<td id="nullcheck5gul">{{tresult5g.ktlastul}}/{{tresult5g.sktlastul}}/{{tresult5g.lglastul}}</td>
-					<script>
-						if('{{tresult5g.ktlastdl}}' == "None"){
-							document.getElementById("nullcheck5gdl").innerText="-"
-						}
-						if('{{tresult5g.ktlastul}}' == "None"){
-							document.getElementById("nullcheck5gul").innerText="-"
-						}
-					</script>
+					{% if tresult5g.ktlastdl != None %}
+					<td class="nullcheck5gdl"><p>{{tresult5g.ktlastdl}}</p>/<p>{{tresult5g.sktlastdl}}</p>/<p>{{tresult5g.lglastdl}}</p></td>
+					{% endif %}
+					{% if tresult5g.ktlastul != None %}
+					<td class="nullcheck5gul"><p>{{tresult5g.ktlastul}}</p>/<p>{{tresult5g.sktlastul}}</p>/<p>{{tresult5g.lglastul}}</p></td>
+					{% endif %}
 				</tr>
 				{% endfor %}
+				
 			</tbody>
 		</table>
 	</div>
@@ -1787,19 +1763,15 @@ button{
 					<td>{{tresultlte.center}}</td>
 					<td>{{tresultlte.mopho}}</td>
 					<td>{{tresultlte.district}}</td>
-					<td>{{tresultlte.userInfo1}}</td>
+					<td style="width:30%;">{{tresultlte.userInfo1}}</td>
 					<td>{{tresultlte.downloadBandwidth}}</td>
 					<td>{{tresultlte.uploadBandwidth}}</td>
-					<td id="nullcheckltedl">{{tresultlte.ktlastdl}}/{{tresultlte.sktlastdl}}/{{tresultlte.lglastdl}}</td>
-					<td id="nullchecklteul">{{tresultlte.ktlastul}}/{{tresultlte.sktlastul}}/{{tresultlte.lglastul}}</td>
-					<script>
-						if('{{tresultlte.ktlastdl}}' == "None"){
-							document.getElementById("nullcheckltedl").innerText="-"
-						}
-						if('{{tresultlte.ktlastul}}' == "None"){
-							document.getElementById("nullchecklteul").innerText="-"
-						}
-					</script>
+					{% if tresultlte.ktlastdl != None %}
+					<td class="nullcheckltedl">{{tresultlte.ktlastdl}}/{{tresultlte.sktlastdl}}/{{tresultlte.lglastdl}}</td>
+					{% endif %}
+					{% if tresultlte.ktlastul != None %}
+					<td class="nullchecklteul">{{tresultlte.ktlastul}}/{{tresultlte.sktlastul}}/{{tresultlte.lglastul}}</td>
+					{% endif %}
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -1868,7 +1840,7 @@ button{
 				<tr>
 					<td>{{todayweak.0}}</td>
 					<td>{{todayweak.1}}</td>
-					<td>{{todayweak.2}}</td>
+					<td style="width:35%;">{{todayweak.2}}</td>
 					<td>{{todayweak.3}}</td>
 					<td>{{todayweak.4}}</td>
 					<td>{{todayweak.5}}</td>
@@ -1924,15 +1896,12 @@ button{
 				<tr>
 					<td>{{tresultwifi.center}}</td>
 					<td>{{tresultwifi.mopho}}</td>
-					<td>{{tresultwifi.userInfo1}}</td>
+					<td style="width:40%;">{{tresultwifi.userInfo1}}</td>
 					<td>{{tresultwifi.downloadBandwidth}}</td>
 					<td>{{tresultwifi.uploadBandwidth}}</td>
+					{% if tresultwifi.subadd != None %}
 					<td id="nullcheck">{{tresultwifi.subadd}}</td>
-					<script>
-						if('{{tresultwifi.subadd}}' == "None"){
-							document.getElementById("nullcheck").innerText = "-"
-						}
-					</script>
+					{% endif %}
 				</tr>
 				{% endfor %}
 				
@@ -2167,7 +2136,20 @@ $(document).ready(function() {
 	
 });
 </script>
+<script>
+// 널값 치환
+function null2void( v, r ) {
+   if(v == undefined || v == "undefined") {
+         if( r == undefined || r == "undefined") {
+              v = "";
+          } else  {
+              v = r;
+          }         
+   }
+     return v;
+}
 
+</script>
 <!-- 시험	 -->
 <script>
 	// PDF 출력 버튼 이벤트
@@ -2312,8 +2294,7 @@ $(document).ready(function () {
 		$('#indentsidebar').toggle();
 		$('#outdentsidebar').toggle();
     });
-	
-	
+
 	
 
 });
