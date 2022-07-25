@@ -205,7 +205,8 @@ def pdf_merge(request):
     # merger라는 이름의 pdf병합기를 준비
     merger = PdfFileMerger()
     # username = os.environ['HOME']
-    username = str(Path.home())
+    # username = str(Path.home())
+    username = os.path.expanduser('~')
     print(username)
     saveday = datetime.now().strftime("%Y%m%d")
     # 준비한 파일들을 하나씩 읽은 후, merger에 추가
