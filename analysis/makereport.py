@@ -894,7 +894,7 @@ def get_report_cntx(request):
 
 #wifi 측정결과(지역별)
     
-    train_list = ['부산','대구','전남','대전']
+    train_list = ['부산','대구','전남','충남']
     lasttrain_list = ['종합','수도권','부산','대구','광주','대전']
     wifitraindl = []
     wifitrainul = []
