@@ -387,10 +387,11 @@ button{
 			<script>
 				let district_list = ['서울','인천','부산','울산','대구','광주','대전','경기','강원','경남','경북','전남','전북','충남','충북','세종','고속도로','지하철','전국'];
 				let msg5g = "";
-				let count5g = '{{district5gcount}}';
+				let count5g = {{district5gcount}};
 				for( var i in district_list ){
 					if(parseInt(count5g[i])>0){
 						msg5g += district_list[i]+parseInt(count5g[i]) + " ";
+						
 					}
 				}
 				document.getElementById("district5gcount").innerText = msg5g;
@@ -477,7 +478,7 @@ button{
 			<script>
 				
 				let msglte = "";
-				let countlte = '{{districtltecount}}';
+				let countlte = {{districtltecount}};
 				for( var i in district_list ){
 					if(parseInt(countlte[i])>0){
 						msglte += district_list[i]+parseInt(countlte[i]) + " ";
@@ -551,7 +552,7 @@ button{
 			<p>※ 지역별 : </p><p id="districtWiFicount"></p>
 			<script>
 				let msgWiFi = "";
-				let countWiFi = '{{districtWiFicount}}';
+				let countWiFi = {{districtWiFicount}};
 				for( var i in district_list ){
 					if(parseInt(countWiFi[i])>0){
 						msgWiFi += district_list[i]+parseInt(countWiFi[i]) + " ";
@@ -626,7 +627,7 @@ button{
 			<p>※ 지역별 : </p><p id="districtWeakcount"></p>
 			<script>
 				let msgWeak = "";
-				let countWeak = '{{districtWeakcount}}';
+				let countWeak = {{districtWeakcount}};
 				for( var i in district_list ){
 					if(parseInt(countWeak[i])>0){
 						msgWeak += district_list[i]+parseInt(countWeak[i]) + " ";
@@ -1662,7 +1663,7 @@ button{
 		
 	</script>
 	<div id="output1">
-		<table id="5Ghh">
+		<table>
 			<thead>
 				<tr>
 					<th rowspan="2">센터</th>
@@ -1684,11 +1685,21 @@ button{
 				</tr>
 				
 			</thead>
-			<tbody>
+			<tbody id="5gtoday">
+				<script>
+					let qqqqq = 0;
+					let sssss = 0;
+					let ddddd = '';
+				</script>
 				{% for tresult5g in tresult5g %}
 				<tr>
+					
 					<td>{{tresult5g.center}}</td>
-					<td>{{tresult5g.mopho}}</td>
+					{% if tresult5g.nettype == "5G SA" %}
+						<td>SA</td>
+					{% else %}
+						<td>{{tresult5g.mopho}}</td>
+					{% endif %}
 					<td>{{tresult5g.district}}</td>
 					<td style="width:25%;">{{tresult5g.userInfo1}}</td>
 					<td>{{tresult5g.downloadBandwidth}}</td>
@@ -1697,11 +1708,26 @@ button{
 					<td>{{tresult5g.ul_nr_percent}}</td>
 					{% if tresult5g.ktlastdl != None %}
 					<td class="nullcheck5gdl"><p>{{tresult5g.ktlastdl}}</p>/<p>{{tresult5g.sktlastdl}}</p>/<p>{{tresult5g.lglastdl}}</p></td>
+					{% else %}
+					<td>-</td>
 					{% endif %}
 					{% if tresult5g.ktlastul != None %}
 					<td class="nullcheck5gul"><p>{{tresult5g.ktlastul}}</p>/<p>{{tresult5g.sktlastul}}</p>/<p>{{tresult5g.lglastul}}</p></td>
+					{% else %}
+					<td>-</td>
 					{% endif %}
+					
 				</tr>
+				<script>
+					sssss = $("#5gtoday").children('tr')[qqqqq].children[3];
+					ddddd = sssss.outerText
+					ddddd = ddddd.replace(/테-/g,'');
+					ddddd = ddddd.replace(/-/g,' ');
+					ddddd = ddddd.replace(/서울특별시|대전광역시|강원도|경기도|인천광역시|대전광역시|세종시|충청북도|충청남도|대구광역시|부산광역시|울산광역시|경상북도|경상남도|광주광역시|전라북도|전라남도/g,'');
+					console.log(ddddd)
+					sssss.innerText = ddddd
+					qqqqq = qqqqq + 1;
+				</script>
 				{% endfor %}
 				
 			</tbody>
@@ -1757,7 +1783,10 @@ button{
 				</tr>
 				
 			</thead>
-			<tbody>
+			<script>
+				qqqqq=0;
+			</script>
+			<tbody id="ltetoday">
 				{% for tresultlte in tresultlte %}
 				<tr>
 					<td>{{tresultlte.center}}</td>
@@ -1768,11 +1797,25 @@ button{
 					<td>{{tresultlte.uploadBandwidth}}</td>
 					{% if tresultlte.ktlastdl != None %}
 					<td class="nullcheckltedl">{{tresultlte.ktlastdl}}/{{tresultlte.sktlastdl}}/{{tresultlte.lglastdl}}</td>
+					{% else %}
+					<td>-</td>
 					{% endif %}
 					{% if tresultlte.ktlastul != None %}
 					<td class="nullchecklteul">{{tresultlte.ktlastul}}/{{tresultlte.sktlastul}}/{{tresultlte.lglastul}}</td>
+					{% else %}
+					<td>-</td>
 					{% endif %}
 				</tr>
+				<script>
+					sssss = $("#ltetoday").children('tr')[qqqqq].children[3];
+					ddddd = sssss.outerText
+					ddddd = ddddd.replace(/테-/g,'');
+					ddddd = ddddd.replace(/-/g,' ');
+					ddddd = ddddd.replace(/서울특별시|대전광역시|강원도|경기도|인천광역시|대전광역시|세종시|충청북도|충청남도|대구광역시|부산광역시|울산광역시|경상북도|경상남도|광주광역시|전라북도|전라남도/g,'');
+					console.log(ddddd)
+					sssss.innerText = ddddd
+					qqqqq = qqqqq + 1;
+				</script>
 				{% endfor %}
 			</tbody>
 		</table>
@@ -1840,7 +1883,11 @@ button{
 				<tr>
 					<td>{{todayweak.0}}</td>
 					<td>{{todayweak.1}}</td>
-					<td style="width:35%;">{{todayweak.2}}</td>
+					{% if todayweak.7 != None %}
+						<td style="width:35%;">{{todayweak.7}} {{todayweak.2}}</td>
+					{% else %}
+						<td style="width:35%;">{{todayweak.2}}</td>
+					{% endif %}
 					<td>{{todayweak.3}}</td>
 					<td>{{todayweak.4}}</td>
 					<td>{{todayweak.5}}</td>
@@ -1891,7 +1938,10 @@ button{
 					<th>UL</th>	
 				</tr>
 			</thead>
-			<tbody>
+			<script>
+				qqqqq=0;
+			</script>
+			<tbody id = "wifitoday">
 				{% for tresultwifi in tresultwifi %}
 				<tr>
 					<td>{{tresultwifi.center}}</td>
@@ -1901,8 +1951,20 @@ button{
 					<td>{{tresultwifi.uploadBandwidth}}</td>
 					{% if tresultwifi.subadd != None %}
 					<td id="nullcheck">{{tresultwifi.subadd}}</td>
+					{% else %}
+					<td>-</td>
 					{% endif %}
 				</tr>
+				<script>
+					sssss = $("#wifitoday").children('tr')[qqqqq].children[2];
+					ddddd = sssss.outerText
+					ddddd = ddddd.replace(/테-/g,'');
+					ddddd = ddddd.replace(/-/g,' ');
+					ddddd = ddddd.replace(/서울특별시|대전광역시|강원도|경기도|인천광역시|대전광역시|세종시|충청북도|충청남도|대구광역시|부산광역시|울산광역시|경상북도|경상남도|광주광역시|전라북도|전라남도/g,'');
+					console.log(ddddd)
+					sssss.innerText = ddddd
+					qqqqq = qqqqq + 1;
+				</script>
 				{% endfor %}
 				
 			</tbody>
@@ -2183,7 +2245,7 @@ function null2void( v, r ) {
 						
 					
 				// });
-				
+					
 						html2canvas(document.querySelector('#page1')).then(canvas =>{
 							var imgData = canvas.toDataURL('jpeg', 1.0);
 							var imgWidth = 180; // 이미지 가로 길이(mm) A4 기준
@@ -2203,6 +2265,7 @@ function null2void( v, r ) {
 							// 	doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
 							// 	heightLeft -= pageHeight;
 							// }
+							
 							doc.save("일일보고병합용(삭제).pdf");
 						});
 						html2canvas(document.querySelector('#page2')).then(canvas =>{
@@ -2214,9 +2277,10 @@ function null2void( v, r ) {
 							var margin = 15; // 출력 페이지 여백설정
 							var position = 15;
 							var doc = new jsPDF("p", "mm", 'a4');
-							
+				
 							doc.addImage(imgData2, 'JPEG', margin, position, imgWidth, imgHeight);
 							doc.save('일일보고병합용(삭제).pdf');
+						
 						});
 						html2canvas(document.querySelector('#page3')).then(canvas =>{
 							var imgData3 = canvas.toDataURL('jpeg', 1.0);
@@ -2230,6 +2294,8 @@ function null2void( v, r ) {
 								
 							doc.addImage(imgData3, 'JPEG', margin, position, imgWidth, imgHeight);
 							doc.save('일일보고병합용(삭제).pdf');
+							
+							
 						});
 						html2canvas(document.querySelector('#page4')).then(canvas =>{
 							var imgData4 = canvas.toDataURL('jpeg', 1.0);
@@ -2243,6 +2309,7 @@ function null2void( v, r ) {
 							
 							doc.addImage(imgData4, 'JPEG', margin, position, imgWidth, imgHeight);
 							doc.save('일일보고병합용(삭제).pdf');
+						
 						});
 							html2canvas(document.querySelector('#page5')).then(canvas =>{
 							var imgData5 = canvas.toDataURL('jpeg', 1.0);
@@ -2256,7 +2323,9 @@ function null2void( v, r ) {
 							
 							doc.addImage(imgData5, 'JPEG', margin, position, imgWidth, imgHeight);
 							doc.save('일일보고병합용(삭제).pdf');
+						
 						});	
+						
 						function merge_test(){
 											$.ajaxSetup({
 											headers: { "X-CSRFToken": '{{csrf_token}}'}
@@ -2397,13 +2466,13 @@ document.getElementById("tt2").innerHTML = planltetotal + "개 지역 중";
 document.getElementById("tt3").innerHTML = planwifitotal + "개 지역 중";
 document.getElementById("tt4").innerHTML = planweaktotal + "개 지역 중";
 document.getElementById("pc1").innerHTML =
-  "(" + ((meas5gtotal / plan5gtotal) * 100).toFixed(2) + "%)";
+  "(" + ((meas5gtotal / plan5gtotal) * 100).toFixed(0) + "%)";
 document.getElementById("pc2").innerHTML =
-  "(" + ((measltetotal / planltetotal) * 100).toFixed(2) + "%)";
+  "(" + ((measltetotal / planltetotal) * 100).toFixed(0) + "%)";
 document.getElementById("pc3").innerHTML =
-  "(" + ((measwifitotal / planwifitotal) * 100).toFixed(2) + "%)";
+  "(" + ((measwifitotal / planwifitotal) * 100).toFixed(0) + "%)";
 document.getElementById("pc4").innerHTML =
-  "(" + ((measweaktotal / planweaktotal) * 100).toFixed(2) + "%)";
+  "(" + ((measweaktotal / planweaktotal) * 100).toFixed(0) + "%)";
 document.getElementById("tt").innerHTML =
 plan5gtotal + planltetotal + planwifitotal + planweaktotal + "개";
 document.getElementById("ttf").innerHTML =
@@ -2414,7 +2483,7 @@ document.getElementById("pcf").innerHTML =
     ((meas5gtotal + measltetotal + measwifitotal + measweaktotal) /
       (plan5gtotal + planltetotal + planwifitotal + planweaktotal)) *
     100
-  ).toFixed(0) +
+  ).toFixed(1) +
   "%)";
 
 // 리포트 날짜
