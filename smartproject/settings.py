@@ -54,7 +54,7 @@ KAKAO_REST_API_KEY = get_secret("KAKAO_REST_API_KEY")
 TELEGRAM_API_ID = get_secret("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = get_secret("TELEGRAM_API_HASH")
 # olleh API Key
-#OLLEH_API_KEY = get_secret("OLLEH_API_KEY")
+OLLEH_API_KEY = get_secret("OLLEH_API_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
