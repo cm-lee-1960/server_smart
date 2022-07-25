@@ -1,13 +1,15 @@
 from django.urls import path
 from . import views
 from .views import *
+from analysis.admin import report_admin_site
 app_name = 'analysis'
 urlpatterns = [
                                         
     # path('dashboard/',views.dashboard,name='dashboard'), # 홈 화면
     path('dashboard_test/',views.dashboard_test,name='dashboard_test'), # 홈 화면(테스트)
     path("report/", views.report, name='report'), # 일일보고 페이지
-
+    #관리자페이지
+    path("report/report_admin/", report_admin_site.urls),
 
    # 추가사항(필요없는것은 삭제예정)
     path("report/update/", views.update_report, name='update_report'), # 리포트 업데이트

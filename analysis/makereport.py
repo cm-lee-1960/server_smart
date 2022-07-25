@@ -490,6 +490,8 @@ def get_report_cntx(request):
     tregi5Gpublic = LastMeasDayClose.objects.filter(nettype = "5G 공동망",measdate = hodate).count()
     tregi5Gcv = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망")) & Q(mopho = "커버리지")&Q(measdate = hodate)).count()
     tregi5Gtotal = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate = hodate)).count()
+    tregi5Gda = LastMeasDayClose.objects.filter(Q(nettype = "5G NSA")&Q(mopho = "다중이용시설")&Q(measdate = hodate)).count()
+    tregi5Ggyo = LastMeasDayClose.objects.filter(Q(nettype = "5G NSA")&Q(mopho = "교통인프라")&Q(measdate = hodate)).count()
 #5G지역별측정개수
     district5gcount = []
     for i in district_list:
@@ -568,33 +570,33 @@ def get_report_cntx(request):
         publicwificount.append(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "공공" ,district = i,measdate__range=[firstday,hodate]).count())
     
 #품질취약지역측정전체개수
-    sregiweakdsr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "등산로",measdate__range=[firstday,hodate]).count()
-    sregiweakyghr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "여객항로",measdate__range=[firstday,hodate]).count()
-    sregiweakyids = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "유인도서",measdate__range=[firstday,hodate]).count()
-    sregiweakhadr = LastMeasDayClose.objects.filter(mopho = "품질취약지역", detailadd = "해안도로",measdate__range=[firstday,hodate]).count()
-    sregiweaktotal = LastMeasDayClose.objects.filter(mopho = "품질취약지역",measdate__range=[firstday,hodate]).count()
+    sregiweakdsr = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역", detailadd = "등산로",measdate__range=[firstday,hodate]).count()
+    sregiweakyghr = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역", detailadd = "여객항로",measdate__range=[firstday,hodate]).count()
+    sregiweakyids = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역", detailadd = "유인도서",measdate__range=[firstday,hodate]).count()
+    sregiweakhadr = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역", detailadd = "해안도로",measdate__range=[firstday,hodate]).count()
+    sregiweaktotal = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역",measdate__range=[firstday,hodate]).count()
 #품질취약지역당일측정전체개수   
-    tregiweakdsr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "등산로").count()
-    tregiweakyghr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "여객항로").count()
-    tregiweakyids = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "유인도서").count()
-    tregiweakhadr = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate, detailadd = "해안도로").count()
-    tregiweaktotal = LastMeasDayClose.objects.filter(mopho = "품질취약지역",  measdate = hodate).count()
+    tregiweakdsr = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역",  measdate = hodate, detailadd = "등산로").count()
+    tregiweakyghr = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역",  measdate = hodate, detailadd = "여객항로").count()
+    tregiweakyids = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역",  measdate = hodate, detailadd = "유인도서").count()
+    tregiweakhadr = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역",  measdate = hodate, detailadd = "해안도로").count()
+    tregiweaktotal = LastMeasDayClose.objects.filter(networkId="LTE", mopho = "품질취약지역",  measdate = hodate).count()
 #품질취약지역지역별측정개수    
     districtWeakcount = []
     for i in district_list:
-        districtWeakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", district = i,measdate__range=[firstday,hodate]).count())
+        districtWeakcount.append(LastMeasDayClose.objects.filter(networkId="LTE", nettype = "품질취약지역", district = i,measdate__range=[firstday,hodate]).count())
     dsrweakcount = []
     for i in district_list:
-        dsrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "등산로" ,district = i,measdate__range=[firstday,hodate]).count())
+        dsrweakcount.append(LastMeasDayClose.objects.filter(networkId="LTE", nettype = "품질취약지역", detailadd = "등산로" ,district = i,measdate__range=[firstday,hodate]).count())
     yghrweakcount = []
     for i in district_list:
-        yghrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "여객항로" ,district = i,measdate__range=[firstday,hodate]).count())
+        yghrweakcount.append(LastMeasDayClose.objects.filter(networkId="LTE", nettype = "품질취약지역", detailadd = "여객항로" ,district = i,measdate__range=[firstday,hodate]).count())
     yidsweakcount = []
     for i in district_list:
-        yidsweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "유인도서" ,district = i,measdate__range=[firstday,hodate]).count())
+        yidsweakcount.append(LastMeasDayClose.objects.filter(networkId="LTE", nettype = "품질취약지역", detailadd = "유인도서" ,district = i,measdate__range=[firstday,hodate]).count())
     hadrweakcount = []
     for i in district_list:
-        hadrweakcount.append(LastMeasDayClose.objects.filter(nettype = "품질취약지역", detailadd = "해안도로" ,district = i,measdate__range=[firstday,hodate]).count())
+        hadrweakcount.append(LastMeasDayClose.objects.filter(networkId="LTE", nettype = "품질취약지역", detailadd = "해안도로" ,district = i,measdate__range=[firstday,hodate]).count())
     
 #모폴로지별작년측정결과
     #5G
@@ -892,7 +894,7 @@ def get_report_cntx(request):
 
 #wifi 측정결과(지역별)
     
-    train_list = ['부산','대구','광주','대전']
+    train_list = ['부산','대구','전남','대전']
     lasttrain_list = ['종합','수도권','부산','대구','광주','대전']
     wifitraindl = []
     wifitrainul = []
@@ -908,34 +910,30 @@ def get_report_cntx(request):
         except:
             wifitrainlastul.append("")
     try:
-        wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(district='서울')|Q(district='인천')|Q(district='경기')|
-                                                                                  Q(district='부산')|Q(district='대구')|Q(district='광주')|
-                                                                                  Q(district='대전'))&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+        wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
     except:
         wifitraindl.append("")
     try:
-        wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(district='서울')|Q(district='인천')|Q(district='경기'))
+        wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(center='서울강북')|Q(center='서울강남')|Q(center='경기남부')|Q(center='경기서부')|Q(center='경기북부'))
                                                              &Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
     except:
         wifitraindl.append("")
     try:
-        wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(district='서울')|Q(district='인천')|Q(district='경기')|
-                                                                                  Q(district='부산')|Q(district='대구')|Q(district='광주')|
-                                                                                  Q(district='대전'))&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+        wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
     except:
         wifitrainul.append("")
     try:
-        wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(district='서울')|Q(district='인천')|Q(district='경기'))
+        wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(center='서울강북')|Q(center='서울강남')|Q(center='경기남부')|Q(center='경기서부')|Q(center='경기북부'))
                                                              &Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
     except:
         wifitrainul.append("")
     for i in train_list:
         try:
-            wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(district=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(center=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
         except:
             wifitraindl.append("")
         try:
-            wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(district=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(center=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
         except:
             wifitrainul.append("")
 
@@ -944,13 +942,51 @@ def get_report_cntx(request):
     tresultlte = LastMeasDayClose.objects.filter(nettype = "LTE", measdate = hodate)
     tresultwifi = LastMeasDayClose.objects.filter(nettype = "WiFi", measdate = hodate)
     tresultweak = LastMeasDayClose.objects.filter(nettype = "품질취약지역", measdate = hodate)
-
+    weaklte3g = LastMeasDayClose.objects.filter(nettype = "품질취약지역", measdate = hodate).distinct().values_list('userInfo1',flat=True)
+    print(weaklte3g)
+    todayweak = []
+    todayweaklist = []
+    for i in weaklte3g:    
+        try:
+            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "LTE").center)
+        except:
+            todayweaklist.append("") 
+        try:
+            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "LTE").detailadd)
+        except:
+            todayweaklist.append("") 
+        try:
+            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "LTE").userInfo1)
+        except:
+            todayweaklist.append("") 
+        try:
+            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "LTE").telesucc)
+        except:
+            todayweaklist.append("") 
+        try:
+            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "3G").telesucc)
+        except:
+            todayweaklist.append("") 
+        try:
+            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "LTE").datasucc)
+        except:
+            todayweaklist.append("") 
+        try:
+            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "3G").datasucc)
+        except:
+            todayweaklist.append("") 
+        todayweak.append(todayweaklist)
+        todayweaklist = []
+    print(todayweak)    
+        
 #리포트 날짜 스트링변환
     report_day = hodate.strftime('%Y%m%d') 
     report_firstday = firstdate.strftime('%Y%m%d') 
-    
+# 측정완료
+    measclose = LastMeasDayClose.objects.filter(measdate = hodate)
    
     context = { 
+    'measclose':measclose,'networkid_list':networkid_list,'district_list':district_list,'center_list':center_list,'city_list':city_list ,'facility5g_list':facility5g_list,'traffic5g_list':traffic5g_list,'inbuildinglte_list':inbuildinglte_list,'themelte_list':themelte_list,
     'reportdate':reportdate,'hodate':hodate,'report_day':report_day,'report_firstday':report_firstday,
     'wificenterdl':wificenterdl,'wificenterul':wificenterul,'center_list1':center_list1,'center_list2':center_list2,'district_list':district_list,
     'wificenterdl2':wificenterdl2,'wificenterul2':wificenterul2,
@@ -958,13 +994,10 @@ def get_report_cntx(request):
     'districtltecount':districtltecount,'bctltecount':bctltecount,'mctltecount':mctltecount,'sctltecount':sctltecount,'ibltecount':ibltecount,'tmltecount':tmltecount,
     'districtWiFicount':districtWiFicount,'sywificount':sywificount,'gbwificount':gbwificount,'publicwificount':publicwificount,
     'districtWeakcount':districtWeakcount,'dsrweakcount':dsrweakcount,'yghrweakcount':yghrweakcount,'yidsweakcount':yidsweakcount,'hadrweakcount':hadrweakcount,
-    'tresult5g':tresult5g,'tresultlte':tresultlte,'tresultwifi':tresultwifi,'tresultweak':tresultweak,
-    'weakvolte':weakvolte,
-    'weaktele3g':weaktele3g,
-    'weaklte':weaklte,
-    'weak3g':weak3g,
+    'tresult5g':tresult5g,'tresultlte':tresultlte,'tresultwifi':tresultwifi,'tresultweak':tresultweak,'todayweaklist':todayweaklist,'weaklte3g':weaklte3g,'todayweak':todayweak,
+    'weakvolte':weakvolte,'weaktele3g':weaktele3g,'weaklte':weaklte,'weak3g':weak3g,
     'regi':regi, 'reportmsg':reportmsg,'sregi':sregi,'firstdate':firstdate,'lastdate':lastdate,
-    'tregi5Ghjd':tregi5Ghjd,'tregi5Gdagyo':tregi5Gdagyo,'tregi5Gnsatotal':tregi5Gnsatotal,'tregi5Gsatotal':tregi5Gsatotal, 'tregi5Gpublic':tregi5Gpublic,'tregi5Gcv':tregi5Gcv,'tregi5Gtotal':tregi5Gtotal,
+    'tregi5Ghjd':tregi5Ghjd,'tregi5Gdagyo':tregi5Gdagyo,'tregi5Gnsatotal':tregi5Gnsatotal,'tregi5Gsatotal':tregi5Gsatotal, 'tregi5Gpublic':tregi5Gpublic,'tregi5Gcv':tregi5Gcv,'tregi5Gtotal':tregi5Gtotal,'tregi5Gda':tregi5Gda,'tregi5Ggyo':tregi5Ggyo,
     'sregi5Ghjd':sregi5Ghjd,'sregi5Gdagyo':sregi5Gdagyo,'sregi5Gnsatotal':sregi5Gnsatotal,'sregi5Gsatotal':sregi5Gsatotal,'sregi5Gpublic':sregi5Gpublic,'sregi5Gcv':sregi5Gcv,'sregi5Gtotal':sregi5Gtotal,
     'sregiLTEbct':sregiLTEbct, 'sregiLTEmct':sregiLTEmct,'sregiLTEsct':sregiLTEsct, 'sregiLTEib':sregiLTEib,'sregiLTEtm':sregiLTEtm, 'sregiLTEcv':sregiLTEcv,'sregiLTEtotal':sregiLTEtotal, 
     'tregiLTEbct':tregiLTEbct,'tregiLTEmct':tregiLTEmct, 'tregiLTEsct':tregiLTEsct,'tregiLTEib':tregiLTEib, 'tregiLTEtm':tregiLTEtm,'tregiLTEcv':tregiLTEcv, 'tregiLTEtotal':tregiLTEtotal,
@@ -976,89 +1009,52 @@ def get_report_cntx(request):
     'last5gbct':last5gbct,'last5gmct':last5gmct,'last5ghjd':last5ghjd,'last5gdj':last5gdj,'last5gapt':last5gapt,'last5gtraffic':last5gtraffic,'last5gtotal':last5gtotal,
     'lastltebct':lastltebct,'lastltemct':lastltemct,'lastltesct':lastltesct,'lastltehjd':lastltehjd,'lastlteib':lastlteib,'lastltetm':lastltetm,'lastltetotal':lastltetotal,
     'lastwifigb':lastwifigb,'lastwifisy':lastwifisy,'lastwifipublic':lastwifipublic,'lastwifitotal':lastwifitotal,
-    'weakdsr':weakdsr,
-    'weakyghr':weakyghr,
-    'weakyids':weakyids,
-    'weakhadr':weakhadr,
-    'weaktotal':weaktotal,
+    'weakdsr':weakdsr,'weakyghr':weakyghr,'weakyids':weakyids,'weakhadr':weakhadr,'weaktotal':weaktotal,
     'wifitraindl':wifitraindl,'wifitrainul':wifitrainul,'wifitrainlastdl':wifitrainlastdl,'wifitrainlastul':wifitrainlastul,
     'totalwifidl':totalwifidl,'totalsywifidl':totalsywifidl,'totalgbwifidl':totalgbwifidl,'totalwifiul':totalwifiul,'totalsywifiul':totalsywifiul,'totalgbwifiul':totalgbwifiul,
     'postmeasure5g':postmeasure5g,'postmeasurelte':postmeasurelte,
     'postmeas5glist':postmeas5glist, 'postmeas5grankdllist':postmeas5grankdllist,'postmeas5grankullist':postmeas5grankullist,
     'postmeas5gtotal_district':postmeas5gtotal_district,'postmeas5gtotal_lastkt_dl':postmeas5gtotal_lastkt_dl,
     'postmeas5gtotal_lastskt_dl':postmeas5gtotal_lastskt_dl,'postmeas5gtotal_lastlg_dl':postmeas5gtotal_lastlg_dl,
-    'postmeas5gtotal_measkt_dl':postmeas5gtotal_measkt_dl,
-    'postmeas5gtotal_measkt_ul':postmeas5gtotal_measkt_ul,
-    'postmeas5gtotal_measkt_rsrp':postmeas5gtotal_measkt_rsrp,
-    'postmeas5gtotal_measkt_lte':postmeas5gtotal_measkt_lte,
-    'postmeas5gtotal_postmeaskt_dl':postmeas5gtotal_postmeaskt_dl,
-    'postmeas5gtotal_postmeaskt_ul':postmeas5gtotal_postmeaskt_ul,
-    'postmeas5gtotal_postmeaskt_rsrp':postmeas5gtotal_postmeaskt_rsrp,
-    'postmeas5gtotal_postmeaskt_lte':postmeas5gtotal_postmeaskt_lte,
-    'postmeas5gtotal_postmeasskt_dl':postmeas5gtotal_postmeasskt_dl,
-    'postmeas5gtotal_postmeasskt_ul':postmeas5gtotal_postmeasskt_ul,
-    'postmeas5gtotal_postmeasskt_rsrp':postmeas5gtotal_postmeasskt_rsrp,
-    'postmeas5gtotal_postmeasskt_lte':postmeas5gtotal_postmeasskt_lte,
-    'postmeas5gtotal_postmeaslg_dl':postmeas5gtotal_postmeaslg_dl,
-    'postmeas5gtotal_postmeaslg_ul':postmeas5gtotal_postmeaslg_ul,
-    'postmeas5gtotal_postmeaslg_rsrp':postmeas5gtotal_postmeaslg_rsrp,
-    'postmeas5gtotal_postmeaslg_lte':postmeas5gtotal_postmeaslg_lte,
+    'postmeas5gtotal_measkt_dl':postmeas5gtotal_measkt_dl,'postmeas5gtotal_measkt_ul':postmeas5gtotal_measkt_ul,
+    'postmeas5gtotal_measkt_rsrp':postmeas5gtotal_measkt_rsrp,'postmeas5gtotal_measkt_lte':postmeas5gtotal_measkt_lte,
+    'postmeas5gtotal_postmeaskt_dl':postmeas5gtotal_postmeaskt_dl,'postmeas5gtotal_postmeaskt_ul':postmeas5gtotal_postmeaskt_ul,
+    'postmeas5gtotal_postmeaskt_rsrp':postmeas5gtotal_postmeaskt_rsrp,'postmeas5gtotal_postmeaskt_lte':postmeas5gtotal_postmeaskt_lte,
+    'postmeas5gtotal_postmeasskt_dl':postmeas5gtotal_postmeasskt_dl,'postmeas5gtotal_postmeasskt_ul':postmeas5gtotal_postmeasskt_ul,
+    'postmeas5gtotal_postmeasskt_rsrp':postmeas5gtotal_postmeasskt_rsrp,'postmeas5gtotal_postmeasskt_lte':postmeas5gtotal_postmeasskt_lte,
+    'postmeas5gtotal_postmeaslg_dl':postmeas5gtotal_postmeaslg_dl,'postmeas5gtotal_postmeaslg_ul':postmeas5gtotal_postmeaslg_ul,
+    'postmeas5gtotal_postmeaslg_rsrp':postmeas5gtotal_postmeaslg_rsrp,'postmeas5gtotal_postmeaslg_lte':postmeas5gtotal_postmeaslg_lte,
     'postmeas5g_district':postmeas5g_district,'postmeas5g_lastkt_dl':postmeas5g_lastkt_dl,
     'postmeas5g_lastskt_dl':postmeas5g_lastskt_dl,'postmeas5g_lastlg_dl':postmeas5g_lastlg_dl,
-    'postmeas5g_measkt_dl':postmeas5g_measkt_dl,
-    'postmeas5g_measkt_ul':postmeas5g_measkt_ul,
-    'postmeas5g_measkt_rsrp':postmeas5g_measkt_rsrp,
-    'postmeas5g_measkt_lte':postmeas5g_measkt_lte,
-    'postmeas5g_postmeaskt_dl':postmeas5g_postmeaskt_dl,
-    'postmeas5g_postmeaskt_ul':postmeas5g_postmeaskt_ul,
-    'postmeas5g_postmeaskt_rsrp':postmeas5g_postmeaskt_rsrp,
-    'postmeas5g_postmeaskt_lte':postmeas5g_postmeaskt_lte,
-    'postmeas5g_postmeasskt_dl':postmeas5g_postmeasskt_dl,
-    'postmeas5g_postmeasskt_ul':postmeas5g_postmeasskt_ul,
-    'postmeas5g_postmeasskt_rsrp':postmeas5g_postmeasskt_rsrp,
-    'postmeas5g_postmeasskt_lte':postmeas5g_postmeasskt_lte,
-    'postmeas5g_postmeaslg_dl':postmeas5g_postmeaslg_dl,
-    'postmeas5g_postmeaslg_ul':postmeas5g_postmeaslg_ul,
-    'postmeas5g_postmeaslg_rsrp':postmeas5g_postmeaslg_rsrp,
-    'postmeas5g_postmeaslg_lte':postmeas5g_postmeaslg_lte,
-    
+    'postmeas5g_measkt_dl':postmeas5g_measkt_dl,'postmeas5g_measkt_ul':postmeas5g_measkt_ul,
+    'postmeas5g_measkt_rsrp':postmeas5g_measkt_rsrp,'postmeas5g_measkt_lte':postmeas5g_measkt_lte,
+    'postmeas5g_postmeaskt_dl':postmeas5g_postmeaskt_dl,'postmeas5g_postmeaskt_ul':postmeas5g_postmeaskt_ul,
+    'postmeas5g_postmeaskt_rsrp':postmeas5g_postmeaskt_rsrp,'postmeas5g_postmeaskt_lte':postmeas5g_postmeaskt_lte,
+    'postmeas5g_postmeasskt_dl':postmeas5g_postmeasskt_dl,'postmeas5g_postmeasskt_ul':postmeas5g_postmeasskt_ul,
+    'postmeas5g_postmeasskt_rsrp':postmeas5g_postmeasskt_rsrp,'postmeas5g_postmeasskt_lte':postmeas5g_postmeasskt_lte,
+    'postmeas5g_postmeaslg_dl':postmeas5g_postmeaslg_dl,'postmeas5g_postmeaslg_ul':postmeas5g_postmeaslg_ul,
+    'postmeas5g_postmeaslg_rsrp':postmeas5g_postmeaslg_rsrp,'postmeas5g_postmeaslg_lte':postmeas5g_postmeaslg_lte,   
     'postmeasltelist':postmeasltelist, 'postmeaslterankdllist':postmeaslterankdllist,'postmeaslterankullist':postmeaslterankullist,
     'postmeasltetotal_district':postmeasltetotal_district,'postmeasltetotal_lastkt_dl':postmeasltetotal_lastkt_dl,
     'postmeasltetotal_lastskt_dl':postmeasltetotal_lastskt_dl,'postmeasltetotal_lastlg_dl':postmeasltetotal_lastlg_dl,
-    'postmeasltetotal_measkt_dl':postmeasltetotal_measkt_dl,
-    'postmeasltetotal_measkt_ul':postmeasltetotal_measkt_ul,
-    'postmeasltetotal_measkt_rsrp':postmeasltetotal_measkt_rsrp,
-    'postmeasltetotal_measkt_sinr':postmeasltetotal_measkt_sinr,
-    'postmeasltetotal_postmeaskt_dl':postmeasltetotal_postmeaskt_dl,
-    'postmeasltetotal_postmeaskt_ul':postmeasltetotal_postmeaskt_ul,
-    'postmeasltetotal_postmeaskt_rsrp':postmeasltetotal_postmeaskt_rsrp,
-    'postmeasltetotal_postmeaskt_sinr':postmeasltetotal_postmeaskt_sinr,
-    'postmeasltetotal_postmeasskt_dl':postmeasltetotal_postmeasskt_dl,
-    'postmeasltetotal_postmeasskt_ul':postmeasltetotal_postmeasskt_ul,
-    'postmeasltetotal_postmeasskt_rsrp':postmeasltetotal_postmeasskt_rsrp,
-    'postmeasltetotal_postmeasskt_sinr':postmeasltetotal_postmeasskt_sinr,
-    'postmeasltetotal_postmeaslg_dl':postmeasltetotal_postmeaslg_dl,
-    'postmeasltetotal_postmeaslg_ul':postmeasltetotal_postmeaslg_ul,
-    'postmeasltetotal_postmeaslg_rsrp':postmeasltetotal_postmeaslg_rsrp,
-    'postmeasltetotal_postmeaslg_sinr':postmeasltetotal_postmeaslg_sinr,
+    'postmeasltetotal_measkt_dl':postmeasltetotal_measkt_dl,'postmeasltetotal_measkt_ul':postmeasltetotal_measkt_ul,
+    'postmeasltetotal_measkt_rsrp':postmeasltetotal_measkt_rsrp,'postmeasltetotal_measkt_sinr':postmeasltetotal_measkt_sinr,
+    'postmeasltetotal_postmeaskt_dl':postmeasltetotal_postmeaskt_dl,'postmeasltetotal_postmeaskt_ul':postmeasltetotal_postmeaskt_ul,
+    'postmeasltetotal_postmeaskt_rsrp':postmeasltetotal_postmeaskt_rsrp,'postmeasltetotal_postmeaskt_sinr':postmeasltetotal_postmeaskt_sinr,
+    'postmeasltetotal_postmeasskt_dl':postmeasltetotal_postmeasskt_dl,'postmeasltetotal_postmeasskt_ul':postmeasltetotal_postmeasskt_ul,
+    'postmeasltetotal_postmeasskt_rsrp':postmeasltetotal_postmeasskt_rsrp,'postmeasltetotal_postmeasskt_sinr':postmeasltetotal_postmeasskt_sinr,
+    'postmeasltetotal_postmeaslg_dl':postmeasltetotal_postmeaslg_dl,'postmeasltetotal_postmeaslg_ul':postmeasltetotal_postmeaslg_ul,
+    'postmeasltetotal_postmeaslg_rsrp':postmeasltetotal_postmeaslg_rsrp,'postmeasltetotal_postmeaslg_sinr':postmeasltetotal_postmeaslg_sinr,
     'postmeaslte_district':postmeaslte_district,'postmeaslte_lastkt_dl':postmeaslte_lastkt_dl,
     'postmeaslte_lastskt_dl':postmeaslte_lastskt_dl,'postmeaslte_lastlg_dl':postmeaslte_lastlg_dl,
-    'postmeaslte_measkt_dl':postmeaslte_measkt_dl,
-    'postmeaslte_measkt_ul':postmeaslte_measkt_ul,
-    'postmeaslte_measkt_rsrp':postmeaslte_measkt_rsrp,
-    'postmeaslte_measkt_sinr':postmeaslte_measkt_sinr,
-    'postmeaslte_postmeaskt_dl':postmeaslte_postmeaskt_dl,
-    'postmeaslte_postmeaskt_ul':postmeaslte_postmeaskt_ul,
-    'postmeaslte_postmeaskt_rsrp':postmeaslte_postmeaskt_rsrp,
-    'postmeaslte_postmeaskt_sinr':postmeaslte_postmeaskt_sinr,
-    'postmeaslte_postmeasskt_dl':postmeaslte_postmeasskt_dl,
-    'postmeaslte_postmeasskt_ul':postmeaslte_postmeasskt_ul,
-    'postmeaslte_postmeasskt_rsrp':postmeaslte_postmeasskt_rsrp,
-    'postmeaslte_postmeasskt_sinr':postmeaslte_postmeasskt_sinr,
-    'postmeaslte_postmeaslg_dl':postmeaslte_postmeaslg_dl,
-    'postmeaslte_postmeaslg_ul':postmeaslte_postmeaslg_ul,
-    'postmeaslte_postmeaslg_rsrp':postmeaslte_postmeaslg_rsrp,
-    'postmeaslte_postmeaslg_sinr':postmeaslte_postmeaslg_sinr,
+    'postmeaslte_measkt_dl':postmeaslte_measkt_dl,'postmeaslte_measkt_ul':postmeaslte_measkt_ul,
+    'postmeaslte_measkt_rsrp':postmeaslte_measkt_rsrp,'postmeaslte_measkt_sinr':postmeaslte_measkt_sinr,
+    'postmeaslte_postmeaskt_dl':postmeaslte_postmeaskt_dl,'postmeaslte_postmeaskt_ul':postmeaslte_postmeaskt_ul,
+    'postmeaslte_postmeaskt_rsrp':postmeaslte_postmeaskt_rsrp,'postmeaslte_postmeaskt_sinr':postmeaslte_postmeaskt_sinr,
+    'postmeaslte_postmeasskt_dl':postmeaslte_postmeasskt_dl,'postmeaslte_postmeasskt_ul':postmeaslte_postmeasskt_ul,
+    'postmeaslte_postmeasskt_rsrp':postmeaslte_postmeasskt_rsrp,'postmeaslte_postmeasskt_sinr':postmeaslte_postmeasskt_sinr,
+    'postmeaslte_postmeaslg_dl':postmeaslte_postmeaslg_dl,'postmeaslte_postmeaslg_ul':postmeaslte_postmeaslg_ul,
+    'postmeaslte_postmeaslg_rsrp':postmeaslte_postmeaslg_rsrp,'postmeaslte_postmeaslg_sinr':postmeaslte_postmeaslg_sinr,
     }
 
     return context

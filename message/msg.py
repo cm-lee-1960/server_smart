@@ -229,8 +229,8 @@ def make_message(mdata: MeasureCallData):
             # WiFi 측정 데이터의 경우
             if phone.networkId == 'WiFi':
                 messages = f"S-CXI {phone.measuringTeam} {phone.networkId} {mdata.userInfo1} 현재 콜카운트 {reportCallCount}번째 측정중입니다.\n" + \
-                           "속도(DL/UL, Mbps)\n" + \
-                           f"{phone.networkId}({phone.phoneGroup.morphologyDetail.main_class}): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
+                           "- 속도(DL/UL, Mbps)\n" + \
+                           f" {phone.networkId}({phone.phoneGroup.morphologyDetail.main_class}): {avg_downloadBandwidth:.1f}/{avg_uploadBandwidth:.1f}"
             # 5G 측정 데이터의 경우
             elif phone.networkId == '5G':
                 messages = f"S-CXI {phone.measuringTeam} "

@@ -307,6 +307,12 @@ def receive_json(request):
             meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
             morphology = get_morphology(data['networkId'], data['userInfo2'], data['userInfo1'], data['phone_no'])  # 모폴로지
             if data['networkId'] == 'WiFi': morphologyDetail = get_morphologyDetail_wifi(data['userInfo1'], data['userInfo2']) # 모폴로지 상세, 현재 WiFi에서만 사용
+            # 5G 일 경우 + PhoneInfo에 SA/NSA 구분이 등록된 폰일 경우 --> SA/NSA 지정 (디폴트 행정동으로 지정)
+            elif data['networkId'] == '5G' and data['phone_no'] in PhoneInfo.objects.filter(networkId='5G', mode__isnull=False).values_list('phone_no', flat=True):
+                mode = '5G ' + PhoneInfo.objects.filter(networkId='5G', phone_no=data['phone_no'])[0].mode
+                print(mode)
+                morphologyDetail = MorphologyDetail.objects.filter(network_type=mode)[0]
+                print(morphologyDetail)
             else: morphologyDetail = None
             
             if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail:
