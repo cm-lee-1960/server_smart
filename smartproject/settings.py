@@ -54,7 +54,7 @@ KAKAO_REST_API_KEY = get_secret("KAKAO_REST_API_KEY")
 TELEGRAM_API_ID = get_secret("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = get_secret("TELEGRAM_API_HASH")
 # olleh API Key
-OLLEH_API_KEY = get_secret("OLLEH_API_KEY")
+#OLLEH_API_KEY = get_secret("OLLEH_API_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     ### third apps #####################################################################################################
     'django_extensions',
     'rest_framework',
+    'rest_framework.authtoken',
     # 'django_db_logger',
     ### local apps #####################################################################################################
     'monitor',
@@ -88,7 +89,14 @@ INSTALLED_APPS = [
     'logs',
     'api',
 ]
-
+RESTFRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -238,7 +246,8 @@ APPS_ORDERING = {
     "분석 및 보고": 3,
     "환경설정 관리": 4,
     "인증 및 권한": 5,
-    "디버깅 로그": 6,
+    "인증 토큰" : 6,
+    "디버깅 로그": 7,
 }
 
 # 환경설정 관리 앱의 모델들 정렬 순서
@@ -260,9 +269,11 @@ MANAGEMENT_MODELS_ORDERING = {
 }
 
 LOGIN_REDIRECT_URL = 'http://localhost:8000/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/smart'
 
 SCHEDULER_DEFAULT = True
 
 SESSION_COOKIE_AGE = 86400 # 세션타임(하루)
 SESSION_SAVE_EVERY_REQUEST = True
+
+AUTH_USER_MODEL = 'auth.User'
