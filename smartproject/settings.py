@@ -246,8 +246,8 @@ APPS_ORDERING = {
     "분석 및 보고": 3,
     "환경설정 관리": 4,
     "인증 및 권한": 5,
-    "인증 토큰" : 6,
-    "디버깅 로그": 7,
+    "디버깅 로그": 6,
+    "인증 토큰" : 7,
 }
 
 # 환경설정 관리 앱의 모델들 정렬 순서
@@ -269,7 +269,7 @@ MANAGEMENT_MODELS_ORDERING = {
 }
 
 LOGIN_REDIRECT_URL = 'http://localhost:8000/'
-LOGOUT_REDIRECT_URL = '/smart'
+LOGOUT_REDIRECT_URL = 'http://nqi.kt.com/smart/'
 
 SCHEDULER_DEFAULT = True
 
