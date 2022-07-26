@@ -51,7 +51,8 @@ def phoneloc_proc(data):
         # --------------------------------------------------------------------------------------------------------------
         # 3) 텔레그램 메시지를 생성한다.
         # --------------------------------------------------------------------------------------------------------------
-        if eventType == "AttachRequest":
+        # measdate = phoneLoc.created_at.strftime('%Y%m%d')
+        if eventType != "DetachRequest":
             measdate = str(phoneLoc.last_updated)[:8] # 측정일자
             status = 'POWER_ON'
             msg_qs = Message.objects.filter(measdate=measdate, phone_no=phoneLoc.phone_no, status=status)

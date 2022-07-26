@@ -156,11 +156,12 @@ def receive_json(request):
     #    경우 예외처러
     # 2022.06.26 - 13:25 테-대전광역시-중구-대전 오월드 측정데이터 새벽 01:00에 수신되는 현상 발견하여 대응코드 추가
     # 2022.06.30 - 측정종료 후 수신데이터가 로그에 기록되도록 raise 구문 앞으로 이동
+    # 2022.07.26 - 72hr 이상 경과된 데이터인 경우에도 무시 처리
     # ------------------------------------------------------------------------------------------------------------------
     meastime_d = datetime.strptime(str(data['meastime'])[:14], '%Y%m%d%H%M%S')
     diff = datetime.now() - meastime_d
     hours = diff.total_seconds() / 3600
-    if hours > 2 and (datetime.now().hour > 20 or datetime.now().hour < 5):
+    if (hours > 2 and (datetime.now().hour > 20 or datetime.now().hour < 5)) or (hours > 72):
         db_logger.error("측정종료 후 데이터수신:", data)
         raise Exception("측정종료 후 데이터가 수신되었습니다.")
         return HttpResponse("측정종료 후 데이터수신:" + Exception, status=500)
