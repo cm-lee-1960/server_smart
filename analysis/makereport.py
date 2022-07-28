@@ -15,6 +15,49 @@ from django.db.models import Q
 # 2022-03-23 - 모듈 정리 및 주석 추가
 ###################################################################################################
 
+mopho_list = ["행정동","다중이용시설","교통인프라","커버리지","인빌딩","테마","상용","개방","공공","기타","품질취약지역"]
+# 단말그룹을 Custom Ordering 하기 위한 함수 (순서 : '5G', 'LTE', '3G', 'WiFi')
+def custom_orderby_nid(data):
+    if data.networkId == '5G':
+        return 1
+    elif data.networkId == 'LTE':
+        return 2
+    elif data.networkId == '3G':
+        return 3
+    elif data.networkId =='WiFi':
+        return 4
+    else:
+        return 5
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹을 Custom Ordering 하기 위한 함수 (순서 : '5G', 'LTE', '3G', 'WiFi')
+def custom_orderby_nettype(data):
+    for idx,val in enumerate(networkid_list):
+        if data.nettype == val:
+            return idx
+        else:
+            return 50
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹을 Custom Ordering 하기 위한 함수 (순서 : '5G', 'LTE', '3G', 'WiFi')
+def custom_orderby_center(data):
+    for idx,val in enumerate(center_list):
+        if data.center == val:
+            return idx
+        else:
+            return 50
+# ----------------------------------------------------------------------------------------------------------------------
+# 단말그룹을 Custom Ordering 하기 위한 함수 (순서 : '5G', 'LTE', '3G', 'WiFi')
+def custom_orderby_mopho(data):
+    for idx,val in enumerate(mopho_list):
+        if data.mopho == val:
+            return idx
+        else:
+            return 50
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+
+
 # -------------------------------------------------------------------------------------------------
 # 일일보고 페이지
 # - 실제 측정마감데이터로 교체(4.19)
@@ -99,67 +142,67 @@ def get_report_cntx(request):
     except:
         postmeas5gtotal_lastlg_dl = ""
     try:
-        postmeas5gtotal_measkt_dl = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1)
+        postmeas5gtotal_measkt_dl = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],0))
     except:
         postmeas5gtotal_measkt_dl = ""
     try:
-        postmeas5gtotal_measkt_ul = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1)
+        postmeas5gtotal_measkt_ul = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],0))
     except:
         postmeas5gtotal_measkt_ul = ""
     try:
-        postmeas5gtotal_measkt_rsrp = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1)
+        postmeas5gtotal_measkt_rsrp = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],0))
     except:
         postmeas5gtotal_measkt_rsrp = ""
     try:
-        postmeas5gtotal_measkt_lte = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_lte"))["measkt_lte__avg"],1)
+        postmeas5gtotal_measkt_lte = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_lte"))["measkt_lte__avg"],0))
     except:
         postmeas5gtotal_measkt_lte = ""
     try:
-        postmeas5gtotal_postmeaskt_dl = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
+        postmeas5gtotal_postmeaskt_dl = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],0))
     except:
         postmeas5gtotal_postmeaskt_dl = ""
     try:
-        postmeas5gtotal_postmeaskt_ul = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
+        postmeas5gtotal_postmeaskt_ul = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],0))
     except:
         postmeas5gtotal_postmeaskt_ul = ""
     try:
-        postmeas5gtotal_postmeaskt_rsrp = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1)
+        postmeas5gtotal_postmeaskt_rsrp = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],0))
     except:
         postmeas5gtotal_postmeaskt_rsrp = ""
     try:
-        postmeas5gtotal_postmeaskt_lte = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_lte"))["postmeaskt_lte__avg"],1)
+        postmeas5gtotal_postmeaskt_lte = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_lte"))["postmeaskt_lte__avg"],0))
     except:
         postmeas5gtotal_postmeaskt_lte = ""
     try:
-        postmeas5gtotal_postmeasskt_dl = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
+        postmeas5gtotal_postmeasskt_dl = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],0))
     except:
         postmeas5gtotal_postmeasskt_dl = ""
     try:
-        postmeas5gtotal_postmeasskt_ul = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
+        postmeas5gtotal_postmeasskt_ul = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],0))
     except:
         postmeas5gtotal_postmeasskt_ul = ""
     try:
-        postmeas5gtotal_postmeasskt_rsrp = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1)
+        postmeas5gtotal_postmeasskt_rsrp = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],0))
     except:
         postmeas5gtotal_postmeasskt_rsrp = ""
     try:
-        postmeas5gtotal_postmeasskt_lte = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_lte"))["postmeasskt_lte__avg"],1)
+        postmeas5gtotal_postmeasskt_lte = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_lte"))["postmeasskt_lte__avg"],0))
     except:
         postmeas5gtotal_postmeasskt_lte = ""
     try:
-        postmeas5gtotal_postmeaslg_dl = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)
+        postmeas5gtotal_postmeaslg_dl = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],0))
     except:
         postmeas5gtotal_postmeaslg_dl = ""
     try:
-        postmeas5gtotal_postmeaslg_ul = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)
+        postmeas5gtotal_postmeaslg_ul = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],0))
     except:
         postmeas5gtotal_postmeaslg_ul = ""
     try:
-        postmeas5gtotal_postmeaslg_rsrp = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1)
+        postmeas5gtotal_postmeaslg_rsrp = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],0))
     except:
         postmeas5gtotal_postmeaslg_rsrp = ""
     try:
-        postmeas5gtotal_postmeaslg_lte = round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_lte"))["postmeaslg_lte__avg"],1)
+        postmeas5gtotal_postmeaslg_lte = int(round(PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_lte"))["postmeaslg_lte__avg"],0))
     except:
         postmeas5gtotal_postmeaslg_lte = ""
     for i in district_list:
@@ -182,78 +225,78 @@ def get_report_cntx(request):
         except:
             postmeas5g_lastlg_dl.append("-")
         try:
-            postmeas5g_measkt_dl.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1))
+            postmeas5g_measkt_dl.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],0)))
         except:
             postmeas5g_measkt_dl.append("-")
         try:
-            postmeas5g_measkt_ul.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1))
+            postmeas5g_measkt_ul.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],0)))
         except:
             postmeas5g_measkt_ul.append("-")
         try:
-            postmeas5g_measkt_rsrp.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1))
+            postmeas5g_measkt_rsrp.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],0)))
         except:
             postmeas5g_measkt_rsrp.append("-")
         try:
-            postmeas5g_measkt_lte.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_lte"))["measkt_lte__avg"],1))
+            postmeas5g_measkt_lte.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_lte"))["measkt_lte__avg"],0)))
         except:
             postmeas5g_measkt_lte.append("-")
         try:
-            postmeas5g_postmeaskt_dl.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1))
+            postmeas5g_postmeaskt_dl.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],0)))
         except:
             postmeas5g_postmeaskt_dl.append("-")
         try:
-            postmeas5g_postmeaskt_ul.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1))
+            postmeas5g_postmeaskt_ul.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],0)))
         except:
             postmeas5g_postmeaskt_ul.append("-")
         try:
-            postmeas5g_postmeaskt_rsrp.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1))
+            postmeas5g_postmeaskt_rsrp.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],0)))
         except:
             postmeas5g_postmeaskt_rsrp.append("-")
         try:
-            postmeas5g_postmeaskt_lte.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_lte"))["postmeaskt_lte__avg"],1))
+            postmeas5g_postmeaskt_lte.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_lte"))["postmeaskt_lte__avg"],0)))
         except:
             postmeas5g_postmeaskt_lte.append("-")
         try:
-            postmeas5g_postmeasskt_dl.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1))
+            postmeas5g_postmeasskt_dl.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],0)))
         except:
             postmeas5g_postmeasskt_dl.append("-")
         try:
-            postmeas5g_postmeasskt_ul.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1))
+            postmeas5g_postmeasskt_ul.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],0)))
         except:
             postmeas5g_postmeasskt_ul.append("-")
         try:
-            postmeas5g_postmeasskt_rsrp.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1))
+            postmeas5g_postmeasskt_rsrp.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],0)))
         except:
             postmeas5g_postmeasskt_rsrp.append("-")
         try:
-            postmeas5g_postmeasskt_lte.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_lte"))["postmeasskt_lte__avg"],1))
+            postmeas5g_postmeasskt_lte.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_lte"))["postmeasskt_lte__avg"],0)))
         except:
             postmeas5g_postmeasskt_lte.append("-")
         try:
-            postmeas5g_postmeaslg_dl.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1))
+            postmeas5g_postmeaslg_dl.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],0)))
         except:
             postmeas5g_postmeaslg_dl.append("-")
         try:
-            postmeas5g_postmeaslg_ul.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1))
+            postmeas5g_postmeaslg_ul.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],0)))
         except:
             postmeas5g_postmeaslg_ul.append("-")
         try:
-            postmeas5g_postmeaslg_rsrp.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1))
+            postmeas5g_postmeaslg_rsrp.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],0)))
         except:
             postmeas5g_postmeaslg_rsrp.append("-")
         try:
-            postmeas5g_postmeaslg_lte.append(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_lte"))["postmeaslg_lte__avg"],1))
+            postmeas5g_postmeaslg_lte.append(int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_lte"))["postmeaslg_lte__avg"],0)))
         except:
             postmeas5g_postmeaslg_lte.append("-")
-        data_testdl5g = [round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
-                     ,round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
-                     ,round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)]
+        data_testdl5g = [int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],0))
+                     ,int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],0))
+                     ,int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],0))]
         df_testdl5g = pd.DataFrame(data_testdl5g)
         df_testdl5g = df_testdl5g.rank(axis=0, method='min', ascending=False)
         postmeas5grankdllist.append(str(round(df_testdl5g.iloc[0,0]))+"위")
-        data_testul5g = [round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
-                     ,round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
-                     ,round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)]
+        data_testul5g = [int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],0))
+                     ,int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],0))
+                     ,int(round(PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],0))]
         df_testul5g = pd.DataFrame(data_testul5g)
         df_testul5g = df_testul5g.rank(axis=0, method='min', ascending=False)
         postmeas5grankullist.append(str(round(df_testul5g.iloc[0,0]))+"위")
@@ -298,15 +341,15 @@ def get_report_cntx(request):
     except:
         postmeasltetotal_lastlg_dl = ""
     try:
-        postmeasltetotal_measkt_dl = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1)
+        postmeasltetotal_measkt_dl = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],0))
     except:
         postmeasltetotal_measkt_dl = ""
     try:
-        postmeasltetotal_measkt_ul = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1)
+        postmeasltetotal_measkt_ul = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],0))
     except:
         postmeasltetotal_measkt_ul = ""
     try:
-        postmeasltetotal_measkt_rsrp = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1)
+        postmeasltetotal_measkt_rsrp = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],0))
     except:
         postmeasltetotal_measkt_rsrp = ""
     try:
@@ -314,15 +357,15 @@ def get_report_cntx(request):
     except:
         postmeasltetotal_measkt_sinr = ""
     try:
-        postmeasltetotal_postmeaskt_dl = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
+        postmeasltetotal_postmeaskt_dl = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],0))
     except:
         postmeasltetotal_postmeaskt_dl = ""
     try:
-        postmeasltetotal_postmeaskt_ul = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
+        postmeasltetotal_postmeaskt_ul = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],0))
     except:
         postmeasltetotal_postmeaskt_ul = ""
     try:
-        postmeasltetotal_postmeaskt_rsrp = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1)
+        postmeasltetotal_postmeaskt_rsrp = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],0))
     except:
         postmeasltetotal_postmeaskt_rsrp = ""
     try:
@@ -330,15 +373,15 @@ def get_report_cntx(request):
     except:
         postmeasltetotal_postmeaskt_sinr = ""
     try:
-        postmeasltetotal_postmeasskt_dl = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
+        postmeasltetotal_postmeasskt_dl = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],0))
     except:
         postmeasltetotal_postmeasskt_dl = ""
     try:
-        postmeasltetotal_postmeasskt_ul = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
+        postmeasltetotal_postmeasskt_ul = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],0))
     except:
         postmeasltetotal_postmeasskt_ul = ""
     try:
-        postmeasltetotal_postmeasskt_rsrp = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1)
+        postmeasltetotal_postmeasskt_rsrp = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],0))
     except:
         postmeasltetotal_postmeasskt_rsrp = ""
     try:
@@ -346,15 +389,15 @@ def get_report_cntx(request):
     except:
         postmeasltetotal_postmeasskt_sinr = ""
     try:
-        postmeasltetotal_postmeaslg_dl = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)
+        postmeasltetotal_postmeaslg_dl = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],0))
     except:
         postmeasltetotal_postmeaslg_dl = ""
     try:
-        postmeasltetotal_postmeaslg_ul = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)
+        postmeasltetotal_postmeaslg_ul = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],0))
     except:
         postmeasltetotal_postmeaslg_ul = ""
     try:
-        postmeasltetotal_postmeaslg_rsrp = round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1)
+        postmeasltetotal_postmeaslg_rsrp = int(round(PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],0))
     except:
         postmeasltetotal_postmeaslg_rsrp = ""
     try:
@@ -381,15 +424,15 @@ def get_report_cntx(request):
         except:
             postmeaslte_lastlg_dl.append("-")
         try:
-            postmeaslte_measkt_dl.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],1))
+            postmeaslte_measkt_dl.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_dl"))["measkt_dl__avg"],0)))
         except:
             postmeaslte_measkt_dl.append("-")
         try:
-            postmeaslte_measkt_ul.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],1))
+            postmeaslte_measkt_ul.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_ul"))["measkt_ul__avg"],0)))
         except:
             postmeaslte_measkt_ul.append("-")
         try:
-            postmeaslte_measkt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],1))
+            postmeaslte_measkt_rsrp.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("measkt_rsrp"))["measkt_rsrp__avg"],0)))
         except:
             postmeaslte_measkt_rsrp.append("-")
         try:
@@ -397,15 +440,15 @@ def get_report_cntx(request):
         except:
             postmeaslte_measkt_sinr.append("-")
         try:
-            postmeaslte_postmeaskt_dl.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1))
+            postmeaslte_postmeaskt_dl.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],0)))
         except:
             postmeaslte_postmeaskt_dl.append("-")
         try:
-            postmeaslte_postmeaskt_ul.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1))
+            postmeaslte_postmeaskt_ul.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],0)))
         except:
             postmeaslte_postmeaskt_ul.append("-")
         try:
-            postmeaslte_postmeaskt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],1))
+            postmeaslte_postmeaskt_rsrp.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_rsrp"))["postmeaskt_rsrp__avg"],0)))
         except:
             postmeaslte_postmeaskt_rsrp.append("-")
         try:
@@ -413,15 +456,15 @@ def get_report_cntx(request):
         except:
             postmeaslte_postmeaskt_sinr.append("-")
         try:
-            postmeaslte_postmeasskt_dl.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1))
+            postmeaslte_postmeasskt_dl.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],0)))
         except:
             postmeaslte_postmeasskt_dl.append("-")
         try:
-            postmeaslte_postmeasskt_ul.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1))
+            postmeaslte_postmeasskt_ul.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],0)))
         except:
             postmeaslte_postmeasskt_ul.append("-")
         try:
-            postmeaslte_postmeasskt_rsrp.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],1))
+            postmeaslte_postmeasskt_rsrp.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_rsrp"))["postmeasskt_rsrp__avg"],0)))
         except:
             postmeaslte_postmeasskt_rsrp.append("-")
         try:
@@ -429,30 +472,30 @@ def get_report_cntx(request):
         except:
             postmeaslte_postmeasskt_sinr.append("-")
         try:
-            postmeaslte_postmeaslg_dl.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1))
+            postmeaslte_postmeaslg_dl.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],0)))
         except:
             postmeaslte_postmeaslg_dl.append("-")
         try:
-            postmeaslte_postmeaslg_ul.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1))
+            postmeaslte_postmeaslg_ul.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],0)))
         except:
             postmeaslte_postmeaslg_ul.append("-")
         try:
-            postmeaslte_postmeaslg_rsrp.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],1))
+            postmeaslte_postmeaslg_rsrp.append(int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_rsrp"))["postmeaslg_rsrp__avg"],0)))
         except:
             postmeaslte_postmeaslg_rsrp.append("-")
         try:
             postmeaslte_postmeaslg_sinr.append(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_sinr"))["postmeaslg_sinr__avg"],1))
         except:
             postmeaslte_postmeaslg_sinr.append("-")
-        data_testdllte = [round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],1)
-                     ,round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],1)
-                     ,round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],1)]
+        data_testdllte = [int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_dl"))["postmeaskt_dl__avg"],0))
+                     ,int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_dl"))["postmeasskt_dl__avg"],0))
+                     ,int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_dl"))["postmeaslg_dl__avg"],0))]
         df_testdllte = pd.DataFrame(data_testdllte)
-        df_testdllte = df_testdllte.rank(axis=0, method='min', ascending=True)
+        df_testdllte = df_testdllte.rank(axis=0, method='min', ascending=False)
         postmeaslterankdllist.append(str(round(df_testdllte.iloc[0,0]))+"위")
-        data_testullte = [round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],1)
-                     ,round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],1)
-                     ,round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],1)]
+        data_testullte = [int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaskt_ul"))["postmeaskt_ul__avg"],0))
+                     ,int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeasskt_ul"))["postmeasskt_ul__avg"],0))
+                     ,int(round(PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate]).aggregate(Avg("postmeaslg_ul"))["postmeaslg_ul__avg"],0))]
         df_testullte = pd.DataFrame(data_testullte)
         df_testullte = df_testullte.rank(axis=0, method='min', ascending=False)
         postmeaslterankullist.append(str(round(df_testullte.iloc[0,0]))+"위")  
@@ -518,6 +561,7 @@ def get_report_cntx(request):
     sregiLTEcv = LastMeasDayClose.objects.filter(nettype = "LTE", mopho = "커버리지",measdate__range=[firstday,hodate]).count()
     sregiLTEtotal = LastMeasDayClose.objects.filter(nettype = "LTE",measdate__range=[firstday,hodate]).count()
 #LTE당일측정전체개수    
+    tregiLTEhjd = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, mopho = "행정동").count()
     tregiLTEbct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, detailadd = "대도시").count()
     tregiLTEmct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, detailadd = "중소도시").count()
     tregiLTEsct = LastMeasDayClose.objects.filter(nettype = "LTE",  measdate = hodate, detailadd = "농어촌").count()
@@ -939,11 +983,18 @@ def get_report_cntx(request):
 
 #금일 측정 결과 
     tresult5g = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate = hodate))
+    tresult5g = sorted(tresult5g, key = lambda x : custom_orderby_center(x))
+    tresult5g = sorted(tresult5g, key = lambda x : custom_orderby_mopho(x))
     tresultlte = LastMeasDayClose.objects.filter(nettype = "LTE", measdate = hodate)
+    tresultlte = sorted(tresultlte, key = lambda x : custom_orderby_center(x))
+    tresultlte = sorted(tresultlte, key = lambda x : custom_orderby_mopho(x))
     tresultwifi = LastMeasDayClose.objects.filter(nettype = "WiFi", measdate = hodate)
+    tresultwifi = sorted(tresultwifi, key = lambda x : custom_orderby_center(x))
+    tresultwifi = sorted(tresultwifi, key = lambda x : custom_orderby_mopho(x))
     tresultweak = LastMeasDayClose.objects.filter(nettype = "품질취약지역", measdate = hodate)
+    tresultweak = sorted(tresultweak, key = lambda x : custom_orderby_center(x))
+    tresultweak = sorted(tresultweak, key = lambda x : custom_orderby_mopho(x))
     weaklte3g = LastMeasDayClose.objects.filter(nettype = "품질취약지역", measdate = hodate).distinct().values_list('userInfo1',flat=True)
-    print(weaklte3g)
     todayweak = []
     todayweaklist = []
     for i in weaklte3g:    
@@ -976,19 +1027,20 @@ def get_report_cntx(request):
         except:
             todayweaklist.append("-")
         try:
-            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "LTE").siDo)
+            todayweaklist.append(LastMeasDayClose.objects.get(nettype = "품질취약지역", measdate = hodate, userInfo1 = i, networkId = "LTE").district)
         except:
             todayweaklist.append("-")  
         todayweak.append(todayweaklist)
-        todayweaklist = []
-    print(todayweak)    
+        todayweaklist = []   
         
 #리포트 날짜 스트링변환
     report_day = hodate.strftime('%Y%m%d') 
     report_firstday = firstdate.strftime('%Y%m%d') 
 # 측정완료
     measclose = LastMeasDayClose.objects.filter(measdate = hodate)
-   
+    measclose = sorted(measclose, key = lambda x : custom_orderby_nettype(x))
+    measclose = sorted(measclose, key = lambda x : custom_orderby_center(x))
+    # measclose = sorted(measclose, key = lambda x : custom_orderby_mopho(x))
     context = { 
     'measclose':measclose,'networkid_list':networkid_list,'district_list':district_list,'center_list':center_list,'city_list':city_list ,'facility5g_list':facility5g_list,'traffic5g_list':traffic5g_list,'inbuildinglte_list':inbuildinglte_list,'themelte_list':themelte_list,
     'reportdate':reportdate,'hodate':hodate,'report_day':report_day,'report_firstday':report_firstday,
@@ -1004,7 +1056,7 @@ def get_report_cntx(request):
     'tregi5Ghjd':tregi5Ghjd,'tregi5Gdagyo':tregi5Gdagyo,'tregi5Gnsatotal':tregi5Gnsatotal,'tregi5Gsatotal':tregi5Gsatotal, 'tregi5Gpublic':tregi5Gpublic,'tregi5Gcv':tregi5Gcv,'tregi5Gtotal':tregi5Gtotal,'tregi5Gda':tregi5Gda,'tregi5Ggyo':tregi5Ggyo,
     'sregi5Ghjd':sregi5Ghjd,'sregi5Gdagyo':sregi5Gdagyo,'sregi5Gnsatotal':sregi5Gnsatotal,'sregi5Gsatotal':sregi5Gsatotal,'sregi5Gpublic':sregi5Gpublic,'sregi5Gcv':sregi5Gcv,'sregi5Gtotal':sregi5Gtotal,
     'sregiLTEbct':sregiLTEbct, 'sregiLTEmct':sregiLTEmct,'sregiLTEsct':sregiLTEsct, 'sregiLTEib':sregiLTEib,'sregiLTEtm':sregiLTEtm, 'sregiLTEcv':sregiLTEcv,'sregiLTEtotal':sregiLTEtotal, 
-    'tregiLTEbct':tregiLTEbct,'tregiLTEmct':tregiLTEmct, 'tregiLTEsct':tregiLTEsct,'tregiLTEib':tregiLTEib, 'tregiLTEtm':tregiLTEtm,'tregiLTEcv':tregiLTEcv, 'tregiLTEtotal':tregiLTEtotal,
+    'tregiLTEhjd':tregiLTEhjd,'tregiLTEbct':tregiLTEbct,'tregiLTEmct':tregiLTEmct, 'tregiLTEsct':tregiLTEsct,'tregiLTEib':tregiLTEib, 'tregiLTEtm':tregiLTEtm,'tregiLTEcv':tregiLTEcv, 'tregiLTEtotal':tregiLTEtotal,
     'sregiWiFisy':sregiWiFisy,'sregiWiFigb':sregiWiFigb,'sregiWiFitotal':sregiWiFitotal,'tregiWiFisy':tregiWiFisy,'tregiWiFigb':tregiWiFigb,'tregiWiFitotal':tregiWiFitotal,'sregiweakdsr':sregiweakdsr,
     'sregiweakyghr':sregiweakyghr,'sregiweakyids':sregiweakyids,'sregiweakhadr':sregiweakhadr,'sregiweaktotal':sregiweaktotal,'tregiweakdsr':tregiweakdsr,'tregiweakyghr':tregiweakyghr,'tregiweakyids':tregiweakyids,'tregiweakhadr':tregiweakhadr,
     'tregiweaktotal':tregiweaktotal,

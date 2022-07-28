@@ -277,8 +277,8 @@ def get_app_list(self, request):
         if app['app_label'] == 'management':
             ordering = settings.MANAGEMENT_MODELS_ORDERING
             app['models'].sort(key=lambda x: ordering[x['name']])
-    
-    app_list.pop(4)
+    if len(app_list) > 4:
+        app_list.pop(4)
     return app_list
 
 admin.AdminSite.get_app_list = get_app_list

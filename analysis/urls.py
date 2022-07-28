@@ -22,8 +22,8 @@ urlpatterns = [
     path('measplan/create/',views.create_measplan,name='create_measplan'), # 측정대상 등록 및 수정
     path('measplan/delete/',views.delete_measplan,name='delete_measplan'), # 측정대상 삭제
     
-    path('measresult/create/',views.update_closedata,name='create_measresult'), # 측정완료 등록 및 수정  #############
-    path('measresult/delete/',views.delete_closedata,name='delete_measresult'), # 측정완료 등록 및 수정  #############
+    path('report/measresult/create/',views.update_closedata,name='create_measresult'), # 측정완료 등록 및 수정  #############
+    path('report/measresult/delete/',views.delete_closedata,name='delete_measresult'), # 측정완료 삭제  #############
     path('measresult/closedatalist/',views.closedata_list,name='closedata_list'), # 측정완료데이터 날짜 검색
     
 

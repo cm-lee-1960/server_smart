@@ -355,13 +355,13 @@ class LastMeasDayClose(models.Model):
     measdate = models.DateField(default=timezone.now, verbose_name="측정일자", help_text="측정일자를 반드시 입력해야 합니다.")
     userInfo1 = models.CharField(max_length=100, null=True, blank=True, verbose_name="측정자 입력값1")
     networkId = models.CharField(max_length=100, null=True, blank=True, verbose_name="네트워크(raw)")  # 네트워크ID(5G, LTE, 3G, WiFi)
-    nettype = models.CharField(max_length=100, null=True, blank=True,verbose_name="네트워크",default='',choices=nettype_choice)
+    nettype = models.CharField(max_length=100, null=True, blank=True,verbose_name="네트워크",choices=nettype_choice)
     center = models.CharField(max_length=100,null=True, blank=True, verbose_name="센터", choices=center_choice)
-    district = models.CharField(max_length=100, null=True, blank=True,verbose_name="지역",default='', choices=district_choice)
+    district = models.CharField(max_length=100, null=True, blank=True,verbose_name="지역", choices=district_choice)
     morphology = models.CharField(max_length=100,null=True, blank=True, verbose_name="모풀로지(raw)")
-    mopho = models.CharField(max_length=100, null=True, blank=True,verbose_name="모폴로지",default='', choices=mopho_choice)
-    detailadd = models.CharField(max_length=100, null=True, blank=True,verbose_name="모폴로지2",default='', choices=detailadd_choice)
-    subadd = models.CharField(max_length=100, null=True, blank=True,verbose_name="SA측정여부",default='')
+    mopho = models.CharField(max_length=100, null=True, blank=True,verbose_name="모폴로지", choices=mopho_choice)
+    detailadd = models.CharField(max_length=100, null=True, blank=True,verbose_name="모폴로지2", choices=detailadd_choice)
+    subadd = models.CharField(max_length=100, null=True, blank=True,verbose_name="SA측정여부")
     downloadBandwidth = models.FloatField(null=True, blank=True, verbose_name='DL')  # DL속도 (초단위 데이터 평균)
     uploadBandwidth = models.FloatField(null=True, blank=True, verbose_name='UL')  # UP속도 (초단위 데이터 평균)
     dl_nr_percent = models.FloatField(null=True, blank=True, verbose_name='DL LTE전환율')  # 5G->NR 전환 전환율(dl)
@@ -378,10 +378,10 @@ class LastMeasDayClose(models.Model):
     sktlastul = models.FloatField(null=True, blank=True, verbose_name='작년 S사 UL')
     lglastdl = models.FloatField(null=True, blank=True, verbose_name='작년 L사 DL')
     lglastul = models.FloatField(null=True, blank=True, verbose_name='작년 L사 UL')
-    siDo = models.CharField(max_length=100, null=True, blank=True, verbose_name="시,도", default='')  # 시도
-    guGun = models.CharField(max_length=100, null=True, blank=True, verbose_name="군,구", default='')  # 구,군
-    addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="상세주소", default='')  # 주소상세
-    plus = models.CharField(max_length=100, null=True, blank=True,verbose_name="추가사항",default='')
+    siDo = models.CharField(max_length=100, null=True, blank=True, verbose_name="시,도")  # 시도
+    guGun = models.CharField(max_length=100, null=True, blank=True, verbose_name="군,구")  # 구,군
+    addressDetail = models.CharField(max_length=100, null=True, blank=True, verbose_name="상세주소")  # 주소상세
+    plus = models.CharField(max_length=100, null=True, blank=True,verbose_name="추가사항")
     
     
     

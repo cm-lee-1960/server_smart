@@ -15,13 +15,15 @@ h4{
     font-weight: bold;
 }
 p{
-    font-size: 12px;
+    /* font-size: 12px; */
+    font-size: 11px;
 }
 table {
     width: 100%;
     border: 1px solid #d8d8d8;
     border-collapse: collapse;
-    font-size: 15px;
+    font-size: 13px;
+    /* font-size: 15px; */
     text-align: center;
     vertical-align: middle;
 }

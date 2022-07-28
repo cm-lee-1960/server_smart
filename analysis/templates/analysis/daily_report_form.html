@@ -919,8 +919,8 @@ button{
 					<tr>
 						<th rowspan = "2">지역<br>(측정수)</th>
 						<th rowspan = "2">'21년 결과<br>(DL 속도<br>K/S/L)</th>
-						<th rowspan = "2">구분</th>
-						<th colspan = "5">DL 속도(Mbps)/RSRP(dBm)/<br>LTE 대역(MHz)</th>
+						<th rowspan = "2" style="width:15%;">구분</th>
+						<th colspan = "5" >DL 속도(Mbps)/RSRP(dBm)/LTE 대역(MHz)</th>
 						<th colspan = "5">UL 속도(Mbps)</th>						
 					</tr>
 					<tr >
@@ -928,12 +928,12 @@ button{
 						<th>KT<br>(사후)</th>
 						<th>S사<br>(사후)</th>
 						<th>L사<br>(사후)</th>
-						<th>KT<br>(사후순위)</th>
+						<th >KT<br>(사후순위)</th>
 						<th>KT<br>(본)</th>
 						<th>KT<br>(사후)</th>
 						<th>S사<br>(사후)</th>
 						<th>L사<br>(사후)</th>
-						<th>KT<br>(사후순위)</th>					
+						<th >KT<br>(사후순위)</th>					
 					</tr>	
 				</thead>
 				<tbody id="graph">
@@ -943,12 +943,12 @@ button{
 						<td rowspan = "3">{{postmeas5gtotal_lastkt_dl}}/{{postmeas5gtotal_lastskt_dl}}/{{postmeas5gtotal_lastlg_dl}}</td>
 						<td>속도</td>
 						<td>{{postmeas5gtotal_measkt_dl}}</td>
-						<td>{{postmeas5gtotal_postmeaskt_dl}}</td>
+						<td id="postmeas5gtotal_postmeaskt_dl">{{postmeas5gtotal_postmeaskt_dl}}</td>
 						<td>{{postmeas5gtotal_postmeasskt_dl}}</td>
 						<td>{{postmeas5gtotal_postmeaslg_dl}}</td>
 						<td rowspan = "3" id = "5grankdltotal"></td>
 						<td rowspan = "3">{{postmeas5gtotal_measkt_ul}}</td>
-						<td rowspan = "3">{{postmeas5gtotal_postmeaskt_ul}}</td>
+						<td rowspan = "3" id="postmeas5gtotal_postmeaskt_ul">{{postmeas5gtotal_postmeaskt_ul}}</td>
 						<td rowspan = "3">{{postmeas5gtotal_postmeasskt_ul}}</td>
 						<td rowspan = "3">{{postmeas5gtotal_postmeaslg_ul}}</td>
 						<td rowspan = "3" id = "5grankultotal"></td>
@@ -961,7 +961,7 @@ button{
 						<td>{{postmeas5gtotal_postmeaslg_rsrp}}</td>						
 					</tr>
 					<tr>
-						<td>LTE 평균대역</td>
+						<td >LTE 평균대역</td>
 						<td>{{postmeas5gtotal_measkt_lte}}</td>
 						<td>{{postmeas5gtotal_postmeaskt_lte}}</td>
 						<td>{{postmeas5gtotal_postmeasskt_lte}}</td>
@@ -987,26 +987,27 @@ button{
 							document.getElementById("ktsktdl").style.color = 'red';
 						}
 						if(ktlgdl>0){
-							document.getElementById("ktlgdl").innerText = "L사 대비" + Math.abs(ktsktdl) + "M ↑ 우위";
+							document.getElementById("ktlgdl").innerText = "L사 대비" + Math.abs(ktlgdl) + "M ↑ 우위";
 						}else{
-							document.getElementById("ktlgdl").innerText = "L사 대비" + Math.abs(ktsktdl) + "M ↓ 열위";
+							document.getElementById("ktlgdl").innerText = "L사 대비" + Math.abs(ktlgdl) + "M ↓ 열위";
 							document.getElementById("ktlgdl").style.color = 'red';
 						}  
-						document.getElementById("5grankdltotal").innerText = rank(kttotaldl,dltotallist)+"위";
 						document.getElementById("5grankdl").innerText = rank(kttotaldl,dltotallist)+"위";
 						let kttotalul = '{{postmeas5gtotal_postmeaskt_ul}}';
 						let skttotalul = '{{postmeas5gtotal_postmeasskt_ul}}';
 						let lgtotalul = '{{postmeas5gtotal_postmeaslg_ul}}';
 						let ultotallist = [kttotalul,skttotalul,lgtotalul]
-						document.getElementById("5grankultotal").innerText = rank(kttotalul,ultotallist)+"위";
-						let rank5g1 = rank(kttotaldl,dltotallist);
-						let rank5g2 = rank(kttotalul,ultotallist);
-						if(rank5g1 == 3){
+						document.getElementById("5grankdltotal").innerText = rank(kttotaldl,dltotallist)+"위";
+						if(rank(kttotaldl,dltotallist)==3){
 							document.getElementById("5grankdltotal").style.color = 'red';
+							document.getElementById("postmeas5gtotal_postmeaskt_dl").style.color = 'red';
 						}
-						if(rank5g2 == 3){
+						document.getElementById("5grankultotal").innerText = rank(kttotalul,ultotallist)+"위";
+						if(rank(kttotalul,ultotallist)==3){
 							document.getElementById("5grankultotal").style.color = 'red';
+							document.getElementById("postmeas5gtotal_postmeaskt_ul").style.color = 'red';
 						}
+						
 						
 					</script>
 					{% load index %}
@@ -1016,15 +1017,31 @@ button{
 						<td rowspan = "3" id="5glastdl">{{postmeas5g_lastkt_dl|index:forloop.counter0}}/{{postmeas5g_lastskt_dl|index:forloop.counter0}}/{{postmeas5g_lastlg_dl|index:forloop.counter0}}</td>
 						<td>속도</td>
 						<td id="5gmeaskt_dl">{{postmeas5g_measkt_dl|index:forloop.counter0}}</td>
-						<td id="5gpostmeaskt_dl">{{postmeas5g_postmeaskt_dl|index:forloop.counter0}}</td>
+						{% if postmeas5grankdllist|index:forloop.counter0 == "3위" %}
+							<td id="5gpostmeaskt_dl" style="color:red;">{{postmeas5g_postmeaskt_dl|index:forloop.counter0}}</td>
+						{% else %}
+							<td id="5gpostmeaskt_dl">{{postmeas5g_postmeaskt_dl|index:forloop.counter0}}</td>
+						{% endif %}
 						<td id="5gpostmeasskt_dl">{{postmeas5g_postmeasskt_dl|index:forloop.counter0}}</td>
 						<td id="5gpostmeaslg_dl">{{postmeas5g_postmeaslg_dl|index:forloop.counter0}}</td>
-						<td rowspan = "3" id="5grank1"> {{postmeas5grankdllist|index:forloop.counter0}}</td>
+						{% if postmeas5grankdllist|index:forloop.counter0 == "3위" %}
+							<td rowspan = "3" id="5grank1" style="color:red;"> {{postmeas5grankdllist|index:forloop.counter0}}</td>
+						{% else %}
+							<td rowspan = "3" id="5grank1"> {{postmeas5grankdllist|index:forloop.counter0}}</td>
+						{% endif %}
 						<td rowspan = "3" id="5gmeaskt_ul">{{postmeas5g_measkt_ul|index:forloop.counter0}}</td>
-						<td rowspan = "3" id="5gpostmeaskt_ul">{{postmeas5g_postmeaskt_ul|index:forloop.counter0}}</td>
+						{% if postmeas5grankullist|index:forloop.counter0 == "3위" %}
+							<td rowspan = "3" id="5gpostmeaskt_ul" style="color:red;">{{postmeas5g_postmeaskt_ul|index:forloop.counter0}}</td>
+						{% else %}
+							<td rowspan = "3" id="5gpostmeaskt_ul">{{postmeas5g_postmeaskt_ul|index:forloop.counter0}}</td>
+						{% endif %}
 						<td rowspan = "3" id="5gpostmeasskt_ul">{{postmeas5g_postmeasskt_ul|index:forloop.counter0}}</td>
 						<td rowspan = "3" id="5gpostmeaslg_ul">{{postmeas5g_postmeaslg_ul|index:forloop.counter0}}</td>
-						<td rowspan = "3" id="5grank2">{{postmeas5grankullist|index:forloop.counter0}}</td>
+						{% if postmeas5grankullist|index:forloop.counter0 == "3위" %}
+							<td rowspan = "3" id="5grank2" style="color:red;">{{postmeas5grankullist|index:forloop.counter0}}</td>
+						{% else %}
+							<td rowspan = "3" id="5grank2">{{postmeas5grankullist|index:forloop.counter0}}</td>
+						{% endif %}
 					</tr>
 					<tr>
 						<td>RSRP</td>
@@ -1223,12 +1240,12 @@ button{
 					<td rowspan = "3">{{postmeasltetotal_lastkt_dl}}/{{postmeasltetotal_lastskt_dl}}/{{postmeasltetotal_lastlg_dl}}</td>
 					<td>속도</td>
 					<td>{{postmeasltetotal_measkt_dl}}</td>
-					<td>{{postmeasltetotal_postmeaskt_dl}}</td>
+					<td id = "postmeasltetotal_postmeaskt_dl">{{postmeasltetotal_postmeaskt_dl}}</td>
 					<td>{{postmeasltetotal_postmeasskt_dl}}</td>
 					<td>{{postmeasltetotal_postmeaslg_dl}}</td>
 					<td rowspan = "3" id = "lterankdltotal"></td>
 					<td rowspan = "3">{{postmeasltetotal_measkt_ul}}</td>
-					<td rowspan = "3">{{postmeasltetotal_postmeaskt_ul}}</td>
+					<td rowspan = "3" id = "postmeasltetotal_postmeaskt_ul">{{postmeasltetotal_postmeaskt_ul}}</td>
 					<td rowspan = "3">{{postmeasltetotal_postmeasskt_ul}}</td>
 					<td rowspan = "3">{{postmeasltetotal_postmeaslg_ul}}</td>
 					<td rowspan = "3" id = "lterankultotal"></td>
@@ -1257,7 +1274,7 @@ button{
 					let kttotaldllte = '{{postmeasltetotal_postmeaskt_dl}}';
 					let skttotaldllte = '{{postmeasltetotal_postmeasskt_dl}}';
 					let lgtotaldllte = '{{postmeasltetotal_postmeaslg_dl}}';
-					let dltotallistlte = [kttotaldl,skttotaldl,lgtotaldl]
+					let dltotallistlte = [kttotaldllte,skttotaldllte,lgtotaldllte]
 					let ktsktdllte = kttotaldllte - skttotaldllte;
 					let ktlgdllte = kttotaldllte - lgtotaldllte;
 					if(ktsktdllte>0){
@@ -1267,18 +1284,27 @@ button{
 						document.getElementById("ktsktdllte").style.color = 'red';
 					}
 					if(ktlgdllte>0){
-						document.getElementById("ktlgdllte").innerText = "L사 대비" + Math.abs(ktsktdllte) + "M ↑ 우위";
+						document.getElementById("ktlgdllte").innerText = "L사 대비" + Math.abs(ktlgdllte) + "M ↑ 우위";
 					}else{
-						document.getElementById("ktlgdllte").innerText = "L사 대비" + Math.abs(ktsktdllte) + "M ↓ 열위";
+						document.getElementById("ktlgdllte").innerText = "L사 대비" + Math.abs(ktlgdllte) + "M ↓ 열위";
 						document.getElementById("ktlgdllte").style.color = 'red';
 					}  
-					document.getElementById("lterankdltotal").innerText = rank(kttotaldllte,dltotallistlte)+"위";
+					
 					document.getElementById("lterankdl").innerText = rank(kttotaldllte,dltotallistlte)+"위";
 					let kttotalullte = '{{postmeasltetotal_postmeaskt_ul}}';
 					let skttotalullte = '{{postmeasltetotal_postmeasskt_ul}}';
 					let lgtotalullte = '{{postmeasltetotal_postmeaslg_ul}}';
-					let ultotallistlte = [kttotalul,skttotalul,lgtotalul]
+					let ultotallistlte = [kttotalullte,skttotalullte,lgtotalullte]
+					document.getElementById("lterankdltotal").innerText = rank(kttotaldllte,dltotallistlte)+"위";
+					if(rank(kttotaldllte,dltotallistlte)==3){
+						document.getElementById("lterankdltotal").style.color = 'red'
+						document.getElementById("postmeasltetotal_postmeaskt_dl").style.color = 'red'
+					}
 					document.getElementById("lterankultotal").innerText = rank(kttotalullte,ultotallistlte)+"위";
+					if(rank(kttotaldllte,dltotallistlte)==3){
+						document.getElementById("lterankultotal").style.color = 'red'
+						document.getElementById("postmeasltetotal_postmeaskt_ul").style.color = 'red'
+					}
 				</script>
 				{% load index %}
 				{% for i in postmeasltelist %}
@@ -1287,15 +1313,31 @@ button{
 					<td rowspan = "3" id="ltelastdl">{{postmeaslte_lastkt_dl|index:forloop.counter0}}/{{postmeaslte_lastskt_dl|index:forloop.counter0}}/{{postmeaslte_lastlg_dl|index:forloop.counter0}}</td>
 					<td>속도</td>
 					<td id="ltemeaskt_dl">{{postmeaslte_measkt_dl|index:forloop.counter0}}</td>
-					<td id="ltepostmeaskt_dl">{{postmeaslte_postmeaskt_dl|index:forloop.counter0}}</td>
+					{% if postmeaslterankdllist|index:forloop.counter0 == "3위" %}
+						<td id="ltepostmeaskt_dl" style ="color:red">{{postmeaslte_postmeaskt_dl|index:forloop.counter0}}</td>
+					{% else %}
+						<td id="ltepostmeaskt_dl">{{postmeaslte_postmeaskt_dl|index:forloop.counter0}}</td>
+					{% endif %}
 					<td id="ltepostmeasskt_dl">{{postmeaslte_postmeasskt_dl|index:forloop.counter0}}</td>
 					<td id="ltepostmeaslg_dl">{{postmeaslte_postmeaslg_dl|index:forloop.counter0}}</td>
-					<td rowspan = "3" id="lterank1"> {{postmeaslterankdllist|index:forloop.counter0}}</td>
+					{% if postmeaslterankdllist|index:forloop.counter0 == "3위" %}
+						<td rowspan = "3" id="lterank1" style ="color:red"> {{postmeaslterankdllist|index:forloop.counter0}}</td>
+					{% else %}
+						<td rowspan = "3" id="lterank1"> {{postmeaslterankdllist|index:forloop.counter0}}</td>
+					{% endif %}
 					<td rowspan = "3" id="ltemeaskt_ul">{{postmeaslte_measkt_ul|index:forloop.counter0}}</td>
-					<td rowspan = "3" id="ltepostmeaskt_ul">{{postmeaslte_postmeaskt_ul|index:forloop.counter0}}</td>
+					{% if postmeaslterankullist|index:forloop.counter0 == "3위" %}
+						<td rowspan = "3" id="ltepostmeaskt_ul" style ="color:red">{{postmeaslte_postmeaskt_ul|index:forloop.counter0}}</td>
+					{% else %}
+						<td rowspan = "3" id="ltepostmeaskt_ul">{{postmeaslte_postmeaskt_ul|index:forloop.counter0}}</td>
+					{% endif %}
 					<td rowspan = "3" id="ltepostmeasskt_ul">{{postmeaslte_postmeasskt_ul|index:forloop.counter0}}</td>
 					<td rowspan = "3" id="ltepostmeaslg_ul">{{postmeaslte_postmeaslg_ul|index:forloop.counter0}}</td>
-					<td rowspan = "3" id="lterank2">{{postmeaslterankullist|index:forloop.counter0}}</td>
+					{% if postmeaslterankullist|index:forloop.counter0 == "3위" %}
+						<td rowspan = "3" id="lterank2" style ="color:red">{{postmeaslterankullist|index:forloop.counter0}}</td>
+					{% else %}
+						<td rowspan = "3" id="lterank2">{{postmeaslterankullist|index:forloop.counter0}}</td>
+					{% endif %}
 					</tr>
 					<tr>
 					<td>RSRP</td>
@@ -1745,8 +1787,8 @@ button{
 		}else{
 			document.getElementById("ltetodaytotal").innerHTML = "("
 		}
-		if('{{tregiLTEbct}}+{{tregiLTEmct}}+{{tregiLTEsct}}'>0){
-			document.getElementById("ltetodayhjd").innerHTML = "행정동 " + '{{tregiLTEbct}}+{{tregiLTEmct}}+{{tregiLTEsct}}' + "개 ";
+		if('{{tregiLTEhjd}}'>0){
+			document.getElementById("ltetodayhjd").innerHTML = "행정동 " + '{{tregiLTEhjd}}' + "개 ";
 		}else{
 			document.getElementById("ltetodayhjd").innerHTML = ""
 		}
