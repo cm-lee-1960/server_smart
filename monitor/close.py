@@ -7,7 +7,7 @@ from django.db import connection
 from .models import Phone, PhoneGroup, MeasureCallData, MeasureSecondData, Message, MeasuringDayClose, networkType_check, custom_orderby_nid
 from .inspectdb import TbNdmDataSampleMeasure, TbNdmDataMeasure
 from .events import send_failure_check
-from management.models import Center, Morphology, MorphologyDetail
+from management.models import Center, Morphology, MorphologyDetail, EtcConfig
 
 from .serializers import PhoneGroupSerializer
 from message.tele_msg import TelegramBot
@@ -840,6 +840,12 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
     ''' 평균속도 계산 함수 (초데이터)
      . 파라미터: phoneGroup
      . 반환값: Dict {avg_downloadBandwidth:DL평균값, avg_uploadBandwidth:UL평균값} '''
+    ## 보정값 있을 경우 보정값 불러온다.
+    if EtcConfig.objects.filter(category="보정값(DL)").exists():
+        correction_dl = EtcConfig.objects.get(category="보정값(DL)").value_float
+    if EtcConfig.objects.filter(category="보정값(UL)").exists():
+        correction_ul = EtcConfig.objects.get(category="보정값(UL)").value_float
+    
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
     qs = TbNdmDataSampleMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
@@ -847,12 +853,12 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
     # DL 평균속도 : DL측정을 안했을 경우 0으로 처리 (data에서 downloadbandwidth 존재 유무로 판단)
     qs_dlbw = qs.exclude( Q(downloadbandwidth__isnull=True) | Q(downloadbandwidth=0) )  # Q(networkId='NR')
     if qs_dlbw.exists():
-        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadbandwidth'))['downloadbandwidth__avg']) - 62
+        avg_downloadBandwidth = round(qs_dlbw.aggregate(Avg('downloadbandwidth'))['downloadbandwidth__avg']) - correction_dl
     else: avg_downloadBandwidth = 0
     # UL 평균속도 : UL측정을 안했을 경우 0으로 처리 (data에서 uploadbandwidth 존재 유무로 판단)
     qs_ulbw = qs.exclude( Q(uploadbandwidth__isnull=True) | Q(uploadbandwidth=0) )  # Q(networkId='NR')
     if qs_ulbw.exists():
-        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadbandwidth'))['uploadbandwidth__avg']) - 12
+        avg_uploadBandwidth = round(qs_ulbw.aggregate(Avg('uploadbandwidth'))['uploadbandwidth__avg']) - correction_ul
     else: avg_uploadBandwidth = 0
     return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
 
