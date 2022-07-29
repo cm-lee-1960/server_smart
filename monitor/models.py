@@ -1180,6 +1180,10 @@ class MeasuringDayClose(models.Model):
     udpJitter = models.FloatField(null=True, default=0.0, verbose_name='지연시간')  # 지연시간
     total_count = models.IntegerField(null=True, default=0, verbose_name='시도호수')  # 시도호수
     success_rate = models.FloatField(null=True, default=0.0, verbose_name='전송성공율')  # 전송성공율
+    p_rsrp = models.FloatField(null=True, default=0.0, verbose_name='P_RSRP 평균')  # P_RSRP 평균
+    p_SINR = models.FloatField(null=True, default=0.0, verbose_name='P_SINR 평균')  # P_RSRP 평균
+    NR_RSRP = models.FloatField(null=True, default=0.0, verbose_name='NR_RSRP 평균')  # NR_RSRP 평균
+    NR_SINR = models.FloatField(null=True, default=0.0, verbose_name='NR_SINR 평균')  # NR_RSRP 평균
     ##### 디버깅 항목 ########
     ca1_count = models.IntegerField(null=True, default=0, verbose_name='CA1 카운트')  # CA1 카운트
     ca2_count = models.IntegerField(null=True, default=0, verbose_name='CA2 카운트')  # CA2 카운트

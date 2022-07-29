@@ -623,7 +623,11 @@ def measuring_day_reclose(measdate):
             connect_time = cal_connect_time(phoneGroup)  # 접속시간 계산
             udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산
             lte_ca = cal_lte_ca(phoneGroup)  # LTE CA비율 계산
-            nr_percent = cal_nr_percent(phoneGroup)  # LTE 전환율 계산    
+            nr_percent = cal_nr_percent(phoneGroup)  # LTE 전환율 계산 
+            p_rsrp = cal_avg_rsrp_sinr(phoneGroup)['p_rsrp']
+            p_SINR = cal_avg_rsrp_sinr(phoneGroup)['p_SINR']
+            NR_RSRP = cal_avg_rsrp_sinr(phoneGroup)['NR_RSRP']
+            NR_SINR = cal_avg_rsrp_sinr(phoneGroup)['NR_SINR']
             ## 5G는 평균속도를 초데이터 사용
             if phoneGroup.networkId == '5G':
                 avg_bandwidth = cal_avg_bw_second(phoneGroup)  # 평균 속도(초데이터)
@@ -638,6 +642,7 @@ def measuring_day_reclose(measdate):
                                 udpJitter=udpJitter, success_rate=success_rate, \
                                 connect_time_dl=connect_time['connect_time_dl'], connect_time_ul=connect_time['connect_time_ul'], connect_time=connect_time['connect_time'],
                                 ca4_rate=lte_ca[0], ca3_rate=lte_ca[1], ca2_rate=lte_ca[2], ca1_rate=lte_ca[3],
+                                p_rsrp=p_rsrp, p_SINR=p_SINR, NR_RSRP=NR_RSRP, NR_SINR=NR_SINR,
                                 **serializer.data)
             # 5G 및 LTE의 커버리지 측정 대상 수를 계산 및 저장한다.  // total_count 컬럼에 대상 수 저장
             measuring_day_close_coverage(measdate)
@@ -851,7 +856,19 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
     else: avg_uploadBandwidth = 0
     return {'avg_downloadBandwidth':avg_downloadBandwidth, 'avg_uploadBandwidth':avg_uploadBandwidth}
 
-   
+
+def cal_avg_rsrp_sinr(phoneGroup):
+    ''' 입력받은 폰그룹 쿼리셋의 p_rsrp, p_sinr, nr_rsrp, nr_sinr 평균 구하는 함수
+        반환값: Dict {p_rsrp, p_SINR, NR_RSRP, NR_SINR}'''
+    phone_list = phoneGroup.phone_set.all()
+    qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
+    p_rsrp = round(qs.aggregate(Avg('p_rsrp'))['p_rsrp__avg'], 1)
+    p_SINR = round(qs.aggregate(Avg('p_SINR'))['p_SINR__avg'], 1)
+    NR_RSRP = round(qs.aggregate(Avg('NR_RSRP'))['NR_RSRP__avg'], 1)
+    NR_SINR = round(qs.aggregate(Avg('NR_SINR'))['NR_SINR__avg'], 1)
+    return {'p_rsrp':p_rsrp, 'p_SINR':p_SINR, 'NR_RSRP':NR_RSRP, 'NR_SINR':NR_SINR}
+
+
 def cal_close_data(phoneGroup):
     ''' 단말 그룹 별 마감 전체 데이터 계산 함수
      . 파라미터: phoneGroup(폰그룹 쿼리셋)
@@ -864,6 +881,11 @@ def cal_close_data(phoneGroup):
         md.add_count = md.dl_count + md.ul_count  # 시도호 (DL카운트 + UL카운트)
         success_rate = cal_success_rate(phoneGroup) # 전송 성공률 계산
         connect_time = cal_connect_time(phoneGroup)  # 접속시간 계산
+        p_rsrp = cal_avg_rsrp_sinr(phoneGroup)['p_rsrp']
+        p_SINR = cal_avg_rsrp_sinr(phoneGroup)['p_SINR']
+        NR_RSRP = cal_avg_rsrp_sinr(phoneGroup)['NR_RSRP']
+        NR_SINR = cal_avg_rsrp_sinr(phoneGroup)['NR_SINR']
+        
         ## 네트워크 별로 계산이 필요한 데이터가 상이하여 구분하여 진행
         if phoneGroup.networkId != 'WiFi':
             udpJitter = cal_udpJitter(phoneGroup) # 평균 지연시간 계산
@@ -879,11 +901,16 @@ def cal_close_data(phoneGroup):
     
         # 계산한 데이터 저장
         md.success_rate = success_rate
+        md.p_rsrp = p_rsrp
+        md.p_SINR = p_SINR
+        md.NR_RSRP = NR_RSRP
+        md.NR_SINR = NR_SINR
         md.connect_time_dl, md.connect_time_ul, md.connect_time = connect_time['connect_time_dl'], connect_time['connect_time_ul'], connect_time['connect_time']
         md.save()
 
     except Exception as e:
         raise Exception("measuring_day_close/cal_close_data: %s" % e)
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------
 # 측정 마감 시 커버리지 대상 수 계산 함수 --> morphology='커버리지'로 계산  // manage=False 인 애들로 할까? 검토중
