@@ -843,8 +843,10 @@ def cal_avg_bw_second(phoneGroup):  ## 콜데이터 써도 무방? networkId=NR 
     ## 보정값 있을 경우 보정값 불러온다.
     if EtcConfig.objects.filter(category="보정값(DL)").exists():
         correction_dl = EtcConfig.objects.get(category="보정값(DL)").value_float
+    else: correction_dl = 0.0
     if EtcConfig.objects.filter(category="보정값(UL)").exists():
         correction_ul = EtcConfig.objects.get(category="보정값(UL)").value_float
+    else: correction_ul = 0.0
     
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
@@ -868,10 +870,18 @@ def cal_avg_rsrp_sinr(phoneGroup):
         반환값: Dict {p_rsrp, p_SINR, NR_RSRP, NR_SINR}'''
     phone_list = phoneGroup.phone_set.all()
     qs = MeasureCallData.objects.filter(phone__in=phone_list, testNetworkType='speed').order_by("meastime")
-    p_rsrp = round(qs.aggregate(Avg('p_rsrp'))['p_rsrp__avg'], 1)
-    p_SINR = round(qs.aggregate(Avg('p_SINR'))['p_SINR__avg'], 1)
-    NR_RSRP = round(qs.aggregate(Avg('NR_RSRP'))['NR_RSRP__avg'], 1)
-    NR_SINR = round(qs.aggregate(Avg('NR_SINR'))['NR_SINR__avg'], 1)
+    if qs.filter(p_rsrp__isnull=False).exists():
+        p_rsrp = round(qs.aggregate(Avg('p_rsrp'))['p_rsrp__avg'], 1)
+    else: p_rsrp = 0.0
+    if qs.filter(p_SINR__isnull=False).exists():
+        p_SINR = round(qs.aggregate(Avg('p_SINR'))['p_SINR__avg'], 1)
+    else: p_SINR = 0.0
+    if qs.filter(NR_RSRP__isnull=False).exists():
+        NR_RSRP = round(qs.aggregate(Avg('NR_RSRP'))['NR_RSRP__avg'], 1)
+    else: NR_RSRP = 0.0
+    if qs.filter(NR_SINR__isnull=False).exists():
+        NR_SINR = round(qs.aggregate(Avg('NR_SINR'))['NR_SINR__avg'], 1)
+    else: NR_SINR = 0.0
     return {'p_rsrp':p_rsrp, 'p_SINR':p_SINR, 'NR_RSRP':NR_RSRP, 'NR_SINR':NR_SINR}
 
 
