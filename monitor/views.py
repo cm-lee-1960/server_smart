@@ -1,11 +1,11 @@
-from datetime import datetime
-import math
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
-from django.http import HttpResponseRedirect
-from django.contrib import messages
+from datetime import datetime
+from rest_framework.views import APIView
+from rest_framework import authentication, permissions
+
 
 from message.msg import make_message
 from management.models import Morphology, MorphologyDetail, EtcConfig, PhoneInfo
@@ -16,7 +16,6 @@ from .dataproc import phoneloc_proc
 
 # 로그를 기록하기 위한 로거를 생성한다.
 import logging
-# logger = logging.getLogger(__name__)
 db_logger = logging.getLogger('db')
 
 ####################################################################################################################################
@@ -113,379 +112,418 @@ db_logger = logging.getLogger('db')
 # 2022.06.25 - 수신데이터 처리 함수 부문 주석 보완
 # 2022.06.29 - 측정단말 위치정보 수신데이터 처리 모듈 수가
 # 2022.06.30 - 측정종료 후 수신데이터가 로그에 기록되도록 raise 구문 앞으로 이동
+# 2022.07.31 - REST Framework 토큰 적용 (기존 뷰 함수 -> API 뷰 클래스로 전환)
+#              @csrf_exempt 데코레이션 제거
 #
 ####################################################################################################################################
-@csrf_exempt
-def receive_json(request):
-    """ JSON 데이터를 받아서 처리하는 뷰 함수
+# @csrf_exempt
+# def receive_json(request):
+class  ReceiveJson(APIView):
+    """ JSON 데이터를 받아서 처리하는 뷰 클래스
         - 측정 데이터를 JSON 형태로 받아서 처리한다.
     """
-    # ==================================================================================================================
-    # 1) 수신 받은 측정 데이터(JSON) 파싱
-    #   1-1) 예외처리
-    #       1-1-1) 수신 데이터 중복체크
-    #       1-1-2) 오후 8시 이후 또는 오전 5시 이전 측정일시로부터 2시간이 경과한 데이터 수신시 제외
-    #   1-2) 보정값 적용
-    #   1-3) 측정단말이 WiFi로 사전등록 시 네트워크ID(networkId)을 WiFi로 지정
-    # ==================================================================================================================
-    if request.method != 'POST':
-        return HttpResponse("Error")
-    
-    data = JSONParser().parse(request)
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAdminUser]
+    def post(self, request):
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # [예외처리] 1-1-1) 수신 데이터 중복체크
-    #  * meastime : 측정일시
-    #  * phone_no : 측정단말번호
-    #  * 측정자입력값1 : userInfo1
-    #  * 측정자입력값 : userInfo2
-    #  * 현재콜카운트 : currentCount
-    # ------------------------------------------------------------------------------------------------------------------
-    duplicate_check_data = MeasureCallData.objects.filter(meastime=data['meastime'], phone_no=data['phone_no'], \
-                                                        userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], currentCount=data['currentCount'])
-    if duplicate_check_data.exists():
-        raise Exception("데이터가 중복값입니다.")
-        db_logger.error("인입 데이터 중복:", Exception)
-        return HttpResponse("인입 데이터 중복::" + Exception, status=500)
-    else: pass
+        # ==================================================================================================================
+        # 1) 수신 받은 측정 데이터(JSON) 파싱
+        #   1-1) 예외처리
+        #       1-1-1) 수신 데이터 중복체크
+        #       1-1-2) 오후 8시 이후 또는 오전 5시 이전 측정일시로부터 2시간이 경과한 데이터 수신시 제외
+        #   1-2) 보정값 적용
+        #   1-3) 측정단말이 WiFi로 사전등록 시 네트워크ID(networkId)을 WiFi로 지정
+        # ==================================================================================================================
+        if request.method != 'POST':
+            return HttpResponse("Error")
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # [ 예외처리 ] 1-1-2) 오후 8시 이후 또는 새벽 5시 이전 측정일시로부터 2시간이 경과한 데이터 수신시 제외
-    #  * 현상 : 새벽시간에 낮시간 측정 데이터가 수신되어 텔레그램 메시지 전송이 발생함
-    #  * 해당 측정데이터의 측정일시(meastime)와 현재 시간을 비교하여 2시간 이상 경과한 데이터가 오후 8시 이후 전송되는
-    #    경우 예외처러
-    # 2022.06.26 - 13:25 테-대전광역시-중구-대전 오월드 측정데이터 새벽 01:00에 수신되는 현상 발견하여 대응코드 추가
-    # 2022.06.30 - 측정종료 후 수신데이터가 로그에 기록되도록 raise 구문 앞으로 이동
-    # 2022.07.26 - 72hr 이상 경과된 데이터인 경우에도 무시 처리
-    # ------------------------------------------------------------------------------------------------------------------
-    meastime_d = datetime.strptime(str(data['meastime'])[:14], '%Y%m%d%H%M%S')
-    diff = datetime.now() - meastime_d
-    hours = diff.total_seconds() / 3600
-    if (hours > 2 and (datetime.now().hour > 20 or datetime.now().hour < 5)) or (hours > 72):
-        db_logger.error("측정종료 후 데이터수신:", data)
-        raise Exception("측정종료 후 데이터가 수신되었습니다.")
-        return HttpResponse("측정종료 후 데이터수신:" + Exception, status=500)
+        data = JSONParser().parse(request)
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
-    # data                              EtcConfig (table name: management_etcconfig)
-    # ┌-------------------┐  DL        ┌------------------┐
-    # | downloadBandwidth |<-------┳---| 보정값(DL): 62.0 |
-    # └-------------------┘        |   | 보정값(UL): 12.0 |
-    # ┌-------------------┐  UL    |   |                  |
-    # | uploadBandwidth   |<-------┛   |                  |
-    # └-------------------┘            └------------------┘
-    # ※ 보정값을 적용한 속도값이 0(Zero)보다 작아지는 경우 오류처리 한다.
-    # ------------------------------------------------------------------------------------------------------------------
-    if data['downloadBandwidth']: 
-        if EtcConfig.objects.filter(category="보정값(DL)").exists():
-            correction = EtcConfig.objects.get(category="보정값(DL)").value_float
-            data['downloadBandwidth'] = round(data['downloadBandwidth'] - correction, 3)
-            if data['downloadBandwidth'] < 0:
-                raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
-                db_logger.error("보정값 조정:", Exception)
-                return HttpResponse("보정값 조정:" + Exception, status=500)
+        # ------------------------------------------------------------------------------------------------------------------
+        # [예외처리] 1-1-1) 수신 데이터 중복체크
+        #  * meastime : 측정일시
+        #  * phone_no : 측정단말번호
+        #  * 측정자입력값1 : userInfo1
+        #  * 측정자입력값 : userInfo2
+        #  * 현재콜카운트 : currentCount
+        # ------------------------------------------------------------------------------------------------------------------
+        duplicate_check_data = MeasureCallData.objects.filter(meastime=data['meastime'], phone_no=data['phone_no'], \
+                                                            userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], currentCount=data['currentCount'])
+        if duplicate_check_data.exists():
+            raise Exception("데이터가 중복값입니다.")
+            db_logger.error("인입 데이터 중복:", Exception)
+            return HttpResponse("인입 데이터 중복::" + Exception, status=500)
         else: pass
-    elif data['uploadBandwidth']:
-        if EtcConfig.objects.filter(category="보정값(UL)").exists():
-            correction = EtcConfig.objects.get(category="보정값(UL)").value_float
-            data['uploadBandwidth'] = round(data['uploadBandwidth'] - correction, 3)
-            if data['uploadBandwidth'] < 0:
-                raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
-                db_logger.error("보정값 조정:", Exception)
-                return HttpResponse("보정값 조정:" + Exception, status=500)
-        else: pass
-    else:
-        pass
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # 1-3) 해당 측정단말 번호가 WiFi측정 단말인 경우, 네트워크ID(networkId)를 WiFi로 지정한다.
-    # data['phone_no']                          PhoneInfo (table name: management_phoneinfo)
-    # ┌-------------------┐                     ┌------------------┐
-    # | phone_no          |<--------------------| phone_no         |
-    # └-------------------┘   networkId='WiFi'  | networkId        |
-    #                                           | measuringTeam    |
-    #                                           | ...              |
-    #                                           └------------------┘
-    # ------------------------------------------------------------------------------------------------------------------
-    if data['phone_no'] in PhoneInfo.objects.filter(networkId='WiFi').values_list('phone_no', flat=True):
-        data['networkId'] = 'WiFi'  # nId = 'WiFi'
-    else: pass
-    
+        # ------------------------------------------------------------------------------------------------------------------
+        # [ 예외처리 ] 1-1-2) 오후 8시 이후 또는 새벽 5시 이전 측정일시로부터 2시간이 경과한 데이터 수신시 제외
+        #  * 현상 : 새벽시간에 낮시간 측정 데이터가 수신되어 텔레그램 메시지 전송이 발생함
+        #  * 해당 측정데이터의 측정일시(meastime)와 현재 시간을 비교하여 2시간 이상 경과한 데이터가 오후 8시 이후 전송되는
+        #    경우 예외처러
+        # 2022.06.26 - 13:25 테-대전광역시-중구-대전 오월드 측정데이터 새벽 01:00에 수신되는 현상 발견하여 대응코드 추가
+        # 2022.06.30 - 측정종료 후 수신데이터가 로그에 기록되도록 raise 구문 앞으로 이동
+        # 2022.07.26 - 72hr 이상 경과된 데이터인 경우에도 무시 처리
+        # ------------------------------------------------------------------------------------------------------------------
+        meastime_d = datetime.strptime(str(data['meastime'])[:14], '%Y%m%d%H%M%S')
+        diff = datetime.now() - meastime_d
+        hours = diff.total_seconds() / 3600
+        if (hours > 2 and (datetime.now().hour > 20 or datetime.now().hour < 5)) or (hours > 72):
+            db_logger.error("측정종료 후 데이터수신:", data)
+            raise Exception("측정종료 후 데이터가 수신되었습니다.")
+            return HttpResponse("측정종료 후 데이터수신:" + Exception, status=500)
 
-    # ==================================================================================================================
-    # 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
-    # 전화번호에 대한 특정 단말이 있는지 확인한다.
-    # * 측정중인 단말이 있으면 가져오고,
-    # * 측정중인 단말이 없으면 새로운 측정단말을 등록한다(테이블에 등록)
-    # ┌------------------------┐                      monitor/models.py
-    # | nr_check (LTE전환여부) |<-------------------- networkType_check()
-    # | {networkId, nr_check}  |
-    # └------------------------┘
-    # ┌------------------------┐
-    # | morphology             |<-------------------- get_morphology()
-    # └--------┳ --------------┘
-    #          ┣------------------------------┓
-    # ┌--------┻---------┐          ┌---------┷--------┐
-    # |      WiFi        |          |      WiFi외      | 5G, LTE, 3G
-    # └--------┳---------┘          └---------┳--------┘
-    #          |                              |
-    # ┌--------┻---------┐          ┌---------┻--------┐ qs = PhoneGroup.objects.filter()
-    # | measdate         |          | measdate         |
-    # | userInfo1        |          | userInfo1        |
-    # | org_morphology   |          | org_morphology   |
-    # | userInfo2        |          | -                |
-    # | nId              |          | nId              |
-    # | ispId            |          | ispId            |
-    # | active           |          | active           |
-    # └--------┳---------┘   qs     └----------┯-------┘
-    #          ┣-------------------------------┛
-    # ┌--------┻---------┐
-    # |    qs.exists()   |
-    # └--------┳---------┘
-    #          ┠-----------------------------┒
-    #          | False                       | True
-    # ┌--------┻-----------┐        ┌--------┻-----------┐
-    # | phoneGroup = qs[0] |        |       WiFi         |
-    # └--------------------┘        └---------┳----------┘
-    #                                         ┠------------------------------------------┒
-    #                                         | True                                     |
-    #                               ┌---------┻---------------------┐   ┌----------------┻--------------┐
-    #                               | morphologyDetail =            |   | morphologyDetail = None       |
-    #                               |   get_morphologyDetail_wifi() |   |                               |
-    #                               └---------┳---------------------┘   └----------------┳--------------┘
-    # ┏---------------------------------------┻------------------------------------------┚
-    # | ┌-------------------------------------------------┐ True
-    # ├-| WiFi, morphology.manage==True, morphologyDetail |--------> manage = True
-    # | └-------------------------------------------------┘
-    # | ┌-------------------------------------------------┐ True
-    # ├-| WiFi, 45008, not morphologyDetail               |--------> manage = False
-    # | └-------------------------------------------------┘
-    # | ┌-------------------------------------------------┐ True
-    # ├-| not 45008                                       |--------> manage = False
-    # | └-------------------------------------------------┘
-    # | ┌-------------------------------------------------┐
-    # ├-| else                                            |--------> manage = morphology.manage
-    # | └-------------------------------------------------┘
-    # |
-    # ∨
-    # ------------------------------------------------------------------------------------------------------------------
-    # [ 처 리 내 역 ]
-    # 2022.01.18 - 측정시 UL/DL 두개의 단말기로 측정하기 때문에 두개를 묶어서 처리하는 모듈 반영 필요
-    #            - userInfo1, groupId(앞8자리), ispId(45008)
-    #            - Goupp - Phone - MeasureData
-    # 2022.02.22 - groupId(앞8자리) -> groupId(앞6자리)로 변경
-    # 2022.02.23 - userInfo1 + meastime(8자리)
-    # ==================================================================================================================
-    # 해당일자/해당지역 측정 단말기 그룹이 등록되어 있는지 확인한다.
-    # meastime '20211101063756701'
-    try: 
-        measdate = str(data['meastime'])[:8] # 측정일자
-        # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
-        #     ispId=data['ispId'], active=True).order_by('-last_updated_dt')
-    
-        # LTE 전환인지 체크한다 (6.23)  --- models.py 의 nr_check 함수 사용
-        # if data['networkId'] == 'NR' or data['networkId'] == 'NR5G' : nId = '5G'  # 측정유형 지정 // NR일 경우 5G
-        # else: nId = data['networkId']
-        nr_check = networkType_check(data['meastime'], data['phone_no'], data['networkId'], data['userInfo1'], data['userInfo2'], data['networkType'])
-        nId = nr_check['networkId']
-        data['nr_check'] = nr_check['nr_check']
-
-        morphology = get_morphology(data['networkId'], data['userInfo2'], data['userInfo1'], data['phone_no'])  # 모폴로지
-
-        if data['networkId'] == 'WiFi':  # WiFi일 경우 userInfo2로 판단
-            qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, userInfo2=data['userInfo2'], \
-                                networkId=nId, ispId=data['ispId'], active=True).order_by('-last_updated_dt')
-        else:  # WiFi가 아닐경우 userInfo2 제외 (같은 측정이지만 userInfo2가 다른 경우 있음)
-            qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, \
-                    networkId=nId, ispId=data['ispId'], active=True).order_by('-last_updated_dt')
-
-
-        if qs.exists():
-            phoneGroup = qs[0]    
+        # ------------------------------------------------------------------------------------------------------------------
+        # 1-2) 보정값이 존재하는 경우 DL, UL 값을 보정한다.
+        # data                              EtcConfig (table name: management_etcconfig)
+        # ┌-------------------┐  DL        ┌------------------┐
+        # | downloadBandwidth |<-------┳---| 보정값(DL): 62.0 |
+        # └-------------------┘        |   | 보정값(UL): 12.0 |
+        # ┌-------------------┐  UL    |   |                  |
+        # | uploadBandwidth   |<-------┛   |                  |
+        # └-------------------┘            └------------------┘
+        # ※ 보정값을 적용한 속도값이 0(Zero)보다 작아지는 경우 오류처리 한다.
+        # ------------------------------------------------------------------------------------------------------------------
+        if data['downloadBandwidth']:
+            if EtcConfig.objects.filter(category="보정값(DL)").exists():
+                correction = EtcConfig.objects.get(category="보정값(DL)").value_float
+                data['downloadBandwidth'] = round(data['downloadBandwidth'] - correction, 3)
+                if data['downloadBandwidth'] < 0:
+                    raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
+                    db_logger.error("보정값 조정:", Exception)
+                    return HttpResponse("보정값 조정:" + Exception, status=500)
+            else: pass
+        elif data['uploadBandwidth']:
+            if EtcConfig.objects.filter(category="보정값(UL)").exists():
+                correction = EtcConfig.objects.get(category="보정값(UL)").value_float
+                data['uploadBandwidth'] = round(data['uploadBandwidth'] - correction, 3)
+                if data['uploadBandwidth'] < 0:
+                    raise Exception("속도값이 0보다 작습니다. 보정값을 부디 확인해주세요.")
+                    db_logger.error("보정값 조정:", Exception)
+                    return HttpResponse("보정값 조정:" + Exception, status=500)
+            else: pass
         else:
-            # 측정 단말기 그룹을 생성한다.
-            meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
+            pass
+
+        # ------------------------------------------------------------------------------------------------------------------
+        # 1-3) 해당 측정단말 번호가 WiFi측정 단말인 경우, 네트워크ID(networkId)를 WiFi로 지정한다.
+        # data['phone_no']                          PhoneInfo (table name: management_phoneinfo)
+        # ┌-------------------┐                     ┌------------------┐
+        # | phone_no          |<--------------------| phone_no         |
+        # └-------------------┘   networkId='WiFi'  | networkId        |
+        #                                           | measuringTeam    |
+        #                                           | ...              |
+        #                                           └------------------┘
+        # ------------------------------------------------------------------------------------------------------------------
+        if data['phone_no'] in PhoneInfo.objects.filter(networkId='WiFi').values_list('phone_no', flat=True):
+            data['networkId'] = 'WiFi'  # nId = 'WiFi'
+        else: pass
+
+
+        # ==================================================================================================================
+        # 2) 해당일자/해당지역 측정중인 단말기 그룹이 있는지 확인
+        # 전화번호에 대한 특정 단말이 있는지 확인한다.
+        # * 측정중인 단말이 있으면 가져오고,
+        # * 측정중인 단말이 없으면 새로운 측정단말을 등록한다(테이블에 등록)
+        # ┌------------------------┐                      monitor/models.py
+        # | nr_check (LTE전환여부) |<-------------------- networkType_check()
+        # | {networkId, nr_check}  |
+        # └------------------------┘
+        # ┌------------------------┐
+        # | morphology             |<-------------------- get_morphology()
+        # └--------┳ --------------┘
+        #          ┣------------------------------┓
+        # ┌--------┻---------┐          ┌---------┷--------┐
+        # |      WiFi        |          |      WiFi외      | 5G, LTE, 3G
+        # └--------┳---------┘          └---------┳--------┘
+        #          |                              |
+        # ┌--------┻---------┐          ┌---------┻--------┐ qs = PhoneGroup.objects.filter()
+        # | measdate         |          | measdate         |
+        # | userInfo1        |          | userInfo1        |
+        # | org_morphology   |          | org_morphology   |
+        # | userInfo2        |          | -                |
+        # | nId              |          | nId              |
+        # | ispId            |          | ispId            |
+        # | active           |          | active           |
+        # └--------┳---------┘   qs     └----------┯-------┘
+        #          ┣-------------------------------┛
+        # ┌--------┻---------┐
+        # |    qs.exists()   |
+        # └--------┳---------┘
+        #          ┠-----------------------------┒
+        #          | False                       | True
+        # ┌--------┻-----------┐        ┌--------┻-----------┐
+        # | phoneGroup = qs[0] |        |       WiFi         |
+        # └--------------------┘        └---------┳----------┘
+        #                                         ┠------------------------------------------┒
+        #                                         | True                                     |
+        #                               ┌---------┻---------------------┐   ┌----------------┻--------------┐
+        #                               | morphologyDetail =            |   | morphologyDetail = None       |
+        #                               |   get_morphologyDetail_wifi() |   |                               |
+        #                               └---------┳---------------------┘   └----------------┳--------------┘
+        # ┏---------------------------------------┻------------------------------------------┚
+        # | ┌-------------------------------------------------┐ True
+        # ├-| WiFi, morphology.manage==True, morphologyDetail |--------> manage = True
+        # | └-------------------------------------------------┘
+        # | ┌-------------------------------------------------┐ True
+        # ├-| WiFi, 45008, not morphologyDetail               |--------> manage = False
+        # | └-------------------------------------------------┘
+        # | ┌-------------------------------------------------┐ True
+        # ├-| not 45008                                       |--------> manage = False
+        # | └-------------------------------------------------┘
+        # | ┌-------------------------------------------------┐
+        # ├-| else                                            |--------> manage = morphology.manage
+        # | └-------------------------------------------------┘
+        # |
+        # ∨
+        # ------------------------------------------------------------------------------------------------------------------
+        # [ 처 리 내 역 ]
+        # 2022.01.18 - 측정시 UL/DL 두개의 단말기로 측정하기 때문에 두개를 묶어서 처리하는 모듈 반영 필요
+        #            - userInfo1, groupId(앞8자리), ispId(45008)
+        #            - Goupp - Phone - MeasureData
+        # 2022.02.22 - groupId(앞8자리) -> groupId(앞6자리)로 변경
+        # 2022.02.23 - userInfo1 + meastime(8자리)
+        # ==================================================================================================================
+        # 해당일자/해당지역 측정 단말기 그룹이 등록되어 있는지 확인한다.
+        # meastime '20211101063756701'
+        try:
+            measdate = str(data['meastime'])[:8] # 측정일자
+            # qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], userInfo2=data['userInfo2'], \
+            #     ispId=data['ispId'], active=True).order_by('-last_updated_dt')
+
+            # LTE 전환인지 체크한다 (6.23)  --- models.py 의 nr_check 함수 사용
+            # if data['networkId'] == 'NR' or data['networkId'] == 'NR5G' : nId = '5G'  # 측정유형 지정 // NR일 경우 5G
+            # else: nId = data['networkId']
+            nr_check = networkType_check(data['meastime'], data['phone_no'], data['networkId'], data['userInfo1'], data['userInfo2'], data['networkType'])
+            nId = nr_check['networkId']
+            data['nr_check'] = nr_check['nr_check']
+
             morphology = get_morphology(data['networkId'], data['userInfo2'], data['userInfo1'], data['phone_no'])  # 모폴로지
-            if data['networkId'] == 'WiFi': morphologyDetail = get_morphologyDetail_wifi(data['userInfo1'], data['userInfo2']) # 모폴로지 상세, 현재 WiFi에서만 사용
-            # 5G 일 경우 + PhoneInfo에 SA/NSA 구분이 등록된 폰일 경우 --> SA/NSA 지정 (디폴트 행정동으로 지정)
-            elif data['networkId'] == '5G' and data['phone_no'] in PhoneInfo.objects.filter(networkId='5G', mode__isnull=False).values_list('phone_no', flat=True):
-                mode = '5G ' + PhoneInfo.objects.filter(networkId='5G', phone_no=data['phone_no'])[0].mode
-                print(mode)
-                morphologyDetail = MorphologyDetail.objects.filter(network_type=mode)[0]
-                print(morphologyDetail)
-            else: morphologyDetail = None
-            
-            if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail:
-                manage = True   # WiFi일 경우 모폴로지 상세가 존재해야 관리여부 True (미존재 시 타사 측정이므로)
-            elif data['ispId'] == '45008' and data['networkId'] == 'WiFi' and not morphologyDetail: manage = False
-            elif data['ispId'] != '45008': manage = False
-            elif data['networkId'] not in ['5G', 'LTE', '3G', 'WiFi', 'NR', 'NR5G']: manage = False
-            else: manage = morphology.manage
-            
-            phoneGroup = PhoneGroup.objects.create(
-                            measdate=measdate, # 측정일자
+
+            if data['networkId'] == 'WiFi':  # WiFi일 경우 userInfo2로 판단
+                qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, userInfo2=data['userInfo2'], \
+                                    networkId=nId, ispId=data['ispId'], active=True).order_by('-last_updated_dt')
+            else:  # WiFi가 아닐경우 userInfo2 제외 (같은 측정이지만 userInfo2가 다른 경우 있음)
+                qs = PhoneGroup.objects.filter(measdate=measdate, userInfo1=data['userInfo1'], org_morphology=morphology, \
+                        networkId=nId, ispId=data['ispId'], active=True).order_by('-last_updated_dt')
+
+
+            if qs.exists():
+                phoneGroup = qs[0]
+            else:
+                # 측정 단말기 그룹을 생성한다.
+                meastime_s = str(data['meastime'])  # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
+                morphology = get_morphology(data['networkId'], data['userInfo2'], data['userInfo1'], data['phone_no'])  # 모폴로지
+                if data['networkId'] == 'WiFi': morphologyDetail = get_morphologyDetail_wifi(data['userInfo1'], data['userInfo2']) # 모폴로지 상세, 현재 WiFi에서만 사용
+                # 5G 일 경우 + PhoneInfo에 SA/NSA 구분이 등록된 폰일 경우 --> SA/NSA 지정 (디폴트 행정동으로 지정)
+                elif data['networkId'] == '5G' and data['phone_no'] in PhoneInfo.objects.filter(networkId='5G', mode__isnull=False).values_list('phone_no', flat=True):
+                    mode = '5G ' + PhoneInfo.objects.filter(networkId='5G', phone_no=data['phone_no'])[0].mode
+                    print(mode)
+                    morphologyDetail = MorphologyDetail.objects.filter(network_type=mode)[0]
+                    print(morphologyDetail)
+                else: morphologyDetail = None
+
+                if data['networkId'] == 'WiFi' and morphology.manage == True and morphologyDetail:
+                    manage = True   # WiFi일 경우 모폴로지 상세가 존재해야 관리여부 True (미존재 시 타사 측정이므로)
+                elif data['ispId'] == '45008' and data['networkId'] == 'WiFi' and not morphologyDetail: manage = False
+                elif data['ispId'] != '45008': manage = False
+                elif data['networkId'] not in ['5G', 'LTE', '3G', 'WiFi', 'NR', 'NR5G']: manage = False
+                else: manage = morphology.manage
+
+                phoneGroup = PhoneGroup.objects.create(
+                                measdate=measdate, # 측정일자
+                                starttime=meastime_s[8:10]+ ':' + meastime_s[10:12], # 측정 시작시간
+                                userInfo1=data['userInfo1'], # 측정자 입력값1
+                                userInfo2=data['userInfo2'], # 측정자 입력갑2
+                                morphology=morphology, # 모폴로지
+                                morphologyDetail=morphologyDetail,
+                                org_morphology=morphology,  # 모폴로지(Origin)
+                                ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
+                                manage=manage, # 관리대상 여부
+                                active=True) # 상태코드
+
+        except Exception as e:
+            # 오류 코드 및 내용을 반환한다.
+            # print("그룹조회:", str(e))
+            db_logger.error("단말그룹 조회:", str(e))
+            return HttpResponse("단말그룹 조회:" + str(e), status=500)
+
+        # ==================================================================================================================
+        # 3) 측정중인 단말기가 있는지 확인
+        # 측정 단말기를 조회한다.
+        # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
+        # (측정 단말기 -> 측정 단말기 그룹 조회)
+        # [ 해당일자 + 해당지역 + 해당전화번호 ] => 키값
+        # 측, 해당일자, 해당지역에 측정하고 있는 단말(해당 전화번호)은 하나뿐이다.
+        # ==================================================================================================================
+        try:
+            qs = phoneGroup.phone_set.all().filter(phone_no=data['phone_no'], active=True)
+            if qs.exists():
+                phone = qs[0]
+                phone.active = True
+                phone.save()
+            else:
+                # 측정 단말기의 관리대상 여부를 판단한다.
+                # 2022.02.24 - 네트워크ID(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.  (06.23 추가 -- NR5G 인 경우)
+                #            - 발견사례) 서울특별시-신분당선(강남-광교) 010-2921-3951 2021-11-08
+                # if data['networkId'] == 'NR' or data['networkId'] == 'NR5G':
+                #     networkId = '5G'
+                # else:
+                #     networkId = data['networkId']
+
+                # 측정 단말기를 생성한다.
+                # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
+                meastime_s = str(data['meastime']) # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
+                phone = Phone.objects.create(
+                            phoneGroup = phoneGroup, # 단말그룹
+                            measdate=meastime_s[0:8], # 측정일자
                             starttime=meastime_s[8:10]+ ':' + meastime_s[10:12], # 측정 시작시간
+                            phone_no=data['phone_no'], # 측정단말 전화번호
                             userInfo1=data['userInfo1'], # 측정자 입력값1
-                            userInfo2=data['userInfo2'], # 측정자 입력갑2
-                            morphology=morphology, # 모폴로지
-                            morphologyDetail=morphologyDetail,
-                            org_morphology=morphology,  # 모폴로지(Origin)
+                            userInfo2=data['userInfo2'], # 측정자 입력값2
+                            networkId=nId, # 측정유형(5G, LTE, 3G, WiFi)
                             ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
-                            manage=manage, # 관리대상 여부
-                            active=True) # 상태코드
-            
-    except Exception as e:
-        # 오류 코드 및 내용을 반환한다.
-        # print("그룹조회:", str(e))
-        db_logger.error("단말그룹 조회:", str(e))
-        return HttpResponse("단말그룹 조회:" + str(e), status=500)
+                            downloadBandwidth=0.0, # DL 평균속도
+                            uploadBandwidth=0.0, # UL 평균속도
+                            dl_count=0, # DL 콜카운트
+                            ul_count=0, # UL 콜카운드
+                            status='START_F', # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료)
+                            currentCount=data['currentCount'], # 현재 콜카운트
+                            total_count=data['currentCount'], # 총 콜카운트
+                            addressDetail=data['addressDetail'], # 행정동
+                            latitude=data['latitude'], # 위도
+                            longitude=data['longitude'], # 경도
+                            last_updated=data['meastime'], # 최종 위치보고시간
+                            morphology=phoneGroup.morphology, # 모폴로지
+                            manage=phoneGroup.manage, # 관리대상 여부
+                            active=True, # 상태
+                        )
+                # 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 내용을 담아 놓음
+                # 1) 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 저장한다.
+                # 2) 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
+                phone.update_initial_data()
 
-    # ==================================================================================================================
-    # 3) 측정중인 단말기가 있는지 확인  
-    # 측정 단말기를 조회한다.
-    # 기등록된 측정 단말기 그룹을 조회한다. -- 현재 콜카운트가 1 보다 크면 반드시 측정중인 단말기가 있어야 한다.
-    # (측정 단말기 -> 측정 단말기 그룹 조회)
-    # [ 해당일자 + 해당지역 + 해당전화번호 ] => 키값
-    # 측, 해당일자, 해당지역에 측정하고 있는 단말(해당 전화번호)은 하나뿐이다.
-    # ==================================================================================================================
-    try:
-        qs = phoneGroup.phone_set.all().filter(phone_no=data['phone_no'], active=True)
-        if qs.exists():
-            phone = qs[0]
-            phone.active = True
-            phone.save()
-        else:
-            # 측정 단말기의 관리대상 여부를 판단한다.
-            # 2022.02.24 - 네트워크ID(networkId)이 'NR'인 경우 5G 측정 단말로 판단한다.  (06.23 추가 -- NR5G 인 경우)
-            #            - 발견사례) 서울특별시-신분당선(강남-광교) 010-2921-3951 2021-11-08
-            # if data['networkId'] == 'NR' or data['networkId'] == 'NR5G':
-            #     networkId = '5G'
-            # else:
-            #     networkId = data['networkId']
+                # 새롭게 생성된 단말그룹에 묶여 있는 단말기가 당일 이전 측정으로 측정조가 지정되어 있는지 확인
+                # 측정조로 지정되어 있다면 그 정보를 가져와서 단말그룹에 업데이트 함
+                phoneGroup.update_initial_data()
 
-            # 측정 단말기를 생성한다.
-            # 2022.03.11 - 측정시작 메시지 분리 반영 (전체대상 측정시작: START_F, 해당지역 측정시작: START_M)
-            meastime_s = str(data['meastime']) # 측정시간 (측정일자와 최초 측정시간으로 분리하여 저장)
-            phone = Phone.objects.create(
-                        phoneGroup = phoneGroup, # 단말그룹
-                        measdate=meastime_s[0:8], # 측정일자
-                        starttime=meastime_s[8:10]+ ':' + meastime_s[10:12], # 측정 시작시간
-                        phone_no=data['phone_no'], # 측정단말 전화번호
-                        userInfo1=data['userInfo1'], # 측정자 입력값1
-                        userInfo2=data['userInfo2'], # 측정자 입력값2
-                        networkId=nId, # 측정유형(5G, LTE, 3G, WiFi)
-                        ispId=data['ispId'], # 통신사(45008: KT, 45005: SKT, 45005: LGU+)
-                        downloadBandwidth=0.0, # DL 평균속도
-                        uploadBandwidth=0.0, # UL 평균속도
-                        dl_count=0, # DL 콜카운트
-                        ul_count=0, # UL 콜카운드
-                        status='START_F', # 측정단말 상태코드(POWERON:파워온,START_F:측정첫시작,START_M:측정시작,MEASURING:측정중,END:측정종료)
-                        currentCount=data['currentCount'], # 현재 콜카운트
-                        total_count=data['currentCount'], # 총 콜카운트
-                        addressDetail=data['addressDetail'], # 행정동
-                        latitude=data['latitude'], # 위도
-                        longitude=data['longitude'], # 경도
-                        last_updated=data['meastime'], # 최종 위치보고시간
-                        morphology=phoneGroup.morphology, # 모폴로지
-                        manage=phoneGroup.manage, # 관리대상 여부
-                        active=True, # 상태
-                    )
-            # 측정 단말기 생성 후 초기에 한번 업데이트 해야 하는 내용을 담아 놓음
-            # 1) 첫번째 측정 위치(위도,경도)에 대한 주소지를 행정동으로 변환하여 저장한다.
-            # 2) 측정 데이터의 userInfo2를 확인하여 모풀로지를 매핑하여 지정한다.
-            phone.update_initial_data()
+        except Exception as e:
+            # 오류 코드와 내용을 반환한다.
+            # print("단말기조회:",str(e))
+            db_logger.error("측정단말 조회:",str(e))
+            return HttpResponse("측정단말 조회:" + str(e), status=500)
 
-            # 새롭게 생성된 단말그룹에 묶여 있는 단말기가 당일 이전 측정으로 측정조가 지정되어 있는지 확인
-            # 측정조로 지정되어 있다면 그 정보를 가져와서 단말그룹에 업데이트 함
-            phoneGroup.update_initial_data()
+        # ==================================================================================================================
+        # 4) 측정 데이터를 저장하고, 통계정보 업데이트
+        # 실시간 측정 데이터 유형에 따라서 데이터를 등록한다(콜단위, 초단위).
+        # 데이터 유형에 따라서 처리내용이 달라질 수 있음 -- 판단하기 위해 JSON 데이터에 식별자를 가져가야 함
+        # [ 콜단위 ] - 메시지 전송, 품질정보
+        # [ 초단위 ] - 속도 업데이트, 이벤트처리
+        # ==================================================================================================================
+        try:
+            if data['dataType'] == 'call':
+                # 콜단위 측정 데이터를 등록한다.
+                mdata = MeasureCallData.objects.create(phone=phone, **data)
+            else:
+                # 초단위 측정 데이터를 등록한다.
+                mdata = MeasureSecondData.objects.create(phone=phone, **data)
 
-    except Exception as e:
-        # 오류 코드와 내용을 반환한다.
-        # print("단말기조회:",str(e))
-        db_logger.error("측정단말 조회:",str(e))
-        return HttpResponse("측정단말 조회:" + str(e), status=500)
+            if mdata.phone.status == 'START_F' and mdata.ispId == '45008':
+                make_message(mdata)
+            # 측정시작 메시지(전체대상)
+            #  - 전체대상 측정시작 메시지는 통신사, 측정유형에 상관없이 무조건 측정을 시작하면 한번 메시지를 보낸다.
 
-    # ==================================================================================================================
-    # 4) 측정 데이터를 저장하고, 통계정보 업데이트
-    # 실시간 측정 데이터 유형에 따라서 데이터를 등록한다(콜단위, 초단위).
-    # 데이터 유형에 따라서 처리내용이 달라질 수 있음 -- 판단하기 위해 JSON 데이터에 식별자를 가져가야 함
-    # [ 콜단위 ] - 메시지 전송, 품질정보
-    # [ 초단위 ] - 속도 업데이트, 이벤트처리
-    # ==================================================================================================================
-    try: 
-        if data['dataType'] == 'call':
-            # 콜단위 측정 데이터를 등록한다. 
-            mdata = MeasureCallData.objects.create(phone=phone, **data)
-        else:
-            # 초단위 측정 데이터를 등록한다. 
-            mdata = MeasureSecondData.objects.create(phone=phone, **data)
-        
-        if mdata.phone.status == 'START_F' and mdata.ispId == '45008':
-            make_message(mdata)
-        # 측정시작 메시지(전체대상)
-        #  - 전체대상 측정시작 메시지는 통신사, 측정유형에 상관없이 무조건 측정을 시작하면 한번 메시지를 보낸다.
-        
-        # 측정 단말기의 통계값들을 업데이트 한다. 
-        # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
-        # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).  ==> 05.26 manage 여부로 변경 (WiFi개방일 경우 타사 ispId 들어옴)
-        # 2022.02.24 통계값 산출은 KT 데이터/속도 조건을 만족하는 경우에만 처리한다. 
-        if mdata.phone.manage == True and data['testNetworkType'] == 'speed': 
-            phone.update_phone(mdata)
+            # 측정 단말기의 통계값들을 업데이트 한다.
+            # UL/DL 측정 단말기를 함께 묶어서 통계값을 산출해야 함
+            # 2022.02.23 통계값 산출은 KT 데이터만 처리한다(통신사코드=45008).  ==> 05.26 manage 여부로 변경 (WiFi개방일 경우 타사 ispId 들어옴)
+            # 2022.02.24 통계값 산출은 KT 데이터/속도 조건을 만족하는 경우에만 처리한다.
+            if mdata.phone.manage == True and data['testNetworkType'] == 'speed':
+                phone.update_phone(mdata)
 
-    except Exception as e:
-        # 오류 코드와 내용을 반환한다.
-        # print("데이터저장:",str(e))
-        db_logger.error("측정데이터(콣단위) 저장:", str(e))
-        return HttpResponse("측정데이터(콣단위) 저장:" + str(e), status=500)
+        except Exception as e:
+            # 오류 코드와 내용을 반환한다.
+            # print("데이터저장:",str(e))
+            db_logger.error("측정데이터(콣단위) 저장:", str(e))
+            return HttpResponse("측정데이터(콣단위) 저장:" + str(e), status=500)
 
-    # ==================================================================================================================
-    # 5) 메시지 및 이벤트 처리
-    # 관리대상 식별기준
-    # 1) 통신사
-    # - KT 측정 데이터(ispId = 45008)인 경우만 메시지 및 이벤트 처리를 한다.  
-    # - MCC : 450(대한민국), MNC: 08(KT), 05(SKT), 60(LGU+) 
-    # 2) 측졍유형(테마, 인빌딩, 행정동, 커버리지) -- 그때 그때 바뀌기 때분에 확인해야 함(관리정보 대상)
-    # - ★★★어떤 유형으로 사용하는지 확인 필요
-    # - 관리대상(O): 테-재효-2-d3, 행-용택-1, 인빌딩은 어떻게 표시되지?
-    # - 관리대상(X): 커-재효-2-d3, 커버리지 1조
-    # 3) 측정종류
-    # - 측정종류가 속도(speed)인 경우만 메시지 및 이벤트 처리를 한다.
-    # ==================================================================================================================
-    try:
-        # 측정시작 메시지
-        # 2022.02.27 - 측정시작 메시지 분리
-        #            - 통신사 및 기타 조건에 상관없이 해당일자 측정이 시작하면 측정시작 메시지를 전송하도록 한다.
-        # 2022.03.10 - 측정시작 메시지를 2개로 분리
-        #              1) 측정시작 메시지(전체대상)  --> 누락 방지를 위해 앞쪽으로 순서 변경 (2022.05.03)
-        #              2) 해당지역 측정시작 메시지
+        # ==================================================================================================================
+        # 5) 메시지 및 이벤트 처리
+        # 관리대상 식별기준
+        # 1) 통신사
+        # - KT 측정 데이터(ispId = 45008)인 경우만 메시지 및 이벤트 처리를 한다.
+        # - MCC : 450(대한민국), MNC: 08(KT), 05(SKT), 60(LGU+)
+        # 2) 측졍유형(테마, 인빌딩, 행정동, 커버리지) -- 그때 그때 바뀌기 때분에 확인해야 함(관리정보 대상)
+        # - ★★★어떤 유형으로 사용하는지 확인 필요
+        # - 관리대상(O): 테-재효-2-d3, 행-용택-1, 인빌딩은 어떻게 표시되지?
+        # - 관리대상(X): 커-재효-2-d3, 커버리지 1조
+        # 3) 측정종류
+        # - 측정종류가 속도(speed)인 경우만 메시지 및 이벤트 처리를 한다.
+        # ==================================================================================================================
+        try:
+            # 측정시작 메시지
+            # 2022.02.27 - 측정시작 메시지 분리
+            #            - 통신사 및 기타 조건에 상관없이 해당일자 측정이 시작하면 측정시작 메시지를 전송하도록 한다.
+            # 2022.03.10 - 측정시작 메시지를 2개로 분리
+            #              1) 측정시작 메시지(전체대상)  --> 누락 방지를 위해 앞쪽으로 순서 변경 (2022.05.03)
+            #              2) 해당지역 측정시작 메시지
 
-            # 2) 해당지역 측정시작 메시지
-            #    - 해당 지역에 대해서 측정을 시작하면 측정시작 메시지를 한번 보낸다.
-            #    - 두개의 단말기로 측정을 진행하니 메시지가 한번만 갈 수 있도록 유의히야 한다.
-            # (조건: KT 속도측정 데이터에 대해서만 적용)  ## 변경(05.26): manage=True 일 경우로
-        if mdata.phone.status == 'START_M' and mdata.phone.manage == True and mdata.testNetworkType == 'speed': 
-            make_message(mdata)  # 메시지 작성
-            event_occur_check(mdata)  # 이벤트 발생여부 체크
-        
-        # elif (mdata.downloadBandwidth == 0 or mdata.downloadBandwidth == None) and (mdata.uploadBandwidth == 0 or mdata.uploadBandwidth == None):
-        #     pass     ## 속도값이 없는 데이터들은 이벤트 체크 및 메시지 처리를 하지 않는다. (06.08)
+                # 2) 해당지역 측정시작 메시지
+                #    - 해당 지역에 대해서 측정을 시작하면 측정시작 메시지를 한번 보낸다.
+                #    - 두개의 단말기로 측정을 진행하니 메시지가 한번만 갈 수 있도록 유의히야 한다.
+                # (조건: KT 속도측정 데이터에 대해서만 적용)  ## 변경(05.26): manage=True 일 경우로
+            if mdata.phone.status == 'START_M' and mdata.phone.manage == True and mdata.testNetworkType == 'speed':
+                make_message(mdata)  # 메시지 작성
+                event_occur_check(mdata)  # 이벤트 발생여부 체크
 
-        # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
-        elif mdata.phone.manage == True and data['testNetworkType'] == 'speed':
-            # 이벤트 발생여부를 체크한다. 
-            event_occur_check(mdata)
-            # 메시지를 작성한다.
-            make_message(mdata)
+            # elif (mdata.downloadBandwidth == 0 or mdata.downloadBandwidth == None) and (mdata.uploadBandwidth == 0 or mdata.uploadBandwidth == None):
+            #     pass     ## 속도값이 없는 데이터들은 이벤트 체크 및 메시지 처리를 하지 않는다. (06.08)
 
-    except Exception as e:
-        # 오류 코드와 내용을 반환한다.
-        # print("메시지/이벤트처리:",str(e))
-        db_logger.error("메시지/이벤트 처리:", str(e))
-        return HttpResponse("메시지/이벤트 처리:" + str(e), status=500)
+            # 2022.03.03 - 관리대상 모풀로지(행정동, 테마, 인빌딩)인 경우에만 메시지 처리를 수행한다.
+            elif mdata.phone.manage == True and data['testNetworkType'] == 'speed':
+                # 이벤트 발생여부를 체크한다.
+                event_occur_check(mdata)
+                # 메시지를 작성한다.
+                make_message(mdata)
 
-    return HttpResponse("처리완료")
+        except Exception as e:
+            # 오류 코드와 내용을 반환한다.
+            # print("메시지/이벤트처리:",str(e))
+            db_logger.error("메시지/이벤트 처리:", str(e))
+            return HttpResponse("메시지/이벤트 처리:" + str(e), status=500)
 
+        return HttpResponse("처리완료")
+
+########################################################################################################################
+# 측정단말 파워온/오프 수신 데이터를 처리한다.
+# ----------------------------------------------------------------------------------------------------------------------
+# 3022.07.31 - 보안성 심사 대비 기존 CSRF 예외처리 데코레이션을 제거하고 REST Framework 토큰을 사용하는
+#              뷰 클래스로 재정의
+########################################################################################################################
+class  ReceiveJsonLoc(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAdminUser]
+    def post(self, request):
+        # 수신 받은 JSON 데이터를 파싱한다.
+        # [ 항목 ]
+        #  - dataType: loc # 문자 형식
+        #  - phone_no: 1012341234 # 숫자
+        #  - cellId : 12345678 #문자 형식
+        #  - eventType : # 문자 형식
+        #  - addressDetail : 서울특별시 은평구 녹번동 105-50 # 문자
+        #  - last_updated:  20220620123056000    #전송시간 # 숫자
+        data = JSONParser().parse(request)
+        if data['dataType'] == 'loc':
+            try:
+                # 측정단말 위치정보 수신데이터를 처리할 함수를 실행한다.
+                result = phoneloc_proc(data)
+            except Exception as e:
+                print("측정단말 위치정보 저장:", str(e))
+                db_logger.error("측정단말 위치정보 저장:", str(e))
+                return HttpResponse("측정단말 위치정보 저장:" + str(e), status=500)
+
+        return HttpResponse("처리완료", status=200)
+
+# 협력사에 발급한 토큰을 전달하고 데이터 송신모듈에 헤더에 반영해 달라고 요청 필요
+# 완료 후 함수 뷰 주석 처리
 @csrf_exempt
 def receive_json_loc(request):
     # 수신 받은 JSON 데이터를 파싱한다.
@@ -507,6 +545,7 @@ def receive_json_loc(request):
             return HttpResponse("측정단말 위치정보 저장:" + str(e), status=500)
 
     return HttpResponse("처리완료", status=200)
+
 
 ########################################################################################################################
 # 해당지역 측정을 종료한다.
