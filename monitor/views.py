@@ -690,7 +690,8 @@ def phonegroup_recalculate_view(request, phonegroup_id):
         update_phoneGroup(pg) # 재계산 함수 실행
         return_value = {'result' : 'ok'}
         return JsonResponse(data=return_value, safe=False)
-    except:
+    except Exception as e:
+        db_logger.error("데이터 재계산:", e)
         return_value = {'result' : 'error'}
         return JsonResponse(data=return_value, safe=False)
 
