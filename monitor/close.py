@@ -702,9 +702,22 @@ def cal_udpJitter(phoneGroup):
     # 평균 지연시간 계산  :  testNetworkType이 latency인 데이터들의 udpJitter 평균값
     phone_list = phoneGroup.phone_set.all()
     phone_no = phone_list.values_list('phone_no', flat=True)
-    qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
-                    userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, udpjitter__isnull=False)\
-                    .filter( Q(downloadelapse=9, downloadnetworkvalidation=55) | Q(uploadelapse=9, uploadnetworkvalidation=55) )
+    if phoneGroup.networkId == "LTE":
+        qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, udpjitter__isnull=False)\
+                .filter( Q(downloadelapse=9, downloadnetworkvalidation=33) | Q(uploadelapse=9, uploadnetworkvalidation=33) )  
+    elif phoneGroup.networkId == "WiFi":
+        qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, udpjitter__isnull=False)\
+                .filter( Q(downloadelapse=9, downloadnetworkvalidation=22) | Q(uploadelapse=9, uploadnetworkvalidation=22) )
+    elif phoneGroup.networkId == "3G":
+        qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, udpjitter__isnull=False)\
+                .filter( Q(downloadelapse=9, downloadnetworkvalidation=11) | Q(uploadelapse=9, uploadnetworkvalidation=11) )
+    else:
+        qs = TbNdmDataMeasure.objects.using('default').filter(phonenumber__in=phone_no, meastime__startswith=phoneGroup.measdate, ispid="45008",\
+                        userinfo1=phoneGroup.userInfo1, networkid=phoneGroup.networkId, udpjitter__isnull=False)\
+                        .filter( Q(downloadelapse=9, downloadnetworkvalidation=55) | Q(uploadelapse=9, uploadnetworkvalidation=55) )
     if qs.exists():  # data에 udpJitter 없으면 0 처리
         udpJitter = round(qs.aggregate(Avg('udpjitter'))['udpjitter__avg'], 2)
     else: udpJitter = 0.0
