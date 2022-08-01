@@ -684,8 +684,8 @@ button{
 		</div>
 		<script>
 		
-		let nsa5gdldiff = ('{{totalnsa5g.0}}'-'{{last5gtotal.DL}}').toFixed(1);
-		let nsa5guldiff = ('{{totalnsa5g.1}}'-'{{last5gtotal.UL}}').toFixed(1);
+		let nsa5gdldiff = ('{{totalnsa5g.0}}'-'{{last5gtotal.DL}}').toFixed(0);
+		let nsa5guldiff = ('{{totalnsa5g.1}}'-'{{last5gtotal.UL}}').toFixed(0);
 		let nsa5gltedldiff = ('{{totalnsa5g.2}}'-'{{last5gtotal.LTEDL}}').toFixed(1);
 		let nsa5glteuldiff = ('{{totalnsa5g.3}}'-'{{last5gtotal.LTEUL}}').toFixed(1);
 		let nsa5gdelaydiff = ('{{totalnsa5g.4}}'-'{{last5gtotal.delay}}').toFixed(1);
@@ -836,8 +836,8 @@ button{
 			<h3 id="sadelaydiff"></h3>
 		</div>
 		<script>
-			let sadldiff = ('{{sa5g.0}}'-'{{nsa5g.0}}').toFixed(1);
-			let sauldiff = ('{{sa5g.1}}'-'{{nsa5g.1}}').toFixed(1);
+			let sadldiff = ('{{sa5g.0}}'-'{{nsa5g.0}}').toFixed(0);
+			let sauldiff = ('{{sa5g.1}}'-'{{nsa5g.1}}').toFixed(0);
 			let sadelaydiff = ('{{sa5g.4}}'-'{{nsa5g.4}}').toFixed(1);
 		
 			
@@ -1097,8 +1097,8 @@ button{
 		</div>
 		<script>
 
-		let ltedldiff = ('{{totallte.0}}'-'{{lastltetotal.DL}}').toFixed(1);
-		let lteuldiff = ('{{totallte.1}}'-'{{lastltetotal.UL}}').toFixed(1);
+		let ltedldiff = ('{{totallte.0}}'-'{{lastltetotal.DL}}').toFixed(0);
+		let lteuldiff = ('{{totallte.1}}'-'{{lastltetotal.UL}}').toFixed(0);
 		let ltedelaydiff = ('{{totallte.2}}'-'{{lastltetotal.delay}}').toFixed(1);
 		
 		if(ltedldiff<0){

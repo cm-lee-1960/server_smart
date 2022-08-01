@@ -299,7 +299,10 @@ def send_message_hj(hoho, **kwargs):
                     dl_nr_percent = instance.dl_nr_percent,
                     ul_nr_percent = instance.ul_nr_percent ,
                     udpJitter = instance.udpJitter,  # 지연시간
-                    datasucc = instance.success_rate,)
+                    datasucc = instance.success_rate,
+                    rsrpavg = instance.p_rsrp,
+                    sinravg = instance.p_SINR,
+                    )
                     
         if a.filter(siDo__isnull=False):
             data.siDo = a[0].siDo

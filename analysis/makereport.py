@@ -130,15 +130,15 @@ def get_report_cntx(request):
     postmeas5g_postmeaslg_lte = []
     postmeas5gtotal_district = PostMeasure5G.objects.filter(measdate__range=[firstday,hodate]).count()
     try:
-        postmeas5gtotal_lastkt_dl = round(MeasLastyeardistrict.objects.get(district = '종합', nettype = '5G').KTDL)
+        postmeas5gtotal_lastkt_dl = int(round(MeasLastyeardistrict.objects.get(district = '종합', nettype = '5G').KTDL))
     except:
         postmeas5gtotal_lastkt_dl = ""
     try:
-        postmeas5gtotal_lastskt_dl = round(MeasLastyeardistrict.objects.get(district = '종합', nettype = '5G').SKTDL)
+        postmeas5gtotal_lastskt_dl = int(round(MeasLastyeardistrict.objects.get(district = '종합', nettype = '5G').SKTDL))
     except:
         postmeas5gtotal_lastskt_dl = ""
     try:
-        postmeas5gtotal_lastlg_dl = round(MeasLastyeardistrict.objects.get(district = '종합', nettype = '5G').LGDL)
+        postmeas5gtotal_lastlg_dl = int(round(MeasLastyeardistrict.objects.get(district = '종합', nettype = '5G').LGDL))
     except:
         postmeas5gtotal_lastlg_dl = ""
     try:
@@ -213,15 +213,15 @@ def get_report_cntx(request):
         postmeas5g_district.append((PostMeasure5G.objects.filter(district = i,measdate__range=[firstday,hodate])).count())
         
         try:
-            postmeas5g_lastkt_dl.append(round(MeasLastyeardistrict.objects.get(district = i, nettype = '5G').KTDL))
+            postmeas5g_lastkt_dl.append(int(round(MeasLastyeardistrict.objects.get(district = i, nettype = '5G').KTDL)))
         except:
             postmeas5g_lastkt_dl.append("-")
         try:
-            postmeas5g_lastskt_dl.append(round(MeasLastyeardistrict.objects.get(district = i,nettype = '5G').SKTDL))
+            postmeas5g_lastskt_dl.append(int(round(MeasLastyeardistrict.objects.get(district = i,nettype = '5G').SKTDL)))
         except:
             postmeas5g_lastskt_dl.append("-")
         try:
-            postmeas5g_lastlg_dl.append(round(MeasLastyeardistrict.objects.get(district = i,nettype = '5G').LGDL))
+            postmeas5g_lastlg_dl.append(int(round(MeasLastyeardistrict.objects.get(district = i,nettype = '5G').LGDL)))
         except:
             postmeas5g_lastlg_dl.append("-")
         try:
@@ -329,15 +329,15 @@ def get_report_cntx(request):
     postmeaslte_postmeaslg_sinr = []
     postmeasltetotal_district = PostMeasureLTE.objects.filter(measdate__range=[firstday,hodate]).count()
     try:
-        postmeasltetotal_lastkt_dl = round(MeasLastyeardistrict.objects.get(district = '종합', nettype = 'LTE').KTDL)
+        postmeasltetotal_lastkt_dl = int(round(MeasLastyeardistrict.objects.get(district = '종합', nettype = 'LTE').KTDL))
     except:
         postmeasltetotal_lastkt_dl = ""
     try:
-        postmeasltetotal_lastskt_dl = round(MeasLastyeardistrict.objects.get(district = '종합', nettype = 'LTE').SKTDL)
+        postmeasltetotal_lastskt_dl = int(round(MeasLastyeardistrict.objects.get(district = '종합', nettype = 'LTE').SKTDL))
     except:
         postmeasltetotal_lastskt_dl = ""
     try:
-        postmeasltetotal_lastlg_dl = round(MeasLastyeardistrict.objects.get(district = '종합', nettype = 'LTE').LGDL)
+        postmeasltetotal_lastlg_dl = int(round(MeasLastyeardistrict.objects.get(district = '종합', nettype = 'LTE').LGDL))
     except:
         postmeasltetotal_lastlg_dl = ""
     try:
@@ -412,15 +412,15 @@ def get_report_cntx(request):
         postmeaslte_district.append((PostMeasureLTE.objects.filter(district = i,measdate__range=[firstday,hodate])).count())
         
         try:
-            postmeaslte_lastkt_dl.append(round(MeasLastyeardistrict.objects.get(district = i, nettype = 'LTE').KTDL))
+            postmeaslte_lastkt_dl.append(int(round(MeasLastyeardistrict.objects.get(district = i, nettype = 'LTE').KTDL)))
         except:
             postmeaslte_lastkt_dl.append("-")
         try:
-            postmeaslte_lastskt_dl.append(round(MeasLastyeardistrict.objects.get(district = i,nettype = 'LTE').SKTDL))
+            postmeaslte_lastskt_dl.append(int(round(MeasLastyeardistrict.objects.get(district = i,nettype = 'LTE').SKTDL)))
         except:
             postmeaslte_lastskt_dl.append("-")
         try:
-            postmeaslte_lastlg_dl.append(round(MeasLastyeardistrict.objects.get(district = i,nettype = 'LTE').LGDL))
+            postmeaslte_lastlg_dl.append(int(round(MeasLastyeardistrict.objects.get(district = i,nettype = 'LTE').LGDL)))
         except:
             postmeaslte_lastlg_dl.append("-")
         try:
@@ -682,35 +682,35 @@ def get_report_cntx(request):
     totalnsa5g = []
     for i in result5g_list :
         try:
-            bctnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "대도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            bctnsa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "대도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             bctnsa5g.append("-")
         try:
-            mctnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "중소도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            mctnsa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "중소도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             mctnsa5g.append("-")
         try:
-            hjdnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",mopho = "행정동",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            hjdnsa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",mopho = "행정동",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             hjdnsa5g.append("-")
         try:
-            djnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "다중이용시설",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            djnsa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "다중이용시설",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             djnsa5g.append("-")
         try:
-            aptnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "아파트",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            aptnsa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "아파트",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             aptnsa5g.append("-")
         try:
-            univnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "대학교",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            univnsa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",detailadd = "대학교",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             univnsa5g.append("-")
         try:
-            trafficnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",mopho = "교통인프라",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            trafficnsa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",mopho = "교통인프라",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             trafficnsa5g.append("-")
         try:
-            totalnsa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            totalnsa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G NSA",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             totalnsa5g.append("-")
          
@@ -737,7 +737,7 @@ def get_report_cntx(request):
                       
     for i in result5g_list :
         try:
-            sa5g.append(round(LastMeasDayClose.objects.filter(nettype = "5G SA",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            sa5g.append(int(round(LastMeasDayClose.objects.filter(nettype = "5G SA",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
             
         except:
             sa5g.append("-") 
@@ -761,11 +761,11 @@ def get_report_cntx(request):
             nsa5g_delay += 0
     
     try:
-        nsa5g.append(round(nsa5g_dl/len(same_userinfo1),1))
+        nsa5g.append(int(round(nsa5g_dl/len(same_userinfo1),0)))
     except:
         nsa5g.append("-")
     try:
-        nsa5g.append(round(nsa5g_ul/len(same_userinfo1),1))
+        nsa5g.append(int(round(nsa5g_ul/len(same_userinfo1),0)))
     except:
         nsa5g.append("-")
     try:
@@ -800,31 +800,31 @@ def get_report_cntx(request):
     totallte = []
     for i in resultlte_list :                    
         try:
-            bctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="대도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            bctlte.append(int(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="대도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             bctlte.append("-")
         try:
-            mctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="중소도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            mctlte.append(int(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="중소도시",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             mctlte.append("-")
         try:
-            sctlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="농어촌",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            sctlte.append(int(round(LastMeasDayClose.objects.filter(nettype = "LTE", detailadd="농어촌",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             sctlte.append("-")
         try:
-            hjdlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="행정동",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            hjdlte.append(int(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="행정동",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             hjdlte.append("-")
         try:
-            iblte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="인빌딩",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            iblte.append(int(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="인빌딩",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             iblte.append("-")
         try:
-            tmlte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="테마",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            tmlte.append(int(round(LastMeasDayClose.objects.filter(nettype = "LTE", mopho="테마",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             tmlte.append("-")
         try:
-            totallte.append(round(LastMeasDayClose.objects.filter(nettype = "LTE",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],1))
+            totallte.append(int(round(LastMeasDayClose.objects.filter(nettype = "LTE",measdate__range=[firstday,hodate]).aggregate(Avg(i[0]))[i[1]],0)))
         except:
             totallte.append("-")
                     
@@ -872,27 +872,27 @@ def get_report_cntx(request):
         weak3g.append("-")
 #wifi측정결과(종합)
     try:
-        totalwifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
+        totalwifidl =int(round(LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0))
     except:
         totalwifidl = "-"
     try:
-        totalsywifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
+        totalsywifidl = int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0))
     except:
         totalsywifidl = "-"
     try:
-        totalgbwifidl = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1)
+        totalgbwifidl = int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0))
     except:
         totalgbwifidl = "-"
     try:
-        totalwifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
+        totalwifiul = int(round(LastMeasDayClose.objects.filter(nettype = "WiFi",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0))
     except:
         totalwifiul = "-"
     try:
-        totalsywifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
+        totalsywifiul = int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0))
     except:
         totalsywifiul = "-"
     try:
-        totalgbwifiul = round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1)
+        totalgbwifiul = int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", mopho = "개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0))
     except:
         totalgbwifiul = "-"
 
@@ -903,36 +903,36 @@ def get_report_cntx(request):
     wificenterul2 = []
     for i in center_list1:
         try:
-            wificenterdl.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wificenterdl.append(int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0)))
         except:
             wificenterdl.append("-")
         try:
-            wificenterdl.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wificenterdl.append(int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0)))
         except:
             wificenterdl.append("-")
         try:    
-            wificenterul.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wificenterul.append(int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0)))
         except:    
             wificenterul.append("-")
         try:    
-            wificenterul.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wificenterul.append(int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0)))
         except:    
             wificenterul.append("-")
     for i in center_list2:
         try:
-            wificenterdl2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wificenterdl2.append(int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0)))
         except:
             wificenterdl2.append("-")
         try:
-            wificenterdl2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wificenterdl2.append(int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0)))
         except:
             wificenterdl2.append("-")
         try:    
-            wificenterul2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wificenterul2.append(int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="상용",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0)))
         except:    
             wificenterul2.append("-")
         try:    
-            wificenterul2.append(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wificenterul2.append(int(round(LastMeasDayClose.objects.filter(nettype = "WiFi", center=i, mopho="개방",measdate__range=[firstday,hodate]).exclude(detailadd = '지하철').aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0)))
         except:    
             wificenterul2.append("-")
 
@@ -946,54 +946,54 @@ def get_report_cntx(request):
     wifitrainlastul = []
     for i in lasttrain_list:
         try:
-            wifitrainlastdl.append(round( MeasLastyeardistrict.objects.get(nettype = "WiFi지하철", district=i).KTDL))
+            wifitrainlastdl.append(int(round( MeasLastyeardistrict.objects.get(nettype = "WiFi지하철", district=i).KTDL)))
         except:
             wifitrainlastdl.append("-")
         try:
-            wifitrainlastul.append(round( MeasLastyeardistrict.objects.get(nettype = "WiFi지하철", district=i).KTUL))
+            wifitrainlastul.append(int(round( MeasLastyeardistrict.objects.get(nettype = "WiFi지하철", district=i).KTUL)))
         except:
             wifitrainlastul.append("-")
     try:
-        wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+        wifitraindl.append(int(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0)))
     except:
         wifitraindl.append("-")
     try:
-        wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(center='서울강북')|Q(center='서울강남')|Q(center='경기남부')|Q(center='경기서부')|Q(center='경기북부'))
-                                                             &Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+        wifitraindl.append(int(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(center='서울강북')|Q(center='서울강남')|Q(center='경기남부')|Q(center='경기서부')|Q(center='경기북부'))
+                                                             &Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0)))
     except:
         wifitraindl.append("-")
     try:
-        wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+        wifitrainul.append(int(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0)))
     except:
         wifitrainul.append("-")
     try:
-        wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(center='서울강북')|Q(center='서울강남')|Q(center='경기남부')|Q(center='경기서부')|Q(center='경기북부'))
-                                                             &Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+        wifitrainul.append(int(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&(Q(center='서울강북')|Q(center='서울강남')|Q(center='경기남부')|Q(center='경기서부')|Q(center='경기북부'))
+                                                             &Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0)))
     except:
         wifitrainul.append("-")
     for i in train_list:
         try:
-            wifitraindl.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(center=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],1))
+            wifitraindl.append(int(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(center=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("downloadBandwidth"))["downloadBandwidth__avg"],0)))
         except:
             wifitraindl.append("-")
         try:
-            wifitrainul.append(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(center=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],1))
+            wifitrainul.append(int(round(LastMeasDayClose.objects.filter(Q(nettype = "WiFi")&Q(center=i)&Q(detailadd='지하철')&Q(measdate__range=[firstday,hodate])).aggregate(Avg("uploadBandwidth"))["uploadBandwidth__avg"],0)))
         except:
             wifitrainul.append("-")
 
 #금일 측정 결과 
     tresult5g = LastMeasDayClose.objects.filter((Q(nettype = "5G NSA")|Q(nettype = "5G SA")|Q(nettype = "5G 공동망"))&Q(measdate = hodate))
-    tresult5g = sorted(tresult5g, key = lambda x : custom_orderby_center(x))
     tresult5g = sorted(tresult5g, key = lambda x : custom_orderby_mopho(x))
+    tresult5g = sorted(tresult5g, key = lambda x : custom_orderby_center(x))
     tresultlte = LastMeasDayClose.objects.filter(nettype = "LTE", measdate = hodate)
-    tresultlte = sorted(tresultlte, key = lambda x : custom_orderby_center(x))
     tresultlte = sorted(tresultlte, key = lambda x : custom_orderby_mopho(x))
+    tresultlte = sorted(tresultlte, key = lambda x : custom_orderby_center(x))
     tresultwifi = LastMeasDayClose.objects.filter(nettype = "WiFi", measdate = hodate)
-    tresultwifi = sorted(tresultwifi, key = lambda x : custom_orderby_center(x))
     tresultwifi = sorted(tresultwifi, key = lambda x : custom_orderby_mopho(x))
+    tresultwifi = sorted(tresultwifi, key = lambda x : custom_orderby_center(x))
     tresultweak = LastMeasDayClose.objects.filter(nettype = "품질취약지역", measdate = hodate)
-    tresultweak = sorted(tresultweak, key = lambda x : custom_orderby_center(x))
     tresultweak = sorted(tresultweak, key = lambda x : custom_orderby_mopho(x))
+    tresultweak = sorted(tresultweak, key = lambda x : custom_orderby_center(x))
     weaklte3g = LastMeasDayClose.objects.filter(nettype = "품질취약지역", measdate = hodate).distinct().values_list('userInfo1',flat=True)
     todayweak = []
     todayweaklist = []
@@ -1038,9 +1038,11 @@ def get_report_cntx(request):
     report_firstday = firstdate.strftime('%Y%m%d') 
 # 측정완료
     measclose = LastMeasDayClose.objects.filter(measdate = hodate)
-    measclose = sorted(measclose, key = lambda x : custom_orderby_nettype(x))
+    measclose = sorted(measclose, key = lambda x : custom_orderby_mopho(x))
     measclose = sorted(measclose, key = lambda x : custom_orderby_center(x))
-    # measclose = sorted(measclose, key = lambda x : custom_orderby_mopho(x))
+    measclose = sorted(measclose, key = lambda x : custom_orderby_nettype(x))
+    measclose = sorted(measclose, key = lambda x : custom_orderby_nid(x))
+    
     context = { 
     'measclose':measclose,'networkid_list':networkid_list,'district_list':district_list,'center_list':center_list,'city_list':city_list ,'facility5g_list':facility5g_list,'traffic5g_list':traffic5g_list,'inbuildinglte_list':inbuildinglte_list,'themelte_list':themelte_list,
     'reportdate':reportdate,'hodate':hodate,'report_day':report_day,'report_firstday':report_firstday,
