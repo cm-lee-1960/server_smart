@@ -374,7 +374,7 @@ def out_measuring_range(mdata: MeasureCallData) -> str:
     # 'x': 296184.5342265043,
     # 'y': 165683.29710986698},
     # {'region_type': 'H',
-    # 'code': '4824059500',
+    # 'code': '48240595ㅁ00',
     # 'address_name': '경상남도 사천시 남양동',
     # 'region_1depth_name': '경상남도',
     # 'region_2depth_name': '사천시',
@@ -430,7 +430,7 @@ def call_staying_check(mdata: MeasureCallData) -> str:
         - 반환값: '측정단말 한곳에 머뭄' or None
     """
     # if mdata.phone.morphology.morphology is not "행정동":
-    if mdata.phone.phoneGroup.morphology.morphology is not "행정동":
+    if mdata.phone.phoneGroup.morphology.morphology != "행정동":
         return None
     
     message = None

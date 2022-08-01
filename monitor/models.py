@@ -359,7 +359,7 @@ def networkType_check(meastime, phone_no, networkId, userInfo1, userInfo2, netwo
     result = { 'networkId' : networkId, 'nr_check': False}
     measdate = str(meastime)[:8]
     # 1) WiFi, 3G 측정이 아닐때만 LTE 전환여부를 체크한다.
-    if networkId is not 'WiFi' and networkId is not '3G':
+    if networkId != 'WiFi' and networkId != '3G':
         # 해당 측정단말 번호로 현재 측정중인 5G 측정단말이 있는지 조회한다.
         qs = PhoneGroup.objects.filter(measdate=measdate, phone__phone_no=phone_no, networkId='5G', userInfo1=userInfo1,
                                        userInfo2=userInfo2)
@@ -704,11 +704,12 @@ class Phone(models.Model):
 
 
 ########################################################################################################################
-# 실시간 측정 데이터(콜 단위)
+# 실시간 측정 데이터(콜단위)
 # ----------------------------------------------------------------------------------------------------------------------
 # 2022.03.10 - 다른 항목 조건을 고려하거나 연산을 해서 가져오는 속성값을 가져오기 위한 함수들 정의(get)
 # 2022.03.15 - 주소 반환시 시/도와 구/군이 동일한 경우 한번만 주소값에 반환하도록 수정함
 # 2022.03.31 - get_xxx() 함수 -> Property Decorator(@property)로 변경
+# 2022.07.30 - 시도, 군구, 주소상세가 모두 "N"으로 넘어오는 경우 처리 모듈 추가
 #
 ########################################################################################################################
 class MeasureCallData(models.Model):
@@ -845,7 +846,7 @@ class MeasureCallData(models.Model):
             - 반환값: 주소(문자열)
 
         """
-        if self.addressDetail is not None:
+        if self.addressDetail is not None and self.addressDetail != 'N':
             if self.siDo in self.guGun:
                 address = f"{self.guGun} {self.addressDetail.split(' ')[0]}"
             else:

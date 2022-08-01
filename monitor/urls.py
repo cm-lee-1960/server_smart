@@ -3,8 +3,10 @@ from . import views
 
 app_name = 'monitor'
 urlpatterns = [
-    path("json/", views.receive_json), # 측정 데이터 처리
-    path("json_loc/", views.receive_json_loc), # 측정단말 위치정보 데이터 처리
+    # path("json/", views.receive_json), # 측정 데이터 처리(뷰 함수)
+    path("json/", views.ReceiveJson.as_view()), # 측정 데이터 처리(뷰 클리스 - REST Framework 토큰적용)
+    path("json_loc/", views.receive_json_loc), # 측정단말 위치정보 데이터 처리(뷰 함수) -- 협력사 토큰 적용 완료후 아래 코드 사용
+    # path("json_loc/", views.ReceiveJsonLoc.as_view()), # 측정단말 위치정보 데이터 처리(뷰 클리스 - REST Framework 토큰적용)
     path("end/<int:phonegroup_id>", views.measuring_end_view, name='measuring_end'), # 측정종료
     path("end/cancel/<int:phonegroup_id>", views.measuring_end_cancel_view), # 측정종료 취소
     path("end/union/<int:phonegroup_id>", views.phonegroup_union_view), # 폰그룹 합치기

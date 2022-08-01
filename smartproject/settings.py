@@ -89,6 +89,8 @@ INSTALLED_APPS = [
     'logs',
     'api',
 ]
+
+# REST Framework 토큰사용을 위한 환경설정
 RESTFRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -97,6 +99,7 @@ RESTFRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
